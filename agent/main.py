@@ -15,8 +15,11 @@ import atexit
 import getopt
 import os
 import time
+from . import event
+from . import vm
+import logging
 
-
+debug = False
 
 def usage():
     print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdi] [uri]"))
@@ -25,7 +28,6 @@ def usage():
     print("   --debug, -d  Print debug output")
     print("   --interval=SECS, -i  Configure statistics collection interval")
     print("   --timeout=SECS, -t  Quit after SECS seconds running")
-
 
 def main():
     try:
@@ -54,8 +56,36 @@ def main():
     else:
         uri = "qemu:///system"
 
-    # TO do main
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
 
+    logging.debug("Using uri '%s'" % uri)
+    ev = event.VMEventLoopNative(uri)
+    # Run a background thread with the event loop
+    ev.start()
+
+    vm_factory = vm.VMFactory(uri)
+    vc = vm_factory.vc
+
+    # Add 2 lifecycle callbacks to prove this works with more than just one
+    vc.domainEventRegister(event.domEventCallback, None)
+    vc.setKeepAlive(5, 3)
+
+    # The rest of your app would go here normally, but for sake
+    # of demo we'll just go to sleep. The other option is to
+    # run the event loop in your main thread if your app is
+    # totally event based.
+    count = 0
+    while event.run and (timeout is None or count < timeout):
+        count = count + 1
+        time.sleep(1)
+
+    vc.domainEventDeregister(ev.domain_event_callback)
+
+    vc.close()
+
+    # Allow delayed event loop cleanup to run, just for sake of testing
+    time.sleep(2)
 
 if __name__ == "__main__":
     main()
