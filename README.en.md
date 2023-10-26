@@ -3,20 +3,41 @@
 #### Description
 A lightweight virtualization performance monitoring analysis tool
 
-#### Software Architecture
-Software architecture description
-
 #### Installation
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  Install dependency packages
+   ```
+   $ yum install -y python3-libvirt
+   ```
+
+2.  Go to the project directory and install it using the pip command
+   ```
+   $ cd bstperf
+   $ sudo pip3 install -e .
+   ```
 
 #### Instructions
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  View help
+   ```
+   $ vm-analyzer-agent --help
+   usage: vm-analyzer-agent [-hdi] [uri]
+      uri will default to qemu:///system
+      --help, -h   Print this help message
+      --debug, -d  Print debug output
+      --interval=SECS, -i  Configure statistics collection interval
+      --timeout=SECS, -t  Quit after SECS seconds running
+   ```
+
+2.  Execute the vm-Analyser-Agent program
+   ```
+   # vm-analyzer-agent
+   ```
+
+3.  Enable debug mode
+   ```
+   # vm-analyzer-agent -d
+   ```
 
 #### Contribution
 
