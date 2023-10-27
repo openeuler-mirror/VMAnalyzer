@@ -66,3 +66,9 @@ def domEventCallback(self, conn, dom, event, detail, opauque):
     elif event == const.VM_DOMAIN_EVENT_DEFINED:
         if vm_id not in vm_factory.vms:
             vm_factory.addVM(vm_id, vm_info)
+
+def connCloseCallback(self, conn, reason, opaque):
+    logging.debug("connCloseCallback: %s: %s" % (conn.getURI(),
+                                                 const.CONNECTION_CLOSE_REASON_STRINGS[reason]))
+    global run
+    run = False
