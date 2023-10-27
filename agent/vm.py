@@ -59,3 +59,19 @@ class VMFactory:
             logging.warning("No such VM: %d" % vmID)
             return
         del self.__vms[vmID]
+
+def scanActiveVMs():
+    vm_factory = VMFactory()
+    for dom in vm_factory.vc.listAllDomains():
+        if dom.ID() == -1:
+            continue
+        logging.debug("Domain %s(%s), UUID %s" % (dom.name(), dom.ID(), dom.UUIDString()))
+        vm_id = dom.ID()
+        # FIXME, We need get analyzers info by libvirt api
+        vm_info = {
+            'uuid': dom.UUIDString(),
+            'name': dom.name(),
+            'cpu_util': 0
+        }
+        if vm_id not in vm_factory.vms:
+            vm_factory.addVM(vm_id, vm_info)
