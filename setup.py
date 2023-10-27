@@ -5,7 +5,8 @@ setup(
     packages=find_packages(),
     version='0.1.0',
     install_requires=[
-        'redis'
+        'redis',
+        'mock'
     ],
     entry_points={
         'console_scripts': [
