@@ -20,6 +20,9 @@ import time
 from . import event
 from . import vm
 import logging
+from . import storage
+from . import collector
+from utils import timer
 
 global debug = False
 
@@ -90,6 +93,11 @@ def main():
     # Scan for all active vms
     vm.scanActiveVMs()
 
+    # Collect VM statistics and save into redis storage
+    vm_storage = storage.VMStatsRedisStorage(vm_factory)
+    vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
+    collector_timer = timer.RepeatedTimer(interval, vm_collector.recordStats)
+
     # The rest of your app would go here normally, but for sake
     # of demo we'll just go to sleep. The other option is to
     # run the event loop in your main thread if your app is
@@ -103,6 +111,7 @@ def main():
     vc.unregisterCloseCallback()
     vc.close()
 
+    collector_timer.stop()
     # Allow delayed event loop cleanup to run, just for sake of testing
     time.sleep(2)
 
