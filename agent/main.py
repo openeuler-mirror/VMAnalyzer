@@ -87,6 +87,9 @@ def main():
     vc.domainEventRegister(event.domEventCallback, None)
     vc.setKeepAlive(5, 3)
 
+    # Scan for all active vms
+    vm.scanActiveVMs()
+
     # The rest of your app would go here normally, but for sake
     # of demo we'll just go to sleep. The other option is to
     # run the event loop in your main thread if your app is
