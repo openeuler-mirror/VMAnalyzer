@@ -22,6 +22,7 @@ from . import vm
 import logging
 from . import storage
 from . import collector
+from . import analyze
 from utils import timer
 
 global debug = False
@@ -97,6 +98,9 @@ def main():
     vm_storage = storage.VMStatsRedisStorage(vm_factory)
     vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
     collector_timer = timer.RepeatedTimer(interval, vm_collector.recordStats)
+
+    # Analyzer VM statistics
+    vm_analyzer = analyze.VMStatsAnalyze(vm_factory)
 
     # The rest of your app would go here normally, but for sake
     # of demo we'll just go to sleep. The other option is to
