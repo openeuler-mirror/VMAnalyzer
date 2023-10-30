@@ -48,6 +48,13 @@ class VMFactory:
             self.__vc = libvirt.openReadOnly(self.__uri)
         return self.__vc
 
+    def getVM(self, vmID):
+        vm = self.__vms.get(vmID)
+        if vm is None:
+            logging.warning("No such VM: %d" % vmID)
+            return {}
+        return vm
+
     def addVM(self, vmID, vmInfo):
         vm = self.__vms.get(vmID)
         if vm is not None:
@@ -62,6 +69,13 @@ class VMFactory:
             logging.warning("No such VM: %d" % vmID)
             return
         del self.__vms[vmID]
+
+    def setVMAnalyzers(self, vmID, vmAnalyzers):
+        vm = self.__vms.get(vmID)
+        if vm is None:
+            logging.warning("No such VM: %d" % vmID)
+            return
+        vm['analyzers'] = vmAnalyzers
 
 def scanActiveVMs():
     vm_factory = VMFactory()
