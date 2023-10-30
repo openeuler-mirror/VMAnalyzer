@@ -22,7 +22,9 @@ from . import vm
 import logging
 from . import storage
 from . import collector
+from . import view
 from . import analyze
+from . import reporter
 from utils import timer
 
 global debug = False
@@ -99,8 +101,11 @@ def main():
     vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
     collector_timer = timer.RepeatedTimer(interval, vm_collector.recordStats)
 
-    # Analyzer VM statistics
+    # Analyzer VM statistics and report info in duration period
     vm_analyzer = analyze.VMStatsAnalyze(vm_factory)
+    vm_viewer = view.VMAnalyzersConsoleView()
+    vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer)
+    reporter_timer = timer.RepeatedTimer(10, vm_reporter.startReport)
 
     # The rest of your app would go here normally, but for sake
     # of demo we'll just go to sleep. The other option is to
@@ -116,6 +121,7 @@ def main():
     vc.close()
 
     collector_timer.stop()
+    reporter_timer.stop()
     # Allow delayed event loop cleanup to run, just for sake of testing
     time.sleep(2)
 
