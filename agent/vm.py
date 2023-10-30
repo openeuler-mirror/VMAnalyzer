@@ -77,6 +77,13 @@ class VMFactory:
             return
         vm['analyzers'] = vmAnalyzers
 
+    def getVMAnalyzers(self, vmID):
+        vm = self.__vms.get(vmID)
+        if vm is None:
+            logging.warning("No such VM: %d" % vmID)
+            return None
+        return vm['analyzers']
+
 def scanActiveVMs():
     vm_factory = VMFactory()
     for dom in vm_factory.vc.listAllDomains():
