@@ -27,8 +27,6 @@ from . import analyze
 from . import reporter
 from utils import timer
 
-global debug = False
-
 def usage():
     print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdi] [uri]"))
     print("   uri will default to qemu:///system")
@@ -49,7 +47,9 @@ def main():
     # parameter initialization
     timeout = None
     interval = 1
-
+    global debug
+    debug = False
+    
     for opt, value in opts:
         if opt in ("-h", "--help"):
             usage()
