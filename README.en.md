@@ -12,7 +12,7 @@ A lightweight virtualization performance monitoring analysis tool
 
 2.  Go to the project directory and install it using the pip command
    ```
-   $ cd bstperf
+   $ cd VMAnalyzer
    $ sudo pip3 install -e .
    ```
 
