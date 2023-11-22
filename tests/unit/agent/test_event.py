@@ -14,8 +14,10 @@
 import unittest
 import mock
 from agent import event
-import libvirt
-
+try:
+    import libvirt
+except ImportError:
+    pass
 
 class TestVMEventLoopNative(unittest.TestCase):
     def test_start(self):

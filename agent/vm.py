@@ -12,9 +12,11 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 #######################################################################################
-
+try:
+    import libvirt
+except ImportError:
+    pass
 import logging
-import libvirt
 from utils import wrapper
 
 class VM:
