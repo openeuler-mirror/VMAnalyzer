@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# _*_coding: utf-8 _*_
+# -*- coding: utf-8 -*-
 #######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
@@ -11,6 +11,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 #######################################################################################
+
 import threading
 import time
 
@@ -23,7 +24,6 @@ class RepeatedTimer(object):
         self.args = args
         self.kwargs = kwargs
         self.is_running = False
-        self.next_call = time.time()
         self.start()
 
     def _run(self):
@@ -33,11 +33,12 @@ class RepeatedTimer(object):
 
     def start(self):
         if not self.is_running:
-            self.next_call += self.interval
-            self._timer = threading.Timer(self.next_call - time.time(), self._run)
+            # Schedule next call based on current time to avoid drift accumulation
+            self._timer = threading.Timer(self.interval, self._run)
             self._timer.start()
             self.is_running = True
 
     def stop(self):
-        self._timer.cancel()
+        if self._timer:
+            self._timer.cancel()
         self.is_running = False
