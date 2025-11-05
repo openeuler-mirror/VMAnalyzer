@@ -47,7 +47,8 @@ class VMEventLoopNative(VMEventLoop):
         thread.start()
 
 
-def domEventCallback(self, conn, dom, event, detail, opauque):
+
+def domEventCallback(conn, dom, event, detail, opaque):
     logging.debug("domEventCallback: Domain %s(%s) %s, UUID %s" %
                   (dom.name(), dom.ID(),
                    const.VM_DOMAIN_SUPPORTED_EVENTS[event],
@@ -68,7 +69,9 @@ def domEventCallback(self, conn, dom, event, detail, opauque):
         if vm_id not in vm_factory.vms:
             vm_factory.addVM(vm_id, vm_info)
 
-def connCloseCallback(self, conn, reason, opaque):
+
+
+def connCloseCallback(conn, reason, opaque):
     logging.debug("connCloseCallback: %s: %s" % (conn.getURI(),
                                                  const.CONNECTION_CLOSE_REASON_STRINGS[reason]))
     global run
