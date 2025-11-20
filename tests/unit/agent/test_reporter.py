@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# _*_coding: utf-8 _*_
+# -*- coding: utf-8 -*-
 #######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
@@ -11,6 +11,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 #######################################################################################
+
 import unittest
 import mock
 from agent import reporter
@@ -27,18 +28,21 @@ class TestVMAnalyzersReporter(unittest.TestCase):
 
     def test_startReport(self):
         vm_factory = vm.VMFactory()
+        vm_factory.addVM(self.test_id, self.test_vm)
+
+        # Create mock dependencies in a more compact and readable way
         vm_storage = mock.MagicMock()
         vm_analyzer = mock.MagicMock()
         vm_viewer = mock.MagicMock()
-        mock_stat = vm_storage.getStatsInfo
-        mock_analyzer = vm_analyzer.analyzeStats
-        mock_output = vm_viewer.output
-        vm_factory.addVM(self.test_id, self.test_vm)
+
         vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer)
         vm_reporter.startReport()
-        self.assertEqual(mock_stat.called, True)
-        self.assertEqual(mock_analyzer.called, True)
-        self.assertEqual(mock_output.called, True)
+
+        # Assert that all key methods were called during reporting
+        vm_storage.getStatsInfo.assert_called_once()
+        vm_analyzer.analyzeStats.assert_called_once()
+        vm_viewer.output.assert_called_once()
+
 
 if __name__ == "__main__":
-        unittest.main()
+    unittest.main()
