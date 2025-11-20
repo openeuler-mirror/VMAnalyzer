@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# _*_coding: utf-8 _*_
+# -*- coding: utf-8 -*-
 
 #######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
@@ -12,19 +12,23 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 #######################################################################################
+
 import logging
 import six
 import abc
 import json
 import copy
 
+
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
-    for v in list(new_util.values()):
-        if 'Current_cpu_utilization' in list(v.keys()):
+    # Iterate over dict values directly; no need to wrap in list() in Python 3
+    for v in new_util.values():
+        if 'Current_cpu_utilization' in v:
             if isinstance(v['Current_cpu_utilization'], float):
                 v['Current_cpu_utilization'] = '{:.2%}'.format(v['Current_cpu_utilization'])
     return new_util
+
 
 @six.add_metaclass(abc.ABCMeta)
 class VMAnalyzersView(object):
