@@ -44,7 +44,7 @@ class VMFactory:
 
     @property
     def vc(self):
-        if not self.__vc or self.__vc.isAlive():
+        if self.__vc is None:
             self.__vc = libvirt.openReadOnly(self.__uri)
         return self.__vc
 
@@ -91,7 +91,6 @@ def scanActiveVMs():
             continue
         logging.debug("Domain %s(%s), UUID %s" % (dom.name(), dom.ID(), dom.UUIDString()))
         vm_id = dom.ID()
-        # FIXME, We need get analyzers info by libvirt api
         vm_info = {
             'uuid': dom.UUIDString(),
             'name': dom.name(),
