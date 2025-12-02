@@ -141,3 +141,43 @@ else
     fi
 fi
 
+# 3、查看内核热补丁
+sudo which kpatch >/dev/null 2>&1
+if [ $? -eq 0 ];then
+    num=$(sudo kpatch list 2>/dev/null | grep enabled | wc -l)
+    if [ $num -eq 0 ];then
+        log "kernel_hot_patch" "不存在内核热补丁"
+    else
+        patches=`sudo kpatch list 2>/dev/null | grep enabled`
+        patches_list=`sudo echo "$patches" |awk -F"[" ' {print $1}'`
+        log "kernel_hot_patch" "已打$num个内核热补丁,补丁:$patches_list"
+    fi
+else
+    log "kernel_hot_patch" "不存在内核热补丁"
+fi
+
+# 4、漏洞检测
+if [[ -f $spectre_file ]]; then
+    sudo bash $spectre_file > $spectre_log
+
+    cve_num=`sudo grep -rn STATUS $spectre_log | wc -l`
+    status_num=`sudo grep -rn "NOT VULNERABLE" $spectre_log | wc -l`
+    if [[ $cve_num != $status_num ]]; then
+        log "spectre_meltdown" "安全漏洞Spectre与Meltdown检测异常"
+    else
+        log "spectre_meltdown" "安全漏洞Spectre与Meltdown检测正常"
+    fi
+else
+    log "spectre_meltdown" "没有安全漏洞Spectre与Meltdown检测脚本,跳过检测"
+fi
+
+# 5、查看tuned-adm配置
+tuned=`sudo tuned-adm active | awk -F": " '{print $2}'`
+log "tuned" "tuned配置:$tuned"
+}
+
+#五、查看sysctl配置
+check_sysctl_config_func() {
+check_config sysctl_config
+}
+
