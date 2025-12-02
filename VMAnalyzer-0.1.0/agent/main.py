@@ -29,18 +29,18 @@ debug = False
 
 
 def usage():
-    print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdi] [uri]"))
+    print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdmni] [uri]"))
     print("   uri will default to qemu:///system")
     print("   --help, -h   Print this help message")
     print("   --debug, -d  Print debug output")
     print("   --interval=SECS, -i  Configure statistics collection interval")
     print("   --timeout=SECS, -t  Quit after SECS seconds running")
     print("   --memoryUsage, -m  Print detected memory usage")
-
+    print("   --networkTraffic, -n  Print Interface Stats")
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdmi:", ["help", "debug", "memoryUsage","timeout="])
+        opts, args = getopt.getopt(sys.argv[1:], "hdmni:", ["help", "debug", "memoryUsage","networkTraffic","timeout="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
@@ -62,6 +62,8 @@ def main():
             interval = int(a)
         if o in ("-m", "--memoryUsage"):
             label = "memoryUsage"
+        if o in ("-n", "--networkTraffic"):
+            label = "networkTraffic"
 
 
     if len(args) >= 1:
