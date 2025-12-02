@@ -14,12 +14,15 @@ import logging
 import time
 import libvirt
 import libxml2
+import os
+
 
 class VMStatsCollector:
     def __init__(self, vmFactory, statsStorage, label):
         self.__vmFactory = vmFactory
         self.__statsStorage = statsStorage
         self.__label = label
+
 
     def recordStats(self):
         vm_factory = self.__vmFactory
@@ -165,6 +168,83 @@ class VMStatsCollector:
                     'name': vm['name'],
                     'blkStatus':status_dic,
                     'blkI/O':io_dic,
+                    'timestamp': int(timestamp)
+                }
+
+
+            elif label == "log_vm":
+
+                log_file_path = f"/var/log/libvirt/qemu/{vm['name']}.log"
+
+                if not os.path.exists(log_file_path):
+                    logging.error(f"Log file not found: {log_file_path}")
+                    continue
+
+                with open(log_file_path, 'r') as log_file:
+                    log_content = log_file.readlines()
+
+                current_status = dom.state()[0]
+                latest_event = None
+                latest_status = None
+                status_log = None
+                latest_status_line = None
+                latest_status_line_number = None
+                power_events = ["BOOT", "stop", "shutdown", "destroyed", "error", "SHUTDOWN", "REBOOT", "RESUME"]
+                labels_def = {
+                        "shutdown": "shutdown",
+                        "resume": "running",
+                        "error": "false",
+                        "stop": "paused",
+                        "destroy": "destroy"
+                    }
+
+                for line_number in range(len(log_content) - 1, -1, -1):
+                    line = log_content[line_number]
+                    if "event" in line and latest_event is None:
+                        event_start = line.find('"event":') + len('"event":') + 2
+                        event_end = line.find('"', event_start)
+                        latest_event = line[event_start:event_end].strip()
+
+                    if latest_status is None:
+                        if "shutdown" in line or "SHUTDOWN" in line:
+                            latest_status = labels_def['shutdown']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif "RESUME" in line:
+                            latest_status = labels_def['resume']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif "error" in line:
+                            latest_status = labels_def['error']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif "stop" in line:
+                            latest_status = labels_def['stop']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif "destroy" in line:
+                            latest_status = labels_def['destroy']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif any(event in line for event in power_events):
+                            latest_status = "status=other"
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+
+                    # Stop looking if we have both event and status
+                    if latest_status and latest_status_line_number is not None:
+                       latest_status_log = f"log_state:{latest_status} line:{latest_status_line_number} state_line:{latest_status_line}"
+
+
+                    if latest_event and latest_status:
+                        break
+
+                stats_info[id] = {
+                    'uuid': vm['uuid'],
+                    'name': vm['name'],
+                    'current_state': current_status,
+                    'latest_event': latest_event,
+                    'state_log': latest_status_log,
                     'timestamp': int(timestamp)
                 }
 

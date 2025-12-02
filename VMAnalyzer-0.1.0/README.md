@@ -65,3 +65,50 @@ usage: vm-analyzer-agent [-hdi] [uri]
 {"xz-bc8.4": {"Current_mem_utilization": 47.1347, "TimeStamp": 1715050792}}
 
 ```
+
+#### 5. 开启网络流量检测策略：
+
+```
+
+# vm-analyzer-agent -n
+
+{"qh-bc8.4": {"interfaceAddresses": {"vnet1": "52:88:99:34:fa:3a"}, "networkTraffic": {"vnet1": {"rx_bytes": 337411141, "rx_packets": 490359, "rx_errs": 0, "rx_drop": 0, "tx_bytes": 181581140, "tx_packets": 78410, "tx_errs": 0, "tx_drop": 0}}, "TimeStamp": 1715222742}}
+
+{"xz-bc8.4": {"interfaceAddresses": {"vnet9": "52:54:00:78:2f:1c", "vnet10": "52:54:00:9b:00:cf"}, "networkTraffic": {"vnet9": {"rx_bytes": 4818498, "rx_packets": 88505, "rx_errs": 0, "rx_drop": 0, "tx_bytes": 335078, "tx_packets": 2350, "tx_errs": 0, "tx_drop": 0}, "vnet10": {"rx_bytes": 4322460, "rx_packets": 80364, "rx_errs": 0, "rx_drop": 0, "tx_bytes": 440782, "tx_packets": 2431, "tx_errs": 0, "tx_drop": 0}}, "TimeStamp": 1715222735}}
+
+interfaceAddresses: 云主机网卡设备MACaddress信息
+networkTraffic： 云主机网卡设备网络流量信息
+
+```
+
+#### 6. 开启磁盘I/O检测策略：
+
+```
+
+# vm-analyzer-agent -b
+
+{"qh-win2019": {"blkStatus": {"vda": {"capacity": 32212254720, "allocation": 19854467072, "physical": 19854458880}}, "blkI/O": {"vda": {"read_bytes": 646335, "read_requests": 13906328064, "write_bytes": 246490, "write_requests": 2919450624, "errors": -1}}, "TimeStamp": 1715658674}}
+{"dlm-bc8.4": {"blkStatus": {"sdb": {"capacity": 10737418240, "allocation": 1443700736, "physical": 1443561472}}, "blkI/O": {"sdb": {"read_bytes": 10135, "read_requests": 206083072, "write_bytes": 277321, "write_requests": 1835865088, "errors": -1}}, "TimeStamp": 1715658667}}
+{"xz-bc8.4": {"blkStatus": {"sdb": {"capacity": 10737418240, "allocation": 3476307968, "physical": 1564475392}, "sdc": {"capacity": 5368709120, "allocation": 5775360, "physical": 4325376}}, "blkI/O": {"sdb": {"read_bytes": 10206, "read_requests": 259564544, "write_bytes": 49368, "write_requests": 409265152, "errors": -1}, "sdc": {"read_bytes": 234, "read_requests": 6680576, "write_bytes": 0, "write_requests": 0, "errors": -1}}, "TimeStamp": 1715658668}}
+
+blkStatus: 磁盘信息
+blkI/O： 磁盘I/O信息
+
+```
+
+#### 7. 开启虚机日志检测策略：
+
+```
+
+# vm-analyzer-agent --log_vm
+
+
+{"test_2110": {"current_state": 1, "latest_event": "NIC_RX_FILTER_CHANGED", "state_log": "line:18710 status line:2024-12-06T09:16:12.130037Z {\"timestamp\": {\"seconds\": 1733476572, \"microseconds\": 130025}, \"event\": \"RESUME\"}", "TimeStamp": 1733476681}}
+{"test_2110": {"current_state": 1, "latest_event": "NIC_RX_FILTER_CHANGED", "state_log": "line:18710 status line:2024-12-06T09:16:12.130037Z {\"timestamp\": {\"seconds\": 1733476572, \"microseconds\": 130025}, \"event\": \"RESUME\"}", "TimeStamp": 1733476682}}
+{"test_2110": {"current_state": 1, "latest_event": "NIC_RX_FILTER_CHANGED", "state_log": "line:18710 status line:2024-12-06T09:16:12.130037Z {\"timestamp\": {\"seconds\": 1733476572, \"microseconds\": 130025}, \"event\": \"RESUME\"}", "TimeStamp": 1733476683}}
+
+{"test1_2110": {"current_state": 1, "latest_event": "RESUME", "state_log": "line:7555 status line:2024-12-06T09:17:51.336992Z {\"timestamp\": {\"seconds\": 1733476671, \"microseconds\": 336980}, \"event\": \"RESUME\"}", "TimeStamp": 1733476681}}
+{"test1_2110": {"current_state": 1, "latest_event": "RESUME", "state_log": "line:7555 status line:2024-12-06T09:17:51.336992Z {\"timestamp\": {\"seconds\": 1733476671, \"microseconds\": 336980}, \"event\": \"RESUME\"}", "TimeStamp": 1733476682}}
+{"test1_2110": {"current_state": 1, "latest_event": "RESUME", "state_log": "line:7555 status line:2024-12-06T09:17:51.336992Z {\"timestamp\": {\"seconds\": 1733476671, \"microseconds\": 336980}, \"event\": \"RESUME\"}", "TimeStamp": 1733476683}}
+
+```
