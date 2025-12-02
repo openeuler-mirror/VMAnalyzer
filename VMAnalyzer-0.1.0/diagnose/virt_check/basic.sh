@@ -411,6 +411,36 @@ log "cpu_mode" "虚机cpu模式:$Cpu_Mode"
 
 }
 
+# 二、查看云主机的内存信息
+check_dom_mem(){
+#sudo echo "--------------------Domain memory infomation------------------------" >> $hostfile
+
+# 1、查看云主机大页配置
+huge_page_size=`sudo virsh dumpxml $1 | grep "page size" | awk -F "'" '{printf $2}'`
+if [ -n "$huge_page_size" ]; then
+    log "dom_huge_page" "虚机配置了大页"
+else
+    log "dom_huge_page" "虚机没有配置大页!"
+fi
+}
+
+# 三、查看云主机的调度信息
+check_dom_schedinfo(){
+#sudo echo "--------------------Domain schedinfo infomation------------------------" >> $hostfile
+bad_check=0
+for i in $schedinfo
+do
+    value=`sudo virsh schedinfo $1 | grep $i | awk -F ": " '{print $2}'`
+    if [[ $value != `eval echo '$'"${i}"` ]];then
+        bad_check=$((bad_check + 1))
+    fi
+done
+if [ $bad_check != 0 ];then
+     log "dom_schedinfo" "虚机的调度信息不是默认值"
+else
+     log "dom_schedinfo" "虚机的调度信息正常"
+fi
+}
 
 #---------------------------------------------------------------------------------
 #-------------------------------HOST & DOM----------------------------------------
@@ -476,12 +506,64 @@ sudo echo "{\"DOM_VCPU\":[" > $hostfile
 check_dom_vcpu $1 
 sudo echo "]," >> $hostfile
 
+sudo echo "\"DOM_MEM\":[" >> $hostfile
+check_dom_mem $1
+sudo echo "]," >> $hostfile
+
+sudo echo "\"DOM_SCHEDINFO\":[" >> $hostfile
+check_dom_schedinfo $1
+sudo echo "]" >> $hostfile
+sudo echo "}" >> $hostfile
+
 # Remove unnecessary symbols
 remove_symbols
 
 # Generate the json file used by bclinux_om
 generate_json
 }
+
+usage() {
+        echo "basic.sh: basic virtualization os config health check"
+        echo "options: -h,          help information"
+        echo "         -f <string>, host or domain"
+        echo "         -d <string>, If -f is used to set domain, set the domain name,id or uuid"
+}
+
+while getopts 'd:f:h:*' OPT; do
+        case $OPT in
+                "h")
+                        usage
+                        exit 0
+                        ;;
+                "f")
+                        flag=$OPTARG
+                        ;;
+                "d")
+                        domain=$OPTARG
+                        ;;
+                *)
+                        usage
+                        exit -1
+                ;;
+        esac
+done
+
+mk_log_dir
+
+case $flag in
+    host)
+        hostfile=${virt_dir}host_health_basic_`date "+%Y-%m-%d-%H-%M-%S"`.log
+        datafile=${virt_dir}host_health_basic.json
+	HOST
+    ;;
+    domain)
+        hostfile=${virt_dir}domain_health_basic_`date "+%Y-%m-%d-%H-%M-%S"`.log
+        datafile=${virt_dir}domain_health_basic.json
+    ;;
+    *)
+    usage
+    ;;
+esac
 
 # Exit success
 exit 0
