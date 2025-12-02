@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
 
-#######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -11,7 +10,6 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
-#######################################################################################
 import sys
 import atexit
 import getopt
@@ -27,39 +25,39 @@ from . import analyze
 from . import reporter
 from utils import timer
 
+debug = False
+
+
 def usage():
     print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdi] [uri]"))
     print("   uri will default to qemu:///system")
     print("   --help, -h   Print this help message")
     print("   --debug, -d  Print debug output")
-    print("   --timeout=SECS, -t  Quit after SECS seconds running")
     print("   --interval=SECS, -i  Configure statistics collection interval")
+    print("   --timeout=SECS, -t  Quit after SECS seconds running")
+
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdt:i:", ["help", "debug", "timeout=", "interval="])
+        opts, args = getopt.getopt(sys.argv[1:], "hdi:", ["help", "debug", "timeout="])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print ('Got a eror and exit, error is %s' % str(err))
+        print(str(err))  # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
-
-    # parameter initialization
     timeout = None
     interval = 1
-    global debug
-    debug = False
-    
-    for opt, value in opts:
-        if opt in ("-h", "--help"):
+    for o, a in opts:
+        if o in ("-h", "--help"):
             usage()
             sys.exit()
-        if opt in ("-d", "--debug"):
+        if o in ("-d", "--debug"):
+            global debug
             debug = True
-        if opt in ("-t", "--timeout"):
-            timeout = int(value)
-        if opt in ("-i", "--interval"):
-            interval = int(value)
+        if o in ("-t", "--timeout"):
+            timeout = int(a)
+        if o in ("-i", "--interval"):
+            interval = int(a)
 
     if len(args) >= 1:
         uri = args[0]
@@ -76,7 +74,6 @@ def main():
 
     vm_factory = vm.VMFactory(uri)
     vc = vm_factory.vc
-
     # Close connection on exit (to test cleanup paths)
     old_exitfunc = getattr(sys, 'exitfunc', None)
 
@@ -117,6 +114,7 @@ def main():
         time.sleep(1)
 
     vc.domainEventDeregister(ev.domain_event_callback)
+
     vc.unregisterCloseCallback()
     vc.close()
 
@@ -124,6 +122,7 @@ def main():
     reporter_timer.stop()
     # Allow delayed event loop cleanup to run, just for sake of testing
     time.sleep(2)
+
 
 if __name__ == "__main__":
     main()
