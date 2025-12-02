@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/sh
 # Program: 
 # This program is used to detect domain availability. 
 # History: 
@@ -7,7 +7,7 @@
 # The script parameter:
 # $0 : ./detect_domain_availability.sh
 # $1 : $domain-uuid|\$domain-id|\$domain-name
-# $2 : domain_state
+# $2 : domain_state|filesystem_status|oom_status|disk_status|interface_link|blk_error
 #  
 # The script returns the following values:
 # 0 : 结果正常
@@ -16,7 +16,7 @@
 
 # 使用例子
 usage() {
-    sudo echo $"usage: $0 {\$domain-uuid|\$domain-id|\$domain-name} {domain_state}"
+    sudo echo $"usage: $0 {\$domain-uuid|\$domain-id|\$domain-name} {domain_state|disk_status|interface_link|blk_error}"
     exit 2
 }
 
@@ -39,6 +39,26 @@ warn() {
     exit 2 
 }
 
+# 检查qga是否连接
+check_qga_state() {
+    qga_status=`sudo virsh dumpxml $1 |grep "qemu.guest_agent" |grep -w "connected"`
+    if [[ $? != 0 ]];then
+        warn "云主机没有连接qga，跳过检查"
+    fi
+    
+    sudo virsh qemu-agent-command $1 '{"execute":"guest-info"}' >/dev/null 2>&1
+    if [[ $? != 0 ]];then
+        warn "云主机没有连接qga，跳过检查"
+    fi
+}
+
+# 检查qga cmd是否支持
+check_qga_cmd() {
+    sudo echo $* |grep "has not been found" >/dev/null
+    if [[ $? == 0 ]];then
+        warn "云主机qga不支持命令${13}，跳过检查"
+    fi
+}
 
 ######项目检测######
 # 1、查看云主机的状态
@@ -58,6 +78,36 @@ domain_state_func() {
 }
 
 
+#2、查看网卡状态
+domain_interface_link_func() {
+    interface=`sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}'`
+    interface_num=`sudo echo $interface |awk -F " " '{print NF}'`
+    if [[ $interface_num -gt 0 ]];then
+        sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}' |grep -w "^-"
+        if [[ $? == 0 ]];then
+            warn "云主机的interface显示为-，无法判断网卡连接状态，请检查SDN版本"
+        else 
+            array=(${interface// / })
+            for var in ${array[@]}
+            do
+                interface_cmd=`sudo virsh domif-getlink $1 $var 2>&1`
+                sudo echo $interface_cmd |grep "Timed out" >/dev/null
+                if [[ $? == 0 ]];then
+                    error "请求超时，获取云主机网卡连接状态失败"
+                fi
+                interface_status=`sudo echo $interface_cmd | awk -F " " '{print $2}'`
+                if [[ $interface_status != "up" ]];then
+                    error "Interface ${var} 连接状态是 ${interface_status}" 
+                fi                
+            done
+        fi
+    else
+        error "云主机不存在网卡" 
+    fi
+
+    info "Interface ${array[*]} 连接状态是 UP"
+}
+
 # 入参检查、开始检测
 if [ $# -lt 2 ];then
     usage
@@ -66,6 +116,9 @@ fi
 case "$2" in
   domain_state)
     domain_state_func $1
+    ;;
+  interface_link)
+    domain_interface_link_func $1
     ;;
   *)
     usage
