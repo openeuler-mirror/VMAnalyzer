@@ -13,6 +13,7 @@
 import logging
 import time
 import libvirt
+import libxml2
 
 class VMStatsCollector:
     def __init__(self, vmFactory, statsStorage, label):
@@ -109,6 +110,63 @@ class VMStatsCollector:
                         'networkTraffic':if_traffic_dic,
                         'timestamp': int(timestamp)
                     }
+            elif label == "blkio":
+
+                xmldesc = dom.XMLDesc(0)
+                doc = libxml2.parseDoc(xmldesc)
+                context = doc.xpathNewContext()
+
+                devices =context.xpathEval("/domain/devices/*")
+
+                status_dic = {}
+                io_dic = {}
+
+                for device in devices:
+
+                    context.setContextNode(device)
+                    res = context.xpathEval("@type")
+
+                    if res is None or len(res) == 0:
+                        type = ""
+                    else:
+                        type = res[0].content
+
+                    if type == "file" or type == "block":
+
+                        res = context.xpathEval("target/@dev")
+
+                        if res is None or len(res) == 0:
+                            target_dev = ""
+                        else:
+                            target_dev = res[0].content
+
+                            target_dev_status = {}
+                            tmp = dom.blockInfo(target_dev)
+
+                            target_dev_status['capacity'] = tmp[0]
+                            target_dev_status['allocation'] = tmp[1]
+                            target_dev_status['physical'] = tmp[2]
+
+                            status_dic[target_dev] = target_dev_status
+
+                            target_dev_io = {}
+                            tmp = dom.blockStats(target_dev)
+
+                            target_dev_io['read_bytes'] = tmp[0]
+                            target_dev_io['read_requests'] = tmp[1]
+                            target_dev_io['write_bytes'] = tmp[2]
+                            target_dev_io['write_requests'] = tmp[3]
+                            target_dev_io['errors'] = tmp[4]
+
+                            io_dic[target_dev] = target_dev_io
+
+                stats_info[id] = {
+                    'uuid': vm['uuid'],
+                    'name': vm['name'],
+                    'blkStatus':status_dic,
+                    'blkI/O':io_dic,
+                    'timestamp': int(timestamp)
+                }
 
             else:
                 logging.error("wrong label")
