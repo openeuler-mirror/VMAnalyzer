@@ -33,6 +33,23 @@ function log()
     echo ""
 }
 
+function check_allocate_flag()
+{
+    if [ -f "/tmp/hugepage_flag" ]; then
+        error_num1=`cat /tmp/hugepage_flag`
+        if [ $error_num1 -ne 0 ]; then
+            err_info "allocate_hugepag script exec failed, please check."
+	    record_node_hugepages()
+            record_vm_hugepages()
+            exit 1
+        fi
+    else
+        err_info "cannot find allocate_flag, the allocate_hugepag script may have problems! "
+        record_node_hugepages()
+        record_vm_hugepages()
+        exit 1
+    fi
+}
 
 
 # 检测宿主机各节点大页数量
@@ -67,6 +84,31 @@ function record_node_hugepages()
     return 0
 
 }
+
+
+# 检测运行中虚机大页占用
+function record_vm_hugepages()
+{
+    running_vms=`virsh list --all | grep running |awk '{print $2}'`
+
+    if [ x"" = x"running_vms" ]; then
+        err_info "no running vms！"
+        return 1
+    fi
+
+
+    for vm in ${running_vms[@]}
+    do
+        pid=`ps -ef | grep qemu | grep $vm | awk '{print $2}'`
+        total_2M=`grep -B 11 'KernelPageSize: 2048 kB' /proc/$pid/smaps | grep "^Size:" | awk 'BEGIN{sum=0}{sum+=$2}END{print sum/1024}'`
+        total_1G=`grep -B 11 'KernelPageSize: 1048576 kB' /proc/$pid/smaps | grep "^Size:" | awk 'BEGIN{sum=0}{sum+=$2}END{print sum/1048576}'`
+
+	log "$vm occupied $total_2M M, occupied $total_1G G /n"
+
+    done
+
+}
+
 
 function get_number()
 {
@@ -156,10 +198,66 @@ function check_each_node_hugepage()
     return 0
 }
 
+function check_main()
+{
+    check_allocate_flag
+    sizelist=`cat ${HUGEPAGE_NODE_CONF_PATH} 2> /dev/null | grep "^[0-9].*" |awk -F= '{print $1}'| awk -F: '{print $3}' | awk '!a[$0]++'`
+
+    if [ $? -ne 0 ]; then
+        err_info "check -- error -- , get hugesize exec failed!"
+        return 1
+    fi
+
+    # /etc/Hugepages_node.conf内容为空报错检查
+    if [ x"" = x"$sizelist" ]; then
+        err_info "check -- error -- , hugapage size undefine , please checkout "
+        return 1
+    fi
+    for size in ${sizelist[@]}
+    do
+        if [ x"" = x"$size" ]; then
+            err_info "check -- error -- , wrong format, please checkout"
+        elif [ "$size" == "RSV" ]; then
+            continue
+        elif [ "$size" == "1G" ]; then
+            size_set=`cat /proc/cmdline | grep " *hugepagesz=1G"`
+            if [ -z "$size_set" ]; then
+               err_info "check -- error -- , /proc/cmdline do not have 1G hugepage size !"
+            else
+               check_each_node_hugepage 'hugepages-1048576kB'
+
+               error_num=$(($error_num+$?))
+               if [ $? -ne 0 ]; then
+                  err_info "check -- error -- , 1G hugepages check exception, please check the operation!"
+               fi
+            fi
+        elif [ "$size" == "2M" ]; then
+            size_set_2M=`cat /proc/cmdline | grep " *hugepagesz=2M"`
+            if [ -z "$size_set_2M" ]; then
+               err_info "check -- error -- , /proc/cmdline do not have 2M hugepage size !"
+            else
+               check_each_node_hugepage 'hugepages-2048kB'
+               if [ $? -ne 0 ]; then
+                  err_info "check -- error -- , 2M hugepages check exception, please check the operation!"
+               fi
+            fi
+        else
+            err_info "check -- error -- , wrong format $size, please checkout"
+        fi
+    done
+
+
+
+
+}
 
 if [ ! -e "${HUGEPAGE_NODE_CONF_PATH}" ]; then
         err_info "check -- error -- , ${HUGEPAGE_NODE_CONF_PATH} not exist, skip check "
         exit 1
 fi
 
+
+sum=0
+
+check_main
 
