@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
 
-#######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -11,7 +10,7 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
-#######################################################################################
+
 import libvirt
 import logging
 import threading
@@ -47,8 +46,7 @@ class VMEventLoopNative(VMEventLoop):
         thread.start()
 
 
-
-def domEventCallback(conn, dom, event, detail, opaque):
+def domEventCallback(self, conn, dom, event, detail, opauque):
     logging.debug("domEventCallback: Domain %s(%s) %s, UUID %s" %
                   (dom.name(), dom.ID(),
                    const.VM_DOMAIN_SUPPORTED_EVENTS[event],
@@ -70,8 +68,7 @@ def domEventCallback(conn, dom, event, detail, opaque):
             vm_factory.addVM(vm_id, vm_info)
 
 
-
-def connCloseCallback(conn, reason, opaque):
+def connCloseCallback(self, conn, reason, opaque):
     logging.debug("connCloseCallback: %s: %s" % (conn.getURI(),
                                                  const.CONNECTION_CLOSE_REASON_STRINGS[reason]))
     global run

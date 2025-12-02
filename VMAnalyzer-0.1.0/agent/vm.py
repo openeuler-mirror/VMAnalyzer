@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
 
-#######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -11,11 +10,10 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
-#######################################################################################
-
 import logging
 import libvirt
 from utils import wrapper
+
 
 class VM:
     def __init__(self, uuid):
@@ -44,7 +42,7 @@ class VMFactory:
 
     @property
     def vc(self):
-        if self.__vc is None:
+        if not self.__vc or self.__vc.isAlive():
             self.__vc = libvirt.openReadOnly(self.__uri)
         return self.__vc
 
@@ -84,6 +82,7 @@ class VMFactory:
             return None
         return vm['analyzers']
 
+
 def scanActiveVMs():
     vm_factory = VMFactory()
     for dom in vm_factory.vc.listAllDomains():
@@ -91,6 +90,7 @@ def scanActiveVMs():
             continue
         logging.debug("Domain %s(%s), UUID %s" % (dom.name(), dom.ID(), dom.UUIDString()))
         vm_id = dom.ID()
+        # FIXME, We need get analyzers info by libvirt api
         vm_info = {
             'uuid': dom.UUIDString(),
             'name': dom.name(),
@@ -98,3 +98,4 @@ def scanActiveVMs():
         }
         if vm_id not in vm_factory.vms:
             vm_factory.addVM(vm_id, vm_info)
+

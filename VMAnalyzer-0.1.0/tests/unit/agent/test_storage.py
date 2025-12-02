@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#######################################################################################
+# _*_coding: utf-8 _*_
+
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -10,12 +10,11 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
-#######################################################################################
-
 import unittest
 import random
 import copy
 from agent import storage
+import mock
 from agent import vm
 
 
@@ -61,11 +60,11 @@ class TestVMStatsRedisStorage(unittest.TestCase):
             vm_storage.saveStatsInfo({self.test_id: vm_stats})
         vm_stats = vm_storage.getStatsInfo(self.test_id, self.start_time, self.end_time)
         self.assertEqual(len(vm_stats), self.test_time)
-        # Use zip to iterates over expected and actuall stats in parallel —  avoids manual indexing.
-        for expected, actual in zip(self.stats_list, vm_stats):
-            self.assertDictEqual(actual, expected)
+        count = 0
+        for stats in self.stats_list:
+            self.assertDictEqual(vm_stats[count], stats)
+            count = count + 1
         vm_storage.sr.zremrangebyscore(self.test_vm['uuid'], self.start_time, self.end_time)
 
-
 if __name__ == "__main__":
-    unittest.main()
+        unittest.main()

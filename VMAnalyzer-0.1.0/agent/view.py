@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# _*_coding: utf-8 _*_
 
-#######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -11,24 +10,19 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
-#######################################################################################
-
 import logging
 import six
 import abc
 import json
 import copy
 
-
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
-    # Iterate over dict values directly; no need to wrap in list() in Python 3
-    for v in new_util.values():
-        if 'Current_cpu_utilization' in v:
+    for v in list(new_util.values()):
+        if 'Current_cpu_utilization' in list(v.keys()):
             if isinstance(v['Current_cpu_utilization'], float):
                 v['Current_cpu_utilization'] = '{:.2%}'.format(v['Current_cpu_utilization'])
     return new_util
-
 
 @six.add_metaclass(abc.ABCMeta)
 class VMAnalyzersView(object):
@@ -41,3 +35,11 @@ class VMAnalyzersConsoleView(VMAnalyzersView):
     def output(self, vmAnalyzersInfo):
         for analyzers_info in vmAnalyzersInfo:
             print(json.dumps(convert_to_percent(analyzers_info)))
+
+
+class VMAnalyzersDWView(VMAnalyzersView):
+    def output(self, vmAnalyzersInfo):
+        pass
+
+
+
