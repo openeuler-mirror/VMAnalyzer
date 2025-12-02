@@ -77,7 +77,6 @@ domain_state_func() {
     fi
 }
 
-
 #2、查看网卡状态
 domain_interface_link_func() {
     interface=`sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}'`
@@ -86,7 +85,7 @@ domain_interface_link_func() {
         sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}' |grep -w "^-"
         if [[ $? == 0 ]];then
             warn "云主机的interface显示为-，无法判断网卡连接状态，请检查SDN版本"
-        else 
+        else
             array=(${interface// / })
             for var in ${array[@]}
             do
@@ -97,16 +96,52 @@ domain_interface_link_func() {
                 fi
                 interface_status=`sudo echo $interface_cmd | awk -F " " '{print $2}'`
                 if [[ $interface_status != "up" ]];then
-                    error "Interface ${var} 连接状态是 ${interface_status}" 
-                fi                
+                    error "Interface ${var} 连接状态是 ${interface_status}"
+                fi
             done
         fi
     else
-        error "云主机不存在网卡" 
+        error "云主机不存在网卡"
     fi
 
     info "Interface ${array[*]} 连接状态是 UP"
 }
+
+#3、查看磁盘状态
+domain_disk_status_func() {
+    disk_cmd=`sudo virsh qemu-agent-command $1 '{"execute":"guest-user-check", "arguments": {"command-name":"check-fs", "command":"mount | egrep '/dev/[v,s]d'"}}' 2>&1`
+
+    sudo echo $disk_cmd |grep "Timed out" >/dev/null
+    if [[ $? == 0 ]];then
+        error "请求超时，获取云主机磁盘状态失败"
+    fi
+
+    check_qga_cmd $disk_cmd
+
+    disk_status=`sudo echo $disk_cmd | cut -d '(' -f2 | cut -d ')' -f1 |cut -d ',' -f1`
+    if [[ $disk_status == "ro" ]];then
+        error "云主机磁盘状态为只读"
+    else
+        info "云主机磁盘状态为读写" 
+    fi
+}
+
+#4、查看磁盘是否有error
+domain_blk_error_func() {
+    blk_error=`sudo virsh domblkerror $1 2>&1`
+    sudo echo $blk_error |grep "Timed out" >/dev/null
+    if [[ $? == 0 ]];then
+        error "请求超时，查询云主机磁盘是否有error失败"    
+    fi
+
+    if [[ $blk_error == "No errors found" ]];then
+        info "云主机磁盘没有error"
+    else
+        error "云主机磁盘存在error，error: ${blk_error}" 
+    fi
+
+}
+
 
 # 入参检查、开始检测
 if [ $# -lt 2 ];then
@@ -117,8 +152,15 @@ case "$2" in
   domain_state)
     domain_state_func $1
     ;;
+  disk_status)
+    check_qga_state $1
+    domain_disk_status_func $1
+    ;;
   interface_link)
     domain_interface_link_func $1
+    ;;
+  blk_error)
+    domain_blk_error_func $1
     ;;
   *)
     usage
