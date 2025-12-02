@@ -95,6 +95,17 @@ class VMStatsAnalyze(object):
                  }
                 analyzers_list.append({vm_info['name']: analyzers_info})
 
+        elif label == "blkio":
+            for i in range(len(vmStatsInfo) - 1):
+                assert vmStatsInfo[i]['uuid'] == vmStatsInfo[i+1]['uuid']
+
+                analyzers_info = {
+                    'blkStatus': vmStatsInfo[i]['blkStatus'],
+                    'blkI/O': vmStatsInfo[i]['blkI/O'],
+                    'TimeStamp': vmStatsInfo[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['name']: analyzers_info})
+
         else:
             logging.error("wrong label!")
 

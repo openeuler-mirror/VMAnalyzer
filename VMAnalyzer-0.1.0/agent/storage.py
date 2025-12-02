@@ -91,6 +91,20 @@ class VMStatsRedisStorage(VMStatsStorage):
                 except Exception as err:
                     logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
 
+        elif label == "blkio":
+            for vmID, vmStats in list(statsInfo.items()):
+                try:
+                    data_dict = {
+                        'id': vmID,
+                        'name': vmStats['name'],
+                        'blkStatus': vmStats['blkStatus'],
+                        'blkI/O': vmStats['blkI/O'],
+                        'timestamp': vmStats['timestamp']
+                    }
+                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+
         else:
             logging.error("error label!")
         pipe.execute()
@@ -143,6 +157,15 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'name': data_dict['name'],
                     'interfaceAddresses': data_dict['interfaceAddresses'],
                     'networkTraffic': data_dict['networkTraffic'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+
+            elif label == "blkio":
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'blkStatus': data_dict['blkStatus'],
+                    'blkI/O': data_dict['blkI/O'],
                     'timestamp': int(data_dict['timestamp'])
                 }
 
