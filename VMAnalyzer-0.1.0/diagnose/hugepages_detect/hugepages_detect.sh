@@ -33,6 +33,8 @@ function log()
     echo ""
 }
 
+
+
 # 检测宿主机各节点大页数量
 function record_node_hugepages()
 {
@@ -66,5 +68,98 @@ function record_node_hugepages()
 
 }
 
+function get_number()
+{
+    local nid=$1
+    local mem_type=$2
+
+    sum=0
+
+    itemlist=`cat ${HUGEPAGE_NODE_CONF_PATH} 2> /dev/null |grep -v '#' | grep "^$nid:.*:$mem_type="`
+    #itemlist=`cat ${HUGEPAGE_NODE_CONF_PATH} 2> /dev/null |grep -v '#' | grep "^$nid:.*:$mem_type"`
+
+    echo $itemlist
+    # HUGEPAGE_NODE_CONF_PATH size check
+    if [ x"" = x"$itemlist" ]; then
+
+        if [ "$mem_type" == "RSV" ]; then
+            return 0
+        else
+            log "$itemlist"
+            err_info "Hugepages_node.conf format has problem , please checkout"
+            return 1
+        fi
+    fi
+
+
+    for item in ${itemlist[@]}
+    do
+        number=`echo "$item" | awk -F= '{print $2}'`
+        echo "$number" | grep '^[0-9]\+$' | grep -v '^0[0-9]\+$' > /dev/null 2>&1
+
+        if [ $? -ne 0 ] || [ "$number" -gt "$(/usr/bin/getconf UINT_MAX)" ]; then
+            err_info "invalid item: $item"
+            #/etc/Hugepages_node.conf数值设定报错检查
+            err_info "please checkout hugepage setting count , the value should be [0 - max(uint32)]"
+            return 1
+
+        else
+            #log "valid item: $item"
+            sum=$(($sum+$number))
+
+        fi
+
+    done
+    log "node $1: $2 hugepage is $sum"
+    return 0
+}
+
+
+function check_each_node_hugepage()
+{
+    local hugepagesize=$1
+    numanode_size=`numactl --hardware | grep "node .* size" | wc -l`
+    for((i=0;i<$numanode_size;i++));do
+        nid=$i
+        if [ $hugepagesize == "hugepages-1048576kB" ]; then
+            get_number $nid "1G"
+            if [ $? -ne 0 ]; then
+                err_info "node $nid: invalid 1G configuration, please check the operation"
+                return 1
+            fi
+            num_1G_hugepages_sum=$sum
+
+            set_nr_hugepages=`cat "/sys/devices/system/node/node$nid/hugepages/$hugepagesize/nr_hugepages"`
+            if [ $num_1G_hugepages_sum -ne $set_nr_hugepages ]; then
+                err_info "node$nid/hugepages/$hugepagesize/nr_hugepages system max-used is $set_nr_hugepages"
+                return 1
+            fi
+
+        elif [ $hugepagesize == "hugepages-2048kB" ]; then
+            get_number $nid "2M"
+            if [ $? -ne 0 ]; then
+                err_info "node $nid: invalid 2M configuration!"
+                return 1
+            else
+                num_2M_hugepages_sum=$sum
+                set_nr_hugepages=`cat "/sys/devices/system/node/node$nid/hugepages/$hugepagesize/nr_hugepages"`
+                if [ $num_2M_hugepages_sum -ne $set_nr_hugepages ]; then
+                    err_info "node$nid/hugepages/$hugepagesz/nr_hugepages system max-used is $set_nr_hugepages"
+                    return 1
+                fi
+            fi
+        else
+            err_info "node $nid: invalid configuration,not 2M or 1G !"
+            return 1
+        fi
+    done
+    return 0
+}
+
+
+if [ ! -e "${HUGEPAGE_NODE_CONF_PATH}" ]; then
+        err_info "check -- error -- , ${HUGEPAGE_NODE_CONF_PATH} not exist, skip check "
+        exit 1
+fi
 
 
