@@ -1,0 +1,162 @@
+#!/bin/bash
+# Program:
+# Advanced analysis of vCPU scheduling latency using perf stat.
+# History:
+# Dinglimin Create the file.
+
+# 日志文件
+LOG_DIR="/var/log/vmanalyzer"
+LOG_FILE="$LOG_DIR/vcpu_sched_latency-$(date +%Y%m%d%H%M%S).log"
+
+# 创建日志目录
+mkdir -p "$LOG_DIR"
+
+# 日志函数
+log() {
+    local level=$1
+    local message=$2
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [$level] $message" | tee -a "$LOG_FILE"
+}
+
+# 检查虚拟机进程是否存在
+get_vm_pid() {
+    local vm_name=$1
+    vm_pid=$(pgrep -f "qemu.*$vm_name")
+    if [ -z "$vm_pid" ]; then
+        log "ERROR" "Failed to find QEMU process for VM: $vm_name"
+        exit 1
+    fi
+    echo "$vm_pid"
+}
+
+# 运行 perf stat 采集调度事件
+run_perf_stat() {
+    local vm_pid=$1
+    log "INFO" "Collecting vCPU scheduling events for PID: $vm_pid"
+    perf stat -e sched:sched_stat_sleep \
+              -e sched:sched_stat_iowait \
+              -e sched:sched_stat_blocked \
+              -e sched:sched_switch \
+              -e sched:sched_migrate_task \
+              -e sched:sched_wakeup \
+              -e sched:sched_wait_task \
+              -p "$vm_pid" -o "$LOG_FILE.tmp" sleep 10
+    if [ $? -ne 0 ]; then
+        log "ERROR" "Failed to collect perf data"
+        exit 1
+    fi
+}
+
+# 解析 perf 结果并生成报告
+parse_perf_results() {
+    local total_events=0
+    local sleep_events=0
+    local iowait_events=0
+    local blocked_events=0
+    local switch_events=0
+    local migrate_events=0
+    local wakeup_events=0
+    local wait_events=0
+
+    # 提取事件计数
+    sleep_events=$(grep "sched:sched_stat_sleep" "$LOG_FILE.tmp" | awk '{print $1}' | tr -d ',')
+    iowait_events=$(grep "sched:sched_stat_iowait" "$LOG_FILE.tmp" | awk '{print $1}' | tr -d ',')
+    blocked_events=$(grep "sched:sched_stat_blocked" "$LOG_FILE.tmp" | awk '{print $1}' | tr -d ',')
+    switch_events=$(grep "sched:sched_switch" "$LOG_FILE.tmp" | awk '{print $1}' | tr -d ',')
+    migrate_events=$(grep "sched:sched_migrate_task" "$LOG_FILE.tmp" | awk '{print $1}' | tr -d ',')
+    wakeup_events=$(grep "sched:sched_wakeup" "$LOG_FILE.tmp" | awk '{print $1}' | tr -d ',')
+    wait_events=$(grep "sched:sched_wait_task" "$LOG_FILE.tmp" | awk '{print $1}' | tr -d ',')
+
+    # 计算总事件数
+    total_events=$((sleep_events + iowait_events + blocked_events + switch_events + migrate_events + wakeup_events + wait_events))
+
+    # 计算占比
+    sleep_percent=$(echo "scale=2; $sleep_events*100/$total_events" | bc)
+    iowait_percent=$(echo "scale=2; $iowait_events*100/$total_events" | bc)
+    blocked_percent=$(echo "scale=2; $blocked_events*100/$total_events" | bc)
+    switch_percent=$(echo "scale=2; $switch_events*100/$total_events" | bc)
+    migrate_percent=$(echo "scale=2; $migrate_events*100/$total_events" | bc)
+    wakeup_percent=$(echo "scale=2; $wakeup_events*100/$total_events" | bc)
+    wait_percent=$(echo "scale=2; $wait_events*100/$total_events" | bc)
+
+    # 生成报告
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+    echo "vCPU Scheduling Latency Analysis Report" | tee -a "$LOG_FILE"
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "Event" "Count" "Percentage" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "sched_stat_sleep" "$sleep_events" "$(printf "%0.2f%%" "$sleep_percent")" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "sched_stat_iowait" "$iowait_events" "$(printf "%0.2f%%" "$iowait_percent")" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "sched_stat_blocked" "$blocked_events" "$(printf "%0.2f%%" "$blocked_percent")" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "sched_switch" "$switch_events" "$(printf "%0.2f%%" "$switch_percent")" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "sched_migrate_task" "$migrate_events" "$(printf "%0.2f%%" "$migrate_percent")" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "sched_wakeup" "$wakeup_events" "$(printf "%0.2f%%" "$wakeup_percent")" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "sched_wait_task" "$wait_events" "$(printf "%0.2f%%" "$wait_percent")" | tee -a "$LOG_FILE"
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+
+    # 分析高延迟原因
+    iowait_percent=$(printf "%0.2f%%" "$iowait_percent")
+    iowait_percent_int=${iowait_percent%.*}
+    if [ "$iowait_percent_int" -gt 5 ]; then
+        log "WARNING" "High I/O wait detected (${iowait_percent_int}%). Potential disk/network bottleneck."
+    fi
+
+    blocked_percent=$(printf "%0.2f%%" "$blocked_percent")
+    blocked_percent_int=${blocked_percent%.*}
+    if [ "$blocked_percent_int" -gt 2 ]; then
+        log "WARNING" "High resource blocking (${blocked_percent_int}%). Check for lock contention or memory pressure."
+    fi
+
+    switch_percent=$(printf "%0.2f%%" "$switch_percent")
+    switch_percent_int=${switch_percent%.*}
+    if [ "$switch_percent_int" -gt 10 ]; then
+        log "WARNING" "High context switch rate (${switch_percent_int}%). Check for excessive task switching."
+    fi
+
+    migrate_percent=$(printf "%0.2f%%" "$migrate_percent")
+    migrate_percent_int=${migrate_percent%.*}
+    if [ "$migrate_percent_int" -gt 1 ]; then
+        log "WARNING" "High task migration (${migrate_percent_int}%). Check for CPU affinity issues."
+    fi
+
+    wakeup_percent=$(printf "%0.2f%%" "$wakeup_percent")
+    wakeup_percent_int=${wakeup_percent%.*}
+    if [ "$wakeup_percent_int" -gt 5 ]; then
+        log "WARNING" "High task wakeup rate (${wakeup_percent_int}%). Check for wakeup storms."
+    fi
+}
+
+# 主函数
+main() {
+    local vm_name=$1
+
+    if [ -z "$vm_name" ]; then
+        log "ERROR" "Usage: $0 <VM_NAME>"
+        exit 1
+    fi
+
+    log "INFO" "Starting advanced vCPU scheduling analysis for VM: $vm_name"
+
+    # 获取虚拟机 PID
+    vm_pid=$(get_vm_pid "$vm_name")
+    log "INFO" "VM PID: $vm_pid"
+
+    # 运行 perf stat
+    run_perf_stat "$vm_pid"
+
+    # 解析结果
+    parse_perf_results
+
+    # 清理临时文件
+    rm -f "$LOG_FILE.tmp"
+
+    log "INFO" "Analysis completed. See report in: $LOG_FILE"
+}
+
+# 执行主函数
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <VM_NAME>"
+    exit 1
+fi
+
+main "$1"
+
