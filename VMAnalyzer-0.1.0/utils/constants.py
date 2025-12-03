@@ -3,7 +3,8 @@
 
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
-# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
 # THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
@@ -32,7 +33,7 @@ VM_DOMAIN_SUPPORTED_EVENTS = (VM_DOMAIN_EVENT_DEFINED,
                               VM_DOMAIN_EVENT_CRASHED)
 
 VM_DOMAIN_EVENT_CALLBACK = {
-    VM_DOMAIN_EVENT_CRASHED : 'add_vm'
+    VM_DOMAIN_EVENT_CRASHED : "add_vm"
 }
 
 CONNECTION_CLOSE_REASON_ERROR = "ERROR"
