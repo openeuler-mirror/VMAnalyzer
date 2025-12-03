@@ -3,7 +3,8 @@
 
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
-# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
 # THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
@@ -42,7 +43,10 @@ def usage():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdmnbi:", ["help", "debug", "memoryUsage","networkTraffic","blkio","timeout=","log_vm"])
+        opts, args = getopt.getopt(sys.argv[1:], "hdmnbi:",
+                                   ["help", "debug", "memoryUsage",
+                                    "networkTraffic", "blkio",
+                                    "timeout=", "log_vm"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
@@ -71,7 +75,6 @@ def main():
         if o in ("-l", "--log_vm"):
             label = "log_vm"
 
-
     if len(args) >= 1:
         uri = args[0]
     else:
@@ -80,7 +83,7 @@ def main():
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug("Using uri '%s'" % uri)
+    logging.debug("Using uri '%s'", uri)
     ev = event.VMEventLoopNative(uri)
     # Run a background thread with the event loop
     ev.start()
@@ -88,35 +91,37 @@ def main():
     vm_factory = vm.VMFactory(uri)
     vc = vm_factory.vc
     # Close connection on exit (to test cleanup paths)
-    old_exitfunc = getattr(sys, 'exitfunc', None)
+    old_exitfunc = getattr(sys, "exitfunc", None)
 
-    def exit():
-        logging.debug("Closing " + vc.getURI())
+    def ev_exit():
+        logging.debug("Closing %s", vc.getURI())
         vc.close()
-        if (old_exitfunc): old_exitfunc()
+        if old_exitfunc is not None and callable(old_exitfunc): 
+            old_exitfunc()
 
-    atexit.register(exit)
+    atexit.register(ev_exit)
 
-    vc.registerCloseCallback(event.connCloseCallback, None)
+    vc.registerCloseCallback(ev.conn_close_callback, None)
 
     # Add 2 lifecycle callbacks to prove this works with more than just one
-    vc.domainEventRegister(event.domEventCallback, None)
+    vc.domainEventRegister(ev.dom_event_callback, None)
     vc.setKeepAlive(5, 3)
 
     # Scan for all active vms
-    vm.scanActiveVMs()
+    vm.scan_active_vms()
 
     # Collect VM statistics and save into redis storage
     vm_storage = storage.VMStatsRedisStorage(vm_factory, label)
     vm_collector = collector.VMStatsCollector(vm_factory, vm_storage, label)
-    collector_timer = timer.RepeatedTimer(interval, vm_collector.recordStats)
+    collector_timer = timer.RepeatedTimer(interval, vm_collector.record_stats)
 
 
     # Analyzer VM statistics and report info in duration period
     vm_analyzer = analyze.VMStatsAnalyze(vm_factory, label)
     vm_viewer = view.VMAnalyzersConsoleView()
-    vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer, label)
-    reporter_timer = timer.RepeatedTimer(10, vm_reporter.startReport)
+    vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage,
+                                               vm_viewer, vm_analyzer, interval)
+    reporter_timer = timer.RepeatedTimer(10 * interval, vm_reporter.start_report)
 
     # The rest of your app would go here normally, but for sake
     # of demo we'll just go to sleep. The other option is to
@@ -127,7 +132,7 @@ def main():
         count = count + 1
         time.sleep(1)
 
-    vc.domainEventDeregister(ev.domain_event_callback)
+    vc.domainEventDeregister(ev.dom_event_callback)
 
     vc.unregisterCloseCallback()
     vc.close()

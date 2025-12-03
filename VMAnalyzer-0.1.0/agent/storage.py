@@ -3,7 +3,8 @@
 
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
-# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
 # THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
@@ -21,135 +22,167 @@ from utils import wrapper
 
 @six.add_metaclass(abc.ABCMeta)
 class VMStatsStorage(object):
+    """
+    An abstract base class defining the interface for storing and retrieving
+    virtual machine statistics information.
+
+    This class serves as a blueprint for any concrete implementations
+    that are responsible for managing
+    the storage and retrieval of statistics related to virtual machines.
+    Subclasses must implement
+    the abstract methods defined here to provide the actual functionality.
+    """
     @abc.abstractmethod
-    def saveStatsInfo(self, statsInfo):
+    def save_stats_info(self, stats_info):
         pass
 
     @abc.abstractmethod
-    def getStatsInfo(self, vm, startTimestamp, endTimestamp):
+    def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
         pass
 
 
 @wrapper.singleton
 class VMStatsRedisStorage(VMStatsStorage):
-    def __init__(self, vmFactory, label):
-        self.__pool = redis.ConnectionPool(host=config.REDIS_DATABASE_CONFIG['host'],
-                                           port=config.REDIS_DATABASE_CONFIG['port'])
+    """
+    A concrete implementation of the VMStatsStorage abstract base class
+    that uses Redis as the storage backend.
+
+    This class provides functionality to save and retrieve virtual machine
+    statistics information
+    in a Redis database. It is initialized with a VM factory and a label to
+    specify the type of statistics being handled.
+    """
+    def __init__(self, vm_factory, label):
+        self.__pool = redis.ConnectionPool(
+            host=config.REDIS_DATABASE_CONFIG['host'],
+            port=config.REDIS_DATABASE_CONFIG['port'])
         self.__sr = redis.StrictRedis(connection_pool=self.__pool)
-        self.__vmFactory = vmFactory
+        self.__vm_factory = vm_factory
         self.__label = label
 
     @property
     def sr(self):
         return self.__sr
 
-    def saveStatsInfo(self, statsInfo):
+    def save_stats_info(self, stats_info):
         pipe = self.__sr.pipeline()
         pipe.multi()
 
         label = self.__label
 
-        if label == "cpuUsage":
-            for vmID, vmStats in list(statsInfo.items()):
+        if label == 'cpuUsage':
+            for vm_id, vm_stats in list(stats_info.items()):
                 try:
                     data_dict = {
-                        'id': vmID,
-                        'name': vmStats['name'],
-                        'vcpus': vmStats['vcpus'],
-                        'cputime': vmStats['cputime'],
-                        'timestamp': vmStats['timestamp']
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'vcpus': vm_stats['vcpus'],
+                        'cputime': vm_stats['cputime'],
+                        'timestamp': vm_stats['timestamp']
                     }
-                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
                 except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
 
-        elif label == "memoryUsage":
-            for vmID, vmStats in list(statsInfo.items()):
+        elif label == 'memoryUsage':
+            for vm_id, vm_stats in list(stats_info.items()):
                 try:
                     data_dict = {
-                        'id': vmID,
-                        'name': vmStats['name'],
-                        'totalMemory': vmStats['totalMemory'],
-                        'usedMemory': vmStats['usedMemory'],
-                        'timestamp': vmStats['timestamp']
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'totalMemory': vm_stats['totalMemory'],
+                        'usedMemory': vm_stats['usedMemory'],
+                        'timestamp': vm_stats['timestamp']
                     }
-                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
                 except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
 
-        elif label == "networkTraffic":
-            for vmID, vmStats in list(statsInfo.items()):
+        elif label == 'networkTraffic':
+            for vm_id, vm_stats in list(stats_info.items()):
                 try:
                     data_dict = {
-                        'id': vmID,
-                        'name': vmStats['name'],
-                        'interfaceAddresses': vmStats['interfaceAddresses'],
-                        'networkTraffic': vmStats['networkTraffic'],
-                        'timestamp': vmStats['timestamp']
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'interfaceAddresses': vm_stats['interfaceAddresses'],
+                        'networkTraffic': vm_stats['networkTraffic'],
+                        'timestamp': vm_stats['timestamp']
                     }
-                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
                 except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
 
-        elif label == "blkio":
-            for vmID, vmStats in list(statsInfo.items()):
+        elif label == 'blkio':
+            for vm_id, vm_stats in list(stats_info.items()):
                 try:
                     data_dict = {
-                        'id': vmID,
-                        'name': vmStats['name'],
-                        'blkStatus': vmStats['blkStatus'],
-                        'blkI/O': vmStats['blkI/O'],
-                        'timestamp': vmStats['timestamp']
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'blkStatus': vm_stats['blkStatus'],
+                        'blkI/O': vm_stats['blkI/O'],
+                        'timestamp': vm_stats['timestamp']
                     }
-                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
                 except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
 
-        elif label == "log_vm":
-            for vmID, vmStats in list(statsInfo.items()):
+        elif label == 'log_vm':
+            for vm_id, vm_stats in list(stats_info.items()):
                 try:
                     data_dict = {
-                        'id': vmID,
-                        'name': vmStats['name'],
-                        'current_state': vmStats['current_state'],
-                        'latest_event': vmStats['latest_event'],
-                        'state_log': vmStats['state_log'],
-                        'timestamp': vmStats['timestamp']
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'current_state': vm_stats['current_state'],
+                        'latest_event': vm_stats['latest_event'],
+                        'state_log': vm_stats['state_log'],
+                        'timestamp': vm_stats['timestamp']
                     }
-                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
                 except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
 
 
         else:
-            logging.error("error label!")
+            logging.error('error label!')
         pipe.execute()
 
-    def getStatsInfo(self, vmID, startTimestamp, endTimestamp):
+    def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
         # VM has been shutdown or destroyed???
-        if vmID not in list(self.__vmFactory.vms.keys()):
+        if vm_id not in list(self.__vm_factory.vms.keys()):
             return {}
 
-        vm_info = self.__vmFactory.getVM(vmID)
+        vm_info = self.__vm_factory.get_vm(vm_id)
         label = self.__label
 
         data_list = []
         try:
             data_list = list(self.__sr.zrangebyscore(vm_info['uuid'],
-                                                     startTimestamp,
-                                                     endTimestamp,
+                                                     start_timestamp,
+                                                     end_timestamp,
                                                      withscores=True))
         except Exception as err:
-            logging.warning('Unable to get stats of %s: %s', vm_info['name'], err.message)
+            logging.warning('Unable to get stats of %s: %s',
+                            vm_info['name'], err.args)
 
         vm_stats = []
         for data in data_list:
+            stats_dict = {}
             data_dict = json.loads(data[0])
             # We won't touch this because the VM has been hard rebooted
-            if data_dict['id'] != vmID:
+            if data_dict['id'] != vm_id:
                 continue
 
-            if label == "cpuUsage":
+            if label == 'cpuUsage':
                 stats_dict = {
                     'uuid': vm_info['uuid'],
                     'name': data_dict['name'],
@@ -158,7 +191,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'timestamp': int(data_dict['timestamp'])
                 }
 
-            elif label == "memoryUsage":
+            elif label == 'memoryUsage':
                 stats_dict = {
                     'uuid': vm_info['uuid'],
                     'name': data_dict['name'],
@@ -167,7 +200,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'timestamp': int(data_dict['timestamp'])
                 }
 
-            elif label == "networkTraffic":
+            elif label == 'networkTraffic':
                 stats_dict = {
                     'uuid': vm_info['uuid'],
                     'name': data_dict['name'],
@@ -176,7 +209,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'timestamp': int(data_dict['timestamp'])
                 }
 
-            elif label == "blkio":
+            elif label == 'blkio':
                 stats_dict = {
                     'uuid': vm_info['uuid'],
                     'name': data_dict['name'],
@@ -185,7 +218,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'timestamp': int(data_dict['timestamp'])
                 }
 
-            elif label == "log_vm":
+            elif label == 'log_vm':
                 stats_dict = {
                     'uuid': vm_info['uuid'],
                     'name': data_dict['name'],
