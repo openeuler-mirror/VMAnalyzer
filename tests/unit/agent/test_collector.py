@@ -15,7 +15,10 @@ import unittest
 import mock
 from agent import collector
 from agent import vm
-import libvirt
+try:
+    import libvirt
+except ImportError:
+    pass
 
 
 class TestVMStatsCollector(unittest.TestCase):
