@@ -151,6 +151,7 @@ Hygon=`grep '^vendor_id'  "/proc/cpuinfo" | awk '{print $3}' | head -1|grep Hygo
 
 # 查看是否开启iommu
 iommu_flag_x86=`sudo cat /proc/cmdline|grep intel_iommu=on`
+amd_iommu_flag_x86=`sudo cat /proc/cmdline|grep amd_iommu=on`
 pt_flag=`sudo cat /proc/cmdline|grep iommu=pt`
 iommu_flag_aarch64=`sudo cat /proc/cmdline|grep iommu.passthrough=1`
 
@@ -161,10 +162,18 @@ if [ "${SYSTEM_TYPE}" == "aarch64" ]; then
         log "iommu" "已开启iommu"
     fi
 else
-    if [ -n "$iommu_flag_x86" ] && [ -n "$pt_flag" ]; then
-        log "iommu" "已开启iommu"
+    if [ "${Hygon}x" != "x" ]; then
+        if [ -n "$amd_iommu_flag_x86" ] && [ -n "$pt_flag" ]; then
+            log "iommu" "已开启iommu"
+        else
+            log "iommu" "未开启iommu,建议开启iommu"
+        fi
     else
-        log "iommu" "未开启iommu,建议开启iommu"
+        if [ -n "$iommu_flag_x86" ] && [ -n "$pt_flag" ]; then
+            log "iommu" "已开启iommu"
+        else
+            log "iommu" "未开启iommu,建议开启iommu"
+        fi
     fi
 fi
 
@@ -206,7 +215,8 @@ log "tuned" "tuned配置:$tuned"
 # 三、宿主机虚拟化版本
 check_virt_version_func() {
 #sudo echo "--------------------Virt Version------------------------" >> $hostfile
-qemu_ver=`sudo qemu-img --v | awk NR==1 | cut -d '(' -f 1 | egrep -o $version_regex`
+#qemu_ver=`sudo qemu-img --v | awk NR==1 | cut -d '(' -f 1 | egrep -o $version_regex`
+qemu_ver=`sudo rpm -qa qemu-img | egrep -o $version_regex`
 libvirt_ver=`sudo rpm -qa libvirt | egrep -o $version_regex`
 
 [[ $qemu_ver == "" ]] && qemu_ver="没有安装Qemu"
@@ -220,8 +230,10 @@ log "libvirt_version" "Libvirt版本:$libvirt_ver"
 check_virt_config_func() {
 #sudo echo "--------------------Virt Config------------------------" >> $hostfile
 # 查看最大打开文件数
-current_open_files=`sudo ulimit -n`
-if [[ $current_open_files -gt $Open_Files ]]; then
+#current_open_files=`sudo ulimit -n`
+libvirtd_pid=`pidof libvirtd`
+current_open_files=`cat /proc/$libvirtd_pid/limits | grep "Max open files" | awk '{print $4}'`
+if [[ "$current_open_files" == "$Open_Files" ]]; then
     log "$open_files" "最大打开文件个数:$current_open_files"
 else
     log "open_files" "最大打开文件个数:$current_open_files,建议设置大于或者等于$Open_Files"
@@ -237,11 +249,15 @@ check_config sysctl_config
 check_cpu_func(){
 #sudo echo "--------------------CPU information------------------------" >> $hostfile
 # 1、查看宿主机CPU是否开启睿频
-no_turbo_flag=`sudo cat /sys/devices/system/cpu/intel_pstate/no_turbo`
-if [[ $no_turbo_flag == "0" ]];then
-    log "turbo_boost" "睿频开启"
+if [ ! -e "/sys/devices/system/cpu/intel_pstate/no_turbo" ]; then
+    log "turbo_boost" "不支持睿频"
 else
-    log "turbo_boost" "睿频关闭"
+    no_turbo_flag=`sudo cat /sys/devices/system/cpu/intel_pstate/no_turbo`
+    if [[ $no_turbo_flag == "0" ]];then
+        log "turbo_boost" "睿频开启"
+    else
+        log "turbo_boost" "睿频关闭"
+    fi
 fi
 
 # 2、查看宿主机CPU模式
@@ -265,14 +281,14 @@ fi
 
 # 2、查看宿主机静态大页情况
 hug=`cat /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages`
-arr=($hug)
 hug_num=0
-for(( i=0;i<${#arr[@]};i++)) 
+
+while read -r line;
 do
-   if [[ ${array[i]} -ne 0 ]];then
-       hug_num=+1
+   if [[ $line -ne 0 ]];then
+       hug_num=$(($hug_num+1))
    fi
-done
+done<<<`cat /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages`
 if [[ $hug_num -ne 0 ]]; then
     log "hugepages" "已配置大页内存"
 else
