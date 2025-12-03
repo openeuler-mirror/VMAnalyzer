@@ -106,6 +106,18 @@ class VMStatsAnalyze(object):
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
 
+        elif label == "log_vm":
+            for i in range(len(vmStatsInfo) - 1):
+                assert vmStatsInfo[i]['uuid'] == vmStatsInfo[i+1]['uuid']
+
+                analyzers_info = {
+                    'current_state': vmStatsInfo[i]['current_state'],
+                    'latest_event': vmStatsInfo[i]['latest_event'],
+                    'state_log': vmStatsInfo[i]['state_log'],
+                    'TimeStamp': vmStatsInfo[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['name']: analyzers_info})
+
         else:
             logging.error("wrong label!")
 
