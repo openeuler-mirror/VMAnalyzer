@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# _*_coding: utf-8 _*_
+# -*- coding: utf-8 -*-
 #######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
@@ -11,6 +11,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 #######################################################################################
+
 import logging
 from utils import config
 
@@ -30,20 +31,27 @@ class VMStatsAnalyze(object):
             return
 
         analyzers_list = []
-        logging.debug('Length of VM stats: %d', len(vmStatsInfo))
-        
         last_cpu_util = 0.0
 
         for i in range(len(vmStatsInfo) - 1):
             assert vmStatsInfo[i]['uuid'] == vmStatsInfo[i+1]['uuid']
-            vcpu_count = vmStatsInfo[i]['vcpus']
+            try:
+                vcpu_count = int(vmStatsInfo[i]['vcpus'])
+                cputime_curr = int(vmStatsInfo[i]['cputime'])
+                cputime_next = int(vmStatsInfo[i+1]['cputime'])
+                ts_curr = int(vmStatsInfo[i]['timestamp'])
+                ts_next = int(vmStatsInfo[i+1]['timestamp'])
+            except (ValueError, KeyError, TypeError) as e:
+                logging.error("Invalid stat data for VM %s at index %d: %s", vm_info['name'], i, e)
+                continue
+
+            logging.debug('Length of VM stats: %d', len(vmStatsInfo))
             logging.debug('VM %s: previous cputime: %ld, latter cputime: %ld, '
                           'previous timestamp: %d, latter timestamp: %d',
-                          vm_info['name'], vmStatsInfo[i]['cputime'], vmStatsInfo[i+1]['cputime'],
-                          vmStatsInfo[i]['timestamp'], vmStatsInfo[i+1]['timestamp'])
+                          vm_info['name'], cputime_curr, cputime_next, ts_curr, ts_next)
 
-            delta_cputime = int(vmStatsInfo[i+1]['cputime']) - int(vmStatsInfo[i]['cputime'])
-            delta_timestamp = vmStatsInfo[i+1]['timestamp'] - vmStatsInfo[i]['timestamp']
+            delta_cputime = cputime_next - cputime_curr
+            delta_timestamp = ts_next - ts_curr
             if delta_timestamp <= 0:
                 logging.warning("We got wrong timestamp of VM: %s", vm_info['name'])
                 continue
@@ -57,7 +65,7 @@ class VMStatsAnalyze(object):
 
             analyzers_info = {
                 'Current_cpu_utilization': round(cpu_util, 4),
-                'TimeStamp': vmStatsInfo[i + 1]['timestamp']
+                'TimeStamp': ts_next
             }
             analyzers_list.append({vm_info['uuid']: analyzers_info})
 
