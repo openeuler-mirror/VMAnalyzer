@@ -3,7 +3,8 @@
 
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
-# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
 # THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
@@ -18,14 +19,23 @@ import os
 
 
 class VMStatsCollector:
-    def __init__(self, vmFactory, statsStorage, label):
-        self.__vmFactory = vmFactory
-        self.__statsStorage = statsStorage
+    """
+    A class responsible for collecting and recording various 
+    statistics of virtual machines (VMs).
+
+    This class interacts with a VM factory to get information about VMs, 
+    and then retrieves different types of statistics (such as CPU usage,
+    memory usage, network traffic, block I/O, and log information) for each VM.
+    The collected statistics are then saved to a specified storage.
+    """
+    def __init__(self, vm_factory, stats_storage, label):
+        self.__vm_factory = vm_factory
+        self.__stats_storage = stats_storage
         self.__label = label
 
 
-    def recordStats(self):
-        vm_factory = self.__vmFactory
+    def record_stats(self):
+        vm_factory = self.__vm_factory
         label = self.__label
 
         if vm_factory is None:
@@ -33,52 +43,58 @@ class VMStatsCollector:
 
         vc = vm_factory.vc
         stats_info = {}
-        for id, vm in list(vm_factory.vms.items()):
+        for vm_id, vm in list(vm_factory.vms.items()):
             try:
                 dom = vc.lookupByUUIDString(vm['uuid'])
             except Exception as err:
-                logging.debug('Unable to find VM: %s %s' % (vm['name'], err.message))
+                logging.debug('Unable to find VM: %s %s',
+                              vm['name'], err.args)
                 continue
             timestamp = time.time()
+
             dom_info = dom.info()
 
-            if label == "cpuUsage":
+            if label == 'cpuUsage':
 
-                stats_info[id] = {
+                stats_info[vm_id] = {
                     'uuid': vm['uuid'],
                     'name': vm['name'],
                     'vcpus': dom_info[3],
                     'cputime': dom_info[4],
                     'timestamp': int(timestamp)
                 }
-                logging.debug("recordStats: Name %s, UUID %s, vcpus %d, cputime %d, timestamp: %d"
-                          % (vm['name'], vm['uuid'], dom_info[3], dom_info[4], timestamp))
+                logging.debug(
+                    'recordStats: Name %s, UUID %s, '
+                    'vcpus %d, cputime %d, timestamp: %d',
+                    vm['name'], vm['uuid'], dom_info[3],
+                    dom_info[4], timestamp)
 
-            elif label == "memoryUsage":
+            elif label == 'memoryUsage':
 
-                totalMemory = int(dom_info[1])/1024
-                usedMemory = int(dom_info[2])/1024
+                total_memory = int(dom_info[1])/1024
+                used_memory = int(dom_info[2])/1024
 
-                stats_info[id] = {
+                stats_info[vm_id] = {
                     'uuid': vm['uuid'],
                     'name': vm['name'],
-                    'totalMemory': totalMemory,
-                    'usedMemory': usedMemory,
+                    'totalMemory': total_memory,
+                    'usedMemory': used_memory,
                     'timestamp': int(timestamp)
                }
 
-            elif label == "networkTraffic":
+            elif label == 'networkTraffic':
 
-                dom_ifaddr = dom.interfaceAddresses(libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE)
+                dom_ifaddr = dom.interfaceAddresses(
+                    libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE)
 
                 if not dom_ifaddr:
 
-                    logging.error("Get InterfaceAddresses Filed")
-                    stats_info[id] = {
+                    logging.error('Get InterfaceAddresses Failed')
+                    stats_info[vm_id] = {
                         'uuid': vm['uuid'],
                         'name': vm['name'],
-                        'interfaceAddresses':"null",
-                        'networkTraffic':"null",
+                        'interfaceAddresses':'null',
+                        'networkTraffic':'null',
                         'timestamp': int(timestamp)
                     }
 
@@ -89,9 +105,9 @@ class VMStatsCollector:
 
                     for k,v in dom_ifaddr.items():
 
-                        if_addr_dic[k] = v["hwaddr"]
+                        if_addr_dic[k] = v['hwaddr']
 
-                        traffic_data_raw = dom.interfaceStats(v["hwaddr"])
+                        traffic_data_raw = dom.interfaceStats(v['hwaddr'])
 
                         traffic_data = {
                                 'rx_bytes': traffic_data_raw[0],
@@ -106,20 +122,20 @@ class VMStatsCollector:
 
                         if_traffic_dic[k] = traffic_data
 
-                    stats_info[id] = {
+                    stats_info[vm_id] = {
                         'uuid': vm['uuid'],
                         'name': vm['name'],
                         'interfaceAddresses':if_addr_dic,
                         'networkTraffic':if_traffic_dic,
                         'timestamp': int(timestamp)
                     }
-            elif label == "blkio":
+            elif label == 'blkio':
 
                 xmldesc = dom.XMLDesc(0)
                 doc = libxml2.parseDoc(xmldesc)
                 context = doc.xpathNewContext()
 
-                devices =context.xpathEval("/domain/devices/*")
+                devices =context.xpathEval('/domain/devices/disk')
 
                 status_dic = {}
                 io_dic = {}
@@ -127,19 +143,19 @@ class VMStatsCollector:
                 for device in devices:
 
                     context.setContextNode(device)
-                    res = context.xpathEval("@type")
+                    res = context.xpathEval('@type')
 
                     if res is None or len(res) == 0:
-                        type = ""
+                        dev_type = ''
                     else:
-                        type = res[0].content
+                        dev_type = res[0].content
 
-                    if type == "file" or type == "block":
+                    if dev_type == 'file' or dev_type == 'block' or dev_type == 'network':
 
-                        res = context.xpathEval("target/@dev")
+                        res = context.xpathEval('target/@dev')
 
                         if res is None or len(res) == 0:
-                            target_dev = ""
+                            target_dev = ''
                         else:
                             target_dev = res[0].content
 
@@ -163,7 +179,7 @@ class VMStatsCollector:
 
                             io_dic[target_dev] = target_dev_io
 
-                stats_info[id] = {
+                stats_info[vm_id] = {
                     'uuid': vm['uuid'],
                     'name': vm['name'],
                     'blkStatus':status_dic,
@@ -172,74 +188,78 @@ class VMStatsCollector:
                 }
 
 
-            elif label == "log_vm":
+            elif label == 'log_vm':
 
                 log_file_path = f"/var/log/libvirt/qemu/{vm['name']}.log"
 
                 if not os.path.exists(log_file_path):
-                    logging.error(f"Log file not found: {log_file_path}")
+                    logging.error('Log file not found: %s', log_file_path)
                     continue
 
-                with open(log_file_path, 'r') as log_file:
+                with open(log_file_path, 'r', encoding='utf-8') as log_file:
                     log_content = log_file.readlines()
 
                 current_status = dom.state()[0]
                 latest_event = None
                 latest_status = None
-                status_log = None
+                latest_status_log = None
                 latest_status_line = None
                 latest_status_line_number = None
-                power_events = ["BOOT", "stop", "shutdown", "destroyed", "error", "SHUTDOWN", "REBOOT", "RESUME"]
+                power_events = ['BOOT', 'stop', 'shutdown', 'destroyed',
+                                'error', 'SHUTDOWN', 'REBOOT', 'RESUME']
                 labels_def = {
-                        "shutdown": "shutdown",
-                        "resume": "running",
-                        "error": "false",
-                        "stop": "paused",
-                        "destroy": "destroy"
+                        'shutdown': 'shutdown',
+                        'resume': 'running',
+                        'error': 'false',
+                        'stop': 'paused',
+                        'destroy': 'destroy'
                     }
 
                 for line_number in range(len(log_content) - 1, -1, -1):
                     line = log_content[line_number]
-                    if "event" in line and latest_event is None:
-                        event_start = line.find('"event":') + len('"event":') + 2
+                    if 'event' in line and latest_event is None:
+                        event_start = \
+                            line.find('"event":') + len('"event":') + 2
                         event_end = line.find('"', event_start)
                         latest_event = line[event_start:event_end].strip()
 
                     if latest_status is None:
-                        if "shutdown" in line or "SHUTDOWN" in line:
+                        if 'shutdown' in line or 'SHUTDOWN' in line:
                             latest_status = labels_def['shutdown']
                             latest_status_line = line.strip()
                             latest_status_line_number = line_number + 1
-                        elif "RESUME" in line:
+                        elif 'RESUME' in line:
                             latest_status = labels_def['resume']
                             latest_status_line = line.strip()
                             latest_status_line_number = line_number + 1
-                        elif "error" in line:
+                        elif 'error' in line:
                             latest_status = labels_def['error']
                             latest_status_line = line.strip()
                             latest_status_line_number = line_number + 1
-                        elif "stop" in line:
+                        elif 'stop' in line:
                             latest_status = labels_def['stop']
                             latest_status_line = line.strip()
                             latest_status_line_number = line_number + 1
-                        elif "destroy" in line:
+                        elif 'destroy' in line:
                             latest_status = labels_def['destroy']
                             latest_status_line = line.strip()
                             latest_status_line_number = line_number + 1
                         elif any(event in line for event in power_events):
-                            latest_status = "status=other"
+                            latest_status = 'status=other'
                             latest_status_line = line.strip()
                             latest_status_line_number = line_number + 1
 
                     # Stop looking if we have both event and status
                     if latest_status and latest_status_line_number is not None:
-                       latest_status_log = f"log_state:{latest_status} line:{latest_status_line_number} state_line:{latest_status_line}"
+                        latest_status_log = f'log_state:{latest_status} ' \
+                                        f'line:{latest_status_line_number} '\
+                                        f'state_line:{latest_status_line}'
 
 
                     if latest_event and latest_status:
                         break
 
-                stats_info[id] = {
+                stats_info[vm_id] = {
                     'uuid': vm['uuid'],
                     'name': vm['name'],
                     'current_state': current_status,
@@ -249,6 +269,6 @@ class VMStatsCollector:
                 }
 
             else:
-                logging.error("wrong label")
+                logging.error('wrong label')
 
-        self.__statsStorage.saveStatsInfo(stats_info)
+        self.__stats_storage.save_stats_info(stats_info)
