@@ -132,13 +132,13 @@ monitor() {
 		fi
 	fi
 
-	sudo ps aux  |grep qemu-kvm |grep $domain >/dev/null 2>&1
+	sudo ps aux  |grep qemu |grep $domain >/dev/null 2>&1
         if [ $? -ne 0 ]; then
                 echo "vm can not find: $domain" >> $datafile
                 exit -1
         fi  
 
-	pid=`ps aux  |grep qemu-kvm |grep $domain | awk '{print $2}'`
+	pid=`ps aux  |grep qemu |grep $domain | awk '{print $2}'`
 
 	collect_global_framegraph $pid
         if [ $? -ne 0 ]; then
