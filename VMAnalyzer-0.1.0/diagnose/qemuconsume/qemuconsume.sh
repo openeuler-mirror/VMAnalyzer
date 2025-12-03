@@ -67,6 +67,17 @@ perf_record() {
 }
 
 perf_convert() {
+        #install perl
+	command -v perl > /dev/null	
+	if [ $? -ne 0 ]; then
+             yum install -y perl
+	     command -v perl > /dev/null
+	     if [ $? -ne 0 ]; then
+                 echo "can not install perl" >> $datafile
+		 return -1
+             fi
+	fi
+
 	# Generating the call stack
 	perf script -i ${perf_data} >${script_out} 2>>$datafile
         if [ $? -ne 0 ]; then
@@ -110,6 +121,7 @@ collect_global_framegraph() {
 monitor() {
 	echo "####################################################################################" > $datafile
         echo ${CURDATE} >> $datafile
+	#install perf
         rpm -qa |grep -w "^perf"
 	if [ $? -ne 0 ]; then
 		yum install -y perf
@@ -135,7 +147,7 @@ monitor() {
                 exit -1
         fi
 
-	if [ !-e ${perf_data} ];then
+	if [ ! -e ${perf_svg} ];then
 		echo "Failed to generate cpu flamwgrapg" >> $datafile
                 clean_tmp
 		exit -1

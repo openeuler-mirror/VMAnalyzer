@@ -14,6 +14,11 @@ usage() {
         echo "         -d <string>, domain name, id or uuid"
 }
 
+if [ $# -eq 0 ]; then
+	usage
+	exit -1
+fi
+
 while getopts 'd:h:e:*' OPT; do
         case $OPT in
                 "h")
@@ -43,7 +48,7 @@ mk_log_dir() {
 check_project() {
     sudo echo -e "{\"domain_detect\": {" > $datafile
 
-    if [ $edition == "basic" ];then
+    if [[ $edition == "basic" ]];then
         check_arry=("${check_arry_basic[@]}")
     else
         check_arry=("${check_arry_premium[@]}")
@@ -61,7 +66,6 @@ check_project() {
     sudo echo "}}" >> $datafile
     sudo sed -i ':a;N;$!ba;s/\n//g' $datafile
 }
-
 
 mk_log_dir
 check_project 
