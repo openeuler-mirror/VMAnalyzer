@@ -70,9 +70,10 @@ class VMStatsCollector:
                     dom_info[4], timestamp)
 
             elif label == 'memoryUsage':
-
-                total_memory = int(dom_info[1])/1024
-                used_memory = int(dom_info[2])/1024
+                memstat = dom.memoryStats()
+                total_memory = int(memstat["actual"]) / 1024
+                available_memory = int(memstat["available"]) / 1024
+                used_memory = total_memory - available_memory
 
                 stats_info[vm_id] = {
                     'uuid': vm['uuid'],
