@@ -126,3 +126,20 @@ def get_disk_space():
     except Exception as e:
         return {"error": str(e)}
 
+# ────────────────────────────────────────────────────────────────
+# Main Entry Point (for manual testing)
+# ────────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    """
+    When run directly, this script collects and prints host environment info.
+
+    Use Case:
+        Quick inspection of test machine capabilities during development or CI setup.
+
+    Output Format:
+        Sorted key-value pairs, one per line.
+    """
+    print("Collecting host environment information...\n")
+    info = collect_host_environment()
+    for key, value in sorted(info.items()):
+        print(f"{key}: {value}")
