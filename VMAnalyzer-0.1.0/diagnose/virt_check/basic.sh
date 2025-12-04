@@ -176,8 +176,81 @@ tuned=`sudo tuned-adm active | awk -F": " '{print $2}'`
 log "tuned" "tuned配置:$tuned"
 }
 
+# 三、宿主机虚拟化版本
+check_virt_version_func() {
+#sudo echo "--------------------Virt Version------------------------" >> $hostfile
+qemu_ver=`sudo qemu-img --v | awk NR==1 | cut -d '(' -f 1 | egrep -o $version_regex`
+libvirt_ver=`sudo rpm -qa libvirt | egrep -o $version_regex`
+
+[[ $qemu_ver == "" ]] && qemu_ver="没有安装Qemu"
+[[ $libvirt_ver == "" ]] && libvirt_ver="没有安装Qemu"
+
+log "qemu_version" "Qemu版本:$qemu_ver"
+log "libvirt_version" "Libvirt版本:$libvirt_ver"
+}
+
+# 四、虚拟化配置检测
+check_virt_config_func() {
+#sudo echo "--------------------Virt Config------------------------" >> $hostfile
+# 查看最大打开文件数
+current_open_files=`sudo ulimit -n`
+if [[ $current_open_files -gt $Open_Files ]]; then
+    log "$open_files" "最大打开文件个数:$current_open_files"
+else
+    log "open_files" "最大打开文件个数:$current_open_files,建议设置大于或者等于$Open_Files"
+fi
+}
+
 #五、查看sysctl配置
 check_sysctl_config_func() {
 check_config sysctl_config
+}
+
+#六、CPU信息
+check_cpu_func(){
+#sudo echo "--------------------CPU information------------------------" >> $hostfile
+# 1、查看宿主机CPU是否开启睿频
+no_turbo_flag=`sudo cat /sys/devices/system/cpu/intel_pstate/no_turbo`
+if [[ $no_turbo_flag == "0" ]];then
+    log "turbo_boost" "睿频开启"
+else
+    log "turbo_boost" "睿频关闭"
+fi
+
+# 2、查看宿主机CPU模式
+cpufreq=`sudo cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+[[ $cpufreq == "" ]] && cpufreq="无法获取CPU性能模式"
+log "cpu_module" "cpu性能模式:$cpufreq"
+
+}
+
+#七、宿主机大页信息
+check_huge_page_func(){
+#sudo echo "--------------------Host hugepage infomation------------------------" >> $hostfile
+
+# 1、查看宿主机透明大页情况
+flag=`sudo cut -d "]" -f 1 /sys/kernel/mm/transparent_hugepage/enabled | awk -F "[" '{print $2}'`
+if [[ $flag == $THP_flag ]]; then
+    log "transparent_hugepage" "已开启透明大页"
+else
+    log "transparent_hugepage" "透明大页未开启"
+fi
+
+# 2、查看宿主机静态大页情况
+hug=`cat /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages`
+arr=($hug)
+hug_num=0
+for(( i=0;i<${#arr[@]};i++)) 
+do
+   if [[ ${array[i]} -ne 0 ]];then
+       hug_num=+1
+   fi
+done
+if [[ $hug_num -ne 0 ]]; then
+    log "hugepages" "已配置大页内存"
+else
+    log "hugepages" "没有配置大页内存"
+fi
+
 }
 
