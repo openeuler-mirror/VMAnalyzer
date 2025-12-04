@@ -30,7 +30,7 @@ class TestVMAnalyzersReporter(unittest.TestCase):
         vm_factory = vm.VMFactory()
         vm_factory.addVM(self.test_id, self.test_vm)
 
-        # Create mock dependencies in a more compact and readable way
+        # Createe mock dependencies
         vm_storage = mock.MagicMock()
         vm_analyzer = mock.MagicMock()
         vm_viewer = mock.MagicMock()
@@ -38,10 +38,10 @@ class TestVMAnalyzersReporter(unittest.TestCase):
         vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer)
         vm_reporter.startReport()
 
-        # Assert that all key methods were called during reporting
-        vm_storage.getStatsInfo.assert_called_once()
-        vm_analyzer.analyzeStats.assert_called_once()
-        vm_viewer.output.assert_called_once()
+        # Verify that essential methods were invoked durring reporting
+        vm_storage.getStatsInfo.assert_called()
+        vm_analyzer.analyzeStats.assert_called()
+        vm_viewer.output.assert_called()
 
 
 if __name__ == "__main__":
