@@ -38,10 +38,11 @@ def usage():
     print("   --memoryUsage, -m  Print detected memory usage")
     print("   --networkTraffic, -n  Print Interface Stats")
     print("   --blkio, -b Print Block I/O Tune")
+    print("   --log_vm, -l Print vm status log")
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdmnbi:", ["help", "debug", "memoryUsage","networkTraffic","blkio","timeout="])
+        opts, args = getopt.getopt(sys.argv[1:], "hdmnbi:", ["help", "debug", "memoryUsage","networkTraffic","blkio","timeout=","log_vm"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
@@ -67,6 +68,8 @@ def main():
             label = "networkTraffic"
         if o in ("-b", "--blkio"):
             label = "blkio"
+        if o in ("-l", "--log_vm"):
+            label = "log_vm"
 
 
     if len(args) >= 1:
@@ -133,6 +136,7 @@ def main():
     reporter_timer.stop()
     # Allow delayed event loop cleanup to run, just for sake of testing
     time.sleep(2)
+
 
 
 

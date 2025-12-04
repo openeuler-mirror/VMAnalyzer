@@ -21,7 +21,7 @@ def convert_to_percent(utilization):
     for v in list(new_util.values()):
         if 'Current_cpu_utilization' in list(v.keys()):
             if isinstance(v['Current_cpu_utilization'], float):
-                v['Current_cpu_utilization'] = '{:.2%}'.format(v['Current_cpu_utilization'])
+                v['Current_cpu_utilization'] = '{:.2}%'.format(v['Current_cpu_utilization'])
     return new_util
 
 @six.add_metaclass(abc.ABCMeta)
