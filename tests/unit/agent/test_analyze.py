@@ -32,29 +32,46 @@ class VMStatsAnalyze(unittest.TestCase):
         self.test_id = 168
         self.test_time = 60
         self.cpu_util = 0.2
-        test_stats = copy.deepcopy(self.base_stats)
+
+        # Initialize VM in factory
         vm_factory = vm.VMFactory()
         vm_info = {
-            'uuid': test_stats['uuid'],
-            'name': test_stats['name'],
+            'uuid': self.base_stats['uuid'],
+            'name': self.base_stats['name'],
             'cpu_util': self.cpu_util
         }
         vm_factory.addVM(self.test_id, vm_info)
-        # Generate simulated VM stats in 60 seconds
+
+        # Generate simulated VM stats over 60 seconds
         self.stats_list = []
         for i in range(self.test_time):
-            test_stats['cputime'] = test_stats['cputime'] + 100000 * test_stats['vcpus'] * int(self.cpu_util * 100)
-            test_stats['timestamp'] = test_stats['timestamp'] + 1
-            self.stats_list.append(copy.deepcopy(test_stats))
+            # Create a fresh copy of base stats for each time point
+            stat_entry = copy.deepcopy(self.base_stats)
+            # Simulate incremental cputime based on CPU utilization
+            stat_entry['cputime'] += 100000 * self.vm_vcpus * int(self.cpu_util * 100)
+            stat_entry['timestamp'] += i + 1  # increment timestamp by 1 per second
+            self.stats_list.append(stat_entry)
 
     def test_analyze(self):
         vm_factory = vm.VMFactory()
         vm_analyze = analyze.VMStatsAnalyze(vm_factory)
         vm_uuid = self.base_stats['uuid']
         vm_analyzers = vm_analyze.analyzeStats(self.test_id, self.stats_list)
+        
+        # Verify that the calculated CPU utilization matches the expected value
         for analyzers_info in vm_analyzers:
-            self.assertAlmostEqual(analyzers_info[vm_uuid]['Current_cpu_utilization'], self.cpu_util, places=5)
-        self.assertAlmostEqual(vm_factory.getVMAnalyzers(self.test_id), self.cpu_util, places=5)
+            self.assertAlmostEqual(
+                analyzers_info[vm_uuid]['Current_cpu_utilization'],
+                self.cpu_util,
+                places=5
+            )
+        # Also check the value stored in VMFactory
+        self.assertAlmostEqual(
+            vm_factory.getVMAnalyzers(self.test_id),
+            self.cpu_util,
+            places=5
+        )
+
 
 if __name__ == "__main__":
-        unittest.main()
+    unittest.main()
