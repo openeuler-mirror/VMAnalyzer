@@ -16,12 +16,15 @@ spectre_file=${TOOLS_ROOT}/spectre-meltdown-checker.sh
 spectre_log=${virt_dir}spectre-meltdown-checker-basic-`date "+%Y-%m-%d-%H-%M-%S"`.log
 default_config=${TOOLS_ROOT}/basic-config.env
 sysctl_config=${TOOLS_ROOT}/basic-config-sysctl.conf
+auth_file=${TOOLS_ROOT}/libvirt-auth-config.sh
+auth_log=${virt_dir}libvirt-auth-config-`date "+%Y-%m-%d-%H-%M-%S"`.log
+
 # cpu core
 final_core_list=()
 # 常见cpu支持的内存频率
 cpu_memory_frequency=('6248R 2933' '6148 2666' '5218 26667' '5118 2400')
 
-declare -A dic=([os_version]=系统版本 [kernel]=内核版本 [iommu]=Iommu配置 [numa]=Numa配置 [kernel_hot_patch]=内核热补丁 [spectre_meltdown]=幽灵熔断漏洞 [tuned]=Tuned配置 [qemu_version]=Qemu版本 [libvirt_version]=Libvirt版本 [open_files]=最大打开文件数 [sysctl_config]=sysctl配置 [turbo_boost]=cpu睿频 [cpu_module]=cpu模式 [transparent_hugepage]=透明大页 [hugepages]=静态大页 [memory_frequency]=内存频率 [vcpus_cross]=虚拟机vcpu是否跨numa [numa_mode]=虚拟机numa配置 [cpu_mode]=虚拟机cpu_mode [dom_huge_page]=虚拟机大页 [dom_schedinfo]=虚拟机调度)
+declare -A dic=([os_version]=系统版本 [kernel]=内核版本 [iommu]=Iommu配置 [numa]=Numa配置 [kernel_hot_patch]=内核热补丁 [spectre_meltdown]=幽灵熔断漏洞 [tuned]=Tuned配置 [qemu_version]=Qemu版本 [libvirt_version]=Libvirt版本 [open_files]=最大打开文件数 [sysctl_config]=sysctl配置 [turbo_boost]=cpu睿频 [cpu_module]=cpu模式 [transparent_hugepage]=透明大页 [hugepages]=静态大页 [memory_frequency]=内存频率 [libvirt_auth]=libvirt鉴权 [vcpus_cross]=虚拟机vcpu是否跨numa [numa_mode]=虚拟机numa配置 [cpu_mode]=虚拟机cpu_mode [dom_huge_page]=虚拟机大页 [dom_schedinfo]=虚拟机调度)
 
 SYSTEM_TYPE=`uname -p`
 source $default_config
@@ -60,6 +63,30 @@ if [ ! -n "$install1" ]; then
 fi
 return 0
 }
+
+
+#clean tmp files
+clean_tmp() {
+        local tmp_files=(
+                "${spectre_log}"
+                "${auth_log}"
+        )
+        for tmp_file in "${tmp_files[@]}"
+        do
+                ls ${tmp_file} &>/dev/null
+                if [ $? -eq 0 ];
+                then
+                        for file in `ls ${tmp_file}`
+                        do
+                                if [ -f $file ]; then
+                                    rm -rf $file
+                                fi
+                        done
+                fi
+        done
+}
+
+
 
 check_config() {
 good=0
@@ -308,7 +335,17 @@ fi
 
 #九、鉴权检测
 check_auth_func(){
-h libvirt-auth-config.sh check
+if [[ -f ${auth_file} ]]; then
+    sudo bash $auth_file check &>$auth_log
+    sudo cat $auth_log | grep -i "libvirt auth is set" &>/dev/null
+    if [ $? -eq 0 ];then
+        log "libvirt_auth" "libvirt开启鉴权"
+    else
+        log "libvirt_auth" "libvirt没有开启鉴权"
+    fi
+else
+    log "libvirt_auth" "没有libvirt鉴权检测脚本,跳过检测"
+fi
 }
 
 #---------------------------------------------------------------------------------
@@ -555,10 +592,13 @@ case $flag in
         hostfile=${virt_dir}host_health_basic_`date "+%Y-%m-%d-%H-%M-%S"`.log
         datafile=${virt_dir}host_health_basic.json
 	HOST
+        clean_tmp
     ;;
     domain)
         hostfile=${virt_dir}domain_health_basic_`date "+%Y-%m-%d-%H-%M-%S"`.log
         datafile=${virt_dir}domain_health_basic.json
+        Dom $domain
+	clean_tmp
     ;;
     *)
     usage
