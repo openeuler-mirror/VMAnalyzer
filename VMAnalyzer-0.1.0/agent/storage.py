@@ -67,11 +67,25 @@ class VMStatsRedisStorage(VMStatsStorage):
             for vmID, vmStats in list(statsInfo.items()):
                 try:
                     data_dict = {
-                            'id': vmID,
-                            'name': vmStats['name'],
-                            'totalMemory': vmStats['totalMemory'],
-                            'usedMemory': vmStats['usedMemory'],
-                            'timestamp': vmStats['timestamp']
+                        'id': vmID,
+                        'name': vmStats['name'],
+                        'totalMemory': vmStats['totalMemory'],
+                        'usedMemory': vmStats['usedMemory'],
+                        'timestamp': vmStats['timestamp']
+                    }
+                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+
+        elif label == "networkTraffic":
+            for vmID, vmStats in list(statsInfo.items()):
+                try:
+                    data_dict = {
+                        'id': vmID,
+                        'name': vmStats['name'],
+                        'interfaceAddresses': vmStats['interfaceAddresses'],
+                        'networkTraffic': vmStats['networkTraffic'],
+                        'timestamp': vmStats['timestamp']
                     }
                     pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
                 except Exception as err:
@@ -113,6 +127,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'cputime': data_dict['cputime'],
                     'timestamp': int(data_dict['timestamp'])
                 }
+
             elif label == "memoryUsage":
                 stats_dict = {
                     'uuid': vm_info['uuid'],
@@ -121,6 +136,16 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'usedMemory': data_dict['usedMemory'],
                     'timestamp': int(data_dict['timestamp'])
                 }
+
+            elif label == "networkTraffic":
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'interfaceAddresses': data_dict['interfaceAddresses'],
+                    'networkTraffic': data_dict['networkTraffic'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+
             else:
                 logging.error('wrong label!')
 
