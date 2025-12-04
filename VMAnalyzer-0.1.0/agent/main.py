@@ -15,14 +15,14 @@ import atexit
 import getopt
 import os
 import time
-from . import event
-from . import vm
+from agent import event
+from agent import vm
 import logging
-from . import storage
-from . import collector
-from . import view
-from . import analyze
-from . import reporter
+from agent import storage
+from agent import collector
+from agent import view
+from agent import analyze
+from agent import reporter
 from utils import timer
 
 debug = False
@@ -35,11 +35,12 @@ def usage():
     print("   --debug, -d  Print debug output")
     print("   --interval=SECS, -i  Configure statistics collection interval")
     print("   --timeout=SECS, -t  Quit after SECS seconds running")
+    print("   --memoryUsage, -m  Print detected memory usage")
 
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdi:", ["help", "debug", "timeout="])
+        opts, args = getopt.getopt(sys.argv[1:], "hdmi:", ["help", "debug", "memoryUsage","timeout="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
@@ -47,6 +48,7 @@ def main():
         sys.exit(2)
     timeout = None
     interval = 1
+    label = "cpuUsage"
     for o, a in opts:
         if o in ("-h", "--help"):
             usage()
@@ -58,6 +60,9 @@ def main():
             timeout = int(a)
         if o in ("-i", "--interval"):
             interval = int(a)
+        if o in ("-m", "--memoryUsage"):
+            label = "memoryUsage"
+
 
     if len(args) >= 1:
         uri = args[0]
@@ -94,14 +99,15 @@ def main():
     vm.scanActiveVMs()
 
     # Collect VM statistics and save into redis storage
-    vm_storage = storage.VMStatsRedisStorage(vm_factory)
-    vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
+    vm_storage = storage.VMStatsRedisStorage(vm_factory, label)
+    vm_collector = collector.VMStatsCollector(vm_factory, vm_storage, label)
     collector_timer = timer.RepeatedTimer(interval, vm_collector.recordStats)
 
+
     # Analyzer VM statistics and report info in duration period
-    vm_analyzer = analyze.VMStatsAnalyze(vm_factory)
+    vm_analyzer = analyze.VMStatsAnalyze(vm_factory, label)
     vm_viewer = view.VMAnalyzersConsoleView()
-    vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer)
+    vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer, label)
     reporter_timer = timer.RepeatedTimer(10, vm_reporter.startReport)
 
     # The rest of your app would go here normally, but for sake
@@ -122,6 +128,7 @@ def main():
     reporter_timer.stop()
     # Allow delayed event loop cleanup to run, just for sake of testing
     time.sleep(2)
+
 
 
 if __name__ == "__main__":

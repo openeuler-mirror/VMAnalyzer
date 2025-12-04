@@ -32,11 +32,12 @@ class VMStatsStorage(object):
 
 @wrapper.singleton
 class VMStatsRedisStorage(VMStatsStorage):
-    def __init__(self, vmFactory):
+    def __init__(self, vmFactory, label):
         self.__pool = redis.ConnectionPool(host=config.REDIS_DATABASE_CONFIG['host'],
                                            port=config.REDIS_DATABASE_CONFIG['port'])
         self.__sr = redis.StrictRedis(connection_pool=self.__pool)
         self.__vmFactory = vmFactory
+        self.__label = label
 
     @property
     def sr(self):
@@ -45,18 +46,39 @@ class VMStatsRedisStorage(VMStatsStorage):
     def saveStatsInfo(self, statsInfo):
         pipe = self.__sr.pipeline()
         pipe.multi()
-        for vmID, vmStats in list(statsInfo.items()):
-            try:
-                data_dict = {
-                    'id': vmID,
-                    'name': vmStats['name'],
-                    'vcpus': vmStats['vcpus'],
-                    'cputime': vmStats['cputime'],
-                    'timestamp': vmStats['timestamp']
-                }
-                pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
-            except Exception as err:
-                logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+
+        label = self.__label
+
+        if label == "cpuUsage":
+            for vmID, vmStats in list(statsInfo.items()):
+                try:
+                    data_dict = {
+                        'id': vmID,
+                        'name': vmStats['name'],
+                        'vcpus': vmStats['vcpus'],
+                        'cputime': vmStats['cputime'],
+                        'timestamp': vmStats['timestamp']
+                    }
+                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+
+        elif label == "memoryUsage":
+            for vmID, vmStats in list(statsInfo.items()):
+                try:
+                    data_dict = {
+                            'id': vmID,
+                            'name': vmStats['name'],
+                            'totalMemory': vmStats['totalMemory'],
+                            'usedMemory': vmStats['usedMemory'],
+                            'timestamp': vmStats['timestamp']
+                    }
+                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+
+        else:
+            logging.error("error label!")
         pipe.execute()
 
     def getStatsInfo(self, vmID, startTimestamp, endTimestamp):
@@ -65,6 +87,7 @@ class VMStatsRedisStorage(VMStatsStorage):
             return {}
 
         vm_info = self.__vmFactory.getVM(vmID)
+        label = self.__label
 
         data_list = []
         try:
@@ -82,13 +105,24 @@ class VMStatsRedisStorage(VMStatsStorage):
             if data_dict['id'] != vmID:
                 continue
 
-            stats_dict = {
-                'uuid': vm_info['uuid'],
-                'name': data_dict['name'],
-                'vcpus': data_dict['vcpus'],
-                'cputime': data_dict['cputime'],
-                'timestamp': int(data_dict['timestamp'])
-            }
+            if label == "cpuUsage":
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'vcpus': data_dict['vcpus'],
+                    'cputime': data_dict['cputime'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+            elif label == "memoryUsage":
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'totalMemory': data_dict['totalMemory'],
+                    'usedMemory': data_dict['usedMemory'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+            else:
+                logging.error('wrong label!')
+
             vm_stats.append(stats_dict)
         return vm_stats
-
