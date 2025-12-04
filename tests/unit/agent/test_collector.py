@@ -22,18 +22,24 @@ class TestVMStatsCollector(unittest.TestCase):
 
     @mock.patch.object(libvirt.virConnect, 'lookupByUUIDString')
     def test_recordStats(self, mock_lookup):
+        # Set up a mock VM in the factory
         vm_factory = vm.VMFactory()
         vm_info = {
             'uuid': "6717da86-fc51-474d-92fe-a76380c27c62",
             'name': "instance-000003f9"
         }
         vm_factory.addVM(0, vm_info)
+
+        # Createe a mock storage backend
         vm_storage = mock.MagicMock()
-        mock_save = vm_storage.saveStatsInfo
+
+        # Initialize collector and triggger stats recording
         vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
         vm_collector.recordStats()
-        self.assertTrue(mock_lookup.called)
-        self.assertTrue(mock_save.called)
+
+        # Verify that libvirt lookup and storage save were callled
+        mock_lookup.assert_called()          # Prefer assert_callled() over .callled
+        vm_storage.saveStatsInfo.assert_called()
 
 if __name__ == "__main__":
-        unittest.main()
+    unittest.main()
