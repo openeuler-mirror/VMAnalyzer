@@ -13,7 +13,6 @@
 #######################################################################################
 
 import unittest
-import random
 import copy
 from agent import storage
 from agent import vm
@@ -39,12 +38,13 @@ class TestVMStatsRedisStorage(unittest.TestCase):
         }
         test_stats = copy.deepcopy(self.base_stats)
         self.start_time = test_stats['timestamp']
-        # Generate simulated VM stats in 60 seconds
+        # Generate simulated VM stats over 60 seconds with deterministic increments
         self.stats_list = []
         self.test_time = 60
         for i in range(self.test_time):
-            test_stats['cputime'] = test_stats['cputime'] + random.randint(1, 50)
-            test_stats['timestamp'] = test_stats['timestamp'] + 1
+            # Use fixed increment instead of random to ensure test determinism
+            test_stats['cputime'] += 10  # was: random.randint(1, 50)
+            test_stats['timestamp'] += 1
             self.stats_list.append(copy.deepcopy(test_stats))
         self.end_time = test_stats['timestamp']
 
@@ -61,7 +61,7 @@ class TestVMStatsRedisStorage(unittest.TestCase):
             vm_storage.saveStatsInfo({self.test_id: vm_stats})
         vm_stats = vm_storage.getStatsInfo(self.test_id, self.start_time, self.end_time)
         self.assertEqual(len(vm_stats), self.test_time)
-        # Use zip to iterates over expected and actuall stats in parallel —  avoids manual indexing.
+        # Use zip to iterate over expected and actual stats in parallel — avoids manual indexing.
         for expected, actual in zip(self.stats_list, vm_stats):
             self.assertDictEqual(actual, expected)
         vm_storage.sr.zremrangebyscore(self.test_vm['uuid'], self.start_time, self.end_time)
