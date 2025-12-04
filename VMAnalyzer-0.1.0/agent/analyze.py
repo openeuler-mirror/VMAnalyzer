@@ -15,12 +15,15 @@ from utils import config
 
 
 class VMStatsAnalyze(object):
-    def __init__(self, vmFactory):
+    def __init__(self, vmFactory, label):
         self.__vmFactory = vmFactory
+        self.__label = label
 
     def analyzeStats(self, vmID, vmStatsInfo):
 
         vm_factory = self.__vmFactory
+        label = self.__label
+
         if vmID not in vm_factory.vms:
             return
         vm_info = vm_factory.getVM(vmID)
@@ -30,33 +33,57 @@ class VMStatsAnalyze(object):
 
         analyzers_list = []
         logging.debug('Length of VM stats: %d', len(vmStatsInfo))
-        for i in range(len(vmStatsInfo) - 1):
-            assert vmStatsInfo[i]['uuid'] == vmStatsInfo[i+1]['uuid']
-            # User can adjust the number of vcpus???
-            vcpu_count = vmStatsInfo[i]['vcpus']
-            logging.debug('VM %s: previous cputime: %ld, latter cputime: %ld, '
-                          'previous timestamp: %d, latter timestamp: %d',
-                          vm_info['name'], vmStatsInfo[i]['cputime'], vmStatsInfo[i+1]['cputime'],
-                          vmStatsInfo[i]['timestamp'], vmStatsInfo[i+1]['timestamp'])
 
-            # Calculate cpu utilization: %cpu = 100 × cpu_time_diff / (t × nr_cores × 10^9)
-            delta_cputime = int(vmStatsInfo[i+1]['cputime']) - int(vmStatsInfo[i]['cputime'])
-            delta_timestamp = vmStatsInfo[i+1]['timestamp'] - vmStatsInfo[i]['timestamp']
-            # We don't want wrong timestamp
-            if delta_timestamp <= 0:
-                logging.warning("We got wrong timestamp of VM: %s", vm_info['name'])
-                continue
-            cpu_util = delta_cputime * 100.0 / (delta_timestamp * vcpu_count * 1e9)
+        if label == "cpuUsage":
 
-            logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
-                          vm_info['name'], vcpu_count, cpu_util * 100)
+            for i in range(len(vmStatsInfo) - 1):
+                assert vmStatsInfo[i]['uuid'] == vmStatsInfo[i+1]['uuid']
+                # User can adjust the number of vcpus???
+                vcpu_count = vmStatsInfo[i]['vcpus']
+                logging.debug('VM %s: previous cputime: %ld, latter cputime: %ld, '
+                              'previous timestamp: %d, latter timestamp: %d',
+                              vm_info['name'], vmStatsInfo[i]['cputime'], vmStatsInfo[i+1]['cputime'],
+                              vmStatsInfo[i]['timestamp'], vmStatsInfo[i+1]['timestamp'])
 
-            # FIXME, whether to keep 2 decimal digits
-            analyzers_info = {
-                'Current_cpu_utilization': round(cpu_util, 4),
-                'TimeStamp': vmStatsInfo[i + 1]['timestamp']
-            }
-            analyzers_list.append({vm_info['uuid']: analyzers_info})
-        # store VM analyzers in DB
-        vm_factory.setVMAnalyzers(vmID, round(cpu_util, 4))
+                # Calculate cpu utilization: %cpu = 100 × cpu_time_diff / (t × nr_cores × 10^9)
+                delta_cputime = int(vmStatsInfo[i+1]['cputime']) - int(vmStatsInfo[i]['cputime'])
+                delta_timestamp = vmStatsInfo[i+1]['timestamp'] - vmStatsInfo[i]['timestamp']
+                # We don't want wrong timestamp
+                if delta_timestamp <= 0:
+                    logging.warning("We got wrong timestamp of VM: %s", vm_info['name'])
+                    continue
+                cpu_util = delta_cputime * 100.0 / (delta_timestamp * vcpu_count * 1e9)
+
+                logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
+                              vm_info['name'], vcpu_count, cpu_util * 100)
+
+                # FIXME, whether to keep 2 decimal digits
+                analyzers_info = {
+                    'Current_cpu_utilization': round(cpu_util, 4),
+                    'TimeStamp': vmStatsInfo[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['uuid']: analyzers_info})
+            # store VM analyzers in DB
+            vm_factory.setVMAnalyzers(vmID, round(cpu_util, 4))
+
+        elif label == "memoryUsage":
+
+            for i in range(len(vmStatsInfo) - 1):
+                assert vmStatsInfo[i]['uuid'] == vmStatsInfo[i+1]['uuid']
+
+                # Calculate Memory utilization: (usedMemory / totalMemory) * 100
+                mem_util = (int(vmStatsInfo[i]['usedMemory']) / int(vmStatsInfo[i]['totalMemory'])) * 100
+
+                logging.debug('VM %s: memory utilization: %.2f%%',vm_info['name'], mem_util)
+                analyzers_info = {
+                        'Current_mem_utilization': round(mem_util, 4),
+                        'TimeStamp': vmStatsInfo[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['name']: analyzers_info})
+            # store VM analyzers in DB
+            vm_factory.setVMAnalyzers(vmID, round(mem_util, 4))
+
+        else:
+            logging.error("wrong label!")
+
         return analyzers_list

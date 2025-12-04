@@ -15,14 +15,17 @@ from utils import config
 
 
 class VMAnalyzersReporter():
-    def __init__(self, vmFactory, statsStorage, analyzersViewer, statsAnalyzer):
+    def __init__(self, vmFactory, statsStorage, analyzersViewer, statsAnalyzer, label):
         self.__vmFactory = vmFactory
         self.__statsStorage = statsStorage
         self.__analyzersViews = analyzersViewer
         self.__statsAnalyzer = statsAnalyzer
+        self.__label = label
 
     def startReport(self):
         vm_factory = self.__vmFactory
+        label = self.__label
+
         if vm_factory is None:
             return
         end_time = time.time()
