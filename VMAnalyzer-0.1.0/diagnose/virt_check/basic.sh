@@ -311,6 +311,108 @@ check_auth_func(){
 h libvirt-auth-config.sh check
 }
 
+#---------------------------------------------------------------------------------
+#-------------------------------虚拟机--------------------------------------------
+Split_cpu(){
+cpu1=
+cpu2=
+Install_rpm "numactl"
+if [ $? != 0 ];then
+    return 1
+fi
+first_cpu=`virsh vcpupin $1 | awk -F " " 'NR==3 {print $2}' | cut -d '-' -f1`
+arr1=`numactl --hardware | grep cpus | awk -F ": "  '{print $2}' | grep  -w $first_cpu`
+num=`lscpu | grep -E 'CPU:|CPU\(s\)' | head -n 1 | awk -F " " '{print $NF}'`
+
+for((i=0;i<$num;i=i+1))
+do
+    cpu_arr[i]=1
+done
+
+for k in $arr1
+do
+    cpu_arr[$k]=0
+done
+
+sudo echo $2 | grep "-"
+if [ $? == 0 ]; then
+    cpu1=`echo $2 | cut -d '-' -f1`
+    cpu2=`echo $2 | cut -d '-' -f2`
+else
+    cpu1=`echo $2`
+fi
+
+if [ ! -n "$cpu2" ]; then
+    if [ ${cpu_arr[$cpu1]} == 1 ]; then
+        across_flag=0
+    fi
+else
+    for(( m = $cpu1 ; m <= $cpu2 ; m = m+1 ))
+    do
+        if [ ${cpu_arr[$m]} == 1 ]; then
+            across_flag=0
+            break
+        fi
+    done
+fi
+return 0
+}
+
+# 查看云主机的cpu是否跨numa
+Judge_across_numa(){
+cpuset=`sudo virsh emulatorpin $1 | awk -F " " 'NR>=3 {print $2}'`
+sudo virsh emulatorpin $1 | awk -F " " 'NR>=3 {print $2}' |grep ","
+if [ $? == 0 ]; then
+   OLD_IFS="$IFS"
+   IFS=","
+   arr=($cpuset)
+   IFS="$OLD_IFS"
+   for s in ${arr[@]}
+   do
+       Split_cpu $1 $s
+       if [ $? != 0 ]; then
+           across_flag=-1
+           break
+       fi
+       if [ $across_flag == 0 ]; then
+           break
+       fi
+   done 
+else
+   Split_cpu $1 $cpuset
+   if [ $? != 0 ]; then
+       across_flag=-1
+   fi
+fi
+
+if [ $across_flag == 0 ]; then
+    log "vcpus_cross" "虚机vcpu跨numa nodes!"
+elif [ $across_flag == -1 ]; then
+    log "vcpus_cross" "无法安装numactl包，跳过虚vcpu是否跨numa检测"
+else
+    log "vcpus_cross" "虚机vcpu不跨numa nodes!"
+fi
+}
+
+# 一、查看云主机的cpu信息
+check_dom_vcpu(){
+#sudo echo "--------------------Domain cpu infomation------------------------" >> $hostfile
+
+# 1、查看云主机的vcpu是否跨numa
+Judge_across_numa $1
+
+# 2、查看云主机里numa配置
+Numa_Mode=`sudo virsh numatune $1 | awk -F " " 'NR==1 {print $3}'`
+log "numa_mode" "虚机numa模式:$Numa_Mode"
+
+# 3、查看云主机的cpu mode
+Cpu_Mode=`sudo virsh dumpxml $1 |grep "cpu mode" |awk -F "'" '{print $2}'` 
+log "cpu_mode" "虚机cpu模式:$Cpu_Mode"
+
+}
+
+
+#---------------------------------------------------------------------------------
 #-------------------------------HOST & DOM----------------------------------------
 
 HOST(){
@@ -362,3 +464,24 @@ generate_json
 }
 
 
+Dom(){
+#echo "=========================Start collecting information========================" > $hostfile
+
+sudo virsh domstate $1
+if [ $? -ne 0 ]; then
+    sudo echo "vm can not find: $1" > $hostfile
+    exit -1
+fi
+sudo echo "{\"DOM_VCPU\":[" > $hostfile
+check_dom_vcpu $1 
+sudo echo "]," >> $hostfile
+
+# Remove unnecessary symbols
+remove_symbols
+
+# Generate the json file used by bclinux_om
+generate_json
+}
+
+# Exit success
+exit 0
