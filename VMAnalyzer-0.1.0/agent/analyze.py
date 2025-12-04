@@ -76,12 +76,24 @@ class VMStatsAnalyze(object):
 
                 logging.debug('VM %s: memory utilization: %.2f%%',vm_info['name'], mem_util)
                 analyzers_info = {
-                        'Current_mem_utilization': round(mem_util, 4),
-                        'TimeStamp': vmStatsInfo[i + 1]['timestamp']
+                    'Current_mem_utilization': round(mem_util, 4),
+                    'TimeStamp': vmStatsInfo[i + 1]['timestamp']
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
             # store VM analyzers in DB
             vm_factory.setVMAnalyzers(vmID, round(mem_util, 4))
+
+        elif label == "networkTraffic":
+
+            for i in range(len(vmStatsInfo) - 1):
+                assert vmStatsInfo[i]['uuid'] == vmStatsInfo[i+1]['uuid']
+
+                analyzers_info = {
+                    'interfaceAddresses': vmStatsInfo[i]['interfaceAddresses'],
+                    'networkTraffic': vmStatsInfo[i]['networkTraffic'],
+                    'TimeStamp': vmStatsInfo[i + 1]['timestamp']
+                 }
+                analyzers_list.append({vm_info['name']: analyzers_info})
 
         else:
             logging.error("wrong label!")
