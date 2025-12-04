@@ -69,25 +69,17 @@ def extract_affinity_from_output(output: str, vcpu_id: int) -> str:
     return ""
 
 def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
-    """
-    获取单个虚拟机的 vCPU 绑核信息
-    :param vm_name: 虚拟机名称
-    :param conn: libvirt 连接句柄（复用连接，提高效率）
-    :return: 单个虚拟机的绑核统计字典
-    """
     dom = None
     vm_stats = {}
     vm = {"uuid": "", "name": vm_name}
     
     try:
         LOG_INFO(f"\n===== 开始处理虚拟机：{vm_name} =====")
-        # 查找虚拟机（支持运行中和关闭状态）
         dom = conn.lookupByName(vm_name)
         if not dom:
             LOG_ERROR(f"未找到名称为 {vm_name} 的虚拟机")
             return vm_stats
         
-        # 获取虚拟机 UUID 和状态
         vm["uuid"] = dom.UUIDString()
         vm_id = vm["uuid"]
         vm_state = dom.state()[0]
@@ -99,20 +91,17 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
         vm_status = state_map.get(vm_state, f"未知状态({vm_state})")
         LOG_INFO(f"虚拟机信息：名称={vm_name}, UUID={vm_id}, 状态={vm_status}")
         
-        # 解析 XML 配置
         LOG_INFO(f"正在解析 {vm_name} 的 XML 配置...")
         xmldesc = dom.XMLDesc(0)
         doc = libxml2.parseDoc(xmldesc)
         context = doc.xpathNewContext()
         
-        # 获取 vCPU 总数
         vcpu_total = 0
         res = context.xpathEval('/domain/vcpu')
         if res and len(res) > 0:
             vcpu_total = int(res[0].content)
         LOG_INFO(f"{vm_name} - vCPU 总数：{vcpu_total}")
         
-        # 获取 vCPU 拓扑
         topology = context.xpathEval('/domain/cpu/topology')
         socket = 0
         core = 0
@@ -123,13 +112,11 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
             thread = int(topology[0].prop('threads')) if topology[0].prop('threads') else 0
         LOG_INFO(f"{vm_name} - vCPU 拓扑：socket={socket}, core={core}, thread={thread}")
         
-        # 遍历 vCPU 获取绑核信息（关闭状态的虚拟机也能获取绑核配置）
         vcpupin_stats = {}
         for vcpu_id in range(vcpu_total):
             LOG_INFO(f"{vm_name} - 正在获取 vCPU {vcpu_id} 的亲和性信息...")
             pin_info = {}
             try:
-                # 即使虚拟机关闭，virsh vcpupin 也能读取配置
                 result = subprocess.run(
                     ['virsh', 'vcpupin', vm_name, str(vcpu_id)],
                     capture_output=True,
@@ -208,11 +195,10 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
             
             vcpupin_stats[f'vcpu_{vcpu_id}'] = pin_info
         
-        # 组织单个虚拟机的统计结果
         vm_stats[vm_id] = {
             'uuid': vm['uuid'],
             'name': vm['name'],
-            'status': vm_status,  # 新增虚拟机状态字段
+            'status': vm_status,
             'vcpu_total': vcpu_total,
             'vcpu_topology': {
                 'socket': socket,
@@ -223,7 +209,6 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
             'timestamp': int(time.time())
         }
         
-        # 资源清理
         context.xpathFreeContext()
         doc.freeDoc()
         LOG_INFO(f"{vm_name} - XML 资源已释放")
@@ -251,9 +236,7 @@ def get_all_vms_vcpupin() -> dict:
             LOG_ERROR("连接 libvirt 服务失败！请检查 libvirtd 服务是否启动及权限是否足够")
             return all_vms_stats
         
-        # 获取所有虚拟机名称（包括运行中和关闭状态）
         LOG_INFO("正在获取所有虚拟机列表...")
-        # 方法1：通过 conn.listAllDomains() 获取所有虚拟机（推荐，兼容所有版本）
         domains = conn.listAllDomains()
         vm_names = [dom.name() for dom in domains]
         
@@ -263,7 +246,6 @@ def get_all_vms_vcpupin() -> dict:
         
         LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机：{vm_names}")
         
-        # 遍历所有虚拟机，获取绑核信息（复用 libvirt 连接，提高效率）
         for vm_name in vm_names:
             single_vm_stats = get_single_vm_vcpupin(vm_name, conn)
             all_vms_stats.update(single_vm_stats)
@@ -278,7 +260,6 @@ def get_all_vms_vcpupin() -> dict:
     return all_vms_stats
 
 def main():
-    # 无需传入虚拟机名称，自动获取所有虚拟机
     if len(sys.argv) != 1:
         print("Usage: python3 vcpupin_check_all.py")
         print("示例：python3 vcpupin_check_all.py")
@@ -289,13 +270,11 @@ def main():
     
     if all_stats:
         LOG_INFO(f"\n===== 所有虚拟机 vCPU 绑核检测完成，共处理 {len(all_stats)} 台虚拟机 =====")
-        # 保存结果到文件（文件名包含时间戳，避免覆盖）
         filename = f"vcpupin_stats_all_vms_{int(time.time())}.json"
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(all_stats, f, indent=2, ensure_ascii=False)
         LOG_INFO(f"结果已保存到文件：{filename}")
         
-        # 可选：打印简要统计
         print("\n===== 简要统计 =====")
         for vm_uuid, vm_info in all_stats.items():
             print(f"虚拟机：{vm_info['name']}（{vm_info['status']}）- vCPU总数：{vm_info['vcpu_total']}")
