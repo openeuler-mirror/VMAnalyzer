@@ -254,3 +254,111 @@ fi
 
 }
 
+#八、内存检测
+check_memory_func(){
+speed_list=()
+support_list=()
+
+# 查看宿主机内存信息
+#sudo echo "--------------------Host memory information------------------------" >> $hostfile
+
+# 1、获取实际内存频率
+speed=`sudo dmidecode -t memory | grep -i "Configured Clock Speed" |grep -v Unknown`
+for i in "${speed}"
+do
+    speed_list=`sudo echo $i | tr -cd "[0-9]"`
+done
+
+
+# 2、查看内存最大支持的频率
+support=`sudo dmidecode|grep -A16 "Memory Device"|grep 'Speed' |grep -v Unknown`
+for i in "${support}"
+do
+    support_list=`sudo echo $i | tr -cd "[0-9]"`
+done
+
+
+# 3、查看是否内存降频
+model=$(grep 'model name' /proc/cpuinfo | head -n 1 | cut -d ':' -f 2 | xargs)
+bad_num=0
+for j in ${speed_list[@]};do
+    for k in ${support_list[@]};do
+        let num1=$k-$j
+        num1=${num1/-/}
+        if [[ $num1 -gt $Mem_Frequency ]];then
+            for g in "${cpu_memory_frequency[@]}" ; do
+                echo $model |grep ${g[@]:1:1}
+                if [ $? -eq 0 ];then
+                    let num2=$j-${g[@]:2:1}
+                    num2=${num2/-/}
+                    if [[ $num2 -gt $Mem_Frequency ]];then
+                        bad_num=$((bad_num + 1))
+                    fi
+                fi
+            done
+        fi
+    done
+done
+if [[ $bad_num != 0 ]];then
+    log "memory_frequency" "内存频率降频，请检查下内存"
+else
+    log "memory_frequency" "内存频率正常"
+fi
+}
+
+#九、鉴权检测
+check_auth_func(){
+h libvirt-auth-config.sh check
+}
+
+#-------------------------------HOST & DOM----------------------------------------
+
+HOST(){
+#echo "=========================Start collecting information========================" > $hostfile
+
+sudo echo "{\"OS\":[" > $hostfile
+check_os_func
+sudo echo "]," >> $hostfile
+
+sudo echo "\"KERNEL\":[" >> $hostfile
+check_kernel_func
+sudo echo "]," >> $hostfile
+
+sudo echo "\"VIRT_VERSION\":[" >> $hostfile
+check_virt_version_func
+sudo echo "]," >> $hostfile
+
+sudo echo "\"VIRT_CONFIG\":[" >> $hostfile
+check_virt_config_func
+sudo echo "]," >> $hostfile
+
+sudo echo "\"SYSCTL_CONFIG\":[" >> $hostfile
+check_sysctl_config_func
+sudo echo "]," >> $hostfile
+
+sudo echo "\"HOST_CPU\":[" >> $hostfile
+check_cpu_func
+sudo echo "]," >> $hostfile
+
+sudo echo "\"HUGE_PAGE\":[" >> $hostfile
+check_huge_page_func
+sudo echo "]," >> $hostfile
+
+sudo echo "\"MEMORY\":[" >> $hostfile
+check_memory_func
+sudo echo "]," >> $hostfile
+
+sudo echo "\"AUTH\":[" >> $hostfile
+check_auth_func
+sudo echo "]" >> $hostfile
+
+sudo echo "}" >> $hostfile
+
+# Remove unnecessary symbols
+remove_symbols
+
+# Generate the json file used by bclinux_om
+generate_json
+}
+
+
