@@ -105,6 +105,22 @@ class VMStatsRedisStorage(VMStatsStorage):
                 except Exception as err:
                     logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
 
+        elif label == "log_vm":
+            for vmID, vmStats in list(statsInfo.items()):
+                try:
+                    data_dict = {
+                        'id': vmID,
+                        'name': vmStats['name'],
+                        'current_state': vmStats['current_state'],
+                        'latest_event': vmStats['latest_event'],
+                        'state_log': vmStats['state_log'],
+                        'timestamp': vmStats['timestamp']
+                    }
+                    pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+
+
         else:
             logging.error("error label!")
         pipe.execute()
@@ -166,6 +182,16 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'name': data_dict['name'],
                     'blkStatus': data_dict['blkStatus'],
                     'blkI/O': data_dict['blkI/O'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+
+            elif label == "log_vm":
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'current_state': data_dict['current_state'],
+                    'latest_event': data_dict['latest_event'],
+                    'state_log': data_dict['state_log'],
                     'timestamp': int(data_dict['timestamp'])
                 }
 
