@@ -76,6 +76,82 @@ check_secret_usage() {
     info "Secret usage check completed."
 }
 
+# 检查密钥的唯一性
+check_secret_uniqueness() {
+    info "Checking secret uniqueness..."
+
+    # 获取所有密钥的 UUID
+    SECRET_UUIDS=$(virsh secret-list | awk '{print $1}' | grep -E '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$')
+
+    for SECRET_UUID in $SECRET_UUIDS; do
+        info "Checking secret UUID: $SECRET_UUID"
+
+        # 获取密钥的 XML 文件路径
+        SECRET_XML="/etc/libvirt/secrets/$SECRET_UUID.xml"
+        if [ ! -f "$SECRET_XML" ]; then
+            error "Secret XML file not found for UUID $SECRET_UUID."
+            continue
+        fi
+
+        # 解析 XML 文件，获取配置的虚拟机名称
+        VM_NAME=$(grep -oP '(?<=<description>).*?(?=</description>)' "$SECRET_XML")
+        if [ -z "$VM_NAME" ]; then
+            error "No VM name found in secret XML for UUID $SECRET_UUID."
+            #continue
+        else 
+            info "Secret UUID $SECRET_UUID is configured for VM: $VM_NAME"
+        fi
+
+        # 检查是否有其他虚拟机使用了该密钥
+        VM_LIST=$(virsh list --all --name)
+        for VM in $VM_LIST; do
+            if [ "$VM" != "$VM_NAME" ]; then
+                VM_XML=$(virsh dumpxml "$VM")
+                if echo "$VM_XML" | grep -q "$SECRET_UUID"; then
+                    error "Secret UUID $SECRET_UUID is used in VM: $VM"
+                fi
+            fi
+        done
+    done
+
+    info "Secret uniqueness check completed."
+}
+
+# 检查密钥的权限和所有者
+check_secret_permissions() {
+    info "Checking secret permissions..."
+
+    # 获取所有密钥的 UUID
+    SECRET_UUIDS=$(virsh secret-list | awk '{print $1}' | grep -E '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$')
+
+    for SECRET_UUID in $SECRET_UUIDS; do
+        info "Checking secret UUID: $SECRET_UUID"
+
+        # 获取密钥的 XML 文件路径
+        SECRET_XML="/etc/libvirt/secrets/$SECRET_UUID.xml"
+        if [ ! -f "$SECRET_XML" ]; then
+            error "Secret XML file not found for UUID $SECRET_UUID."
+            continue
+        fi
+
+        # 检查文件权限
+        PERMISSIONS=$(stat -c "%A" "$SECRET_XML")
+        if [ "$PERMISSIONS" != "-rw-------" ]; then
+            error "Secret XML file for UUID $SECRET_UUID has incorrect permissions (expected 600)."
+        fi
+
+        # 检查文件所有者
+        OWNER=$(stat -c "%U" "$SECRET_XML")
+        if [ "$OWNER" != "root" ]; then
+            error "Secret XML file for UUID $SECRET_UUID has incorrect owner (expected root)."
+        fi
+
+        info "Secret UUID $SECRET_UUID has correct permissions and owner."
+    done
+
+    info "Secret permissions check completed."
+}
+
 # 主函数
 main() {
     mk_log_dir
@@ -84,7 +160,9 @@ main() {
     echo "$time" >> $check_log
 
     # 执行检查
+    check_secret_permissions
     check_secret_usage
+    check_secret_uniqueness
 
     # 错误汇总
     ERROR_COUNT=$(grep -c '"status": "error"' "$check_log")
