@@ -24,7 +24,7 @@ usage() {
 	echo "qemuconsume: show qemu-kvm process consumption"
 	echo "options: -h,          help information"
         echo "         -t, time, perf record time, default to 20 seconds"
-        echo "         -d <string>, domain name or uuid"
+        echo "         -d <string>, domain name"
 }
 
 
@@ -131,14 +131,11 @@ monitor() {
 			exit -1
 		fi
 	fi
-
-	sudo ps aux  |grep qemu |grep $domain >/dev/null 2>&1
-        if [ $? -ne 0 ]; then
-                echo "vm can not find: $domain" >> $datafile
-                exit -1
-        fi  
-
-	pid=`ps aux  |grep qemu |grep $domain | awk '{print $2}'`
+        pid=`ps aux | grep $domain | grep -v 'qemuconsume' | grep -v 'grep' | awk '{print $2}'`
+	if [ x"0" = x"$pid" ] || [ -z "$pid" ]; then
+	    echo "vm can not find: $domain" >> $datafile
+	    exit -1
+	fi
 
 	collect_global_framegraph $pid
         if [ $? -ne 0 ]; then
