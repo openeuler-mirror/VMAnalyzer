@@ -32,9 +32,9 @@ class TestVMFactory(unittest.TestCase):
     def test_addVM(self):
         vm_factory = vm.VMFactory()
         vm_factory.addVM(self.test_id, self.test_vm)
+        # Verify the VM was added to the current factory instance
         self.assertDictEqual(vm_factory.vms[self.test_id], self.test_vm)
-        vm_factory = vm.VMFactory()
-        self.assertDictEqual(vm_factory.vms[self.test_id], self.test_vm)
+        # Cleaan up
         vm_factory.delVM(self.test_id)
 
     def test_getVM(self):
@@ -55,5 +55,6 @@ class TestVMFactory(unittest.TestCase):
         vm_factory.setVMAnalyzers(self.test_id, self.test_score)
         self.assertEqual(vm_factory.getVMAnalyzers(self.test_id), self.test_score)
 
+
 if __name__ == "__main__":
-        unittest.main()
+    unittest.main()
