@@ -41,6 +41,65 @@ check_source_to_target_network() {
     fi
 }
 
+get_vm_memory_info() {
+    local src_host=$1
+    local vm_name=$2
+    
+    local vm_mem_kb=$(ssh $src_host "virsh dominfo $vm_name | grep 'Used memory' | awk '{print \$3}'")
+    local vm_mem_gb=$(( (vm_mem_kb + 1024*1024 - 1) / (1024*1024) ))
+    local hugepage_used=$(ssh $src_host "virsh dumpxml $vm_name | grep -c '<memoryBacking>'")
+    
+    echo "$vm_mem_gb $hugepage_used"
+}
+
+check_target_memory() {
+    local dst_host=$1
+    local vm_mem_gb=$2
+    local hugepage_used=$3
+    
+    if [ "$hugepage_used" -eq 1 ]; then
+        log_info "虚拟机使用大页，检查目标主机大页情况..."
+        
+        local hugepage_info=$(ssh $dst_host "cat /proc/meminfo | grep Huge")
+        local hugepages_total=$(echo "$hugepage_info" | grep HugePages_Total | awk '{print $2}')
+        local hugepages_free=$(echo "$hugepage_info" | grep HugePages_Free | awk '{print $2}')
+        local hugepage_size=$(echo "$hugepage_info" | grep Hugepagesize | awk '{print $2}')
+        
+        log_info "目标主机大页信息："
+        log_info "  总大页数: $hugepages_total"
+        log_info "  空闲大页数: $hugepages_free"
+        log_info "  单大页大小: $hugepage_size kB"
+        
+        local hugepage_size_mb=$((hugepage_size / 1024))
+        local required_hugepages=$(( (vm_mem_gb * 1024 + hugepage_size_mb - 1) / hugepage_size_mb ))
+        
+        log_info "虚拟机需要大页数: $required_hugepages"
+        
+        if [ "$hugepages_free" -lt "$required_hugepages" ]; then
+            log_error "目标主机空闲大页数不足，需要 $required_hugepages 个，可用 $hugepages_free 个"
+            return 1
+        else
+            log_info "目标主机大页数量充足"
+            return 0
+        fi
+    else
+        log_info "虚拟机不使用大页，检查目标主机可用内存..."
+        
+        local free_mem_gb=$(ssh $dst_host "free -g | grep Mem | awk '{print \$7}'")
+        
+        log_info "目标主机可用内存: $free_mem_gb GB"
+        log_info "虚拟机需要内存: $vm_mem_gb GB"
+        
+        if [ "$free_mem_gb" -lt "$vm_mem_gb" ]; then
+            log_error "目标主机可用内存不足，需要 $vm_mem_gb GB，可用 $free_mem_gb GB"
+            return 1
+        else
+            log_info "目标主机内存充足"
+            return 0
+        fi
+    fi
+}
+
 main() {
     check_command ssh
     check_command scp
@@ -65,81 +124,75 @@ main() {
     net_result=$?
     
     if [ $net_result -eq 0 ]; then
-        # 直接在源主机上生成完整的CPU XML文件并复制到本地
-        ssh $src_host "virsh capabilities | grep -A 100 '<cpu' | grep -B 100 '</cpu>' > /tmp/src_cpu.xml"
-        scp $src_host:/tmp/src_cpu.xml /tmp/
+        log_info "获取源端虚拟机 $vm_name 的内存信息..."
+        read vm_mem_gb hugepage_used <<< $(get_vm_memory_info $src_host $vm_name)
+        log_info "虚拟机内存大小: $vm_mem_gb GB"
+        log_info "是否使用大页: $hugepage_used"
         
-        # 从源主机获取其他信息
+        check_target_memory $dst_host $vm_mem_gb $hugepage_used
+        mem_result=$?
+        
+        if [ $mem_result -ne 0 ]; then
+            exit 1
+        fi
+        
         src_info=$(ssh $src_host "bash -s" << EOF
-            # 获取libvirt版本，只匹配libvirt-数字开头的包
-            libvirt_rpm=\$(rpm -qa | grep -E '^libvirt-[0-9]' | head -1)
-            # 提取版本号：libvirt-8.0.0-5.63.oe2203.bclinux.x86_64 -> 8.0.0-5.63
-            if [ -n "\$libvirt_rpm" ]; then
-                src_libvirt_ver=\$(echo \$libvirt_rpm | sed -E 's/^libvirt-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
-            else
-                src_libvirt_ver=""
-            fi
-            
-            # 获取qemu版本，只匹配qemu-数字开头的包
-            qemu_rpm=\$(rpm -qa | grep -E '^qemu-[0-9]' | head -1)
-            # 提取版本号：qemu-6.2.0-44.89.oe2203.bclinux.x86_64 -> 6.2.0-44.89
-            if [ -n "\$qemu_rpm" ]; then
-                src_qemu_ver=\$(echo \$qemu_rpm | sed -E 's/^qemu-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
-            else
-                src_qemu_ver=""
-            fi
-            
-            vm_xml=\$(virsh dumpxml $vm_name)
-            
-            echo "SRC_LIBVIRT_VER:\$src_libvirt_ver"
-            echo "SRC_QEMU_VER:\$src_qemu_ver"
-            echo "VM_XML:\$vm_xml"
+libvirt_rpm=\$(rpm -qa | grep -E '^libvirt-[0-9]' | head -1)
+if [ -n "\$libvirt_rpm" ]; then
+    src_libvirt_ver=\$(echo \$libvirt_rpm | sed -E 's/^libvirt-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
+else
+    src_libvirt_ver=""
+fi
+
+qemu_rpm=\$(rpm -qa | grep -E '^qemu-[0-9]' | head -1)
+if [ -n "\$qemu_rpm" ]; then
+    src_qemu_ver=\$(echo \$qemu_rpm | sed -E 's/^qemu-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
+else
+    src_qemu_ver=""
+fi
+
+vm_xml=\$(virsh dumpxml $vm_name)
+
+echo "SRC_LIBVIRT_VER:\$src_libvirt_ver"
+echo "SRC_QEMU_VER:\$src_qemu_ver"
+echo "VM_XML:\$vm_xml"
 EOF
         )
         
-        # 解析源主机信息
         src_libvirt_ver=$(echo "$src_info" | grep "SRC_LIBVIRT_VER:" | cut -d':' -f2-)
         src_qemu_ver=$(echo "$src_info" | grep "SRC_QEMU_VER:" | cut -d':' -f2-)
         vm_xml=$(echo "$src_info" | sed -n '/VM_XML:/,$p' | sed '1s/VM_XML://')
         
-        # 从目标主机获取所有所需信息
         dst_info=$(ssh $dst_host "bash -s" << 'EOF'
-            # 获取libvirt版本，只匹配libvirt-数字开头的包
-            libvirt_rpm=$(rpm -qa | grep -E '^libvirt-[0-9]' | head -1)
-            # 提取版本号：libvirt-8.0.0-5.63.oe2203.bclinux.x86_64 -> 8.0.0-5.63
-            if [ -n "$libvirt_rpm" ]; then
-                dst_libvirt_ver=$(echo $libvirt_rpm | sed -E 's/^libvirt-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
-            else
-                dst_libvirt_ver=""
-            fi
-            
-            # 获取qemu版本，只匹配qemu-数字开头的包
-            qemu_rpm=$(rpm -qa | grep -E '^qemu-[0-9]' | head -1)
-            # 提取版本号：qemu-6.2.0-44.89.oe2203.bclinux.x86_64 -> 6.2.0-44.89
-            if [ -n "$qemu_rpm" ]; then
-                dst_qemu_ver=$(echo $qemu_rpm | sed -E 's/^qemu-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
-            else
-                dst_qemu_ver=""
-            fi
-            
-            virsh domcapabilities > /tmp/dst_domcapabilities.xml
-            domcapabilities=$(cat /tmp/dst_domcapabilities.xml)
-            
-            echo "DST_LIBVIRT_VER:$dst_libvirt_ver"
-            echo "DST_QEMU_VER:$dst_qemu_ver"
-            echo "DOMCAPABILITIES:$domcapabilities"
+libvirt_rpm=$(rpm -qa | grep -E '^libvirt-[0-9]' | head -1)
+if [ -n "$libvirt_rpm" ]; then
+    dst_libvirt_ver=$(echo $libvirt_rpm | sed -E 's/^libvirt-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
+else
+    dst_libvirt_ver=""
+fi
+
+qemu_rpm=$(rpm -qa | grep -E '^qemu-[0-9]' | head -1)
+if [ -n "$qemu_rpm" ]; then
+    dst_qemu_ver=$(echo $qemu_rpm | sed -E 's/^qemu-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
+else
+    dst_qemu_ver=""
+fi
+
+virsh domcapabilities > /tmp/dst_domcapabilities.xml
+domcapabilities=$(cat /tmp/dst_domcapabilities.xml)
+
+echo "DST_LIBVIRT_VER:$dst_libvirt_ver"
+echo "DST_QEMU_VER:$dst_qemu_ver"
+echo "DOMCAPABILITIES:$domcapabilities"
 EOF
         )
         
-        # 解析目标主机信息
         dst_libvirt_ver=$(echo "$dst_info" | grep "DST_LIBVIRT_VER:" | cut -d':' -f2-)
         dst_qemu_ver=$(echo "$dst_info" | grep "DST_QEMU_VER:" | cut -d':' -f2-)
         domcapabilities=$(echo "$dst_info" | sed -n '/DOMCAPABILITIES:/,$p' | sed '1s/DOMCAPABILITIES://')
         
-        # 保存domcapabilities到临时文件
         echo "$domcapabilities" > /tmp/dst_domcapabilities.xml
         
-        # 检查libvirt和qemu版本
         log_info "检查源主机与目标主机libvirt、qemu版本..."
         log_info "源主机 libvirt 版本: $src_libvirt_ver, QEMU 版本: $src_qemu_ver"
         log_info "目标主机 libvirt 版本: $dst_libvirt_ver, QEMU 版本: $dst_qemu_ver"
@@ -165,27 +218,17 @@ EOF
             log_info "libvirt、qemu版本检查通过"
         fi
         
-        # 使用本地文件进行CPU兼容性检查
-        log_info "检查CPU兼容性..."
-        cpu_compare_result=$(cat /tmp/src_cpu.xml | ssh $dst_host "virsh cpu-compare /dev/stdin 2>&1")
-        
-        cpu_result=0
-        if grep -q "CPU is compatible" <<< "$cpu_compare_result"; then
-            log_info "CPU兼容性检查通过"
-        else
-            log_warn "CPU兼容性检查警告："
-            echo "$cpu_compare_result"
-            cpu_result=1
-        fi
-        
-        # 检查虚拟机配置与目标主机能力的兼容性
         log_info "检查虚拟机配置与目标主机能力的兼容性..."
         
-        vm_cpu_model=$(echo "$vm_xml" | grep -A 1 "<cpu mode=" | grep "<model" | awk -F'"' '{print $2}')
-        if grep -q "<model usable='yes'>$vm_cpu_model</model>" /tmp/dst_domcapabilities.xml; then
-            log_info "CPU模型 $vm_cpu_model 在目标主机上可用"
+        vm_cpu_model=$(echo "$vm_xml" | grep -oP '<model[^>]*>\K[^<]+')
+        if [ -n "$vm_cpu_model" ]; then
+            if grep -q "<model usable='yes'>$vm_cpu_model</model>" /tmp/dst_domcapabilities.xml; then
+                log_info "CPU模型 $vm_cpu_model 在目标主机上可用"
+            else
+                log_warn "CPU模型 $vm_cpu_model 在目标主机上不可用，可能需要调整"
+            fi
         else
-            log_warn "CPU模型 $vm_cpu_model 在目标主机上不可用，可能需要调整"
+            log_info "未找到虚拟机CPU模型信息，跳过CPU模型兼容性检查"
         fi
         
         vm_emulator=$(echo "$vm_xml" | grep "<emulator" | awk -F'>' '{print $2}' | awk -F'<' '{print $1}')
@@ -204,16 +247,13 @@ EOF
             log_info "虚拟机配置与目标主机能力兼容性检查通过"
         fi
         
-        # 汇总结果
-        if [ $ver_result -eq 0 ] && [ $cpu_result -eq 0 ] && [ $domain_result -eq 0 ]; then
+        if [ $ver_result -eq 0 ] && [ $domain_result -eq 0 ]; then
             log_info "所有兼容性检查通过，可以进行迁移"
             exit 0
         else
             log_warn "部分兼容性检查未通过，建议检查并解决问题后再进行迁移"
             exit 1
         fi
-    else
-        exit 1
     fi
 }
 
