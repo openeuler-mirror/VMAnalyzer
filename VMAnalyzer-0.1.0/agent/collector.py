@@ -34,6 +34,49 @@ class VMStatsCollector:
         self.__label = label
 
 
+        def _send_qga_command(self, dom, cmd_dict):
+        
+        try:
+            cmd_json = json.dumps(cmd_dict)
+            result = dom.qemuAgentCommand(cmd_json, libvirt.VIR_DOMAIN_QEMU_AGENT_COMMAND_BLOCK, 30)
+            return json.loads(result) if result else None
+        except Exception as e:
+            logging.error(f"VM {dom.name()}: QGA 命令失败 [{cmd_dict.get('execute')}]，错误: {e}")
+            return None
+
+    def _exec_guest_command(self, dom, shell_cmd):
+
+        exec_cmd = {
+            "execute": "guest-exec",
+            "arguments": {
+                "path": "/bin/sh",
+                "arg": ["-c", shell_cmd],
+                "capture-output": True  
+            }
+        }
+        exec_result = self._send_qga_command(dom, exec_cmd)
+        if not exec_result or "return" not in exec_result:
+            return None
+        pid = exec_result["return"]["pid"]
+
+        for _ in range(20):
+            time.sleep(0.5)
+            status_cmd = {
+                "execute": "guest-exec-status",
+                "arguments": {"pid": pid}
+            }
+            status_result = self._send_qga_command(dom, status_cmd)
+            if not status_result or "return" not in status_result:
+                continue
+            status = status_result["return"]
+            if status.get("exited"): 
+                
+                if status.get("out-data"):
+                    import base64
+                    return base64.b64decode(status["out-data"]).decode("utf-8").strip()
+                return "" 
+        return None  
+
     def record_stats(self):
         vm_factory = self.__vm_factory
         label = self.__label
