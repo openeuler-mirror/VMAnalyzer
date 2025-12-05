@@ -36,19 +36,21 @@ class VMStatsCollector:
     def _send_qga_command(self, dom, cmd_dict):
         try:
             cmd_json = json.dumps(cmd_dict)
-            result = dom.qemuAgentCommand(cmd_json, libvirt.VIR_DOMAIN_QEMU_AGENT_COMMAND_BLOCK, 30)
+            result = libvirt_qemu.qemuAgentCommand(dom, cmd_json, 30 * 1000, 0)
             return json.loads(result) if result else None
         except Exception as e:
-            logging.error(f"VM {dom.name()}: QGA 命令失败 [{cmd_dict.get('execute')}]，错误: {e}")
+            cmd_type = cmd_dict.get('execute', 'unknown')
+            logger.error(f"VM {dom.name()}: QGA命令失败 [{cmd_type}]，错误: {e}")
             return None
 
     def _exec_guest_command(self, dom, shell_cmd):
+
         exec_cmd = {
             "execute": "guest-exec",
             "arguments": {
                 "path": "/bin/sh",
                 "arg": ["-c", shell_cmd],
-                "capture-output": True
+                "capture-output": True  
             }
         }
         exec_result = self._send_qga_command(dom, exec_cmd)
@@ -285,7 +287,57 @@ class VMStatsCollector:
                     'vcpuinfo':parsed_configs,
                     'timestamp': int(timestamp)
                 }
-     
+            elif label == 'processInfo':
+                stats_info[vm_id] = {
+                    'uuid': vm['uuid'],
+                    'name': vm['name'],
+                    'cpu_top5': [],
+                    'mem_top5': [],
+                    'timestamp': int(timestamp)
+                }
+
+                cpu_top_cmd = {
+                    "execute": "guest-get-cputopn-status",
+                    "arguments": {"cputopn-num": "5"}
+                }
+                cpu_top_result = self._send_qga_command(dom, cpu_top_cmd)
+                if cpu_top_result and "return" in cpu_top_result:
+                    formatted_cpu_top = []
+                    for proc in cpu_top_result["return"]:
+                        proc_info = proc.get("process-info", {})
+                        if "process-info" in proc_info:
+                            proc_info = proc_info["process-info"]
+                        formatted_cpu_top.append({
+                            "pid": proc.get("process-id", "N/A"),
+                            "user": proc_info.get("user", "N/A"),
+                            "cpu_util": proc_info.get("cpu-util", "0"),
+                            "mem_util": proc_info.get("mem-util", "0"),
+                            "open_files": proc_info.get("open-files", "N/A"),
+                            "cmd": proc_info.get("cmd-name", "N/A").strip().replace("\n", "")
+                        })
+                    stats_info[vm_id]['cpu_top5'] = formatted_cpu_top
+
+                mem_top_cmd = {
+                    "execute": "guest-get-memtopn-status",
+                    "arguments": {"memtopn-num": "5"}
+                }
+                mem_top_result = self._send_qga_command(dom, mem_top_cmd)
+                if mem_top_result and "return" in mem_top_result:
+                    formatted_mem_top = []
+                    for proc in mem_top_result["return"]:
+                        proc_info = proc.get("process-info", {})
+                        if "process-info" in proc_info:
+                            proc_info = proc_info["process-info"]
+                        formatted_mem_top.append({
+                            "pid": proc.get("process-id", "N/A"),
+                            "user": proc_info.get("user", "N/A"),
+                            "cpu_util": proc_info.get("cpu-util", "0"),
+                            "mem_util": proc_info.get("mem-util", "0"),
+                            "open_files": proc_info.get("open-files", "N/A"),
+                            "cmd": proc_info.get("cmd-name", "N/A").strip().replace("\n", "")
+                        })
+                    stats_info[vm_id]['mem_top5'] = formatted_mem_top
+
             elif label == 'log_vm':
 
                 log_file_path = f"/var/log/libvirt/qemu/{vm['name']}.log"
