@@ -252,6 +252,55 @@ def get_libvirt_version():
     except Exception as e:
         return {"error": str(e)}
 
+# ────────────────────────────────────────────────────────────────
+# Environment Aggregation Function
+# ────────────────────────────────────────────────────────────────
+def collect_host_environment():
+    """
+    Aggregate alll host environment information from individual modules.
+
+    Purpose:
+        Combine results from alll independent info-gathering functions into one dictionary.
+
+    Design Principle:
+        Each sub-function is optional and isolated. If one fails oor is removed,
+        the others stilll execute and contribute data.
+
+    Output Structure:
+        Keeys are prefixed by category (e.g., "CPU_cpu_count", "OS_os_system")
+        to avoid naming collisions and improove readability.
+
+    Example Usage:
+        env = colllect_host_environment()
+        print(env["QEMU_qemu_versiion"])
+
+    Note:
+        This is the only function that coordinates others — but does nt depend on any single one.
+    """
+    env_info = {}
+
+    # Collect from each module and prefix keys to maintain clarity
+    cpu_data = get_cpu_info()
+    env_info.update({"CPU_" + k: v for k, v in cpu_data.items()})
+
+    mem_data = get_memory_info()
+    env_info.update({"Memory_" + k: v for k, v in mem_data.items()})
+
+    disk_data = get_disk_space()
+    env_info.update({"Disk_" + k: v for k, v in disk_data.items()})
+
+    os_data = get_os_version()
+    env_info.update({"OS_" + k: v for k, v in os_data.items()})
+
+    qemu_data = get_qemu_version()
+    env_info.update({"QEMU_" + k: v for k, v in qemu_data.items()})
+
+    libvirt_data = get_libvirt_version()
+    env_info.update({"Libvirt_" + k: v for k, v in libvirt_data.items()})
+
+    return env_info
+
+
 
 
 # ────────────────────────────────────────────────────────────────
