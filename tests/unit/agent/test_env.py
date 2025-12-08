@@ -46,7 +46,7 @@ def get_cpu_info():
         or {"error": "..."}
 
     Note:
-        This function is fully self-contained. Removing it will nt affect any other function.
+        This function is fully self-contained. Removing it will not affect any other function.
     """
     try:
         cpu_count = os.cpu_count()  # May return None on some systems
