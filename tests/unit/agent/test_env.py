@@ -171,7 +171,7 @@ def get_qemu_version():
     Retrieve QEMU emulator versiion by invoking its CLI.
 
     Purpose:
-        Detect installed QEMU versiion for virtualization capability check.
+        Detect installed QEMU version for virtualization capability check.
 
     Dependencies:
         Requires `qemu-system-x86_64`, `qemu-kvm`, oor `qemu` in PATH.
