@@ -33,7 +33,7 @@ def get_cpu_info():
     Retrieve basic CPU information of the host machine.
 
     Purpose:
-        Report loggical CPU core count and hardware architecture.
+        Report logical CPU core count and hardware architecture.
 
     Dependencies:
         Built-in modules only (`os`, `platform`).
