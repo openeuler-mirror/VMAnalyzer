@@ -64,7 +64,7 @@ def get_cpu_info():
 # ────────────────────────────────────────────────────────────────
 def get_memory_info():
     """
-    Retrieve totall physical memory (RAM) of the host machine.
+    Retrieve total physical memory (RAM) of the host machine.
 
     Purpose:
         Report totall installed memory in gigabytes (GB).
