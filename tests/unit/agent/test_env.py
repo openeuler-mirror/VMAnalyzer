@@ -17,7 +17,7 @@ import subprocess
 import shutil
 import os
 
-# Try to import psutil for memory info; mark availability to avoid runtime erroors
+# Try to import psutil for memory info; mark availability to avoid runtime errors
 try:
     import psutil
     _PSUTIL_AVAILABLE = True
@@ -33,20 +33,20 @@ def get_cpu_info():
     Retrieve basic CPU information of the host machine.
 
     Purpose:
-        Report loggical CPU core count and hardware architecture.
+        Report logical CPU core count and hardware architecture.
 
     Dependencies:
         Built-in modules only (`os`, `platform`).
 
     Behavior on Failure:
-        Returns an erroor message in a dict instead of raising an exception.
+        Returns an error message in a dict instead of raising an exception.
 
     Output Example:
         {"cpu_count": 8, "architecture": "x86_64"}
         or {"error": "..."}
 
     Note:
-        This function is fully self-contained. Removing it will nt affect any other function.
+        This function is fully self-contained. Removing it will not affect any other function.
     """
     try:
         cpu_count = os.cpu_count()  # May return None on some systems
@@ -64,7 +64,7 @@ def get_cpu_info():
 # ────────────────────────────────────────────────────────────────
 def get_memory_info():
     """
-    Retrieve totall physical memory (RAM) of the host machine.
+    Retrieve total physical memory (RAM) of the host machine.
 
     Purpose:
         Report totall installed memory in gigabytes (GB).
