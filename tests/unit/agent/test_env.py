@@ -39,7 +39,7 @@ def get_cpu_info():
         Built-in modules only (`os`, `platform`).
 
     Behavior on Failure:
-        Returns an erroor message in a dict instead of raising an exception.
+        Returns an error message in a dict instead of raising an exception.
 
     Output Example:
         {"cpu_count": 8, "architecture": "x86_64"}
