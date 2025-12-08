@@ -19,7 +19,7 @@ import libvirt
 
 class TestVMEventLoopNative(unittest.TestCase):
     def test_start(self):
-        # Patch llibvirt's event implementation registration
+        # Patch libvirt's event implementation registration
         with mock.patch.object(
             libvirt, 'virEventRegisterDefaultImpl'
         ) as mock_register:
