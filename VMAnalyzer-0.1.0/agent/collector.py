@@ -68,13 +68,12 @@ class VMStatsCollector:
             if not status_result or "return" not in status_result:
                 continue
             status = status_result["return"]
-            if status.get("exited"): 
-                
+            if status.get("exited"):
                 if status.get("out-data"):
                     import base64
                     return base64.b64decode(status["out-data"]).decode("utf-8").strip()
-                return "" 
-        return None  
+                return ""
+        return None
 
     def record_stats(self):
         vm_factory = self.__vm_factory

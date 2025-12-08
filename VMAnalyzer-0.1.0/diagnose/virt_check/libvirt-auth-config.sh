@@ -133,4 +133,78 @@ set_auth() {
     fi
 }
 
+fallback_auth() {
+
+    #fallback /etc/libvirt/libvirtd.conf
+    sudo cp -a -f ${LIBVIRTD_FILE}_bak ${LIBVIRTD_FILE}
+
+    #fallback /etc/sasl2/libvirt.conf
+    sudo cp -a -f ${SASL_LIBVIRT_FILE}_bak ${SASL_LIBVIRT_FILE}
+
+    #fallback /etc/sysconfig/libvirtd
+    sudo cp -a -f ${SYSCONFIG_LIBVIRT_FILE}_bak ${SYSCONFIG_LIBVIRT_FILE}
+
+    #delete sasl user
+    sudo saslpasswd2 -a libvirt -d $SASL_USERNAME
+
+    #restart libvirt service
+    sudo service libvirtd.service restart
+    sudo service libvirtd.service status |grep active
+    if [[ $? -eq 0 ]]; then
+        sudo echo "libvirt auth fallback successfully"
+    else
+        sudo echo "libvirt auth fallback failed"
+        exit 1
+    fi
+ }
+
+check_auth() {
+    # install expect package
+    sudo rpm -qa |grep -w expect
+    if [ $? -ne 0 ]; then
+        sudo yum install -y expect --nogpgcheck
+        sudo rpm -qa |grep -w expect
+        if [ $? -ne 0 ]; then
+            sudo echo "can not install expect"
+            exit 1
+        fi
+    fi
+
+    output=$(sudo expect -c "
+    spawn sudo virsh -c qemu+tcp://127.0.0.1/system quit
+    expect *name: { send \"$SASL_USERNAME\n\" }
+    expect *password: { send \"$SASL_USERPASSWORD\n\" }
+    ")
+
+    sudo echo $output |grep "Please enter your authentication name"
+    if [[ $? -eq 1 ]]; then
+        sudo echo "libvirt auth is not set"
+        exit 1
+    else
+        sudo echo "libvirt auth is set"
+    fi
+}
+
+
+usage() {
+    sudo echo "usage: $0 <set/fallback/check>"
+    exit 1
+}
+
+case $1 in
+    set)
+	set_auth
+    ;;
+    fallback)
+        fallback_auth
+    ;;
+    check)
+        check_auth
+    ;;
+    *)
+        usage
+    ;;
+esac
+# Exit success
+exit 0
 
