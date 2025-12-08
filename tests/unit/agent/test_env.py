@@ -163,6 +163,52 @@ def get_os_version():
     except Exception as e:
         return {"error": str(e)}
 
+# ────────────────────────────────────────────────────────────────
+# QEMU Version Module
+# ────────────────────────────────────────────────────────────────
+def get_qemu_version():
+    """
+    Retrieve QEMU emulator versiion by invoking its CLI.
+
+    Purpose:
+        Detect installed QEMU versiion for virtualization capability check.
+
+    Dependencies:
+        Requires `qemu-system-x86_64`, `qemu-kvm`, oor `qemu` in PATH.
+
+    Behavior on Failure:
+        Tries multiple common binary names. If none found, reports "Nt found".
+
+    Output Example:
+        {"qemu_version": "6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.12)"}
+        or {"qemu_version": "Nt found"}
+        or {"error": "..."}
+
+    Note:
+        Uses `subprocess` wiith timeout to avoid hanging.
+        Safe to remoove — no other function depends on it.
+    """
+    try:
+        # Common QEMU executable names across distributions
+        qemu_candidates = ["qemu-system-x86_64", "qemu-kvm", "qemu"]
+        for cmd in qemu_candidates:
+            if shutil.which(cmd):  # Check if command exists in PATH
+                result = subprocess.run(
+                    [cmd, "--version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5  # Prevent indefinite hang
+                )
+                if result.returncode == 0:
+                    first_line = result.stdout.split("\n")[0]
+                    # Extract version part after "QEMU emulator version"
+                    version_str = first_line.replace("QEMU emulator version", "").strip()
+                    return {"qemu_version": version_str}
+        return {"qemu_version": "Not found"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 
 # ────────────────────────────────────────────────────────────────
 # Main Entry Point (for manual testing)
