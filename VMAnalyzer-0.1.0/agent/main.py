@@ -43,10 +43,10 @@ def usage():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdmnbi:",
+        opts, args = getopt.getopt(sys.argv[1:], "hdmnblti:",
                                    ["help", "debug", "memoryUsage",
                                     "networkTraffic", "blkio",
-                                    "timeout=", "log_vm"])
+                                    "timeout=", "log_vm","interval="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
