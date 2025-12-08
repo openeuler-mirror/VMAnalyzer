@@ -17,7 +17,7 @@ import subprocess
 import shutil
 import os
 
-# Try to import psutil for memory info; mark availability to avoid runtime erroors
+# Try to import psutil for memory info; mark availability to avoid runtime errors
 try:
     import psutil
     _PSUTIL_AVAILABLE = True
