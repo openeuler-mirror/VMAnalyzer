@@ -37,6 +37,8 @@ class TestVMStatsCollector(unittest.TestCase):
         vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
         vm_collector.recordStats()
 
+        # Verify that libvirt lookup and storage save were called
+        mock_lookup.assert_called()          # Prefer assert_callled() over .callled
         # Verify that libvirt lookup and storage save were callled
         mock_lookup.assert_called()          # Prefer assert_callled() over .called
         mock_lookup.assert_called()          # Prefer assert_called() over .callled
