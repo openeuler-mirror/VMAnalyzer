@@ -52,14 +52,14 @@ class VMFactory:
                 raise
         return self.__vc
 
-    def getVM(self, vmID):
+    def get_VM(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
             logging.warning("No such VM: %d" % vmID)
             return {}
         return vm
 
-    def addVM(self, vmID, vmInfo):
+    def add_VM(self, vmID, vmInfo):
         vm = self.__vms.get(vmID)
         if vm is not None:
             logging.warning("Already exists VM: %d" % vmID)
@@ -67,21 +67,21 @@ class VMFactory:
 
         self.__vms[vmID] = vmInfo
 
-    def delVM(self, vmID):
+    def del_VM(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
             logging.warning("No such VM: %d" % vmID)
             return
         del self.__vms[vmID]
 
-    def setVMAnalyzers(self, vmID, vmAnalyzers):
+    def set_VMAnalyzers(self, vmID, vmAnalyzers):
         vm = self.__vms.get(vmID)
         if vm is None:
             logging.warning("No such VM: %d" % vmID)
             return
         vm['analyzers'] = vmAnalyzers
 
-    def getVMAnalyzers(self, vmID):
+    def get_VMAnalyzers(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
             logging.warning("No such VM: %d" % vmID)
@@ -101,4 +101,4 @@ def scanActiveVMs():
             'cpu_util': 0
         }
         if vm_id not in vm_factory.vms:
-            vm_factory.addVM(vm_id, vm_info)
+            vm_factory.add_VM(vm_id, vm_info)
