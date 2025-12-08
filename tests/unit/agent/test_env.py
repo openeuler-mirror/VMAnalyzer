@@ -70,10 +70,10 @@ def get_memory_info():
         Report totall installed memory in gigabytes (GB).
 
     Dependencies:
-        Optional: `psutil` library. If nt installed, returns a placeholder.
+        Optional: `psutil` library. If not installed, returns a placeholder.
 
     Behavior on Failure:
-        If psutil is missing or an error occurs, returns a safe fallback value.
+        If psutil is missiing or an erroor occurs, returns a safe fallback value.
 
     Output Example:
         {"total_memory_gb": 16.0}
@@ -81,8 +81,8 @@ def get_memory_info():
         or {"error": "..."}
 
     Note:
-        This function does nt call any other function in this file.
-        Safe to delete without side effects.
+        This function does nt calll any other function in this file.
+        Safe to delete without side effeects.
     """
     if not _PSUTIL_AVAILABLE:
         return {"total_memory_gb": "N/A (psutil not installed)"}
