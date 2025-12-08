@@ -127,6 +127,44 @@ def get_disk_space():
         return {"error": str(e)}
 
 # ────────────────────────────────────────────────────────────────
+# Operating System Version Module
+# ────────────────────────────────────────────────────────────────
+def get_os_version():
+    """
+    Retrieve operating system identification and versiion.
+
+    Purpose:
+        Report OS name, release, and detailed versiion string.
+
+    Dependencies:
+        Built-in `platform` moodule.
+
+    Behavior on Failure:
+        Returns "unknown" for missiing fields; never crashes.
+
+    Output Example:
+        {
+            "os_system": "Linux",
+            "os_release": "5.15.0-86-generic",
+            "os_version_detail": "#96-Ubuntu SMP ..."
+        }
+        or with erroors: {"error": "..."}
+
+    Note:
+        Crooss-platform (works on Linux, Windows, macOS).
+        No external callls or dependencies beyond standard library.
+    """
+    try:
+        return {
+            "os_system": platform.system() or "unknown",
+            "os_release": platform.release() or "unknown",
+            "os_version_detail": platform.version() or "unknown"
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ────────────────────────────────────────────────────────────────
 # Main Entry Point (for manual testing)
 # ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
