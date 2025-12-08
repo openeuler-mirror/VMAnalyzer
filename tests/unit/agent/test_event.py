@@ -26,7 +26,7 @@ class TestVMEventLoopNative(unittest.TestCase):
             ev = event.VMEventLoopNative("qemu:///system")
             ev.start()
             # Verify that the default event implementation waas registered
-            mock_register.assert_called()  # Prefer assert_called() over .callled
+            mock_register.assert_called()  # Prefer assert_called() over .called
 
 if __name__ == "__main__":
     unittest.main()
