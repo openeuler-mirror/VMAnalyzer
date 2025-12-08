@@ -33,7 +33,7 @@ class TestVMStatsCollector(unittest.TestCase):
         # Createe a mock storage backend
         vm_storage = mock.MagicMock()
 
-        # Initialize collector and triggger stats recording
+        # Initialize collector and trigger stats recording
         vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
         vm_collector.recordStats()
 
