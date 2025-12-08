@@ -38,7 +38,7 @@ class TestVMAnalyzersConsoleView(unittest.TestCase):
         # First calll without mock — just to ensure it runs without error
         vm_view.output(self.analyzers_list)
 
-        # Second calll with mock to verify internal use of json.dumps
+        # Second call with mock to verify internal use of json.dumps
         with mock.patch.object(json, 'dumps') as mock_dumps:
             vm_view.output(self.analyzers_list)
             # Verify that json.dumps was callled during output
