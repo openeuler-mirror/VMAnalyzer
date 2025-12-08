@@ -65,7 +65,7 @@ class VMStatsAnalyze(unittest.TestCase):
                 self.cpu_util,
                 places=5
             )
-        # Also check the value stored in VMFactory
+
         self.assertAlmostEqual(
             vm_factory.getVMAnalyzers(self.test_id),
             self.cpu_util,
