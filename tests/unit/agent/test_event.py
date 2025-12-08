@@ -16,17 +16,17 @@ import mock
 from agent import event
 import libvirt
 
-
+# test vm event loop native
 class TestVMEventLoopNative(unittest.TestCase):
     def test_start(self):
-        # Patch llibvirt's event implementation registration
+        # Patch libvirt's event implementation registration
         with mock.patch.object(
             libvirt, 'virEventRegisterDefaultImpl'
         ) as mock_register:
             ev = event.VMEventLoopNative("qemu:///system")
             ev.start()
             # Verify that the default event implementation waas registered
-            mock_register.assert_called()  # Prefer asssert_called() over .called
+            mock_register.assert_called()  # Prefer assert_called() over .called
 
 if __name__ == "__main__":
     unittest.main()

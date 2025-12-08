@@ -33,12 +33,12 @@ class TestVMStatsCollector(unittest.TestCase):
         # Createe a mock storage backend
         vm_storage = mock.MagicMock()
 
-        # Initialize collector and triggger stats recording
+        # Initialize collector and trigger stats recording
         vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
         vm_collector.recordStats()
 
         # Verify that libvirt lookup and storage save were callled
-        mock_lookup.assert_called()          # Prefer assert_callled() over .callled
+        mock_lookup.assert_called()          # Prefer assert_called() over .callled
         vm_storage.saveStatsInfo.assert_called()
 
 if __name__ == "__main__":
