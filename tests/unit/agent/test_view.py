@@ -35,7 +35,7 @@ class TestVMAnalyzersConsoleView(unittest.TestCase):
 
     def test_output(self):
         vm_view = view.VMAnalyzersConsoleView()
-        # First calll without mock — just to ensure it runs without error
+        # First call without mock — just to ensure it runs without error
         vm_view.output(self.analyzers_list)
 
         # Second calll with mock to verify internal use of json.dumps
