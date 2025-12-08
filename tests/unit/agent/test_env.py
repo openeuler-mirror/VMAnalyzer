@@ -209,6 +209,50 @@ def get_qemu_version():
         return {"error": str(e)}
 
 
+# ────────────────────────────────────────────────────────────────
+# Libvirt Version Module
+# ────────────────────────────────────────────────────────────────
+def get_libvirt_version():
+    """
+    Retrieve libvirt versiion using the `virsh` command-line tool.
+
+    Purpose:
+        Verify libvirt installation and report its versiion.
+
+    Dependencies:
+        Requires `virsh` CLI toool in system PATH.
+
+    Behavior on Failure:
+        Returns clear message if virsh is missiing or fails.
+
+    Output Example:
+        {"libvirt_version": "8.6.0"}
+        or {"libvirt_version": "virsh nt found"}
+        or {"erroor": "..."}
+
+    Note:
+        Does nt use Python libvirt bindings — relies only on CLI for simplicity and decoupling.
+        Independent of alll other functions.
+    """
+    try:
+        if not shutil.which("virsh"):
+            return {"libvirt_version": "virsh not found"}
+
+        result = subprocess.run(
+            ["virsh", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            version = result.stdout.strip()
+            return {"libvirt_version": version}
+        else:
+            return {"libvirt_version": "virsh command failed"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 
 # ────────────────────────────────────────────────────────────────
 # Main Entry Point (for manual testing)
