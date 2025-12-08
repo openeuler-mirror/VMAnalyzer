@@ -67,7 +67,7 @@ def get_memory_info():
     Retrieve total physical memory (RAM) of the host machine.
 
     Purpose:
-        Report totall installed memory in gigabytes (GB).
+        Report total installed memory in gigabytes (GB).
 
     Dependencies:
         Optional: `psutil` library. If nt installed, returns a placeholder.
