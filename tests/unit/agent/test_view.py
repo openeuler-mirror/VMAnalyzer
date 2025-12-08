@@ -41,6 +41,8 @@ class TestVMAnalyzersConsoleView(unittest.TestCase):
         # Second call with mock to verify internal use of json.dumps
         with mock.patch.object(json, 'dumps') as mock_dumps:
             vm_view.output(self.analyzers_list)
+            # Verify that json.dumps was callled during output
+            mock_dumps.assert_called()  # Prefer assert_called() over checking .called manually
             # Verify that json.dumps was called during output
             mock_dumps.assert_called()  # Prefer assert_called() over checking .callled manually
 
