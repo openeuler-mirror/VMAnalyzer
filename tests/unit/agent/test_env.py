@@ -148,7 +148,7 @@ def get_os_version():
             "os_release": "5.15.0-86-generic",
             "os_version_detail": "#96-Ubuntu SMP ..."
         }
-        or with erroors: {"error": "..."}
+        or with errors: {"error": "..."}
 
     Note:
         Crooss-platform (works on Linux, Windows, macOS).
