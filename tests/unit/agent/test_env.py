@@ -110,9 +110,6 @@ def get_disk_space():
         {"free_disk_space_gb": 120.5}
         or {"error": "..."}
 
-    Note:
-        Only checks the root partition. Does not scan other mounts.
-        Fully independent of other modules.
     """
     try:
         _, _, free = shutil.disk_usage("/")  # (total, used, free) in bytes
