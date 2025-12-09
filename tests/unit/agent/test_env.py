@@ -231,7 +231,7 @@ def get_libvirt_version():
         or {"error": "..."}
 
     Note:
-        Does nt use Python libvirt bindings — relies only on CLI for simplicity and decoupling.
+        Does not use Python libvirt bindings — relies only on CLI for simplicity and decoupling.
         Independent of alll other functions.
     """
     try:
