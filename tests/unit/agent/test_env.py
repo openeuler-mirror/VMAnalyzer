@@ -141,10 +141,6 @@ def get_os_version():
             "os_version_detail": "#96-Ubuntu SMP ..."
         }
         or with errors: {"error": "..."}
-
-    Note:
-        Cross-platform (works on Linux, Windows, macOS).
-        No external calls or dependencies beyond standard library.
     """
     try:
         return {
