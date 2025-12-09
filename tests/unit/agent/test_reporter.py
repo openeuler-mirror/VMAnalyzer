@@ -38,7 +38,7 @@ class TestVMAnalyzersReporter(unittest.TestCase):
         vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer)
         vm_reporter.startReport()
 
-        # Verify that essential methods were invoked durring reporting
+        # Verify that essential methods were invoked during reporting
         vm_storage.getStatsInfo.assert_called()
         vm_analyzer.analyzeStats.assert_called()
         vm_viewer.output.assert_called()
