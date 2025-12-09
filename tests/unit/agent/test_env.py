@@ -181,7 +181,7 @@ def get_qemu_version():
 
     Output Example:
         {"qemu_version": "6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.12)"}
-        or {"qemu_version": "Nt found"}
+        or {"qemu_version": "Not found"}
         or {"error": "..."}
 
     Note:
