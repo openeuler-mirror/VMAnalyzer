@@ -151,7 +151,7 @@ def get_os_version():
         or with errors: {"error": "..."}
 
     Note:
-        Crooss-platform (works on Linux, Windows, macOS).
+        Cross-platform (works on Linux, Windows, macOS).
         No external callls or dependencies beyond standard library.
     """
     try:
