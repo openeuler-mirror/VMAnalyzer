@@ -137,7 +137,7 @@ def get_os_version():
         Report OS name, release, and detailed version string.
 
     Dependencies:
-        Built-in `platform` moodule.
+        Built-in `platform` module.
 
     Behavior on Failure:
         Returns "unknown" for missiing fields; never crashes.
