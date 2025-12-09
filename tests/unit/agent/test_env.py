@@ -100,7 +100,7 @@ def get_memory_info():
 # ────────────────────────────────────────────────────────────────
 def get_disk_space():
     """
-    Retrieve free disk space on the rooot filesystem.
+    Retrieve free disk space on the root filesystem.
 
     Purpose:
         Report available disk space in gigabytes (GB) on '/'.
