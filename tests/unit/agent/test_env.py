@@ -227,7 +227,7 @@ def get_libvirt_version():
 
     Output Example:
         {"libvirt_version": "8.6.0"}
-        or {"libvirt_version": "virsh nt found"}
+        or {"libvirt_version": "virsh not found"}
         or {"erroor": "..."}
 
     Note:
