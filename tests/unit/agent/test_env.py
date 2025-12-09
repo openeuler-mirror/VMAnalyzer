@@ -186,7 +186,7 @@ def get_qemu_version():
 
     Note:
         Uses `subprocess` with timeout to avoid hanging.
-        Safe to remoove — no other function depends on it.
+        Safe to remove — no other function depends on it.
     """
     try:
         # Common QEMU executable names across distributions
