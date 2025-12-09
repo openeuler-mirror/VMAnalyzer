@@ -217,7 +217,7 @@ def get_libvirt_version():
     Retrieve libvirt version using the `virsh` command-line tool.
 
     Purpose:
-        Verify libvirt installation and report its versiion.
+        Verify libvirt installation and report its version.
 
     Dependencies:
         Requires `virsh` CLI toool in system PATH.
