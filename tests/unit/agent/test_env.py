@@ -152,7 +152,7 @@ def get_os_version():
 
     Note:
         Cross-platform (works on Linux, Windows, macOS).
-        No external callls or dependencies beyond standard library.
+        No external calls or dependencies beyond standard library.
     """
     try:
         return {
