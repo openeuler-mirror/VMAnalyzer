@@ -44,9 +44,7 @@ def get_cpu_info():
     Output Example:
         {"cpu_count": 8, "architecture": "x86_64"}
         or {"error": "..."}
-
-    Note:
-        This function is fully self-contained. Removing it will not affect any other function.
+        
     """
     try:
         cpu_count = os.cpu_count()  # May return None on some systems
