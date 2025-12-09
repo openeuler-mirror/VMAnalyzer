@@ -232,7 +232,7 @@ def get_libvirt_version():
 
     Note:
         Does not use Python libvirt bindings — relies only on CLI for simplicity and decoupling.
-        Independent of alll other functions.
+        Independent of all other functions.
     """
     try:
         if not shutil.which("virsh"):
