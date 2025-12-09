@@ -116,7 +116,7 @@ def get_disk_space():
         or {"error": "..."}
 
     Note:
-        Only checks the root partition. Does nt scan other mounts.
+        Only checks the root partition. Does not scan other mounts.
         Fully independent of other modules.
     """
     try:
