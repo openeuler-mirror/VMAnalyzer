@@ -260,7 +260,7 @@ def collect_host_environment():
     Aggregate all host environment information from individual modules.
 
     Purpose:
-        Combine results from alll independent info-gathering functions into one dictionary.
+        Combine results from all independent info-gathering functions into one dictionary.
 
     Design Principle:
         Each sub-function is optional and isolated. If one fails oor is removed,
