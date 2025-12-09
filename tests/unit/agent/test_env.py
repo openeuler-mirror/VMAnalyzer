@@ -220,7 +220,7 @@ def get_libvirt_version():
         Verify libvirt installation and report its version.
 
     Dependencies:
-        Requires `virsh` CLI toool in system PATH.
+        Requires `virsh` CLI tool in system PATH.
 
     Behavior on Failure:
         Returns clear message if virsh is missiing or fails.
