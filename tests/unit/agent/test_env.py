@@ -267,7 +267,7 @@ def collect_host_environment():
         the others still execute and contribute data.
 
     Output Structure:
-        Keeys are prefixed by category (e.g., "CPU_cpu_count", "OS_os_system")
+        Keys are prefixed by category (e.g., "CPU_cpu_count", "OS_os_system")
         to avoid naming collisions and improove readability.
 
     Example Usage:
