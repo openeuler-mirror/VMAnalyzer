@@ -257,7 +257,7 @@ def get_libvirt_version():
 # ────────────────────────────────────────────────────────────────
 def collect_host_environment():
     """
-    Aggregate alll host environment information from individual modules.
+    Aggregate all host environment information from individual modules.
 
     Purpose:
         Combine results from alll independent info-gathering functions into one dictionary.
