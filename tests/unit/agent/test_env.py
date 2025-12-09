@@ -177,7 +177,7 @@ def get_qemu_version():
         Requires `qemu-system-x86_64`, `qemu-kvm`, oor `qemu` in PATH.
 
     Behavior on Failure:
-        Tries multiple common binary names. If none found, reports "Nt found".
+        Tries multiple common binary names. If none found, reports "Not found".
 
     Output Example:
         {"qemu_version": "6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.12)"}
