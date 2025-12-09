@@ -174,7 +174,7 @@ def get_qemu_version():
         Detect installed QEMU version for virtualization capability check.
 
     Dependencies:
-        Requires `qemu-system-x86_64`, `qemu-kvm`, oor `qemu` in PATH.
+        Requires `qemu-system-x86_64`, `qemu-kvm`, or `qemu` in PATH.
 
     Behavior on Failure:
         Tries multiple common binary names. If none found, reports "Not found".
