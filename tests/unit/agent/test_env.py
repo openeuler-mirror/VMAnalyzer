@@ -78,9 +78,6 @@ def get_memory_info():
         or {"total_memory_gb": "N/A (psutil not installed)"}
         or {"error": "..."}
 
-    Note:
-        This function does not call any other function in this file.
-        Safe to delete without side effects.
     """
     if not _PSUTIL_AVAILABLE:
         return {"total_memory_gb": "N/A (psutil not installed)"}
