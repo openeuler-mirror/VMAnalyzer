@@ -140,7 +140,7 @@ def get_os_version():
         Built-in `platform` module.
 
     Behavior on Failure:
-        Returns "unknown" for missiing fields; never crashes.
+        Returns "unknown" for missing fields; never crashes.
 
     Output Example:
         {
