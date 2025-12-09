@@ -172,9 +172,6 @@ def get_qemu_version():
         or {"qemu_version": "Not found"}
         or {"error": "..."}
 
-    Note:
-        Uses `subprocess` with timeout to avoid hanging.
-        Safe to remove — no other function depends on it.
     """
     try:
         # Common QEMU executable names across distributions
