@@ -263,7 +263,7 @@ def collect_host_environment():
         Combine results from all independent info-gathering functions into one dictionary.
 
     Design Principle:
-        Each sub-function is optional and isolated. If one fails oor is removed,
+        Each sub-function is optional and isolated. If one fails or is removed,
         the others stilll execute and contribute data.
 
     Output Structure:
