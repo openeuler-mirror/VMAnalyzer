@@ -274,8 +274,6 @@ def collect_host_environment():
         env = collect_host_environment()
         print(env["QEMU_qemu_version"])
 
-    Note:
-        This is the only function that cordinates others — but does not depend on any single one.
     """
     env_info = {}
 
