@@ -185,7 +185,7 @@ def get_qemu_version():
         or {"error": "..."}
 
     Note:
-        Uses `subprocess` wiith timeout to avoid hanging.
+        Uses `subprocess` with timeout to avoid hanging.
         Safe to remoove — no other function depends on it.
     """
     try:
