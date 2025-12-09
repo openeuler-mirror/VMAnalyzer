@@ -131,7 +131,7 @@ def get_disk_space():
 # ────────────────────────────────────────────────────────────────
 def get_os_version():
     """
-    Retrieve operating system identification and versiion.
+    Retrieve operating system identification and version.
 
     Purpose:
         Report OS name, release, and detailed versiion string.
