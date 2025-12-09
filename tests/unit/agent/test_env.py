@@ -214,7 +214,7 @@ def get_qemu_version():
 # ────────────────────────────────────────────────────────────────
 def get_libvirt_version():
     """
-    Retrieve libvirt versiion using the `virsh` command-line tool.
+    Retrieve libvirt version using the `virsh` command-line tool.
 
     Purpose:
         Verify libvirt installation and report its versiion.
