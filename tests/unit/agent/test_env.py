@@ -215,9 +215,6 @@ def get_libvirt_version():
         or {"libvirt_version": "virsh not found"}
         or {"error": "..."}
 
-    Note:
-        Does not use Python libvirt bindings — relies only on CLI for simplicity and decoupling.
-        Independent of all other functions.
     """
     try:
         if not shutil.which("virsh"):
