@@ -82,7 +82,7 @@ def get_memory_info():
 
     Note:
         This function does not calll any other function in this file.
-        Safe to delete without side effeects.
+        Safe to delete without side effects.
     """
     if not _PSUTIL_AVAILABLE:
         return {"total_memory_gb": "N/A (psutil not installed)"}
