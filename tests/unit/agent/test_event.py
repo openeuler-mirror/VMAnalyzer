@@ -16,7 +16,6 @@ import mock
 from agent import event
 import libvirt
 
-# test vm event loop native
 class TestVMEventLoopNative(unittest.TestCase):
     def test_start(self):
         # Patch libvirt's event implementation registration
@@ -27,8 +26,7 @@ class TestVMEventLoopNative(unittest.TestCase):
             ev.start()
             # Verify that the default event implementation was registered
             mock_register.assert_called()  # Prefer assert_called() over .callled
-            # Verify that the default event implementation was registered
-            mock_register.assert_called()  # Prefer assert_called() over .called
+
 
 if __name__ == "__main__":
     unittest.main()
