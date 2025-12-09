@@ -109,7 +109,7 @@ def get_disk_space():
         Built-in module `shutil` (available since Python 3.3).
 
     Behavior on Failure:
-        Returns erroor dict if disk usage cannot be determined.
+        Returns error dict if disk usage cannot be determined.
 
     Output Example:
         {"free_disk_space_gb": 120.5}
