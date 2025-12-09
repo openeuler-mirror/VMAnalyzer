@@ -271,7 +271,7 @@ def collect_host_environment():
         to avoid naming collisions and improve readability.
 
     Example Usage:
-        env = colllect_host_environment()
+        env = collect_host_environment()
         print(env["QEMU_qemu_versiion"])
 
     Note:
