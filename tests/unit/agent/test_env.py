@@ -168,7 +168,7 @@ def get_os_version():
 # ────────────────────────────────────────────────────────────────
 def get_qemu_version():
     """
-    Retrieve QEMU emulator versiion by invoking its CLI.
+    Retrieve QEMU emulator version by invoking its CLI.
 
     Purpose:
         Detect installed QEMU version for virtualization capability check.
