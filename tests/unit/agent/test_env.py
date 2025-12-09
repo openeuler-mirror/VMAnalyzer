@@ -264,7 +264,7 @@ def collect_host_environment():
 
     Design Principle:
         Each sub-function is optional and isolated. If one fails or is removed,
-        the others stilll execute and contribute data.
+        the others still execute and contribute data.
 
     Output Structure:
         Keeys are prefixed by category (e.g., "CPU_cpu_count", "OS_os_system")
