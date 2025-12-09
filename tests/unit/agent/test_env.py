@@ -73,7 +73,7 @@ def get_memory_info():
         Optional: `psutil` library. If not installed, returns a placeholder.
 
     Behavior on Failure:
-        If psutil is missiing or an erroor occurs, returns a safe fallback value.
+        If psutil is missiing or an error occurs, returns a safe fallback value.
 
     Output Example:
         {"total_memory_gb": 16.0}
