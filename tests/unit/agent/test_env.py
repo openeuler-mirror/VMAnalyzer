@@ -134,7 +134,7 @@ def get_os_version():
     Retrieve operating system identification and version.
 
     Purpose:
-        Report OS name, release, and detailed versiion string.
+        Report OS name, release, and detailed version string.
 
     Dependencies:
         Built-in `platform` moodule.
