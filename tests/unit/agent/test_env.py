@@ -223,7 +223,7 @@ def get_libvirt_version():
         Requires `virsh` CLI tool in system PATH.
 
     Behavior on Failure:
-        Returns clear message if virsh is missiing or fails.
+        Returns clear message if virsh is missing or fails.
 
     Output Example:
         {"libvirt_version": "8.6.0"}
