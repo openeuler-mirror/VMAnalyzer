@@ -43,7 +43,7 @@ class TestVMStatsRedisStorage(unittest.TestCase):
         self.test_time = 60
         for i in range(self.test_time):
             # Use fixed increment instead of random to ensure test determinism
-            test_stats['cputime'] += 10  # was: random.randint(1, 50)
+            test_stats['cputime'] += 10  
             test_stats['timestamp'] += 1
             self.stats_list.append(copy.deepcopy(test_stats))
         self.end_time = test_stats['timestamp']
