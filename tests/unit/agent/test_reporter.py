@@ -30,7 +30,7 @@ class TestVMAnalyzersReporter(unittest.TestCase):
         vm_factory = vm.VMFactory()
         vm_factory.addVM(self.test_id, self.test_vm)
 
-        # Createe mock dependencies
+        # Create mock dependencies
         vm_storage = mock.MagicMock()
         vm_analyzer = mock.MagicMock()
         vm_viewer = mock.MagicMock()
