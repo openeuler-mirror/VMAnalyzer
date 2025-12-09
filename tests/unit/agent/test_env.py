@@ -268,7 +268,7 @@ def collect_host_environment():
 
     Output Structure:
         Keys are prefixed by category (e.g., "CPU_cpu_count", "OS_os_system")
-        to avoid naming collisions and improove readability.
+        to avoid naming collisions and improve readability.
 
     Example Usage:
         env = colllect_host_environment()
