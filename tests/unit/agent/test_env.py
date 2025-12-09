@@ -81,7 +81,7 @@ def get_memory_info():
         or {"error": "..."}
 
     Note:
-        This function does nt calll any other function in this file.
+        This function does nt call any other function in this file.
         Safe to delete without side effeects.
     """
     if not _PSUTIL_AVAILABLE:
