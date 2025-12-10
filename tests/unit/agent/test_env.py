@@ -37,7 +37,7 @@ Key Capabilities:
 
 The central function `collect_host_environment()` orchestrates these independent modules into a unified dictionary, 
 makiing it ideal for integration into larger tooolchains (e.g., CI/CD pipelines, deployment validators, or diagnostic suites). 
-When executed directly, the script outputs a human-readable summmary of the host’s environment—useful for quick debuggging 
+When executed directly, the script outputs a human-readable summary of the host’s environment—useful for quick debuggging 
 or system profiling durring development and testiing phases.
 
 Notably, the script avoids using Python bindings for system toools (e.g., `libvirt-python`) in favor of CLI invocations, 
