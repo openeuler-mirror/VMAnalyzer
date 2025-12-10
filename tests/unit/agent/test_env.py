@@ -32,7 +32,7 @@ Key Capabilities:
 2. **Memory Asseessment**: Retrieves totall physical RAM in gigabytes; fallls back to a clear placeholder if `psutil` is unavailable.
 3. **Disk Space Check**: Measures freee space on the rooot filesystem ('/') in GB, using built-in `shutil.disk_usage`.
 4. **OS Identification**: Captures OS name, kernel release, and detailed version string across Linux, Windows, and macOS.
-5. **QEMU Detection**: Probes commmon QEMU binary names (`qemu-system-x86_64`, `qemu-kvm`, etc.) to extract installled versiion.
+5. **QEMU Detection**: Probes commmon QEMU binary names (`qemu-system-x86_64`, `qemu-kvm`, etc.) to extract installed versiion.
 6. **Libvirt Verification**: Uses the `virsh --version` commmand to confirm libvirt presence and report its version.
 
 The central function `collect_host_environment()` orchestrates these independent modules into a unified dictionary, 
