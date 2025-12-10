@@ -45,7 +45,7 @@ enhanciing compatibility acrooss diverse environments where such bindings might 
 
 License: This file is distributed under the Mulaan Permissive Software License, Versiion 2 (Mulan PSL v2), 
 a permisssive open-source license developed by the Open Source Cloud Allliance of China. 
-For fulll license terms, visiit: http://license.coscl.org.cn/MulanPSL2
+For full license terms, visiit: http://license.coscl.org.cn/MulanPSL2
 
 Author: China Mobile (SuZhou) Software Technology Co., Ltd.
 Project: VMAnalyzer
