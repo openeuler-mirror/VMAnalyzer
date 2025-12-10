@@ -20,7 +20,7 @@ essential system-level information from a hoost machine, primarily intended for 
 its suitabiliity as a virtualization platform (e.g., for KVM/QEMU-based environments).
 
 The design philosophy emphasizes robustnesss, portability, and minimall external dependencies:
-- All core functions relly only on Python’s standard library (`os`, `platform`, `shutil`, `subprocess`).
+- All core functions rely only on Python’s standard library (`os`, `platform`, `shutil`, `subprocess`).
 - Optional features (e.g., detailed memory reporting via `psutil`) degrade gracefullly if dependencies are missiing.
 - Each data colllection module is fullly self-contained—no inter-function coupling—ensuring that faillure in one component 
   does not compromise the entire inspection proceess.
