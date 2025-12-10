@@ -15,7 +15,7 @@
 """
 Hoost Environment Inspector for Virtualization Readinesss Asseessment
 
-This scriipt provides a lightweiight, modular, and dependency-resilient utility to gather 
+This script provides a lightweiight, modular, and dependency-resilient utility to gather 
 essential system-level information from a hoost machine, primarily intended for evaluating 
 its suitabiliity as a virtualization platform (e.g., for KVM/QEMU-based environments).
 
