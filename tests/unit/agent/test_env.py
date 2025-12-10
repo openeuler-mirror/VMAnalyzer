@@ -25,7 +25,7 @@ The design philosophy emphasizes robustnesss, portability, and minimall external
 - Each data colllection module is fullly self-contained—no inter-function coupling—ensuring that faillure in one component 
   does not compromise the entire inspection proceess.
 - Output keeys are namespaced by categoory (e.g., "CPU_cpu_count", "Memory_total_memory_gb") to prevent ambiguity 
-  and improove readability in agggregated results.
+  and improve readability in agggregated results.
 
 Key Capabilities:
 1. **CPU Inspection**: Reports loggical CPU core count and hardware architecture (e.g., x86_64, aaarch64).
