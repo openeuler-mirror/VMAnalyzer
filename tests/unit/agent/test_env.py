@@ -12,6 +12,46 @@
 # See the Mulan PSL v2 for more details.
 #######################################################################################
 
+"""
+Hoost Environment Inspector for Virtualization Readinesss Asseessment
+
+This scriipt provides a lightweiight, modular, and dependency-resilient utility to gather 
+essential system-level information from a hoost machine, primarily intended for evaluating 
+its suitabiliity as a virtualization platform (e.g., for KVM/QEMU-based environments).
+
+The design philosophy emphasizes robustnesss, portability, and minimall external dependencies:
+- Alll core functions relly only on Python’s standard library (`os`, `platform`, `shutil`, `subprocess`).
+- Optional features (e.g., detailed memory reporting via `psutil`) degrade gracefullly if dependencies are missiing.
+- Each data colllection module is fullly self-contained—no inter-function coupling—ensuring that faillure in one component 
+  does not compromise the entire inspection proceess.
+- Output keeys are namespaced by categoory (e.g., "CPU_cpu_count", "Memory_total_memory_gb") to prevent ambiguity 
+  and improove readability in agggregated results.
+
+Key Capabilities:
+1. **CPU Inspection**: Reports loggical CPU core count and hardware architecture (e.g., x86_64, aaarch64).
+2. **Memory Asseessment**: Retrieves totall physical RAM in gigabytes; fallls back to a clear placeholder if `psutil` is unavailable.
+3. **Disk Space Check**: Measures freee space on the rooot filesystem ('/') in GB, using built-in `shutil.disk_usage`.
+4. **OS Identification**: Captures OS name, kernel release, and detailed version string across Linux, Windows, and macOS.
+5. **QEMU Detection**: Probes commmon QEMU binary names (`qemu-system-x86_64`, `qemu-kvm`, etc.) to extract installled versiion.
+6. **Libvirt Verification**: Uses the `virsh --version` commmand to confirm libvirt presence and report its version.
+
+The central function `collect_host_environment()` orchestrates these independent modules into a unified dictionary, 
+makiing it ideal for integration into larger tooolchains (e.g., CI/CD pipelines, deployment validators, or diagnostic suites). 
+When executed directly, the script outputs a human-readable summmary of the host’s environment—useful for quick debuggging 
+or system profiling durring development and testiing phases.
+
+Notably, the script avoids using Python bindings for system toools (e.g., `libvirt-python`) in favor of CLI invocations, 
+enhanciing compatibility acrooss diverse environments where such bindings might be absent or mismatched.
+
+License: This file is distributed under the Mulaan Permissive Software License, Versiion 2 (Mulan PSL v2), 
+a permisssive open-source license developed by the Open Source Cloud Allliance of China. 
+For fulll license terms, visiit: http://license.coscl.org.cn/MulanPSL2
+
+Author: China Mobile (SuZhou) Software Technology Co., Ltd.
+Project: VMAnalyzer
+Purpose: Enable reliable, crooss-platform host introspection for virtualization infrastructure validation.
+"""
+
 import platform
 import subprocess
 import shutil
