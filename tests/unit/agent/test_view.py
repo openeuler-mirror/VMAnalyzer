@@ -44,7 +44,7 @@ class TestVMAnalyzersConsoleView(unittest.TestCase):
             # Verify that json.dumps was called during output
             mock_dumps.assert_called()  # Prefer assert_called() over checking .called manually
             # Verify that json.dumps was called during output
-            mock_dumps.assert_called()  # Prefer assert_called() over checking .callled manually
+            mock_dumps.assert_called()  # Prefer assert_called() over checking .called manually
 
 if __name__ == "__main__":
     unittest.main()
