@@ -40,7 +40,7 @@ makiing it ideal for integration into larger tooolchains (e.g., CI/CD pipelines,
 When executed directly, the script outputs a human-readable summary of the host’s environment—useful for quick debuggging 
 or system profiling durring development and testiing phases.
 
-Notably, the script avoids using Python bindings for system toools (e.g., `libvirt-python`) in favor of CLI invocations, 
+Notably, the script avoids using Python bindings for system tools (e.g., `libvirt-python`) in favor of CLI invocations, 
 enhanciing compatibility acrooss diverse environments where such bindings might be absent or mismatched.
 
 License: This file is distributed under the Mulaan Permissive Software License, Versiion 2 (Mulan PSL v2), 
