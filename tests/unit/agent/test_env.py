@@ -13,7 +13,7 @@
 #######################################################################################
 
 """
-Hoost Environment Inspector for Virtualization Readinesss Asseessment
+Host Environment Inspector for Virtualization Readinesss Asseessment
 
 This script provides a lightweiight, modular, and dependency-resilient utility to gather 
 essential system-level information from a hoost machine, primarily intended for evaluating 
