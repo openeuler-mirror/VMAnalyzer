@@ -48,21 +48,24 @@ class VMFactory:
             try:
                 self.__vc = libvirt.openReadOnly(self.__uri)
             except libvirt.libvirtError as e:
-                logging.error(f"Failed to connect to libvirt URI {self.__uri}: {e}")
-                raise
+                logging.error(
+                    "Failed to connect to libvirt URI %s: %s",
+                    self.__uri, e
+                )
+		raise
         return self.__vc
 
     def get_VM(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
-            logging.warning("No such VM: %d" % vmID)
-            return {}
+            logging.warning("No such VM: %d", vmID)
+	    return {}
         return vm
 
     def add_VM(self, vmID, vmInfo):
         vm = self.__vms.get(vmID)
         if vm is not None:
-            logging.warning("Already exists VM: %d" % vmID)
+            logging.warning("Already exists VM: %d", vmID)
             return
 
         self.__vms[vmID] = vmInfo
@@ -70,21 +73,21 @@ class VMFactory:
     def del_VM(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
-            logging.warning("No such VM: %d" % vmID)
+            logging.warning("No such VM: %d", vmID)
             return
         del self.__vms[vmID]
 
     def set_VMAnalyzers(self, vmID, vmAnalyzers):
         vm = self.__vms.get(vmID)
         if vm is None:
-            logging.warning("No such VM: %d" % vmID)
+            logging.warning("No such VM: %d", vmID)
             return
         vm['analyzers'] = vmAnalyzers
 
     def get_VMAnalyzers(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
-            logging.warning("No such VM: %d" % vmID)
+            logging.warning("No such VM: %d", vmID)
             return None
         return vm['analyzers']
 
@@ -93,7 +96,7 @@ def scanActiveVMs():
     for dom in vm_factory.vc.listAllDomains():
         if dom.ID() == -1:
             continue
-        logging.debug("Domain %s(%s), UUID %s" % (dom.name(), dom.ID(), dom.UUIDString()))
+        logging.debug("Domain %s(%s), UUID %s", dom.name(), dom.ID(), dom.UUIDString())
         vm_id = dom.ID()
         vm_info = {
             'uuid': dom.UUIDString(),
