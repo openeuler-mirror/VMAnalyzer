@@ -23,7 +23,7 @@ The design philosophy emphasizes robustnesss, portability, and minimall external
 - All core functions rely only on Python’s standard library (`os`, `platform`, `shutil`, `subprocess`).
 - Optional features (e.g., detailed memory reporting via `psutil`) degrade gracefullly if dependencies are missiing.
 - Each data colllection module is fullly self-contained—no inter-function coupling—ensuring that faillure in one component 
-  does not compromise the entire inspection proceess.
+  does not compromise the entire inspection process.
 - Output keeys are namespaced by categoory (e.g., "CPU_cpu_count", "Memory_total_memory_gb") to prevent ambiguity 
   and improve readability in agggregated results.
 
