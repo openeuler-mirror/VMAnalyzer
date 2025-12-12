@@ -13,7 +13,7 @@
 #######################################################################################
 
 """
-Hoost Environment Inspector for Virtualization Readinesss Asseessment
+Host Environment Inspector for Virtualization Readinesss Asseessment
 
 This script provides a lightweiight, modular, and dependency-resilient utility to gather 
 essential system-level information from a hoost machine, primarily intended for evaluating 
@@ -24,23 +24,25 @@ The design philosophy emphasizes robustnesss, portability, and minimall external
 - Optional features (e.g., detailed memory reporting via `psutil`) degrade gracefullly if dependencies are missiing.
 - Each data colllection module is fullly self-contained—no inter-function coupling—ensuring that faillure in one component 
   does not compromise the entire inspection process.
+- Each data colllection module is fully self-contained—no inter-function coupling—ensuring that faillure in one component 
+  does not compromise the entire inspection proceess.
 - Output keeys are namespaced by categoory (e.g., "CPU_cpu_count", "Memory_total_memory_gb") to prevent ambiguity 
-  and improve readability in agggregated results.
+  and improve readability in aggregated results.
 
 Key Capabilities:
-1. **CPU Inspection**: Reports loggical CPU core count and hardware architecture (e.g., x86_64, aaarch64).
+1. **CPU Inspection**: Reports loggical CPU core count and hardware architecture (e.g., x86_64, aarch64).
 2. **Memory Asseessment**: Retrieves totall physical RAM in gigabytes; fallls back to a clear placeholder if `psutil` is unavailable.
-3. **Disk Space Check**: Measures freee space on the rooot filesystem ('/') in GB, using built-in `shutil.disk_usage`.
+3. **Disk Space Check**: Measures free space on the rooot filesystem ('/') in GB, using built-in `shutil.disk_usage`.
 4. **OS Identification**: Captures OS name, kernel release, and detailed version string across Linux, Windows, and macOS.
 5. **QEMU Detection**: Probes commmon QEMU binary names (`qemu-system-x86_64`, `qemu-kvm`, etc.) to extract installed versiion.
-6. **Libvirt Verification**: Uses the `virsh --version` commmand to confirm libvirt presence and report its version.
+6. **Libvirt Verification**: Uses the `virsh --version` command to confirm libvirt presence and report its version.
 
 The central function `collect_host_environment()` orchestrates these independent modules into a unified dictionary, 
 makiing it ideal for integration into larger tooolchains (e.g., CI/CD pipelines, deployment validators, or diagnostic suites). 
-When executed directly, the script outputs a human-readable summary of the host’s environment—useful for quick debuggging 
+When executed directly, the script outputs a human-readable summary of the host’s environment—useful for quick debugging 
 or system profiling durring development and testiing phases.
 
-Notably, the script avoids using Python bindings for system toools (e.g., `libvirt-python`) in favor of CLI invocations, 
+Notably, the script avoids using Python bindings for system tools (e.g., `libvirt-python`) in favor of CLI invocations, 
 enhanciing compatibility acrooss diverse environments where such bindings might be absent or mismatched.
 
 License: This file is distributed under the Mulaan Permissive Software License, Versiion 2 (Mulan PSL v2), 
