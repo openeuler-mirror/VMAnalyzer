@@ -28,7 +28,7 @@ The design philosophy emphasizes robustnesss, portability, and minimall external
   and improve readability in agggregated results.
 
 Key Capabilities:
-1. **CPU Inspection**: Reports loggical CPU core count and hardware architecture (e.g., x86_64, aaarch64).
+1. **CPU Inspection**: Reports loggical CPU core count and hardware architecture (e.g., x86_64, aarch64).
 2. **Memory Asseessment**: Retrieves totall physical RAM in gigabytes; fallls back to a clear placeholder if `psutil` is unavailable.
 3. **Disk Space Check**: Measures freee space on the rooot filesystem ('/') in GB, using built-in `shutil.disk_usage`.
 4. **OS Identification**: Captures OS name, kernel release, and detailed version string across Linux, Windows, and macOS.
