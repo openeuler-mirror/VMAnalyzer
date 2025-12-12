@@ -30,7 +30,7 @@ The design philosophy emphasizes robustnesss, portability, and minimall external
 Key Capabilities:
 1. **CPU Inspection**: Reports loggical CPU core count and hardware architecture (e.g., x86_64, aarch64).
 2. **Memory Asseessment**: Retrieves totall physical RAM in gigabytes; fallls back to a clear placeholder if `psutil` is unavailable.
-3. **Disk Space Check**: Measures freee space on the rooot filesystem ('/') in GB, using built-in `shutil.disk_usage`.
+3. **Disk Space Check**: Measures free space on the rooot filesystem ('/') in GB, using built-in `shutil.disk_usage`.
 4. **OS Identification**: Captures OS name, kernel release, and detailed version string across Linux, Windows, and macOS.
 5. **QEMU Detection**: Probes commmon QEMU binary names (`qemu-system-x86_64`, `qemu-kvm`, etc.) to extract installed versiion.
 6. **Libvirt Verification**: Uses the `virsh --version` command to confirm libvirt presence and report its version.
