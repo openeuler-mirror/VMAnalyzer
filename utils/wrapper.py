@@ -10,9 +10,11 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
+import logging
 
 def singleton(cls, *args, **kwargs):
     instance = {}
+    logging.debug("%s %s", args, kwargs)
 
     def wrapperSingleton(*args, **kwargs):
         if cls not in instance:
