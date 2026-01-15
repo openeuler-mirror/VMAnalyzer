@@ -16,6 +16,10 @@ import time
 
 
 class VMStatsCollector:
+    """
+    A class responsible for collecting and recording
+    statistics of virtual machines (VMs).
+    """
     def __init__(self, vmFactory, statsStorage):
         self.__vmFactory = vmFactory
         self.__statsStorage = statsStorage
