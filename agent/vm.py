@@ -50,8 +50,7 @@ class VMFactory:
             except libvirt.libvirtError as e:
                 logging.error(
                     "Failed to connect to libvirt URI %s: %s",
-                    self.__uri, e
-                )
+                    self.__uri, e)
 		raise
         return self.__vc
 
