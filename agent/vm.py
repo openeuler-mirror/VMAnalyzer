@@ -51,17 +51,17 @@ class VMFactory:
                 logging.error(
                     "Failed to connect to libvirt URI %s: %s",
                     self.__uri, e)
-		raise
+                raise
         return self.__vc
 
-    def get_VM(self, vmID):
+    def get_vm(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
             logging.warning("No such VM: %d", vmID)
-	    return {}
+            return {}
         return vm
 
-    def add_VM(self, vmID, vmInfo):
+    def add_vm(self, vmID, vmInfo):
         vm = self.__vms.get(vmID)
         if vm is not None:
             logging.warning("Already exists VM: %d", vmID)
@@ -69,28 +69,28 @@ class VMFactory:
 
         self.__vms[vmID] = vmInfo
 
-    def del_VM(self, vmID):
+    def del_vm(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
             logging.warning("No such VM: %d", vmID)
             return
         del self.__vms[vmID]
 
-    def set_VMAnalyzers(self, vmID, vmAnalyzers):
+    def set_vm_analyzers(self, vmID, vmAnalyzers):
         vm = self.__vms.get(vmID)
         if vm is None:
             logging.warning("No such VM: %d", vmID)
             return
         vm['analyzers'] = vmAnalyzers
 
-    def get_VMAnalyzers(self, vmID):
+    def get_vm_analyzers(self, vmID):
         vm = self.__vms.get(vmID)
         if vm is None:
             logging.warning("No such VM: %d", vmID)
             return None
         return vm['analyzers']
 
-def scanActiveVMs():
+def scan_active_vms():
     vm_factory = VMFactory()
     for dom in vm_factory.vc.listAllDomains():
         if dom.ID() == -1:
