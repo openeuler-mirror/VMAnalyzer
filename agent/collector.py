@@ -20,7 +20,7 @@ class VMStatsCollector:
         self.__vmFactory = vmFactory
         self.__statsStorage = statsStorage
 
-    def recordStats(self):
+    def record_stats(self):
         vm_factory = self.__vmFactory
         if vm_factory is None:
             return
@@ -42,6 +42,6 @@ class VMStatsCollector:
                 'cputime': dom_info[4],
                 'timestamp': int(timestamp)
             }
-            logging.debug("recordStats: Name %s, UUID %s, vcpus %d, cputime %d, timestamp: %d"
-                          % (vm['name'], vm['uuid'], dom_info[3], dom_info[4], timestamp))
+            logging.debug("recordStats: Name %s, UUID %s, vcpus %d, cputime %d, timestamp: %d",
+                           vm['name'], vm['uuid'], dom_info[3], dom_info[4], timestamp)
         self.__statsStorage.saveStatsInfo(stats_info)
