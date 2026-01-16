@@ -22,6 +22,10 @@ from utils import wrapper
 
 @six.add_metaclass(abc.ABCMeta)
 class VMStatsStorage(object):
+    """
+    An abstract base class defining the interface for storing and retrieving
+    virtual machine statistics information.
+    """
     @abc.abstractmethod
     def save_stats_info(self, statsInfo):
         pass
@@ -33,6 +37,10 @@ class VMStatsStorage(object):
 
 @wrapper.singleton
 class VMStatsRedisStorage(VMStatsStorage):
+    """
+    A concrete implementation of the VMStatsStorage abstract base class
+    that uses Redis as the storage backend.
+    """
     def __init__(self, vmFactory):
         self.__pool = redis.ConnectionPool(host=config.REDIS_DATABASE_CONFIG['host'],
                                            port=config.REDIS_DATABASE_CONFIG['port'])
