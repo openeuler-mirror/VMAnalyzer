@@ -16,21 +16,22 @@ from utils import config
 
 
 class VMAnalyzersReporter():
-    def __init__(self, vmFactory, statsStorage, analyzersViewer, statsAnalyzer):
-        self.__vmFactory = vmFactory
-        self.__statsStorage = statsStorage
-        self.__analyzersViews = analyzersViewer
-        self.__statsAnalyzer = statsAnalyzer
+    def __init__(self, vm_factory, stats_storage,
+                 analyzers_viewer, stats_analyzer):
+        self.__vm_factory = vm_factory
+        self.__stats_storage = stats_storage
+        self.__analyzers_viewer = analyzers_viewer
+        self.__stats_analyzer = stats_analyzer
 
     def start_report(self):
-        vm_factory = self.__vmFactory
+        vm_factory = self.__vm_factory
         if vm_factory is None:
             return
         end_time = time.time()
         start_time = end_time - config.VM_ANALYZERS_CONFIG['duration']
         for vm_id in list(vm_factory.vms.keys()):
-            vm_stats = self.__statsStorage.getStatsInfo(vm_id, start_time, end_time)
-            vm_analyzers = self.__statsAnalyzer.analyzeStats(vm_id, vm_stats)
-            self.__analyzersViews.output(vm_analyzers)
+            vm_stats = self.__stats_storage.getStatsInfo(vm_id, start_time, end_time)
+            vm_analyzers = self.__stats_analyzer.analyzeStats(vm_id, vm_stats)
+            self.__analyzers_viewer.output(vm_analyzers)
 
 
