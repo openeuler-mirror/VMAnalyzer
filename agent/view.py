@@ -13,7 +13,6 @@
 # See the Mulan PSL v2 for more details.
 #######################################################################################
 
-import logging
 import six
 import abc
 import json
