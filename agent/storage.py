@@ -23,11 +23,11 @@ from utils import wrapper
 @six.add_metaclass(abc.ABCMeta)
 class VMStatsStorage(object):
     @abc.abstractmethod
-    def saveStatsInfo(self, statsInfo):
+    def save_stats_info(self, statsInfo):
         pass
 
     @abc.abstractmethod
-    def getStatsInfo(self, vm, startTimestamp, endTimestamp):
+    def get_stats_info(self, vm, startTimestamp, endTimestamp):
         pass
 
 
@@ -43,7 +43,7 @@ class VMStatsRedisStorage(VMStatsStorage):
     def sr(self):
         return self.__sr
 
-    def saveStatsInfo(self, statsInfo):
+    def save_stats_info(self, statsInfo):
         pipe = self.__sr.pipeline()
         pipe.multi()
         for vmID, vmStats in list(statsInfo.items()):
@@ -57,10 +57,10 @@ class VMStatsRedisStorage(VMStatsStorage):
                 }
                 pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
             except Exception as err:
-                logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+                logging.warning("Unable to save stats of %s: %s", vmStats['name'], err.message)
         pipe.execute()
 
-    def getStatsInfo(self, vmID, startTimestamp, endTimestamp):
+    def get_stats_info(self, vmID, startTimestamp, endTimestamp):
         # VM has been shutdown or destroyed???
         if vmID not in list(self.__vmFactory.vms.keys()):
             return {}
@@ -74,7 +74,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                                                      endTimestamp,
                                                      withscores=True))
         except Exception as err:
-            logging.warning('Unable to get stats of %s: %s', vm_info['name'], err.message)
+            logging.warning("Unable to get stats of %s: %s", vm_info['name'], err.message)
 
         vm_stats = []
         for data in data_list:
