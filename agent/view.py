@@ -22,8 +22,8 @@ import copy
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
     # Iterate over dict values directly; no need to wrap in list() in Python 3
-    for v in new_util.values():
-        if 'Current_cpu_utilization' in v:
+    for v in list(new_util.values()):
+        if 'Current_cpu_utilization' in list(v.keys()):
             if isinstance(v['Current_cpu_utilization'], float):
                 v['Current_cpu_utilization'] = '{:.2%}'.format(v['Current_cpu_utilization'])
     return new_util
