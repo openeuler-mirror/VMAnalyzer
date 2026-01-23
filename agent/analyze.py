@@ -19,7 +19,7 @@ class VMStatsAnalyze(object):
     def __init__(self, vmFactory):
         self.__vmFactory = vmFactory
 
-    def analyzeStats(self, vmID, vmStatsInfo):
+    def analyze_stats(self, vmID, vmStatsInfo):
 
         vm_factory = self.__vmFactory
         if vmID not in vm_factory.vms:
