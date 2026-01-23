@@ -72,7 +72,9 @@ def domEventCallback(conn, dom, event, detail, opaque):
 
 
 def connCloseCallback(conn, reason, opaque):
-    logging.debug("connCloseCallback: %s: %s" % (conn.getURI(),
-                                                 const.CONNECTION_CLOSE_REASON_STRINGS[reason]))
+    logging.debug("conn_close_callback: %s: %s",
+                   conn.getURI(),
+                   const.CONNECTION_CLOSE_REASON_STRINGS[reason])
+
     global run
     run = False
