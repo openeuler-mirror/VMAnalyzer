@@ -22,7 +22,7 @@ class VMAnalyzersReporter():
         self.__analyzersViews = analyzersViewer
         self.__statsAnalyzer = statsAnalyzer
 
-    def startReport(self):
+    def start_report(self):
         vm_factory = self.__vmFactory
         if vm_factory is None:
             return
