@@ -13,7 +13,6 @@
 #######################################################################################
 
 import logging
-from utils import config
 
 
 class VMStatsAnalyze(object):
