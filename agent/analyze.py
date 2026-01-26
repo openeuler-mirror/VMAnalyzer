@@ -15,12 +15,15 @@ import logging
 
 
 class VMStatsAnalyze(object):
-    def __init__(self, vm_factory):
+    def __init__(self, vm_factory, label):
         self.__vm_factory = vm_factory
+        self.__label = label
 
     def analyze_stats(self, vm_id, vm_stats_info):
 
         vm_factory = self.__vm_factory
+        label = self.__label
+
         if vm_id not in vm_factory.vms:
             return
         vm_info = vm_factory.get_vm(vm_id)
@@ -31,35 +34,36 @@ class VMStatsAnalyze(object):
         analyzers_list = []
         logging.debug('Length of VM stats: %d', len(vm_stats_info))
 
-        last_cpu_util = 0.0
+        if label == 'cpuUsage':
+            last_cpu_util = 0.0
 
-        for i in range(len(vm_stats_info) - 1):
-            assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
-            vcpu_count = vm_stats_info[i]['vcpus']
-            logging.debug('VM %s: previous cputime: %ld, latter cputime: %ld, '
-                          'previous timestamp: %d, latter timestamp: %d',
-                          vm_info['name'], vm_stats_info[i]['cputime'], vm_stats_info[i+1]['cputime'],
-                          vm_stats_info[i]['timestamp'], vm_stats_info[i+1]['timestamp'])
+            for i in range(len(vm_stats_info) - 1):
+                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                vcpu_count = vm_stats_info[i]['vcpus']
+                logging.debug('VM %s: previous cputime: %ld, latter cputime: %ld, '
+                              'previous timestamp: %d, latter timestamp: %d',
+                              vm_info['name'], vm_stats_info[i]['cputime'], vm_stats_info[i+1]['cputime'],
+                              vm_stats_info[i]['timestamp'], vm_stats_info[i+1]['timestamp'])
 
-            delta_cputime = int(vm_stats_info[i+1]['cputime']) - int(vm_stats_info[i]['cputime'])
-            delta_timestamp = vm_stats_info[i+1]['timestamp'] - vm_stats_info[i]['timestamp']
-            if delta_timestamp <= 0:
-                logging.warning("We got wrong timestamp of VM: %s", vm_info['name'])
-                continue
+                delta_cputime = int(vm_stats_info[i+1]['cputime']) - int(vm_stats_info[i]['cputime'])
+                delta_timestamp = vm_stats_info[i+1]['timestamp'] - vm_stats_info[i]['timestamp']
+                if delta_timestamp <= 0:
+                    logging.warning("We got wrong timestamp of VM: %s", vm_info['name'])
+                    continue
 
-            cpu_util = delta_cputime * 100.0 / (delta_timestamp * vcpu_count * 1e9)
+                cpu_util = delta_cputime * 100.0 / (delta_timestamp * vcpu_count * 1e9)
 
-            last_cpu_util = cpu_util
+                last_cpu_util = cpu_util
 
-            logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
-                          vm_info['name'], vcpu_count, cpu_util * 100)
+                logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
+                              vm_info['name'], vcpu_count, cpu_util * 100)
 
-            analyzers_info = {
-                'Current_cpu_utilization': round(cpu_util, 4),
-                'TimeStamp': vm_stats_info[i + 1]['timestamp']
-            }
-            analyzers_list.append({vm_info['uuid']: analyzers_info})
+                analyzers_info = {
+                    'Current_cpu_utilization': round(cpu_util, 4),
+                    'TimeStamp': vm_stats_info[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['uuid']: analyzers_info})
 
-        vm_factory.set_vm_analyzers(vm_id, round(last_cpu_util, 4))
+            vm_factory.set_vm_analyzers(vm_id, round(last_cpu_util, 4))
         return analyzers_list
 
