@@ -96,6 +96,7 @@ def scan_active_vms():
  	    continue
 
         logging.debug("Domain %s(%s), UUID %s", dom.name(), dom.ID(), dom.UUIDString())
+        # FIXME, We need get analyzers info by libvirt api
         vm_id = dom.ID()
         vm_info = {
             'uuid': dom.UUIDString(),
