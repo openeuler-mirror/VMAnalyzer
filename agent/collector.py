@@ -20,12 +20,12 @@ class VMStatsCollector:
     A class responsible for collecting and recording
     statistics of virtual machines (VMs).
     """
-    def __init__(self, vmFactory, statsStorage):
-        self.__vmFactory = vmFactory
-        self.__statsStorage = statsStorage
+    def __init__(self, vm_factory, stats_storage):
+        self.__vm_factory = vm_factory
+        self.__stats_storage = stats_storage
 
     def record_stats(self):
-        vm_factory = self.__vmFactory
+        vm_factory = self.__vm_factory
         if vm_factory is None:
             return
 
@@ -48,4 +48,4 @@ class VMStatsCollector:
             }
             logging.debug("recordStats: Name %s, UUID %s, vcpus %d, cputime %d, timestamp: %d",
                            vm['name'], vm['uuid'], dom_info[3], dom_info[4], timestamp)
-        self.__statsStorage.saveStatsInfo(stats_info)
+        self.__stats_storage.save_stats_info(stats_info)
