@@ -20,18 +20,21 @@ class VMStatsCollector:
     A class responsible for collecting and recording
     statistics of virtual machines (VMs).
     """
-    def __init__(self, vm_factory, stats_storage):
+    def __init__(self, vm_factory, stats_storage, label):
         self.__vm_factory = vm_factory
         self.__stats_storage = stats_storage
+        self.__label = label
 
     def record_stats(self):
         vm_factory = self.__vm_factory
+        label = self.__label
+
         if vm_factory is None:
             return
 
         vc = vm_factory.vc
         stats_info = {}
-        for id, vm in list(vm_factory.vms.items()):
+        for vm_id, vm in list(vm_factory.vms.items()):
             try:
                 dom = vc.lookupByUUIDString(vm['uuid'])
             except Exception as err:
@@ -39,13 +42,15 @@ class VMStatsCollector:
                 continue
             timestamp = time.time()
             dom_info = dom.info()
-            stats_info[id] = {
-                'uuid': vm['uuid'],
-                'name': vm['name'],
-                'vcpus': dom_info[3],
-                'cputime': dom_info[4],
-                'timestamp': int(timestamp)
-            }
-            logging.debug("recordStats: Name %s, UUID %s, vcpus %d, cputime %d, timestamp: %d",
-                           vm['name'], vm['uuid'], dom_info[3], dom_info[4], timestamp)
+
+            if label == 'cpuUsage':
+                stats_info[vm_id] = {
+                    'uuid': vm['uuid'],
+                    'name': vm['name'],
+                    'vcpus': dom_info[3],
+                    'cputime': dom_info[4],
+                    'timestamp': int(timestamp)
+                }
+                logging.debug("recordStats: Name %s, UUID %s, vcpus %d, cputime %d, timestamp: %d",
+                              vm['name'], vm['uuid'], dom_info[3], dom_info[4], timestamp)
         self.__stats_storage.save_stats_info(stats_info)
