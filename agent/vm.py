@@ -89,6 +89,12 @@ def scan_active_vms():
     for dom in vm_factory.vc.listAllDomains():
         if dom.ID() == -1:
             continue
+
+        state, _ = dom.state()
+        if state != libvirt.VIR_DOMAIN_RUNNING:
+ 	    logging.error("VM %s is not running!", dom.name())
+ 	    continue
+
         logging.debug("Domain %s(%s), UUID %s", dom.name(), dom.ID(), dom.UUIDString())
         vm_id = dom.ID()
         vm_info = {
