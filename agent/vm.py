@@ -18,6 +18,12 @@ import libvirt
 from utils import wrapper
 
 class VM:
+    """
+    Represents a virtual machine (VM).
+
+    This class encapsulates basic information about a virtual machine,
+    including its unique identifier (UUID) and name.
+    """
     def __init__(self, uuid):
         self.__uuid = uuid
         self.__name = ""
@@ -33,6 +39,14 @@ class VM:
 
 @wrapper.singleton
 class VMFactory:
+    """
+    A singleton class responsible for managing virtual machines (VMs).
+
+    This class provides a centralized way to store, retrieve, 
+    and manipulate information about virtual machines. 
+    It maintains a dictionary of VMs and a connection to the
+    libvirt daemon to interact with the virtualization environment.
+    """
     def __init__(self, uri="qemu:///system"):
         self.__vms = {}
         self.__uri = uri
