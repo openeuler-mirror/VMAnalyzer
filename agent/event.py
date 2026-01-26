@@ -47,11 +47,11 @@ class VMEventLoopNative(VMEventLoop):
         thread.start()
 
 
-    def domEventCallback(conn, dom, event, detail, opaque):
-        logging.debug("domEventCallback: Domain %s(%s) %s, UUID %s" %
-                      (dom.name(), dom.ID(),
+    def dom_event_callback(conn, dom, event, detail, opaque):
+        logging.debug("dom_event_callback: Domain %s(%s) %s, UUID %s",
+                      dom.name(), dom.ID(),
                       const.VM_DOMAIN_SUPPORTED_EVENTS[event],
-                      dom.UUIDString()))
+                      dom.UUIDString())
         vm_id = dom.ID()
         # FIXME, We need get analyzers info by libvirt api
         vm_info = {
@@ -63,10 +63,10 @@ class VMEventLoopNative(VMEventLoop):
         if event == const.VM_DOMAIN_EVENT_CRASHED or \
           event == const.VM_DOMAIN_EVENT_UNDEFINED:
             if vm_id in vm_factory.vms:
-                vm_factory.delVM(vm_id)
+                vm_factory.del_vm(vm_id)
         elif event == const.VM_DOMAIN_EVENT_DEFINED:
             if vm_id not in vm_factory.vms:
-                vm_factory.addVM(vm_id, vm_info)
+                vm_factory.add_vm(vm_id, vm_info)
 
     def conn_close_callback(self, conn, reason, opaque):
         logging.debug(
