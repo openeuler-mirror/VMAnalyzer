@@ -41,11 +41,12 @@ class VMStatsRedisStorage(VMStatsStorage):
     A concrete implementation of the VMStatsStorage abstract base class
     that uses Redis as the storage backend.
     """
-    def __init__(self, vm_factory):
+    def __init__(self, vm_factory, label):
         self.__pool = redis.ConnectionPool(host=config.REDIS_DATABASE_CONFIG['host'],
                                            port=config.REDIS_DATABASE_CONFIG['port'])
         self.__sr = redis.StrictRedis(connection_pool=self.__pool)
         self.__vm_factory = vm_factory
+        self.__label = label
 
     @property
     def sr(self):
@@ -54,18 +55,21 @@ class VMStatsRedisStorage(VMStatsStorage):
     def save_stats_info(self, stats_info):
         pipe = self.__sr.pipeline()
         pipe.multi()
-        for vm_id, vm_stats in list(stats_info.items()):
-            try:
-                data_dict = {
-                    'id': vm_id,
-                    'name': vm_stats['name'],
-                    'vcpus': vm_stats['vcpus'],
-                    'cputime': vm_stats['cputime'],
-                    'timestamp': vm_stats['timestamp']
-                }
-                pipe.zadd(vm_stats['uuid'], {json.dumps(data_dict): vm_stats['timestamp']})
-            except Exception as err:
-                logging.warning("Unable to save stats of %s: %s", vm_stats['name'], err.message)
+        label = self.__label
+
+        if label == 'cpuUsage':
+            for vm_id, vm_stats in list(stats_info.items()):
+                try:
+                    data_dict = {
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'vcpus': vm_stats['vcpus'],
+                        'cputime': vm_stats['cputime'],
+                        'timestamp': vm_stats['timestamp']
+                    }
+                    pipe.zadd(vm_stats['uuid'], {json.dumps(data_dict): vm_stats['timestamp']})
+                except Exception as err:
+                    logging.warning("Unable to save stats of %s: %s", vm_stats['name'], err.message)
         pipe.execute()
 
     def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
@@ -74,6 +78,7 @@ class VMStatsRedisStorage(VMStatsStorage):
             return {}
 
         vm_info = self.__vm_factory.get_vm(vm_id)
+        label = self.__label
 
         data_list = []
         try:
@@ -90,14 +95,14 @@ class VMStatsRedisStorage(VMStatsStorage):
             # We won't touch this because the VM has been hard rebooted
             if data_dict['id'] != vm_id:
                 continue
-
-            stats_dict = {
-                'uuid': vm_info['uuid'],
-                'name': data_dict['name'],
-                'vcpus': data_dict['vcpus'],
-                'cputime': data_dict['cputime'],
-                'timestamp': int(data_dict['timestamp'])
-            }
+            if label == 'cpuUsage':
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'vcpus': data_dict['vcpus'],
+                    'cputime': data_dict['cputime'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
             vm_stats.append(stats_dict)
         return vm_stats
 
