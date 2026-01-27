@@ -17,18 +17,21 @@ from utils import config
 
 class VMAnalyzersReporter():
     def __init__(self, vm_factory, stats_storage,
-                 analyzers_viewer, stats_analyzer):
+                 analyzers_viewer, stats_analyzer, interval):
         self.__vm_factory = vm_factory
         self.__stats_storage = stats_storage
         self.__analyzers_viewer = analyzers_viewer
         self.__stats_analyzer = stats_analyzer
+        self.__interval = interval
 
     def start_report(self):
         vm_factory = self.__vm_factory
+        interval = self.__interval
+
         if vm_factory is None:
             return
         end_time = time.time()
-        start_time = end_time - config.VM_ANALYZERS_CONFIG['duration']
+        start_time = end_time - config.VM_ANALYZERS_CONFIG['duration'] * interval
         for vm_id in list(vm_factory.vms.keys()):
             vm_stats = self.__stats_storage.get_stats_info(vm_id, start_time, end_time)
             vm_analyzers = self.__stats_analyzer.analyze_stats(vm_id, vm_stats)
