@@ -48,39 +48,39 @@ class VMFactory:
             self.__vc = libvirt.openReadOnly(self.__uri)
         return self.__vc
 
-    def get_vm(self, vmID):
-        vm = self.__vms.get(vmID)
+    def get_vm(self, vm_id):
+        vm = self.__vms.get(vm_id)
         if vm is None:
-            logging.warning("No such VM: %d", vmID)
+            logging.warning("No such VM: %d", vm_id)
             return {}
         return vm
 
-    def add_vm(self, vmID, vmInfo):
-        vm = self.__vms.get(vmID)
+    def add_vm(self, vm_id, vm_info):
+        vm = self.__vms.get(vm_id)
         if vm is not None:
-            logging.warning("Already exists VM: %d", vmID)
+            logging.warning("Already exists VM: %d", vm_id)
             return
 
-        self.__vms[vmID] = vmInfo
+        self.__vms[vm_id] = vm_info
 
-    def del_vm(self, vmID):
-        vm = self.__vms.get(vmID)
+    def del_vm(self, vm_id):
+        vm = self.__vms.get(vm_id)
         if vm is None:
-            logging.warning("No such VM: %d", vmID)
+            logging.warning("No such VM: %d", vm_id)
             return
-        del self.__vms[vmID]
+        del self.__vms[vm_id]
 
-    def set_vm_analyzers(self, vmID, vmAnalyzers):
-        vm = self.__vms.get(vmID)
+    def set_vm_analyzers(self, vm_id, vm_analyzers):
+        vm = self.__vms.get(vm_id)
         if vm is None:
-            logging.warning("No such VM: %d", vmID)
+            logging.warning("No such VM: %d", vm_id)
             return
-        vm['analyzers'] = vmAnalyzers
+        vm['analyzers'] = vm_analyzers
 
-    def get_vm_analyzers(self, vmID):
-        vm = self.__vms.get(vmID)
+    def get_vm_analyzers(self, vm_id):
+        vm = self.__vms.get(vm_id)
         if vm is None:
-            logging.warning("No such VM: %d", vmID)
+            logging.warning("No such VM: %d", vm_id)
             return None
         return vm['analyzers']
 
@@ -92,8 +92,8 @@ def scan_active_vms():
 
         state, _ = dom.state()
         if state != libvirt.VIR_DOMAIN_RUNNING:
- 	    logging.error("VM %s is not running!", dom.name())
- 	    continue
+            logging.error("VM %s is not running!", dom.name())
+            continue
 
         logging.debug("Domain %s(%s), UUID %s", dom.name(), dom.ID(), dom.UUIDString())
         # FIXME, We need get analyzers info by libvirt api
@@ -104,4 +104,4 @@ def scan_active_vms():
             'cpu_util': 0
         }
         if vm_id not in vm_factory.vms:
-            vm_factory.add_VM(vm_id, vm_info)
+            vm_factory.add_vm(vm_id, vm_info)
