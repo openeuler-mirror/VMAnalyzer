@@ -32,6 +32,8 @@ class VMEventLoop(object):
     def start(self):
         pass
 
+    def get_uri(self):
+        return self.__uri
 
 class VMEventLoopNative(VMEventLoop):
 
