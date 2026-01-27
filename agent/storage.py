@@ -27,11 +27,11 @@ class VMStatsStorage(object):
     virtual machine statistics information.
     """
     @abc.abstractmethod
-    def save_stats_info(self, statsInfo):
+    def save_stats_info(self, stats_info):
         pass
 
     @abc.abstractmethod
-    def get_stats_info(self, vm, startTimestamp, endTimestamp):
+    def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
         pass
 
 
@@ -41,45 +41,45 @@ class VMStatsRedisStorage(VMStatsStorage):
     A concrete implementation of the VMStatsStorage abstract base class
     that uses Redis as the storage backend.
     """
-    def __init__(self, vmFactory):
+    def __init__(self, vm_factory):
         self.__pool = redis.ConnectionPool(host=config.REDIS_DATABASE_CONFIG['host'],
                                            port=config.REDIS_DATABASE_CONFIG['port'])
         self.__sr = redis.StrictRedis(connection_pool=self.__pool)
-        self.__vmFactory = vmFactory
+        self.__vm_factory = vm_factory
 
     @property
     def sr(self):
         return self.__sr
 
-    def save_stats_info(self, statsInfo):
+    def save_stats_info(self, stats_info):
         pipe = self.__sr.pipeline()
         pipe.multi()
-        for vmID, vmStats in list(statsInfo.items()):
+        for vm_id, vm_stats in list(stats_info.items()):
             try:
                 data_dict = {
-                    'id': vmID,
-                    'name': vmStats['name'],
-                    'vcpus': vmStats['vcpus'],
-                    'cputime': vmStats['cputime'],
-                    'timestamp': vmStats['timestamp']
+                    'id': vm_id,
+                    'name': vm_stats['name'],
+                    'vcpus': vm_stats['vcpus'],
+                    'cputime': vm_stats['cputime'],
+                    'timestamp': vm_stats['timestamp']
                 }
-                pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
+                pipe.zadd(vm_stats['uuid'], {json.dumps(data_dict): vm_stats['timestamp']})
             except Exception as err:
-                logging.warning("Unable to save stats of %s: %s", vmStats['name'], err.message)
+                logging.warning("Unable to save stats of %s: %s", vm_stats['name'], err.message)
         pipe.execute()
 
-    def get_stats_info(self, vmID, startTimestamp, endTimestamp):
+    def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
         # VM has been shutdown or destroyed???
-        if vmID not in list(self.__vmFactory.vms.keys()):
+        if vm_id not in list(self.__vm_factory.vms.keys()):
             return {}
 
-        vm_info = self.__vmFactory.getVM(vmID)
+        vm_info = self.__vm_factory.get_vm(vm_id)
 
         data_list = []
         try:
             data_list = list(self.__sr.zrangebyscore(vm_info['uuid'],
-                                                     startTimestamp,
-                                                     endTimestamp,
+                                                     start_timestamp,
+                                                     end_timestamp,
                                                      withscores=True))
         except Exception as err:
             logging.warning("Unable to get stats of %s: %s", vm_info['name'], err.message)
@@ -88,7 +88,7 @@ class VMStatsRedisStorage(VMStatsStorage):
         for data in data_list:
             data_dict = json.loads(data[0])
             # We won't touch this because the VM has been hard rebooted
-            if data_dict['id'] != vmID:
+            if data_dict['id'] != vm_id:
                 continue
 
             stats_dict = {
