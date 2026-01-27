@@ -30,8 +30,7 @@ class VMAnalyzersReporter():
         end_time = time.time()
         start_time = end_time - config.VM_ANALYZERS_CONFIG['duration']
         for vm_id in list(vm_factory.vms.keys()):
-            vm_stats = self.__stats_storage.getStatsInfo(vm_id, start_time, end_time)
-            vm_analyzers = self.__stats_analyzer.analyzeStats(vm_id, vm_stats)
+            vm_stats = self.__stats_storage.get_stats_info(vm_id, start_time, end_time)
+            vm_analyzers = self.__stats_analyzer.analyze_stats(vm_id, vm_stats)
             self.__analyzers_viewer.output(vm_analyzers)
-
 
