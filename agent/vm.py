@@ -100,6 +100,7 @@ class VMFactory:
 
 def scan_active_vms():
     vm_factory = VMFactory()
+    state = 0
     for dom in vm_factory.vc.listAllDomains():
         if dom.ID() == -1:
             continue
