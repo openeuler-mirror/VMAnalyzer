@@ -14,8 +14,17 @@
 import time
 from utils import config
 
-
 class VMAnalyzersReporter():
+    """
+    A class responsible for retrieving virtual machine (VM) statistics,
+    analyzing them, and presenting the analysis results.
+
+    This class serves as a coordinator between the VM factory,
+    statistics storage, statistics analyzer, and the viewer.
+    It fetches VM statistics from the storage within a specified time range,
+    performs analysis on these statistics, and then outputs the analysis
+    results using the provided viewer.
+    """
     def __init__(self, vm_factory, stats_storage,
                  analyzers_viewer, stats_analyzer, interval):
         self.__vm_factory = vm_factory
@@ -36,4 +45,3 @@ class VMAnalyzersReporter():
             vm_stats = self.__stats_storage.get_stats_info(vm_id, start_time, end_time)
             vm_analyzers = self.__stats_analyzer.analyze_stats(vm_id, vm_stats)
             self.__analyzers_viewer.output(vm_analyzers)
-
