@@ -19,7 +19,6 @@ import json
 from utils import config
 from utils import wrapper
 
-
 @six.add_metaclass(abc.ABCMeta)
 class VMStatsStorage(object):
     """
@@ -70,6 +69,25 @@ class VMStatsRedisStorage(VMStatsStorage):
                     pipe.zadd(vm_stats['uuid'], {json.dumps(data_dict): vm_stats['timestamp']})
                 except Exception as err:
                     logging.warning("Unable to save stats of %s: %s", vm_stats['name'], err.message)
+
+        elif label == 'memoryUsage':
+            for vm_id, vm_stats in list(stats_info.items()):
+                try:
+                    data_dict = {
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'totalMemory': vm_stats['totalMemory'],
+                        'usedMemory': vm_stats['usedMemory'],
+                        'timestamp': vm_stats['timestamp']
+                    }
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
+
+        else:
+            logging.error('wrong label!')
         pipe.execute()
 
     def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
@@ -103,6 +121,19 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'cputime': data_dict['cputime'],
                     'timestamp': int(data_dict['timestamp'])
                 }
-            vm_stats.append(stats_dict)
-        return vm_stats
 
+            elif label == 'memoryUsage':
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'totalMemory': data_dict['totalMemory'],
+                    'usedMemory': data_dict['usedMemory'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+
+            else:
+                logging.error('wrong label!')
+
+            vm_stats.append(stats_dict)
+
+        return vm_stats
