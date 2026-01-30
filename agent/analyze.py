@@ -13,7 +13,6 @@
 #######################################################################################
 import logging
 
-
 class VMStatsAnalyze(object):
     def __init__(self, vm_factory, label):
         self.__vm_factory = vm_factory
@@ -65,5 +64,25 @@ class VMStatsAnalyze(object):
                 analyzers_list.append({vm_info['uuid']: analyzers_info})
 
             vm_factory.set_vm_analyzers(vm_id, round(last_cpu_util, 4))
-        return analyzers_list
 
+        elif label == 'memoryUsage':
+
+            for i in range(len(vm_stats_info) - 1):
+                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+
+                mem_util = (int(vm_stats_info[i]['usedMemory']) /
+                            int(vm_stats_info[i]['totalMemory'])) * 100
+
+                logging.debug('VM %s: memory utilization: %.2f%%',
+                              vm_info['name'], mem_util)
+                analyzers_info = {
+                    'Current_mem_utilization': round(mem_util, 4),
+                    'TimeStamp': vm_stats_info[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['name']: analyzers_info})
+            vm_factory.set_vm_analyzers(vm_id, round(mem_util, 4))
+
+        else:
+            logging.error('wrong label')
+
+        return analyzers_list
