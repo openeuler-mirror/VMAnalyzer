@@ -14,7 +14,6 @@
 import logging
 import time
 
-
 class VMStatsCollector:
     """
     A class responsible for collecting and recording
@@ -53,4 +52,22 @@ class VMStatsCollector:
                 }
                 logging.debug("recordStats: Name %s, UUID %s, vcpus %d, cputime %d, timestamp: %d",
                               vm['name'], vm['uuid'], dom_info[3], dom_info[4], timestamp)
+
+            elif label == 'memoryUsage':
+                memstat = dom.memoryStats()
+                total_memory = int(memstat["actual"]) / 1024
+                available_memory = int(memstat["available"]) / 1024
+                used_memory = total_memory - available_memory
+
+                stats_info[vm_id] = {
+                    'uuid': vm['uuid'],
+                    'name': vm['name'],
+                    'totalMemory': total_memory,
+                    'usedMemory': used_memory,
+                    'timestamp': int(timestamp)
+               }
+
+            else:
+                logging.error('wrong label')
+
         self.__stats_storage.save_stats_info(stats_info)
