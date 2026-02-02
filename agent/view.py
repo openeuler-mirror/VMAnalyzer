@@ -18,7 +18,6 @@ import abc
 import json
 import copy
 
-
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
     # Iterate over dict values directly; no need to wrap in list() in Python 3
@@ -32,11 +31,16 @@ def convert_to_percent(utilization):
 @six.add_metaclass(abc.ABCMeta)
 class VMAnalyzersView(object):
     @abc.abstractmethod
-    def output(self, vmAnalyzersInfo):
+    def output(self, vm_analyzers_info):
         pass
 
 
 class VMAnalyzersConsoleView(VMAnalyzersView):
-    def output(self, vmAnalyzersInfo):
-        for analyzers_info in vmAnalyzersInfo:
+    def output(self, vm_analyzers_info):
+        for analyzers_info in vm_analyzers_info:
             print(json.dumps(convert_to_percent(analyzers_info)))
+
+class VMAnalyzersDWView(VMAnalyzersView):
+    def output(self, vm_analyzers_info):
+        pass
+
