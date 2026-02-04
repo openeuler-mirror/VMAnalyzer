@@ -13,6 +13,7 @@
 #######################################################################################
 import logging
 import time
+import libvirt
 
 class VMStatsCollector:
     """
@@ -66,7 +67,42 @@ class VMStatsCollector:
                     'usedMemory': used_memory,
                     'timestamp': int(timestamp)
                }
-
+            elif label == 'networkTraffic':
+                dom_ifaddr = dom.interfaceAddresses(
+                    libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE)
+                if not dom_ifaddr:
+                    logging.error('Get InterfaceAddresses Failed')
+                    stats_info[vm_id] = {
+                        'uuid': vm['uuid'],
+                        'name': vm['name'],
+                        'interfaceAddresses':'null',
+                        'networkTraffic':'null',
+                        'timestamp': int(timestamp)
+                    }
+                else:
+                    if_addr_dic = {}
+                    if_traffic_dic = {}
+                    for k,v in dom_ifaddr.items():
+                        if_addr_dic[k] = v['hwaddr']
+                        traffic_data_raw = dom.interfaceStats(v['hwaddr'])
+                        traffic_data = {
+                                'rx_bytes': traffic_data_raw[0],
+                                'rx_packets': traffic_data_raw[1],
+                                'rx_errs': traffic_data_raw[2],
+                                'rx_drop': traffic_data_raw[3],
+                                'tx_bytes': traffic_data_raw[4],
+                                'tx_packets': traffic_data_raw[5],
+                                'tx_errs': traffic_data_raw[6],
+                                'tx_drop': traffic_data_raw[7]
+                                }
+                        if_traffic_dic[k] = traffic_data
+                    stats_info[vm_id] = {
+                        'uuid': vm['uuid'],
+                        'name': vm['name'],
+                        'interfaceAddresses':if_addr_dic,
+                        'networkTraffic':if_traffic_dic,
+                        'timestamp': int(timestamp)
+                    }
             else:
                 logging.error('wrong label')
 
