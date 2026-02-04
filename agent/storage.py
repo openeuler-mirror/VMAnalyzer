@@ -85,7 +85,21 @@ class VMStatsRedisStorage(VMStatsStorage):
                 except Exception as err:
                     logging.warning('Unable to save stats of %s: %s',
                                     vm_stats['name'], err.args)
-
+        elif label == 'networkTraffic':
+            for vm_id, vm_stats in list(stats_info.items()):
+                try:
+                    data_dict = {
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'interfaceAddresses': vm_stats['interfaceAddresses'],
+                        'networkTraffic': vm_stats['networkTraffic'],
+                        'timestamp': vm_stats['timestamp']
+                    }
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
         else:
             logging.error('wrong label!')
         pipe.execute()
@@ -130,7 +144,14 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'usedMemory': data_dict['usedMemory'],
                     'timestamp': int(data_dict['timestamp'])
                 }
-
+            elif label == 'networkTraffic':
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'interfaceAddresses': data_dict['interfaceAddresses'],
+                    'networkTraffic': data_dict['networkTraffic'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
             else:
                 logging.error('wrong label!')
 
