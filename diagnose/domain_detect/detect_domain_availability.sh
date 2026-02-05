@@ -28,6 +28,27 @@ warn() {
     exit 2 
 }
 
+# 检查qga是否连接
+check_qga_state() {
+    qga_status=`sudo virsh dumpxml $1 |grep "qemu.guest_agent" |grep -w "connected"`
+    if [[ $? != 0 ]];then
+        warn "云主机没有连接qga，跳过检查"
+    fi
+    
+    sudo virsh qemu-agent-command $1 '{"execute":"guest-info"}' >/dev/null 2>&1
+    if [[ $? != 0 ]];then
+        warn "云主机没有连接qga，跳过检查"
+    fi
+}
+
+# 检查qga cmd是否支持
+check_qga_cmd() {
+    sudo echo $* |grep "has not been found" >/dev/null
+    if [[ $? == 0 ]];then
+        warn "云主机qga不支持命令${13}，跳过检查"
+    fi
+}
+
 # 入参检查、开始检测
 if [ $# -lt 2 ];then
     usage
