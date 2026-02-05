@@ -85,6 +85,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                 except Exception as err:
                     logging.warning('Unable to save stats of %s: %s',
                                     vm_stats['name'], err.args)
+
         elif label == 'networkTraffic':
             for vm_id, vm_stats in list(stats_info.items()):
                 try:
@@ -100,6 +101,23 @@ class VMStatsRedisStorage(VMStatsStorage):
                 except Exception as err:
                     logging.warning('Unable to save stats of %s: %s',
                                     vm_stats['name'], err.args)
+
+        elif label == 'blkio':
+            for vm_id, vm_stats in list(stats_info.items()):
+                try:
+                    data_dict = {
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'blkStatus': vm_stats['blkStatus'],
+                        'blkI/O': vm_stats['blkI/O'],
+                        'timestamp': vm_stats['timestamp']
+                    }
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
+
         else:
             logging.error('wrong label!')
         pipe.execute()
@@ -152,6 +170,16 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'networkTraffic': data_dict['networkTraffic'],
                     'timestamp': int(data_dict['timestamp'])
                 }
+
+            elif label == 'blkio':
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'blkStatus': data_dict['blkStatus'],
+                    'blkI/O': data_dict['blkI/O'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+
             else:
                 logging.error('wrong label!')
 
