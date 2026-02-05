@@ -27,6 +27,13 @@ usage() {
     echo "         -d <string>, domain name"
 }
 
+mk_log_dir() {
+    if [ ! -d "$qemuconsume_dir" ];then
+        sudo mkdir -p $qemuconsume_dir
+    fi
+    return 0
+}
+
 while getopts 'h' OPT; do
     case $OPT in
         "h")
@@ -45,3 +52,5 @@ while getopts 'h' OPT; do
             ;;
     esac
 done
+
+mk_log_dir
