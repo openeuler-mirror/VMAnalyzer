@@ -82,6 +82,16 @@ class VMStatsAnalyze(object):
                 analyzers_list.append({vm_info['name']: analyzers_info})
             vm_factory.set_vm_analyzers(vm_id, round(mem_util, 4))
 
+        elif label == 'networkTraffic':
+            for i in range(len(vm_stats_info) - 1):
+                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                analyzers_info = {
+                    'interfaceAddresses': \
+                        vm_stats_info[i]['interfaceAddresses'],
+                    'networkTraffic': vm_stats_info[i]['networkTraffic'],
+                    'TimeStamp': vm_stats_info[i + 1]['timestamp']
+                 }
+                analyzers_list.append({vm_info['name']: analyzers_info})
         else:
             logging.error('wrong label')
 
