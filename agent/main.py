@@ -103,7 +103,7 @@ def main():
     collector_timer = timer.RepeatedTimer(interval, vm_collector.record_stats)
 
     # Analyzer VM statistics and report info in duration period
-    vm_analyzer = analyze.VMStatsAnalyze(vm_factory)
+    vm_analyzer = analyze.VMStatsAnalyze(vm_factory, label)
     vm_viewer = view.VMAnalyzersConsoleView()
     vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer)
     reporter_timer = timer.RepeatedTimer(10, vm_reporter.startReport)
