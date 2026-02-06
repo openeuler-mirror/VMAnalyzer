@@ -34,6 +34,18 @@ mk_log_dir() {
     return 0
 }
 
+perf_record() {
+    command -v perf > /dev/null
+    if [ $? -ne 0 ]; then
+        echo "perf command not found" >> $datafile
+        return -1
+    fi
+    local cmd="perf record -g -o ${perf_data} -p ${pid} sleep ${time}"
+    echo "Command: $cmd" >> $datafile
+    eval $cmd >> $datafile
+    return $?
+}
+
 while getopts 'h' OPT; do
     case $OPT in
         "h")
