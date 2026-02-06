@@ -26,12 +26,43 @@ warn() {
 
 check_log=${virt_dir}check_secret-$(date "+%Y-%m-%d-%H-%M-%S").log
 
+# 检查密钥的权限和所有者
+check_secret_permissions() {
+    info "Checking secret permissions..."
+    # 获取所有密钥的 UUID
+    SECRET_UUIDS=$(virsh secret-list | awk '{print $1}' | grep -E '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$')
+    for SECRET_UUID in $SECRET_UUIDS; do
+        info "Checking secret UUID: $SECRET_UUID"
+        # 获取密钥的 XML 文件路径
+        SECRET_XML="/etc/libvirt/secrets/$SECRET_UUID.xml"
+        if [ ! -f "$SECRET_XML" ]; then
+            error "Secret XML file not found for UUID $SECRET_UUID."
+            continue
+        fi
+        # 检查文件权限
+        PERMISSIONS=$(stat -c "%A" "$SECRET_XML")
+        if [ "$PERMISSIONS" != "-rw-------" ]; then
+            error "Secret XML file for UUID $SECRET_UUID has incorrect permissions (expected 600)."
+        fi
+        # 检查文件所有者
+        OWNER=$(stat -c "%U" "$SECRET_XML")
+        if [ "$OWNER" != "root" ]; then
+            error "Secret XML file for UUID $SECRET_UUID has incorrect owner (expected root)."
+        fi
+        info "Secret UUID $SECRET_UUID has correct permissions and owner."
+    done
+    info "Secret permissions check completed."
+}
+
 # 主函数
 main() {
     mk_log_dir
     echo "####################################################################################" > $check_log
     time=$(date +"%Y-%m-%d %H:%M:%S")
     echo "$time" >> $check_log
+
+    # 执行检查
+    check_secret_permissions
 }
 
 # 执行主函数
