@@ -104,7 +104,7 @@ def main():
     # Analyzer VM statistics and report info in duration period
     vm_analyzer = analyze.VMStatsAnalyze(vm_factory)
     vm_viewer = view.VMAnalyzersConsoleView()
-    vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer)
+    vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer, interval)
     reporter_timer = timer.RepeatedTimer(10, vm_reporter.startReport)
 
     # The rest of your app would go here normally, but for sake
