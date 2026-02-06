@@ -53,3 +53,20 @@ function record_node_hugepages()
     done
     return 0
 }
+
+# 检测运行中虚机大页占用
+function record_vm_hugepages()
+{
+    running_vms=`virsh list --all | grep running |awk '{print $2}'`
+    if [ x"" = x"running_vms" ]; then
+        err_info "no running vms！"
+        return 1
+    fi
+    for vm in ${running_vms[@]}
+    do
+        pid=`ps -ef | grep qemu | grep $vm | awk '{print $2}'`
+        total_2M=`grep -B 11 'KernelPageSize: 2048 kB' /proc/$pid/smaps | grep "^Size:" | awk 'BEGIN{sum=0}{sum+=$2}END{print sum/1024}'`
+        total_1G=`grep -B 11 'KernelPageSize: 1048576 kB' /proc/$pid/smaps | grep "^Size:" | awk 'BEGIN{sum=0}{sum+=$2}END{print sum/1048576}'`
+        log "$vm occupied $total_2M M, occupied $total_1G G /n"
+    done
+}
