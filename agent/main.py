@@ -90,7 +90,7 @@ def main():
     vc.registerCloseCallback(event.connCloseCallback, None)
 
     # Add 2 lifecycle callbacks to prove this works with more than just one
-    vc.domainEventRegister(event.domEventCallback, None)
+    vc.domainEventRegister(ev.dom_event_callback, None)
     vc.setKeepAlive(5, 3)
 
     # Scan for all active vms
