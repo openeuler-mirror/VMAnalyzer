@@ -49,7 +49,24 @@ check_qga_cmd() {
     fi
 }
 
+# 查看云主机的状态
+domain_state_func() {
+    domain_state=`sudo virsh domstate $1 2>&1`
+
+    sudo echo $domain_state |grep "Timed out" >/dev/null
+    if [[ $? == 0 ]];then
+        error "请求超时，获取云主机状态失败"
+    fi
+
+    if [[ $domain_state == "running" ]];then
+        info "云主机运行状态正常"
+    else
+        error "云主机运行状态不正常" 
+    fi
+}
+
 # 入参检查、开始检测
 if [ $# -lt 2 ];then
     usage
 fi
+
