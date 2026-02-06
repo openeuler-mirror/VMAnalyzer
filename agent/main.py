@@ -94,7 +94,7 @@ def main():
     vc.setKeepAlive(5, 3)
 
     # Scan for all active vms
-    vm.scanActiveVMs()
+    vm.scan_active_vms()
 
     # Collect VM statistics and save into redis storage
     vm_storage = storage.VMStatsRedisStorage(vm_factory)
