@@ -88,8 +88,17 @@ class VMStatsAnalyze(object):
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
+        elif label == 'log_vm':
+            for i in range(len(vm_stats_info) - 1):
+                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                analyzers_info = {
+                    'current_state': vm_stats_info[i]['current_state'],
+                    'latest_event': vm_stats_info[i]['latest_event'],
+                    'state_log': vm_stats_info[i]['state_log'],
+                    'TimeStamp': vm_stats_info[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['name']: analyzers_info})
         else:
             logging.error('wrong label')
 
         return analyzers_list
-
