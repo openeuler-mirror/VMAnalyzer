@@ -65,8 +65,36 @@ domain_state_func() {
     fi
 }
 
+# 查看网卡状态
+domain_interface_link_func() {
+    interface=`sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}'`
+    interface_num=`sudo echo $interface |awk -F " " '{print NF}'`
+    if [[ $interface_num -gt 0 ]];then
+        sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}' |grep -w "^-"
+        if [[ $? == 0 ]];then
+            warn "云主机的interface显示为-，无法判断网卡连接状态，请检查SDN版本"
+        else
+            array=(${interface// / })
+            for var in ${array[@]}
+            do
+                interface_cmd=`sudo virsh domif-getlink $1 $var 2>&1`
+                sudo echo $interface_cmd |grep "Timed out" >/dev/null
+                if [[ $? == 0 ]];then
+                    error "请求超时，获取云主机网卡连接状态失败"
+                fi
+                interface_status=`sudo echo $interface_cmd | awk -F " " '{print $2}'`
+                if [[ $interface_status != "up" ]];then
+                    error "Interface ${var} 连接状态是 ${interface_status}"
+                fi
+            done
+        fi
+    else
+        error "云主机不存在网卡"
+    fi
+    info "Interface ${array[*]} 连接状态是 UP"
+}
+
 # 入参检查、开始检测
 if [ $# -lt 2 ];then
     usage
 fi
-
