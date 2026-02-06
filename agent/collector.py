@@ -147,6 +147,58 @@ class VMStatsCollector:
                     'timestamp': int(timestamp)
                 }
 
+            elif label == 'vcpus_info':
+                result = dom.vcpus()
+                if result is None:
+                    logging.error("get vcpus info failed")
+                    stats_info[vm_id] = {
+                        'uuid': vm['uuid'],
+                        'name': vm['name'],
+                        'vcpuinfo':'null',
+                        'timestamp': int(timestamp)
+                    }
+                if not result or len(result) != 2:
+                    logging.error("unvalid result")
+                    stats_info[vm_id] = {
+                        'uuid': vm['uuid'],
+                        'name': vm['name'],
+                        'vcpuinfo':'null',
+                        'timestamp': int(timestamp)
+                    }
+                vcpu_info_list, cpumap_list = result
+                parsed_configs = []
+                state_map = {
+                    0: "离线/睡眠",
+                    1: "运行中",
+                    2: "暂停",
+                    3: "崩溃",
+                    4: "未初始化"
+                }
+                for idx, (vcpu_info, cpumap) in enumerate(zip(vcpu_info_list, cpumap_list)):
+                    vcpu_id = vcpu_info[0]
+                    state_code = vcpu_info[1]
+                    total_time_ns = vcpu_info[2]
+                    current_phy_cpu = vcpu_info[3]
+                    allowed_phy_cpus = []
+                    for cpu_num, is_allowed in enumerate(cpumap):
+                        if is_allowed:
+                            allowed_phy_cpus.append(cpu_num)
+                    total_time_s = round(total_time_ns / 1e9, 2)
+                    parsed_configs.append({
+                        "index": idx + 1,
+                        "vCPU num": vcpu_id,
+                        "state": state_map.get(state_code, f"UNKNOWN({state_code})"),
+                        "total_time": total_time_s,
+                        "cpuset": allowed_phy_cpus,
+                        "allow pin CPU count": len(allowed_phy_cpus)
+                    })
+                stats_info[vm_id] = {
+                    'uuid': vm['uuid'],
+                    'name': vm['name'],
+                    'vcpuinfo':parsed_configs,
+                    'timestamp': int(timestamp)
+                }
+
             else:
                 logging.error('wrong label')
 
