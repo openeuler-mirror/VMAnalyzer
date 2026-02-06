@@ -49,7 +49,8 @@ def main():
     interval = 1
     global debug
     debug = False
-    
+    label = "cpuUsage"
+
     for opt, value in opts:
         if opt in ("-h", "--help"):
             usage()
@@ -97,7 +98,7 @@ def main():
     vm.scanActiveVMs()
 
     # Collect VM statistics and save into redis storage
-    vm_storage = storage.VMStatsRedisStorage(vm_factory)
+    vm_storage = storage.VMStatsRedisStorage(vm_factory, label)
     vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
     collector_timer = timer.RepeatedTimer(interval, vm_collector.recordStats)
 
