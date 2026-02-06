@@ -100,7 +100,7 @@ def main():
     # Collect VM statistics and save into redis storage
     vm_storage = storage.VMStatsRedisStorage(vm_factory, label)
     vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
-    collector_timer = timer.RepeatedTimer(interval, vm_collector.recordStats)
+    collector_timer = timer.RepeatedTimer(interval, vm_collector.record_stats)
 
     # Analyzer VM statistics and report info in duration period
     vm_analyzer = analyze.VMStatsAnalyze(vm_factory)
