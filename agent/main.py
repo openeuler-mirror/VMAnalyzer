@@ -87,7 +87,7 @@ def main():
 
     atexit.register(exit)
 
-    vc.registerCloseCallback(event.connCloseCallback, None)
+    vc.registerCloseCallback(event.conn_close_callback, None)
 
     # Add 2 lifecycle callbacks to prove this works with more than just one
     vc.domainEventRegister(event.domEventCallback, None)
