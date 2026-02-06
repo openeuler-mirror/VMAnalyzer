@@ -51,10 +51,10 @@ class RepeatedTimer(object):
 
     def start(self):
         if not self.is_running:
-	    self.next_call += self.interval
+            self.next_call += self.interval
             self._timer = threading.Timer(self.next_call - time.time(),
                                           self._run)
-	    self._timer.start()
+            self._timer.start()
             self.is_running = True
 
     def stop(self):
