@@ -37,3 +37,36 @@ while getopts 'd:h:e:*' OPT; do
         ;;
     esac
 done
+
+mk_log_dir() {
+    if [ ! -d "$domain_detect_dir" ];then
+        mkdir -p $domain_detect_dir
+    fi
+}
+
+check_project() {
+    sudo echo -e "{\"domain_detect\": {" > $datafile
+
+    if [[ $edition == "basic" ]];then
+        check_arry=("${check_arry_basic[@]}")
+    else
+        check_arry=("${check_arry_premium[@]}")
+    fi
+  
+    let arry_len=${#check_arry[@]}-1
+    for i in `seq 0 $arry_len`;
+    do  
+        if [ $i != $arry_len ];then
+            sudo echo " \"${check_arry[$i]}\": {`sudo sh $TOOLS_ROOT/detect_domain_availability.sh $domain ${check_arry[$i]}`},">> $datafile
+        else
+            sudo echo " \"${check_arry[$i]}\": {`sudo sh $TOOLS_ROOT/detect_domain_availability.sh $domain ${check_arry[$i]}`}">> $datafile
+        fi  
+    done
+    sudo echo "}}" >> $datafile
+    sudo sed -i ':a;N;$!ba;s/\n//g' $datafile
+}
+
+mk_log_dir
+
+check_project
+
