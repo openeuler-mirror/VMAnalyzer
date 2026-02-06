@@ -106,7 +106,7 @@ def main():
     vm_analyzer = analyze.VMStatsAnalyze(vm_factory, label)
     vm_viewer = view.VMAnalyzersConsoleView()
     vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer, interval)
-    reporter_timer = timer.RepeatedTimer(10, vm_reporter.startReport)
+    reporter_timer = timer.RepeatedTimer(10, vm_reporter.start_report)
 
     # The rest of your app would go here normally, but for sake
     # of demo we'll just go to sleep. The other option is to
