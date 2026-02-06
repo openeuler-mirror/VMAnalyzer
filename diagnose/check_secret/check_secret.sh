@@ -54,6 +54,40 @@ check_secret_permissions() {
     info "Secret permissions check completed."
 }
 
+# 检查密钥是否被使用
+check_secret_usage() {
+    info "Checking secret usage..."
+    # 获取所有密钥的 UUID
+    SECRET_UUIDS=$(virsh secret-list | awk '{print $1}' | grep -E '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$')
+    for SECRET_UUID in $SECRET_UUIDS; do
+        info "Checking secret UUID: $SECRET_UUID"
+        # 标志位，用于判断密钥是否被使用
+        KEY_USED=false
+        # 获取所有虚拟机名称
+        VM_LIST=$(virsh list --all --name)
+        # 遍历每个虚拟机
+        for VM_NAME in $VM_LIST; do
+            # 获取虚拟机的 XML 配置
+            VM_XML=$(virsh dumpxml "$VM_NAME")
+            # 检查虚拟机是否使用了该密钥
+            if echo "$VM_XML" | grep -q "$SECRET_UUID"; then
+                info "Secret UUID $SECRET_UUID is used in VM: $VM_NAME"
+                KEY_USED=true
+                # 提取磁盘路径
+                DISK_PATHS=$(echo "$VM_XML" | grep -oP '(?<=<source file=\").*?(?=\")')
+                for DISK_PATH in $DISK_PATHS; do
+                    info "Disk path: $DISK_PATH"
+                done
+            fi
+        done
+        # 如果密钥未被使用，记录错误
+        if [ "$KEY_USED" = false ]; then
+            error "Secret UUID $SECRET_UUID is not used in any VM (invalid key)."
+        fi
+    done
+    info "Secret usage check completed."
+}
+
 # 主函数
 main() {
     mk_log_dir
@@ -63,6 +97,7 @@ main() {
 
     # 执行检查
     check_secret_permissions
+    check_secret_usage
 }
 
 # 执行主函数
