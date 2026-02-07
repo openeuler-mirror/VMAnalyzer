@@ -47,7 +47,7 @@ class VMStatsAnalyze(object):
                 cpu_util = delta_cputime * 100.0 / (delta_timestamp * vcpu_count * 1e9)
                 last_cpu_util = cpu_util
                 logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
-                              vm_info['name'], vcpu_count, cpu_util * 100)
+                              vm_info['name'], vcpu_count, cpu_util)
                 analyzers_info = {
                     'Current_cpu_utilization': round(cpu_util, 4),
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
