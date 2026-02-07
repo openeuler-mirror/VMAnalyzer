@@ -55,7 +55,7 @@ class VMStatsAnalyze(object):
                     'Current_cpu_utilization': round(cpu_util, 4),
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
                 }
-                analyzers_list.append({vm_info['uuid']: analyzers_info})
+                analyzers_list.append({vm_info['name']: analyzers_info})
             vm_factory.set_vm_analyzers(vm_id, round(last_cpu_util, 4))
         elif label == 'memoryUsage':
             for i in range(len(vm_stats_info) - 1):
