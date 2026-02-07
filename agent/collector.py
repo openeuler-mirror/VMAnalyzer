@@ -39,7 +39,7 @@ class VMStatsCollector:
             try:
                 dom = vc.lookupByUUIDString(vm['uuid'])
             except Exception as err:
-                logging.debug('Unable to find VM: %s %s' % (vm['name'], err.message))
+                logging.debug('Unable to find VM: %s %s' % (vm['name'], err.args[0]))
                 continue
             timestamp = time.time()
             dom_info = dom.info()

@@ -68,7 +68,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     }
                     pipe.zadd(vm_stats['uuid'], {json.dumps(data_dict): vm_stats['timestamp']})
                 except Exception as err:
-                    logging.warning("Unable to save stats of %s: %s", vm_stats['name'], err.message)
+                    logging.warning("Unable to save stats of %s: %s", vm_stats['name'], err.args[0])
 
         elif label == 'memoryUsage':
             for vm_id, vm_stats in list(stats_info.items()):
@@ -154,7 +154,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                                                      end_timestamp,
                                                      withscores=True))
         except Exception as err:
-            logging.warning("Unable to get stats of %s: %s", vm_info['name'], err.message)
+            logging.warning("Unable to get stats of %s: %s", vm_info['name'], err.args[0])
 
         vm_stats = []
         for data in data_list:
