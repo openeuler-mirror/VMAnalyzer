@@ -41,6 +41,9 @@ class VMStatsAnalyze(object):
 
                 delta_cputime = int(vm_stats_info[i+1]['cputime']) - int(vm_stats_info[i]['cputime'])
                 delta_timestamp = vm_stats_info[i+1]['timestamp'] - vm_stats_info[i]['timestamp']
+                if delta_cputime < 0:
+                    logging.warning("We got wrong delta_cputime of VM: %s", vm_info['name'])
+                    continue
                 if delta_timestamp <= 0:
                     logging.warning("We got wrong timestamp of VM: %s", vm_info['name'])
                     continue
