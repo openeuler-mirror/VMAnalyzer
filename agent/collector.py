@@ -58,7 +58,7 @@ class VMStatsCollector:
             elif label == 'memoryUsage':
                 memstat = dom.memoryStats()
                 total_memory = int(memstat["actual"]) / 1024
-                available_memory = int(memstat["available"]) / 1024
+                available_memory = int(memstat.get("available", 0)) / 1024
                 used_memory = total_memory - available_memory
 
                 stats_info[vm_id] = {
