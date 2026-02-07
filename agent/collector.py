@@ -126,15 +126,15 @@ class VMStatsCollector:
                         else:
                             target_dev = res[0].content
                             target_dev_status = {}
-                        try:
-                            tmp = dom.blockInfo(target_dev)
-                            target_dev_status['capacity'] = tmp[0]
-                            target_dev_status['allocation'] = tmp[1]
-                            target_dev_status['physical'] = tmp[2]
-                        except Exception as e:
-                            target_dev_status['capacity'] = 0
-                            target_dev_status['allocation'] = 0
-                            target_dev_status['physical'] = 0
+                            try:
+                                tmp = dom.blockInfo(target_dev)
+                                target_dev_status['capacity'] = tmp[0]
+                                target_dev_status['allocation'] = tmp[1]
+                                target_dev_status['physical'] = tmp[2]
+                            except Exception as e:
+                                target_dev_status['capacity'] = 0
+                                target_dev_status['allocation'] = 0
+                                target_dev_status['physical'] = 0
 
                             status_dic[target_dev] = target_dev_status
                             target_dev_io = {}
