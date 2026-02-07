@@ -34,10 +34,12 @@ def usage():
     print("   --debug, -d  Print debug output")
     print("   --timeout=SECS, -t  Quit after SECS seconds running")
     print("   --interval=SECS, -i  Configure statistics collection interval")
+    print("   --cpuUsage, -c Print detected cpu usage")
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdt:i:", ["help", "debug", "timeout=", "interval="])
+        opts, args = getopt.getopt(sys.argv[1:], "chdt:i:", ["help", "debug", "timeout=", "interval=",
+                                                             "cpuUsage"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print (f"Invalid argument: {err}. Use 'vm-analyzer-agent --help' for usage.")
@@ -61,6 +63,8 @@ def main():
             timeout = int(value)
         if opt in ("-i", "--interval"):
             interval = int(value)
+        if opt in ("-c", "--cpuUsage"):
+            label = "cpuUsage"
 
     if len(args) >= 1:
         uri = args[0]
