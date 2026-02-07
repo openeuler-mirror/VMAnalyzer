@@ -37,11 +37,13 @@ def usage():
     print("   --cpuUsage, -c Print detected cpu usage")
     print("   --memoryUsage, -m  Print detected memory usage")
     print("   --networkTraffic, -n  Print Interface Stats")
+    print("   --blkio, -b Print Block I/O Tune")
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "nmchdt:i:", ["help", "debug", "timeout=", "interval=",
-                                                               "cpuUsage", "memoryUsage", "networkTraffic"])
+        opts, args = getopt.getopt(sys.argv[1:], "bnmchdt:i:", ["help", "debug", "timeout=", "interval=",
+                                                                "cpuUsage", "memoryUsage", "networkTraffic",
+                                                                "blkio"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print (f"Invalid argument: {err}. Use 'vm-analyzer-agent --help' for usage.")
@@ -71,6 +73,8 @@ def main():
             label = "memoryUsage"
         if opt in ("-n", "--networkTraffic"):
             label = "networkTraffic"
+        if opt in ("-b", "--blkio"):
+            label = "blkio"
 
     if len(args) >= 1:
         uri = args[0]
