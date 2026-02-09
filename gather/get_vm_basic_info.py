@@ -180,6 +180,65 @@ class VMDomainMonitor:
                 memstat[key] = value
         return memstat
 
+    def parse_domstats(self, vm_name: str) -> Dict:
+        output = self.run_virsh_cmd(f"virsh domstats {vm_name}")
+        domstats = {}
+        if not output:
+            return domstats
+        lines = output.split("\n")
+        for line in lines:
+            if "=" in line and not line.startswith("Domain:"):
+                key, value = line.split("=", 1)
+                key = key.strip().lower()
+                try:
+                    value = int(value) if value.isdigit() else value
+                except:
+                    pass
+                domstats[key] = value
+        return domstats
+
+    def collect_single_vm_data(self, vm_name: str) -> Dict:
+        LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
+        vm_state = self.parse_domstate(vm_name)
+        is_running = vm_state == "running"
+
+        domtime = self.parse_domtime(vm_name)
+        domcontrol = self.parse_domcontrol(vm_name)
+
+        blk_list = self.parse_domblklist(vm_name)
+        blk_targets = [blk["target"] for blk in blk_list if blk["target"]]
+        blk_errors = self.parse_domblkerror(vm_name)
+        blk_info = self.parse_domblkinfo(vm_name, blk_targets)
+
+        if_list = self.parse_domiflist(vm_name)
+        if_names = [iface["interface"] for iface in if_list if iface["interface"]]
+        if_addrs = self.parse_domifaddr(vm_name, if_names) if is_running else {}
+        if_links = self.parse_domif_getlink(vm_name, if_names) if is_running else {}
+
+        memstat = self.parse_dommemstat(vm_name) if is_running else {}
+        domstats = self.parse_domstats(vm_name) if is_running else {}
+
+        vm_data = {
+            "name": vm_name,
+            "state": vm_state,
+            "domtime": domtime,
+            "domcontrol": domcontrol,
+            "block_devices": {
+                "list": blk_list,
+                "errors": blk_errors,
+                "size_info": blk_info
+            },
+            "network_interfaces": {
+                "list": if_list,
+                "ip_addresses": if_addrs,
+                "link_states": if_links
+            },
+            "memory_statistics": memstat,
+            "comprehensive_stats": domstats,
+        }
+        LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
+        return vm_data
+
 
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
