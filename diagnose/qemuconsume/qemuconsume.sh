@@ -106,6 +106,11 @@ monitor() {
             exit -1
         fi
     fi
+    pid=`ps aux | grep $domain | grep -v 'qemuconsume' | grep -v 'grep' | awk '{print $2}'`
+    if [ x"0" = x"$pid" ] || [ -z "$pid" ]; then
+        echo "vm can not find: $domain" >> $datafile
+        exit -1
+    fi
 }
 
 while getopts 'h' OPT; do
