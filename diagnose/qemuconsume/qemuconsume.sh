@@ -46,6 +46,25 @@ perf_record() {
     return $?
 }
 
+perf_convert() {
+    #install perl
+    command -v perl > /dev/null	
+    if [ $? -ne 0 ]; then
+        yum install -y perl
+        command -v perl > /dev/null
+        if [ $? -ne 0 ]; then
+            echo "can not install perl" >> $datafile
+            return -1
+        fi
+    fi
+    # Generating the call stack
+    perf script -i ${perf_data} >${script_out} 2>>$datafile
+        if [ $? -ne 0 ]; then
+            echo "perf script failed" >> $datafile
+            return -1
+        fi
+}
+
 while getopts 'h' OPT; do
     case $OPT in
         "h")
