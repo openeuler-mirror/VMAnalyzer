@@ -78,6 +78,21 @@ perf_convert() {
     return 0
 }
 
+collect_global_framegraph() {
+    # run perf record cmd
+    perf_record
+    if [ $? -ne 0 ]; then
+        echo "perf record failed" >> $datafile
+        return -1
+    fi
+    # convert framegraph
+    perf_convert
+    if [ $? -ne 0 ]; then
+        echo "convert failed" >> $datafile
+        return -1
+    fi
+}
+
 while getopts 'h' OPT; do
     case $OPT in
         "h")
