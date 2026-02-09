@@ -4,26 +4,33 @@
 # History:
 # Dinglimin Create the file.
 
+# 日志
 virt_dir=/var/log/vmanalyzer/
 
+# 日志目录创建
 mk_log_dir() {
     if [ ! -d "$virt_dir" ]; then
         mkdir -p $virt_dir
     fi
 }
 
+# 日志输出
 info() {
+    # 打印正常信息
     echo "{\"status\": \"info\", \"log\": \"$1\"}" >> $check_log
 }
 
 error() {
+    # 打印出错信息
     echo "{\"status\": \"error\", \"log\": \"$1\"}" >> $check_log
 }
 
 warn() {
+    # 打印警告信息
     echo "{\"status\": \"warning\", \"log\": \"$1\"}" >> $check_log
 }
 
+# 配置文件
 check_log=${virt_dir}check_secret-$(date "+%Y-%m-%d-%H-%M-%S").log
 
 # 检查密钥的权限和所有者
@@ -134,6 +141,16 @@ main() {
     check_secret_permissions
     check_secret_usage
     check_secret_uniqueness
+
+    # 错误汇总
+    ERROR_COUNT=$(grep -c '"status": "error"' "$check_log")
+    if [ "$ERROR_COUNT" -gt 0 ]; then
+        echo "Check completed with $ERROR_COUNT error(s). See log file for details: $check_log"
+        exit 1
+    else
+        echo "Check completed successfully. No errors found."
+        exit 0
+    fi
 }
 
 # 执行主函数
