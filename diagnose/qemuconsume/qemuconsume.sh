@@ -93,6 +93,21 @@ collect_global_framegraph() {
     fi
 }
 
+monitor() {
+    echo "####################################################################################" > $datafile
+    echo ${CURDATE} >> $datafile
+    #install perf
+    rpm -qa |grep -w "^perf"
+    if [ $? -ne 0 ]; then
+        yum install -y perf
+        rpm -qa |grep -w "^perf"
+        if [ $? -ne 0 ]; then
+            echo "can not install perf" >> $datafile
+            exit -1
+        fi
+    fi
+}
+
 while getopts 'h' OPT; do
     case $OPT in
         "h")
