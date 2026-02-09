@@ -1,10 +1,17 @@
 #!/bin/bash
+# Program:
+# Trace and analyze scheduling events for a specific vCPU thread.
+# History:
+# Dinglimin Create the file.
 
+# 日志文件
 LOG_DIR="/var/log/vmanalyzer"
 LOG_FILE="$LOG_DIR/vcpu_sched_trace.log"
 
+# 创建日志目录
 mkdir -p "$LOG_DIR"
 
+# 日志函数
 log() {
     local level=$1
     local message=$2
@@ -48,6 +55,15 @@ trace_sched_switch() {
     fi
 }
 
+# 分析上下文切换事件
+analyze_sched_switch() {
+    log "INFO" "Analyzing context switch events"
+
+    # 统计上下文切换总数
+    total_switches=$(grep "sched:sched_switch" "$LOG_FILE.tmp" | wc -l)
+    log "INFO" "Total context switches: $total_switches"
+}
+
 main() {
     local vm_name=$1
     local vcpu_id=$2
@@ -69,6 +85,20 @@ main() {
 
     # 跟踪上下文切换事件
     trace_sched_switch "$vcpu_thread"
+
+    # 分析上下文切换事件
+    analyze_sched_switch
+
+    # 清理临时文件
+    rm -f "$LOG_FILE.tmp"
+
+    log "INFO" "Analysis completed. See report in: $LOG_FILE"
 }
+
+# 执行主函数
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <VM_NAME> <VCPU_ID>"
+    exit 1
+fi
 
 main "$1" "$2"
