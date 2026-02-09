@@ -15,6 +15,7 @@ declare -A dic=(
     [os_version]=系统版本
     [kernel]=内核版本
     [iommu]=Iommu配置
+    [kernel_hot_patch]=内核热补丁
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -76,6 +77,21 @@ check_kernel_func() {
                 log "iommu" "未开启iommu,建议开启iommu"
             fi
         fi
+    fi
+
+    # 查看内核热补丁
+    sudo which kpatch >/dev/null 2>&1
+    if [ $? -eq 0 ];then
+        num=$(sudo kpatch list 2>/dev/null | grep enabled | wc -l)
+        if [ $num -eq 0 ];then
+            log "kernel_hot_patch" "不存在内核热补丁"
+        else
+            patches=`sudo kpatch list 2>/dev/null | grep enabled`
+            patches_list=`sudo echo "$patches" |awk -F"[" ' {print $1}'`
+            log "kernel_hot_patch" "已打$num个内核热补丁,补丁:$patches_list"
+        fi
+    else
+        log "kernel_hot_patch" "不存在内核热补丁"
     fi
 }
 
