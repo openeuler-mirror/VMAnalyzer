@@ -128,3 +128,22 @@ domain_blk_error_func() {
 if [ $# -lt 2 ];then
     usage
 fi
+
+case "$2" in
+  domain_state)
+    domain_state_func $1
+    ;;
+  disk_status)
+    check_qga_state $1
+    domain_disk_status_func $1
+    ;;
+  interface_link)
+    domain_interface_link_func $1
+    ;;
+  blk_error)
+    domain_blk_error_func $1
+    ;;
+  *)
+    usage
+    ;;
+esac
