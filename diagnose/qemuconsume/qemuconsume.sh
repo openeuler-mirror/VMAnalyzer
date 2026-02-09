@@ -69,8 +69,14 @@ perf_convert() {
             echo "stackcollapse-perf.pl failed" >> $datafile
             return -1
         fi
+    # Generating svg files
+    ${flamegraph_file} ${folded_out} > ${perf_svg}
+        if [ $? -ne 0 ]; then
+            echo "flamegraph.pl failed" >> $datafile
+            return -1
+        fi
+    return 0
 }
-
 
 while getopts 'h' OPT; do
     case $OPT in
