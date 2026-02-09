@@ -14,8 +14,10 @@ default_config=${TOOLS_ROOT}/basic-config.env
 declare -A dic=(
     [os_version]=系统版本
     [kernel]=内核版本
+    [iommu]=Iommu配置
 )
 
+SYSTEM_TYPE=`uname -p`
 source $default_config
 source /etc/os-release
 
@@ -44,6 +46,37 @@ check_kernel_func() {
     # 查看内核版本
     kernel_ver=`sudo uname -r | egrep -o $Kernel_regex`
     log "kernel" "内核版本:$kernel_ver"
+
+    # 查看内核参数
+    Hygon=`grep '^vendor_id'  "/proc/cpuinfo" | awk '{print $3}' | head -1|grep HygonGenuine`
+
+    # 查看是否开启iommu
+    iommu_flag_x86=`sudo cat /proc/cmdline|grep intel_iommu=on`
+    amd_iommu_flag_x86=`sudo cat /proc/cmdline|grep amd_iommu=on`
+    pt_flag=`sudo cat /proc/cmdline|grep iommu=pt`
+    iommu_flag_aarch64=`sudo cat /proc/cmdline|grep iommu.passthrough=1`
+
+    if [ "${SYSTEM_TYPE}" == "aarch64" ]; then
+        if [ ! -n "$iommu_flag_aarch64" ]; then
+            log "iommu" "未开启iommu,建议开启iommu"
+        else
+            log "iommu" "已开启iommu"
+        fi
+    else
+        if [ "${Hygon}x" != "x" ]; then
+            if [ -n "$amd_iommu_flag_x86" ] && [ -n "$pt_flag" ]; then
+                log "iommu" "已开启iommu"
+            else
+                log "iommu" "未开启iommu,建议开启iommu"
+            fi
+        else
+            if [ -n "$iommu_flag_x86" ] && [ -n "$pt_flag" ]; then
+                log "iommu" "已开启iommu"
+            else
+                log "iommu" "未开启iommu,建议开启iommu"
+            fi
+        fi
+    fi
 }
 
 usage() {
