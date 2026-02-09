@@ -43,6 +43,29 @@ run_perf_stat() {
     fi
 }
 
+# 解析 perf 结果并生成报告
+parse_perf_results() {
+    local total_events=0
+    local sleep_events=0
+
+    # 提取事件计数
+    sleep_events=$(grep "sched:sched_stat_sleep" "$LOG_FILE.tmp" | awk '{print $1}' | tr -d ',')
+
+    # 计算总事件数
+    total_events=$((sleep_events + iowait_events + blocked_events + switch_events + migrate_events + wakeup_events + wait_events))
+
+    # 计算占比
+    sleep_percent=$(echo "scale=2; $sleep_events*100/$total_events" | bc)
+
+    # 生成报告
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+    echo "vCPU Scheduling Latency Analysis Report" | tee -a "$LOG_FILE"
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "Event" "Count" "Percentage" | tee -a "$LOG_FILE"
+    printf "%-30s %-10s %-10s\n" "sched_stat_sleep" "$sleep_events" "$(printf "%0.2f%%" "$sleep_percent")" | tee -a "$LOG_FILE"
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+}
+
 main() {
     local vm_name=$1
     if [ -z "$vm_name" ]; then
@@ -55,6 +78,9 @@ main() {
 
     # 运行 perf stat
     run_perf_stat "$vm_pid"
+
+    # 解析结果
+    parse_perf_results
 }
 
 main "$@"
