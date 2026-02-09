@@ -91,6 +91,27 @@ class VMDomainMonitor:
         blk_errors[vm_name] = output.strip() if output else "no_error"
         return blk_errors
 
+    def parse_domblkinfo(self, vm_name: str, blk_targets: List[str]) -> Dict:
+        blk_info = {}
+        for target in blk_targets:
+            output = self.run_virsh_cmd(f"virsh domblkinfo {vm_name} {target}")
+            if not output:
+                blk_info[target] = {}
+                continue
+            info = {}
+            lines = output.split("\n")
+            for line in lines:
+                if ":" in line:
+                    key, value = line.split(":", 1)
+                    key = key.strip().lower().replace(" ", "_")
+                    val_parts = value.strip().split()
+                    info[key] = {
+                        "value": int(val_parts[0]) if val_parts[0].isdigit() else val_parts[0],
+                        "unit": val_parts[1] if len(val_parts) > 1 else ""
+                    }
+            blk_info[target] = info
+        return blk_info
+
 
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
