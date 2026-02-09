@@ -36,6 +36,26 @@ class VMAnalyzer:
         print(parsed_fs_list)
         return parsed_fs_list
 
+    def get_single_vm_info(self, vm_name: str, conn: libvirt.virConnect) -> Dict:
+        vm_info = {"uuid": "", "name": vm_name, "status": "", "fs_info": []}
+        try:
+            LOG_INFO(f"\n===== 开始处理虚拟机：{vm_name} =====")
+            dom = conn.lookupByName(vm_name)
+            if not dom:
+                LOG_ERROR(f"未找到名称为 {vm_name} 的虚拟机")
+                vm_info["status"] = "未找到"
+                return vm_info
+
+            vm_info["uuid"] = dom.UUIDString()
+            vm_state = dom.state()[0]
+            state_map = {
+                libvirt.VIR_DOMAIN_RUNNING: "运行中",
+                libvirt.VIR_DOMAIN_SHUTOFF: "已关闭",
+                libvirt.VIR_DOMAIN_PAUSED: "已暂停"
+            }
+            vm_info["status"] = state_map.get(vm_state, f"未知状态({vm_state})")
+            LOG_INFO(f"虚拟机基础信息：名称={vm_name}, UUID={vm_info['uuid']}, 状态={vm_info['status']}")
+
 if __name__ == "__main__":
     main()
 
