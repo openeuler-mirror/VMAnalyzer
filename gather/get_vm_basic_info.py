@@ -65,6 +65,26 @@ class VMDomainMonitor:
         output = self.run_virsh_cmd(f"virsh domcontrol {vm_name}")
         return output.strip() if output else "unknown"
 
+    def parse_domblklist(self, vm_name: str) -> List[Dict]:
+        output = self.run_virsh_cmd(f"virsh domblklist {vm_name} --details")
+        blk_list = []
+        if not output:
+            return blk_list
+        lines = output.split("\n")[2:]
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(maxsplit=3)
+            if len(parts) >= 4:
+                blk_list.append({
+                    "type": parts[0],
+                    "device": parts[1],
+                    "target": parts[2],
+                    "source": parts[3]
+                })
+        return blk_list
+
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
     monitor = VMDomainMonitor()
