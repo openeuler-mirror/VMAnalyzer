@@ -63,7 +63,14 @@ perf_convert() {
             echo "perf script failed" >> $datafile
             return -1
         fi
+    # Generating flame graphs
+    ${stackcollapse_file} ${script_out} > ${folded_out}
+        if [ $? -ne 0 ]; then
+            echo "stackcollapse-perf.pl failed" >> $datafile
+            return -1
+        fi
 }
+
 
 while getopts 'h' OPT; do
     case $OPT in
