@@ -61,6 +61,10 @@ class VMDomainMonitor:
                 domtime[key] = value.strip()
         return domtime
 
+    def parse_domcontrol(self, vm_name: str) -> str:
+        output = self.run_virsh_cmd(f"virsh domcontrol {vm_name}")
+        return output.strip() if output else "unknown"
+
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
     monitor = VMDomainMonitor()
