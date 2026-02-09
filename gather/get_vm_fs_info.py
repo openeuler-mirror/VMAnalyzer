@@ -65,6 +65,13 @@ class VMAnalyzer:
             else:
                 LOG_INFO(f"{vm_name} 非运行状态，跳过文件系统信息获取")
 
+        except libvirt.libvirtError as e:
+            LOG_ERROR(f"{vm_name} 信息获取异常：{str(e)}")
+            vm_info["status"] = f"异常({str(e)})"
+        except Exception as e:
+            LOG_ERROR(f"{vm_name} 处理失败：{str(e)}")
+            vm_info["status"] = f"处理失败({str(e)})"
+        return {vm_info["uuid"]: vm_info}
 
 if __name__ == "__main__":
     main()
