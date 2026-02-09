@@ -89,8 +89,12 @@ def main():
     # Run a background thread with the event loop
     ev.start()
 
-    vm_factory = vm.VMFactory(uri)
-    vc = vm_factory.vc
+    try:
+        vm_factory = vm.VMFactory(uri)
+        vc = vm_factory.vc
+    except Exception as e:
+        logging.error(f"Failed to connect to libvirt URI '{uri}': {e}")
+        sys.exit(1)
 
     # Close connection on exit (to test cleanup paths)
     old_exitfunc = getattr(sys, 'exitfunc', None)
