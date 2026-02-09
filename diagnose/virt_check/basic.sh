@@ -13,6 +13,7 @@ default_config=${TOOLS_ROOT}/basic-config.env
 
 declare -A dic=(
     [os_version]=系统版本
+    [kernel]=内核版本
 )
 
 source $default_config
@@ -35,6 +36,14 @@ log() {
 check_os_func() {
     #sudo echo "--------------------system information------------------------" >> $hostfile
     log "os_version" "系统版本:$VERSION_ID"
+}
+
+# 内核信息
+check_kernel_func() {
+    #sudo echo "--------------------kernel information------------------------" >> $hostfile
+    # 查看内核版本
+    kernel_ver=`sudo uname -r | egrep -o $Kernel_regex`
+    log "kernel" "内核版本:$kernel_ver"
 }
 
 usage() {
