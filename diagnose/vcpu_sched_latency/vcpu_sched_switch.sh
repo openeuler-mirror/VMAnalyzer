@@ -62,6 +62,11 @@ analyze_sched_switch() {
     # 统计上下文切换总数
     total_switches=$(grep "sched:sched_switch" "$LOG_FILE.tmp" | wc -l)
     log "INFO" "Total context switches: $total_switches"
+
+    # 计算平均切换时间
+    total_switch_time=$(grep "sched:sched_switch" "$LOG_FILE.tmp" | awk '{sum += $NF} END {print sum}')
+    avg_switch_time=$(echo "scale=2; $total_switch_time / $total_switches" | bc)
+    log "INFO" "Average context switch time: $avg_switch_time ms"
 }
 
 main() {
