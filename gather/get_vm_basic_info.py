@@ -162,6 +162,24 @@ class VMDomainMonitor:
             if_links[if_name] = output.strip().replace("Link state: ", "") if output else "unknown"
         return if_links
 
+    def parse_dommemstat(self, vm_name: str) -> Dict:
+        output = self.run_virsh_cmd(f"virsh dommemstat {vm_name}")
+        memstat = {}
+        if not output:
+            return memstat
+        lines = output.split("\n")
+        for line in lines:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                key = key.strip().lower()
+                value = value.strip()
+                try:
+                    value = int(value) if value.isdigit() else value
+                except:
+                    pass
+                memstat[key] = value
+        return memstat
+
 
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
