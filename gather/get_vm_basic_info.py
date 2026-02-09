@@ -251,6 +251,16 @@ class VMDomainMonitor:
             vm_data = self.collect_single_vm_data(vm_name)
             self.all_vms_data["vms"][vm_name] = vm_data
 
+    def save_to_json(self, file_path: Optional[str] = None):
+        if not file_path:
+            file_path = f"vm_domain_monitor_{int(time.time())}.json"
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(self.all_vms_data, f, indent=2, ensure_ascii=False)
+            LOG_INFO(f"\n所有虚拟机监控数据已保存到：{file_path}")
+        except Exception as e:
+            LOG_ERROR(f"保存 JSON 文件失败：{str(e)}")
+
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
     monitor = VMDomainMonitor()
