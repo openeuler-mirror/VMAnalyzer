@@ -103,6 +103,14 @@ class VMAnalyzer:
                 LOG_INFO("libvirt 连接已关闭")
         return all_vms_info
 
+    def save_to_json(self, all_vms_info: Dict, file_path: str = None):
+        if not file_path:
+            file_path = f"vm_fs_info_all_{int(time.time())}.json"
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(all_vms_info, f, indent=2, ensure_ascii=False)
+        LOG_INFO(f"所有虚拟机文件系统信息已保存到文件：{file_path}")
+        return file_path
+
 if __name__ == "__main__":
     main()
 
