@@ -112,6 +112,26 @@ class VMDomainMonitor:
             blk_info[target] = info
         return blk_info
 
+    def parse_domiflist(self, vm_name: str) -> List[Dict]:
+        output = self.run_virsh_cmd(f"virsh domiflist {vm_name}")
+        if_list = []
+        if not output:
+            return if_list
+        lines = output.split("\n")[2:]
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(maxsplit=4)
+            if len(parts) >= 5:
+                if_list.append({
+                    "interface": parts[0],
+                    "type": parts[1],
+                    "source": parts[2],
+                    "model": parts[3],
+                    "mac": parts[4]
+                })
+        return if_list
 
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
