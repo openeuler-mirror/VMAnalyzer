@@ -4,6 +4,16 @@
 # History:
 # Dinglimin Create the file.
 
+# The script parameter:
+# $0 : ./detect_domain_availability.sh
+# $1 : $domain-uuid|\$domain-id|\$domain-name
+# $2 : domain_state|filesystem_status|oom_status|disk_status|interface_link|blk_error
+#  
+# The script returns the following values:
+# 0 : 结果正常
+# 1 : 结果异常
+# 2 ：参数错误/警告提示,跳过检查
+
 usage() {
     sudo echo $"usage: $0 {\$domain-uuid|\$domain-id|\$domain-name} {domain_state|disk_status|interface_link|blk_error}"
     exit 2
@@ -49,7 +59,7 @@ check_qga_cmd() {
     fi
 }
 
-# 查看云主机的状态
+# 1.查看云主机的状态
 domain_state_func() {
     domain_state=`sudo virsh domstate $1 2>&1`
 
@@ -65,7 +75,7 @@ domain_state_func() {
     fi
 }
 
-# 查看网卡状态
+# 2.查看网卡状态
 domain_interface_link_func() {
     interface=`sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}'`
     interface_num=`sudo echo $interface |awk -F " " '{print NF}'`
@@ -94,7 +104,7 @@ domain_interface_link_func() {
     info "Interface ${array[*]} 连接状态是 UP"
 }
 
-# 查看磁盘状态
+# 3.查看磁盘状态
 domain_disk_status_func() {
     disk_cmd=`sudo virsh qemu-agent-command $1 '{"execute":"guest-user-check", "arguments": {"command-name":"check-fs", "command":"mount | egrep '/dev/[v,s]d'"}}' 2>&1`
     sudo echo $disk_cmd |grep "Timed out" >/dev/null
@@ -110,7 +120,7 @@ domain_disk_status_func() {
     fi
 }
 
-# 查看磁盘是否有error
+# 4.查看磁盘是否有error
 domain_blk_error_func() {
     blk_error=`sudo virsh domblkerror $1 2>&1`
     sudo echo $blk_error |grep "Timed out" >/dev/null
