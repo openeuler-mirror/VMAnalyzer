@@ -133,6 +133,29 @@ class VMDomainMonitor:
                 })
         return if_list
 
+    def parse_domifaddr(self, vm_name: str, if_names: List[str]) -> Dict:
+        if_addrs = {}
+        output = self.run_virsh_cmd(f"virsh domifaddr {vm_name}")
+        if not output:
+            return if_addrs
+        lines = output.split("\n")[2:]
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(maxsplit=3)
+            if len(parts) >= 4:
+                if_name = parts[0]
+                if if_name not in if_addrs:
+                    if_addrs[if_name] = []
+                if_addrs[if_name].append({
+                    "mac": parts[1],
+                    "protocol": parts[2],
+                    "address": parts[3]
+                })
+        return if_addrs
+
+
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
     monitor = VMDomainMonitor()
