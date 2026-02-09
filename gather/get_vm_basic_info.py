@@ -40,6 +40,27 @@ class VMDomainMonitor:
             LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
             return None
 
+    def get_all_vm_names(self) -> List[str]:
+        output = self.run_virsh_cmd("virsh list --all --name")
+        return output.split() if output else []
+
+    def parse_domstate(self, vm_name: str) -> str:
+        output = self.run_virsh_cmd(f"virsh domstate {vm_name}")
+        return output.strip() if output else "unknown"
+
+    def parse_domtime(self, vm_name: str) -> Dict:
+        output = self.run_virsh_cmd(f"virsh domtime {vm_name}")
+        domtime = {}
+        if not output:
+            return domtime
+        lines = output.split("\n")
+        for line in lines:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                key = key.strip().lower().replace(" ", "_")
+                domtime[key] = value.strip()
+        return domtime
+
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
     monitor = VMDomainMonitor()
