@@ -7,11 +7,34 @@
 # 日志
 virt_dir=/var/log/vmanalyzer/
 
+# 配置文件
+TOOLS_ROOT=/usr/bin/vm_analyer/diagnose/virt_check
+default_config=${TOOLS_ROOT}/basic-config.env
+
+declare -A dic=(
+    [os_version]=系统版本
+)
+
+source $default_config
+source /etc/os-release
+
 #Generate log file
 mk_log_dir() {
     if [ ! -d "$virt_dir" ];then
         mkdir -p $virt_dir
     fi
+}
+
+log() {
+    # 打印信息
+    check_name_cn=${dic[$1]}
+    sudo echo "{\"PROJECT\":\"$check_name_cn\",\"LOG\":\"$2\"}," >> $hostfile
+}
+
+# 系统信息
+check_os_func() {
+    #sudo echo "--------------------system information------------------------" >> $hostfile
+    log "os_version" "系统版本:$VERSION_ID"
 }
 
 usage() {
@@ -56,4 +79,3 @@ esac
 
 # Exit success
 exit 0
-
