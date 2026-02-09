@@ -125,3 +125,8 @@ function get_number()
     return 0
 }
 
+function check_each_node_hugepage()
+{
+    local hugepagesize=$1
+    numanode_size=`numactl --hardware | grep "node .* size" | wc -l`
+}
