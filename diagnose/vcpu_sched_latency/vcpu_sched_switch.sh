@@ -34,6 +34,20 @@ get_vcpu_thread() {
     echo "$vcpu_thread"
 }
 
+# 跟踪上下文切换事件
+trace_sched_switch() {
+    local vcpu_thread=$1
+    log "INFO" "Tracing context switch events for vCPU thread: $vcpu_thread"
+    perf trace -e sched:sched_switch -T -p "$vcpu_thread" -o "$LOG_FILE.tmp" &
+    PERF_PID=$!
+    sleep 10
+    sudo kill -SIGINT $PERF_PID
+    if [ $? -ne 0 ]; then
+        log "ERROR" "Failed to kill perf"
+        exit 1
+    fi
+}
+
 main() {
     local vm_name=$1
     local vcpu_id=$2
@@ -52,6 +66,9 @@ main() {
     # 获取 vCPU 线程 ID
     vcpu_thread=$(get_vcpu_thread "$vm_pid" "$vcpu_id")
     log "INFO" "vCPU Thread ID: $vcpu_thread"
+
+    # 跟踪上下文切换事件
+    trace_sched_switch "$vcpu_thread"
 }
 
 main "$1" "$2"
