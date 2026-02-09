@@ -73,6 +73,31 @@ class VMAnalyzer:
             vm_info["status"] = f"处理失败({str(e)})"
         return {vm_info["uuid"]: vm_info}
 
+    def get_all_vms_info(self) -> Dict:
+        conn = None
+        all_vms_info = {}
+        try:
+            conn = libvirt.open("qemu:///system")
+            if not conn:
+                return all_vms_info
+
+            domains = conn.listAllDomains()
+            vm_names = [dom.name() for dom in domains]
+            if not vm_names:
+                return all_vms_info
+
+            for vm_name in vm_names:
+                single_vm_info = self.get_single_vm_info(vm_name, conn)
+                all_vms_info.update(single_vm_info)
+
+        except libvirt.libvirtError as e:
+            LOG_ERROR(f"程序执行异常：{str(e)}")
+        finally:
+            if conn:
+                conn.close()
+                LOG_INFO("libvirt 连接已关闭")
+        return all_vms_info
+
 if __name__ == "__main__":
     main()
 
