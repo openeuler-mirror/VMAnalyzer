@@ -56,6 +56,16 @@ class VMAnalyzer:
             vm_info["status"] = state_map.get(vm_state, f"未知状态({vm_state})")
             LOG_INFO(f"虚拟机基础信息：名称={vm_name}, UUID={vm_info['uuid']}, 状态={vm_info['status']}")
 
+            if vm_state == libvirt.VIR_DOMAIN_RUNNING:
+                LOG_INFO(f"正在获取 {vm_name} 文件系统信息...")
+                raw_fsinfo = dom.fsInfo()
+                parsed_fs = self.parse_fsinfo(raw_fsinfo)
+                vm_info["fs_info"] = parsed_fs
+                LOG_INFO(f"{vm_name} 文件系统信息获取完成（分区数：{len(parsed_fs)}）")
+            else:
+                LOG_INFO(f"{vm_name} 非运行状态，跳过文件系统信息获取")
+
+
 if __name__ == "__main__":
     main()
 
