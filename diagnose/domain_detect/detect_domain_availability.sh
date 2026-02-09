@@ -94,6 +94,22 @@ domain_interface_link_func() {
     info "Interface ${array[*]} 连接状态是 UP"
 }
 
+# 查看磁盘状态
+domain_disk_status_func() {
+    disk_cmd=`sudo virsh qemu-agent-command $1 '{"execute":"guest-user-check", "arguments": {"command-name":"check-fs", "command":"mount | egrep '/dev/[v,s]d'"}}' 2>&1`
+    sudo echo $disk_cmd |grep "Timed out" >/dev/null
+    if [[ $? == 0 ]];then
+        error "请求超时，获取云主机磁盘状态失败"
+    fi
+    check_qga_cmd $disk_cmd
+    disk_status=`sudo echo $disk_cmd | cut -d '(' -f2 | cut -d ')' -f1 |cut -d ',' -f1`
+    if [[ $disk_status == "ro" ]];then
+        error "云主机磁盘状态为只读"
+    else
+        info "云主机磁盘状态为读写" 
+    fi
+}
+
 # 入参检查、开始检测
 if [ $# -lt 2 ];then
     usage
