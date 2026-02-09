@@ -156,7 +156,11 @@ function check_each_node_hugepage()
                     return 1
                 fi
             fi
+        else
+            err_info "node $nid: invalid configuration,not 2M or 1G !"
+            return 1
         fi
     done
     return 0
 }
+
