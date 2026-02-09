@@ -155,6 +155,13 @@ class VMDomainMonitor:
                 })
         return if_addrs
 
+    def parse_domif_getlink(self, vm_name: str, if_names: List[str]) -> Dict:
+        if_links = {}
+        for if_name in if_names:
+            output = self.run_virsh_cmd(f"virsh domif-getlink {vm_name} {if_name}")
+            if_links[if_name] = output.strip().replace("Link state: ", "") if output else "unknown"
+        return if_links
+
 
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
