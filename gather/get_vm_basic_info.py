@@ -85,6 +85,13 @@ class VMDomainMonitor:
                 })
         return blk_list
 
+    def parse_domblkerror(self, vm_name: str) -> Dict:
+        blk_errors = {}
+        output = self.run_virsh_cmd(f"virsh domblkerror {vm_name}")
+        blk_errors[vm_name] = output.strip() if output else "no_error"
+        return blk_errors
+
+
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
     monitor = VMDomainMonitor()
