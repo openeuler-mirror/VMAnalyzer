@@ -88,6 +88,41 @@ check_secret_usage() {
     info "Secret usage check completed."
 }
 
+# 检查密钥的唯一性
+check_secret_uniqueness() {
+    info "Checking secret uniqueness..."
+    # 获取所有密钥的 UUID
+    SECRET_UUIDS=$(virsh secret-list | awk '{print $1}' | grep -E '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$')
+    for SECRET_UUID in $SECRET_UUIDS; do
+        info "Checking secret UUID: $SECRET_UUID"
+        # 获取密钥的 XML 文件路径
+        SECRET_XML="/etc/libvirt/secrets/$SECRET_UUID.xml"
+        if [ ! -f "$SECRET_XML" ]; then
+            error "Secret XML file not found for UUID $SECRET_UUID."
+            continue
+        fi
+        # 解析 XML 文件，获取配置的虚拟机名称
+        VM_NAME=$(grep -oP '(?<=<description>).*?(?=</description>)' "$SECRET_XML")
+        if [ -z "$VM_NAME" ]; then
+            error "No VM name found in secret XML for UUID $SECRET_UUID."
+            #continue
+        else 
+            info "Secret UUID $SECRET_UUID is configured for VM: $VM_NAME"
+        fi
+        # 检查是否有其他虚拟机使用了该密钥
+        VM_LIST=$(virsh list --all --name)
+        for VM in $VM_LIST; do
+            if [ "$VM" != "$VM_NAME" ]; then
+                VM_XML=$(virsh dumpxml "$VM")
+                if echo "$VM_XML" | grep -q "$SECRET_UUID"; then
+                    error "Secret UUID $SECRET_UUID is used in VM: $VM"
+                fi
+            fi
+        done
+    done
+    info "Secret uniqueness check completed."
+}
+
 # 主函数
 main() {
     mk_log_dir
@@ -98,6 +133,7 @@ main() {
     # 执行检查
     check_secret_permissions
     check_secret_usage
+    check_secret_uniqueness
 }
 
 # 执行主函数
