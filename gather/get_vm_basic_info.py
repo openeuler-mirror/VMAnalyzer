@@ -239,6 +239,17 @@ class VMDomainMonitor:
         LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
         return vm_data
 
+    def collect_all_vms(self):
+        vm_names = self.get_all_vm_names()
+        if not vm_names:
+            LOG_ERROR("未找到任何虚拟机")
+            return
+        self.all_vms_data["vm_count"] = len(vm_names)
+        LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机：{vm_names}")
+
+        for vm_name in vm_names:
+            vm_data = self.collect_single_vm_data(vm_name)
+            self.all_vms_data["vms"][vm_name] = vm_data
 
 def main():
     LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
