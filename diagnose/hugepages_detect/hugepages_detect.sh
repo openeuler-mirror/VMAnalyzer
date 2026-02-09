@@ -70,3 +70,21 @@ function record_vm_hugepages()
         log "$vm occupied $total_2M M, occupied $total_1G G /n"
     done
 }
+
+function check_allocate_flag()
+{
+    if [ -f "/tmp/hugepage_flag" ]; then
+        error_num1=`cat /tmp/hugepage_flag`
+        if [ $error_num1 -ne 0 ]; then
+            err_info "allocate_hugepag script exec failed, please check."
+            record_node_hugepages()
+            record_vm_hugepages()
+            exit 1
+        fi
+    else
+        err_info "cannot find allocate_flag, the allocate_hugepag script may have problems! "
+        record_node_hugepages()
+        record_vm_hugepages()
+        exit 1
+    fi
+}
