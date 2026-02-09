@@ -77,14 +77,19 @@ class VMAnalyzer:
         conn = None
         all_vms_info = {}
         try:
+            LOG_INFO("正在连接 libvirt 服务...")
             conn = libvirt.open("qemu:///system")
             if not conn:
+                LOG_ERROR("连接 libvirt 服务失败！请检查 libvirtd 服务是否启动及权限是否足够")
                 return all_vms_info
 
+            LOG_INFO("正在获取所有虚拟机列表...")
             domains = conn.listAllDomains()
             vm_names = [dom.name() for dom in domains]
             if not vm_names:
+                LOG_INFO("未找到任何虚拟机")
                 return all_vms_info
+            LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机：{vm_names}")
 
             for vm_name in vm_names:
                 single_vm_info = self.get_single_vm_info(vm_name, conn)
@@ -97,6 +102,14 @@ class VMAnalyzer:
                 conn.close()
                 LOG_INFO("libvirt 连接已关闭")
         return all_vms_info
+
+    def save_to_json(self, all_vms_info: Dict, file_path: str = None):
+        if not file_path:
+            file_path = f"vm_fs_info_all_{int(time.time())}.json"
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(all_vms_info, f, indent=2, ensure_ascii=False)
+        LOG_INFO(f"所有虚拟机文件系统信息已保存到文件：{file_path}")
+        return file_path
 
 if __name__ == "__main__":
     main()
