@@ -110,6 +110,20 @@ domain_disk_status_func() {
     fi
 }
 
+# 查看磁盘是否有error
+domain_blk_error_func() {
+    blk_error=`sudo virsh domblkerror $1 2>&1`
+    sudo echo $blk_error |grep "Timed out" >/dev/null
+    if [[ $? == 0 ]];then
+        error "请求超时，查询云主机磁盘是否有error失败"    
+    fi
+    if [[ $blk_error == "No errors found" ]];then
+        info "云主机磁盘没有error"
+    else
+        error "云主机磁盘存在error，error: ${blk_error}" 
+    fi
+}
+
 # 入参检查、开始检测
 if [ $# -lt 2 ];then
     usage
