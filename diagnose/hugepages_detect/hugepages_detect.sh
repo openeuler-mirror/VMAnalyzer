@@ -143,8 +143,20 @@ function check_each_node_hugepage()
                 err_info "node$nid/hugepages/$hugepagesize/nr_hugepages system max-used is $set_nr_hugepages"
                 return 1
             fi
+        elif [ $hugepagesize == "hugepages-2048kB" ]; then
+            get_number $nid "2M"
+            if [ $? -ne 0 ]; then
+                err_info "node $nid: invalid 2M configuration!"
+                return 1
+            else
+                num_2M_hugepages_sum=$sum
+                set_nr_hugepages=`cat "/sys/devices/system/node/node$nid/hugepages/$hugepagesize/nr_hugepages"`
+                if [ $num_2M_hugepages_sum -ne $set_nr_hugepages ]; then
+                    err_info "node$nid/hugepages/$hugepagesz/nr_hugepages system max-used is $set_nr_hugepages"
+                    return 1
+                fi
+            fi
         fi
     done
     return 0
 }
-
