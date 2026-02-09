@@ -88,3 +88,40 @@ function check_allocate_flag()
         exit 1
     fi
 }
+
+function get_number()
+{
+    local nid=$1
+    local mem_type=$2
+    sum=0
+    itemlist=`cat ${HUGEPAGE_NODE_CONF_PATH} 2> /dev/null |grep -v '#' | grep "^$nid:.*:$mem_type="`
+    #itemlist=`cat ${HUGEPAGE_NODE_CONF_PATH} 2> /dev/null |grep -v '#' | grep "^$nid:.*:$mem_type"`
+    echo $itemlist
+    # HUGEPAGE_NODE_CONF_PATH size check
+    if [ x"" = x"$itemlist" ]; then
+        if [ "$mem_type" == "RSV" ]; then
+            return 0
+        else
+            log "$itemlist"
+            err_info "Hugepages_node.conf format has problem , please checkout"
+            return 1
+        fi
+    fi
+    for item in ${itemlist[@]}
+    do
+        number=`echo "$item" | awk -F= '{print $2}'`
+        echo "$number" | grep '^[0-9]\+$' | grep -v '^0[0-9]\+$' > /dev/null 2>&1
+        if [ $? -ne 0 ] || [ "$number" -gt "$(/usr/bin/getconf UINT_MAX)" ]; then
+            err_info "invalid item: $item"
+            #/etc/Hugepages_node.conf数值设定报错检查
+            err_info "please checkout hugepage setting count , the value should be [0 - max(uint32)]"
+            return 1
+        else
+            #log "valid item: $item"
+            sum=$(($sum+$number))
+        fi
+    done
+    log "node $1: $2 hugepage is $sum"
+    return 0
+}
+
