@@ -164,3 +164,17 @@ function check_each_node_hugepage()
     return 0
 }
 
+function check_main()
+{
+    check_allocate_flag
+    sizelist=`cat ${HUGEPAGE_NODE_CONF_PATH} 2> /dev/null | grep "^[0-9].*" |awk -F= '{print $1}'| awk -F: '{print $3}' | awk '!a[$0]++'`
+    if [ $? -ne 0 ]; then
+        err_info "check -- error -- , get hugesize exec failed!"
+        return 1
+    fi
+    # /etc/Hugepages_node.conf内容为空报错检查
+    if [ x"" = x"$sizelist" ]; then
+        err_info "check -- error -- , hugapage size undefine , please checkout "
+        return 1
+    fi
+}
