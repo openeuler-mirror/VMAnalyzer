@@ -111,6 +111,26 @@ class VMAnalyzer:
         LOG_INFO(f"所有虚拟机文件系统信息已保存到文件：{file_path}")
         return file_path
 
+def main():
+    if len(sys.argv) != 1:
+        print("Usage: python3 vm_fs_info_all.py")
+        print("示例：python3 vm_fs_info_all.py")
+        sys.exit(1)
+
+    analyzer = VMAnalyzer()
+    all_vms_info = analyzer.get_all_vms_info()
+
+    if all_vms_info:
+        LOG_INFO(f"\n===== 所有虚拟机信息检测完成，共处理 {len(all_vms_info)} 台虚拟机 =====")
+        filename = analyzer.save_to_json(all_vms_info)
+        
+        print("\n===== 简要统计 =====")
+        for vm_uuid, info in all_vms_info.items():
+            print(f"虚拟机：{info['name']}（{info['status']}）- 分区数：{len(info['fs_info'])}")
+    else:
+        LOG_ERROR("未获取到任何虚拟机信息")
+        sys.exit(1)
+
 if __name__ == "__main__":
     main()
 
