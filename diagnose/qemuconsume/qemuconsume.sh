@@ -111,6 +111,12 @@ monitor() {
         echo "vm can not find: $domain" >> $datafile
         exit -1
     fi
+    collect_global_framegraph $pid
+        if [ $? -ne 0 ]; then
+            echo "collect_global_framegraph failed" >> $datafile
+            clean_tmp
+            exit -1
+        fi
 }
 
 while getopts 'h' OPT; do
