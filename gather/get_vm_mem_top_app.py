@@ -155,6 +155,24 @@ class VMMemTopNCollector:
         except Exception as e:
             logger.error(f"保存数据失败：{str(e)}")
 
+    def start_polling(self) -> None:
+        logger.info("===== 启动内存TopN进程信息轮询采集 =====")
+        logger.info(f"轮询间隔：{self.poll_interval} 秒 | TopN值：{self.top_n} | 输出目录：{self.output_dir}")
+        logger.info("按 Ctrl+C 停止采集\n")
+
+        try:
+            while True:
+                self.collect_all_vms_data()
+                self.save_collect_data()
+                logger.info(f"\n等待 {self.poll_interval} 秒后开始下一次采集...\n")
+                time.sleep(self.poll_interval)
+
+        except KeyboardInterrupt:
+            logger.info("\n===== 用户终止采集，程序退出 =====")
+
+        except Exception as e:
+            logger.error(f"轮询采集异常：{str(e)}")
+
 
 if __name__ == "__main__":
     try:
