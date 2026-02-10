@@ -31,6 +31,10 @@ class VMMemTopNCollector:
             "vm_list": {}
         }
 
+    def _init_output_dir(self) -> None:
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir, exist_ok=True)
+
 
 if __name__ == "__main__":
     try:
