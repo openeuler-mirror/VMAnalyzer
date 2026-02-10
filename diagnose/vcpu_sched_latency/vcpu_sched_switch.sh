@@ -73,6 +73,15 @@ analyze_sched_switch() {
     echo "Context Switch Analysis Report" | tee -a "$LOG_FILE"
     echo "----------------------------------------" | tee -a "$LOG_FILE"
     printf "%-20s %-10s %-10s\n" "Reason" "Count" "Percentage" | tee -a "$LOG_FILE"
+
+    # 按切换原因分类统计
+    grep "sched:sched_switch:CPU" "$LOG_FILE.tmp" | awk '{print $5}' | sort | uniq -c | while read -r count reason; do
+        percentage=$(echo "scale=0; $count*100/$total_switches" | bc)
+        percentage_float=$(printf "%0.2f%%" "$percentage")
+        printf "%-20s %-10s %-10s\n" "$reason" "$count" "$percentage_float" | tee -a "$LOG_FILE"
+    done
+
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
 }
 
 main() {
