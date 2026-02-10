@@ -35,6 +35,34 @@ class VMMemTopNCollector:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir, exist_ok=True)
 
+    def _exec_virsh_cmd(self, cmd: str) -> Optional[str]:
+        try:
+            logger.info(f"执行命令：{cmd}")
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=True,
+                universal_newlines=True,
+                check=True,
+                timeout=30
+            )
+            output = result.stdout.strip()
+            return output if output else None
+
+        except subprocess.CalledProcessError as e:
+            err_msg = e.stderr.strip()
+            logger.error(f"命令执行失败：{cmd}，错误：{err_msg}")
+            return None
+
+        except subprocess.TimeoutExpired:
+            logger.error(f"命令执行超时：{cmd}（超过30秒）")
+            return None
+
+        except Exception as e:
+            logger.error(f"命令执行异常：{cmd}，错误：{str(e)}")
+            return None
+
 
 if __name__ == "__main__":
     try:
