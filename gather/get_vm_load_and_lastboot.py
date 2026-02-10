@@ -65,6 +65,18 @@ class VMSysMonitor:
                 load["note"] = "解析失败"
         return load
 
+    def collect(self) -> None:
+        self.data["collect_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        vms = self.get_running_vms()
+        self.data["vm_count"] = len(vms)
+        for vm in vms:
+            logger.info(f"Collecting {vm}...")
+            self.data["vms"][vm] = {
+                "boot_time": self.get_boot_time(vm),
+                "load_avg": self.get_load_avg(vm),
+                "status": "success" if self.get_boot_time(vm) != "采集失败" else "fail"
+            }
+
 
 if __name__ == "__main__":
     main()
