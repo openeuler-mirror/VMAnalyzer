@@ -91,6 +91,28 @@ class VMMemTopNCollector:
             logger.error(f"VM {vm_name} QGA返回解析失败：{str(e)}，原始数据：{output}")
             return None
 
+    def format_process_data(self, process_data: List[Dict]) -> List[Dict]:
+        formatted_list = []
+        for process in process_data:
+            proc_id = process.get("process-id", "未知").strip()
+            proc_info = process.get("process-info", {})
+            
+            # 兼容返回值中嵌套process-info的异常格式
+            if "process-info" in proc_info:
+                proc_info = proc_info["process-info"]
+
+            formatted_item = {
+                "process_id": proc_id,
+                "user": proc_info.get("user", "未知").strip(),
+                "cpu_util": proc_info.get("cpu-util", "0").strip(),
+                "mem_util": proc_info.get("mem-util", "0").strip(),
+                "open_files": proc_info.get("open-files", "N/A").strip(),
+                "cmd_name": proc_info.get("cmd-name", "未知").strip().replace("\n", "")
+            }
+            formatted_list.append(formatted_item)
+
+        return formatted_list
+
 
 if __name__ == "__main__":
     try:
