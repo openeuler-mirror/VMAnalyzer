@@ -68,6 +68,29 @@ class VMMemTopNCollector:
         output = self._exec_virsh_cmd(cmd)
         return output.split() if output else []
 
+    def get_vm_mem_topn(self, vm_name: str) -> Optional[List[Dict]]:
+        qga_params = {
+            "execute": "guest-get-memtopn-status",
+            "arguments": {"memtopn-num": str(self.top_n)}
+        }
+        qga_cmd = f"virsh qemu-agent-command {vm_name} '{json.dumps(qga_params)}'"
+        output = self._exec_virsh_cmd(qga_cmd)
+
+        if not output:
+            logger.error(f"VM {vm_name} 内存TopN信息采集失败：无返回数据")
+            return None
+
+        try:
+            resp = json.loads(output)
+            if "return" not in resp:
+                logger.error(f"VM {vm_name} QGA返回格式异常：{output}")
+                return None
+            return resp["return"]
+
+        except json.JSONDecodeError as e:
+            logger.error(f"VM {vm_name} QGA返回解析失败：{str(e)}，原始数据：{output}")
+            return None
+
 
 if __name__ == "__main__":
     try:
