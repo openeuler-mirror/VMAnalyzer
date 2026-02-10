@@ -182,6 +182,16 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def main() -> None:
+    args = parse_args()
+    collector = VMMemTopNCollector(
+        top_n=args.top_n,
+        poll_interval=args.poll_interval,
+        output_dir=args.output_dir
+    )
+    collector.start_polling()
+
+
 if __name__ == "__main__":
     try:
         from typing import Dict, List, Optional
