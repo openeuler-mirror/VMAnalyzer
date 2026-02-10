@@ -10,6 +10,13 @@ import os
 from datetime import datetime
 from typing import Dict, List, Optional
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger(__name__)
+
 
 class VMMemTopNCollector:
     def __init__(self, top_n: int = 5, poll_interval: int = 60, output_dir: str = "./vm_mem_topn_data"):
