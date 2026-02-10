@@ -103,6 +103,17 @@ class VMCPUTopNCollector:
             formatted_data.append(formatted_info)
         return formatted_data
 
+    def collect_all_vms(self):
+        self.collect_data["collect_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        running_vms = self.get_running_vm_names()
+        self.collect_data["running_vm_count"] = len(running_vms)
+        
+        if not running_vms:
+            LOG_INFO("当前无运行中的虚拟机")
+            self.collect_data["vm_list"] = {}
+            return
+        
 
 if __name__ == "__main__":
     main()
