@@ -33,6 +33,11 @@ class VMSysMonitor:
             logger.error(f"Cmd err: {cmd} | Err: {str(e)}")
             return None
 
+    def get_running_vms(self) -> List[str]:
+        cmd = "virsh list --name | grep -v '^$'"
+        output = self._run_cmd(cmd)
+        return output.split() if output else []
+
 if __name__ == "__main__":
     main()
 
