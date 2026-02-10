@@ -87,6 +87,20 @@ class VMSysMonitor:
         except Exception as e:
             logger.error(f"Save fail: {str(e)}")
 
+    def run(self) -> None:
+        logger.info(f"Start monitor | Poll: {self.poll}s | Out dir: {self.out_dir}")
+        while True:
+            try:
+                self.collect()
+                self.save()
+                time.sleep(self.poll)
+            except KeyboardInterrupt:
+                logger.info("Exit by user")
+                break
+            except Exception as e:
+                logger.error(f"Poll err: {str(e)}")
+                time.sleep(self.poll)
+
 
 if __name__ == "__main__":
     main()
