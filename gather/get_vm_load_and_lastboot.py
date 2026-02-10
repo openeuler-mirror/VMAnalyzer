@@ -38,6 +38,16 @@ class VMSysMonitor:
         output = self._run_cmd(cmd)
         return output.split() if output else []
 
+    def get_boot_time(self, vm: str) -> str:
+        cmd = f"virsh qemu-agent-command {vm} '{{\"execute\":\"guest-get-lastboot-time\"}}'"
+        res = self._run_cmd(cmd)
+        if not res:
+            return "采集失败"
+        try:
+            return json.loads(res)["return"]["lastboot"].strip()
+        except:
+            return "解析失败"
+
 if __name__ == "__main__":
     main()
 
