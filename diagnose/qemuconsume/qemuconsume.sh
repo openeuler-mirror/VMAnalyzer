@@ -117,6 +117,11 @@ monitor() {
             clean_tmp
             exit -1
         fi
+    if [ ! -e ${perf_svg} ];then
+        echo "Failed to generate cpu flamwgrapg" >> $datafile
+            clean_tmp
+        exit -1
+    fi
 }
 
 while getopts 'h' OPT; do
