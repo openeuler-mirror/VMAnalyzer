@@ -114,6 +114,24 @@ class VMCPUTopNCollector:
             self.collect_data["vm_list"] = {}
             return
         
+        for vm_name in running_vms:
+            LOG_INFO(f"\n===== 开始采集虚拟机 {vm_name} CPU Top{self.top_n} 进程信息 =====")
+            raw_data = self.get_vm_cpu_topn_info(vm_name)
+            if not raw_data:
+                self.collect_data["vm_list"][vm_name] = {
+                    "status": "采集失败",
+                    "process_list": []
+                }
+                continue
+            
+            formatted_process = self.format_process_info(raw_data)
+            self.collect_data["vm_list"][vm_name] = {
+                "status": "采集成功",
+                "process_list": formatted_process,
+                "top_n": self.top_n
+            }
+            LOG_INFO(f"虚拟机 {vm_name} 采集完成，共获取 {len(formatted_process)} 个进程信息")
+
 
 if __name__ == "__main__":
     main()
