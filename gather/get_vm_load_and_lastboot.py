@@ -77,6 +77,16 @@ class VMSysMonitor:
                 "status": "success" if self.get_boot_time(vm) != "采集失败" else "fail"
             }
 
+    def save(self) -> None:
+        fname = f"vm_sys_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        fpath = os.path.join(self.out_dir, fname)
+        try:
+            with open(fpath, "w", encoding="utf-8") as f:
+                json.dump(self.data, f, indent=2, ensure_ascii=False)
+            logger.info(f"Save to {fpath}")
+        except Exception as e:
+            logger.error(f"Save fail: {str(e)}")
+
 
 if __name__ == "__main__":
     main()
