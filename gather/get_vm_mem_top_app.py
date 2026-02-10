@@ -113,6 +113,35 @@ class VMMemTopNCollector:
 
         return formatted_list
 
+    def collect_all_vms_data(self) -> None:
+        self.collect_data["collect_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        running_vms = self.get_running_vms()
+        self.collect_data["running_vm_count"] = len(running_vms)
+
+        if not running_vms:
+            logger.info("当前无运行中的虚拟机")
+            self.collect_data["vm_list"] = {}
+            return
+
+        for vm_name in running_vms:
+            logger.info(f"\n===== 开始采集VM {vm_name} 内存Top{self.top_n} 进程信息 =====")
+            raw_data = self.get_vm_mem_topn(vm_name)
+
+            if not raw_data:
+                self.collect_data["vm_list"][vm_name] = {
+                    "status": "采集失败",
+                    "process_list": []
+                }
+                continue
+
+            formatted_data = self.format_process_data(raw_data)
+            self.collect_data["vm_list"][vm_name] = {
+                "status": "采集成功",
+                "process_list": formatted_data,
+                "top_n": self.top_n
+            }
+            logger.info(f"VM {vm_name} 采集完成，共获取 {len(formatted_data)} 个进程信息")
+
 
 if __name__ == "__main__":
     try:
