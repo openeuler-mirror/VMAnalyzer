@@ -56,6 +56,12 @@ class VMCPUTopNCollector:
             err_msg = e.stderr.strip()
             LOG_ERROR(f"命令执行失败：{cmd}，错误：{err_msg}")
             return None
+        except subprocess.TimeoutExpired:
+            LOG_ERROR(f"命令执行超时：{cmd}（超过30秒）")
+            return None
+        except Exception as e:
+            LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
+            return None
 
 if __name__ == "__main__":
     main()
