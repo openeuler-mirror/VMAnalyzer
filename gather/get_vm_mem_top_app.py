@@ -63,6 +63,11 @@ class VMMemTopNCollector:
             logger.error(f"命令执行异常：{cmd}，错误：{str(e)}")
             return None
 
+    def get_running_vms(self) -> List[str]:
+        cmd = "virsh list --name | grep -v '^$'"
+        output = self._exec_virsh_cmd(cmd)
+        return output.split() if output else []
+
 
 if __name__ == "__main__":
     try:
