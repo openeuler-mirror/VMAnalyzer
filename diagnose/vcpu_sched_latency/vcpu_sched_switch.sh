@@ -67,6 +67,12 @@ analyze_sched_switch() {
     total_switch_time=$(grep "sched:sched_switch" "$LOG_FILE.tmp" | awk '{sum += $NF} END {print sum}')
     avg_switch_time=$(echo "scale=2; $total_switch_time / $total_switches" | bc)
     log "INFO" "Average context switch time: $avg_switch_time ms"
+
+    # 分析切换原因分布
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+    echo "Context Switch Analysis Report" | tee -a "$LOG_FILE"
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+    printf "%-20s %-10s %-10s\n" "Reason" "Count" "Percentage" | tee -a "$LOG_FILE"
 }
 
 main() {
