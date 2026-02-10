@@ -101,6 +101,12 @@ class VMSysMonitor:
                 logger.error(f"Poll err: {str(e)}")
                 time.sleep(self.poll)
 
+def main():
+    parser = argparse.ArgumentParser(description="VM系统监控")
+    parser.add_argument("--poll", type=int, default=60, help="轮询间隔(秒)")
+    parser.add_argument("--out-dir", type=str, default="./vm_sys_data", help="输出目录")
+    args = parser.parse_args()
+    VMSysMonitor(args.poll, args.out_dir).run()
 
 if __name__ == "__main__":
     main()
