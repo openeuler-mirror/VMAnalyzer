@@ -86,6 +86,24 @@ class VMCPUTopNCollector:
             LOG_ERROR(f"虚拟机 {vm_name} QGA返回值解析失败：{str(e)}，原始数据：{output}")
             return None
 
+    def format_process_info(self, process_data: List[Dict]) -> List[Dict]:
+        formatted_data = []
+        for process in process_data:
+            process_id = process.get("process-id", "未知")
+            process_info = process.get("process-info", {})
+            
+            formatted_info = {
+                "process_id": process_id.strip(),
+                "user": process_info.get("user", "未知").strip(),
+                "cpu_util": process_info.get("cpu-util", "0").strip(),
+                "mem_util": process_info.get("mem-util", "0").strip(),
+                "open_files": process_info.get("open-files", "N/A").strip(),
+                "cmd_name": process_info.get("cmd-name", "未知").strip().replace("\n", "")
+            }
+            formatted_data.append(formatted_info)
+        return formatted_data
+
+
 if __name__ == "__main__":
     main()
 
