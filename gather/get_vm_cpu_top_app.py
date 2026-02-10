@@ -132,6 +132,18 @@ class VMCPUTopNCollector:
             }
             LOG_INFO(f"虚拟机 {vm_name} 采集完成，共获取 {len(formatted_process)} 个进程信息")
 
+    def save_data(self):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_name = f"vm_cpu_topn_{timestamp}.json"
+        file_path = os.path.join(self.output_dir, file_name)
+        
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(self.collect_data, f, indent=2, ensure_ascii=False)
+            LOG_INFO(f"采集数据已保存到：{file_path}")
+        except Exception as e:
+            LOG_ERROR(f"保存数据失败：{str(e)}")
+
 
 if __name__ == "__main__":
     main()
