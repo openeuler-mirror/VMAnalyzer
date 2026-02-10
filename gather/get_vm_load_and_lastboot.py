@@ -48,6 +48,24 @@ class VMSysMonitor:
         except:
             return "解析失败"
 
+    def get_load_avg(self, vm: str) -> Dict:
+        cmd = f"virsh qemu-agent-command {vm} '{{\"execute\":\"guest-get-load-average\"}}'"
+        res = self._run_cmd(cmd)
+        load = {"1min": "N/A", "5min": "N/A", "15min": "N/A", "note": "不支持/采集失败"}
+        if res:
+            try:
+                d = json.loads(res)["return"]
+                load = {
+                    "1min": d.get("load1-average", "N/A").strip(),
+                    "5min": d.get("load5-average", "N/A").strip(),
+                    "15min": d.get("load15-average", "N/A").strip(),
+                    "note": "采集成功"
+                }
+            except:
+                load["note"] = "解析失败"
+        return load
+
+
 if __name__ == "__main__":
     main()
 
