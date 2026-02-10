@@ -19,3 +19,8 @@ check_secret.sh 是一个用于检查 Libvirt 密钥（Secret）使用情况的�
 检查密钥文件的权限是否为 600（即 -rw-------）。
 
 检查密钥文件的所有者是否为 root。
+
+使用方法
+1. 运行脚本
+在终端中执行以下命令来运行脚本：
+sudo bash check_secret.sh
