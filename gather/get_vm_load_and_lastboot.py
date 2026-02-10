@@ -18,6 +18,21 @@ class VMSysMonitor:
         os.makedirs(out_dir, exist_ok=True)
         self.data = {"collect_time": "", "vm_count": 0, "vms": {}}
 
+    def _run_cmd(self, cmd: str) -> Optional[str]:
+        try:
+            # 核心修复：用universal_newlines替代text，兼容Python3.6及以下
+            res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                universal_newlines=True, check=True, timeout=30)
+            return res.stdout.strip() or None
+        except subprocess.CalledProcessError as e:
+            err = e.stderr.strip()
+            if "not supported" not in err.lower() and "unknown command" not in err.lower():
+                logger.error(f"Cmd fail: {cmd} | Err: {err}")
+            return None
+        except Exception as e:
+            logger.error(f"Cmd err: {cmd} | Err: {str(e)}")
+            return None
+
 if __name__ == "__main__":
     main()
 
