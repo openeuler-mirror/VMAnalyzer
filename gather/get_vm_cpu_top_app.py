@@ -160,6 +160,20 @@ class VMCPUTopNCollector:
         except Exception as e:
             LOG_ERROR(f"轮询采集异常：{str(e)}")
 
+def main():
+    parser = argparse.ArgumentParser(description="VM CPU TopN进程信息采集脚本")
+    parser.add_argument("--top-n", type=int, default=5, help="CPU TopN的N值，默认5")
+    parser.add_argument("--poll-interval", type=int, default=60, help="轮询时间（秒），默认60秒")
+    parser.add_argument("--output-dir", type=str, default="./vm_cpu_topn_data", help="数据输出目录，默认./vm_cpu_topn_data")
+    
+    args = parser.parse_args()
+    
+    collector = VMCPUTopNCollector(
+        top_n=args.top_n,
+        poll_interval=args.poll_interval,
+        output_dir=args.output_dir
+    )
+    collector.run_polling()
 
 if __name__ == "__main__":
     main()
