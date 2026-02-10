@@ -24,3 +24,12 @@ check_secret.sh 是一个用于检查 Libvirt 密钥（Secret）使用情况的�
 1. 运行脚本
 在终端中执行以下命令来运行脚本：
 sudo bash check_secret.sh
+
+2. 查看日志
+脚本执行完成后，日志文件会生成在 /var/log/vmanalyzer/ 目录下，文件名为 check_secret-<时间戳>.log。日志文件包含以下内容：
+
+正常信息：标记为 info，记录检查过程中的详细信息。
+
+警告信息：标记为 warning，记录潜在的问题。
+
+错误信息：标记为 error，记录检查中发现的问题。
