@@ -9,6 +9,8 @@ virt_dir=/var/log/vmanalyzer/
 
 # 配置文件
 TOOLS_ROOT=/usr/bin/vm_analyer/diagnose/virt_check
+spectre_file=${TOOLS_ROOT}/spectre-meltdown-checker.sh
+spectre_log=${virt_dir}spectre-meltdown-checker-basic-`date "+%Y-%m-%d-%H-%M-%S"`.log
 default_config=${TOOLS_ROOT}/basic-config.env
 
 declare -A dic=(
@@ -16,6 +18,7 @@ declare -A dic=(
     [kernel]=内核版本
     [iommu]=Iommu配置
     [kernel_hot_patch]=内核热补丁
+    [spectre_meltdown]=幽灵熔断漏洞
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -92,6 +95,21 @@ check_kernel_func() {
         fi
     else
         log "kernel_hot_patch" "不存在内核热补丁"
+    fi
+
+    # 漏洞检测
+    if [[ -f $spectre_file ]]; then
+        sudo bash $spectre_file > $spectre_log
+
+        cve_num=`sudo grep -rn STATUS $spectre_log | wc -l`
+        status_num=`sudo grep -rn "NOT VULNERABLE" $spectre_log | wc -l`
+        if [[ $cve_num != $status_num ]]; then
+            log "spectre_meltdown" "安全漏洞Spectre与Meltdown检测异常"
+        else
+            log "spectre_meltdown" "安全漏洞Spectre与Meltdown检测正常"
+        fi
+    else
+        log "spectre_meltdown" "没有安全漏洞Spectre与Meltdown检测脚本,跳过检测"
     fi
 }
 
