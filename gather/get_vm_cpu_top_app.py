@@ -68,6 +68,24 @@ class VMCPUTopNCollector:
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
 
+    def get_vm_cpu_topn_info(self, vm_name: str) -> Optional[List[Dict]]:
+        qga_cmd = f"virsh qemu-agent-command {vm_name} '{{\"execute\":\"guest-get-cputopn-status\", \"arguments\": {{\"cputopn-num\":\"{self.top_n}\"}}}}'"
+        output = self.run_virsh_cmd(qga_cmd)
+        
+        if not output:
+            LOG_ERROR(f"虚拟机 {vm_name} CPU TopN信息采集失败：无返回数据")
+            return None
+        
+        try:
+            resp = json.loads(output)
+            if "return" not in resp:
+                LOG_ERROR(f"虚拟机 {vm_name} QGA接口返回格式异常：{output}")
+                return None
+            return resp["return"]
+        except json.JSONDecodeError as e:
+            LOG_ERROR(f"虚拟机 {vm_name} QGA返回值解析失败：{str(e)}，原始数据：{output}")
+            return None
+
 if __name__ == "__main__":
     main()
 
