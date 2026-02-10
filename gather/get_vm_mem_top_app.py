@@ -174,6 +174,14 @@ class VMMemTopNCollector:
             logger.error(f"轮询采集异常：{str(e)}")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="VM 内存TopN进程信息采集脚本")
+    parser.add_argument("--top-n", type=int, default=5, help="内存TopN的N值，默认5")
+    parser.add_argument("--poll-interval", type=int, default=60, help="轮询间隔（秒），默认60")
+    parser.add_argument("--output-dir", type=str, default="./vm_mem_topn_data", help="数据输出目录")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
     try:
         from typing import Dict, List, Optional
