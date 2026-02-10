@@ -144,6 +144,22 @@ class VMCPUTopNCollector:
         except Exception as e:
             LOG_ERROR(f"保存数据失败：{str(e)}")
 
+    def run_polling(self):
+        LOG_INFO(f"===== 启动CPU TopN进程信息轮询采集 =====")
+        LOG_INFO(f"轮询时间：{self.poll_interval} 秒 | TopN值：{self.top_n} | 数据保存目录：{self.output_dir}")
+        LOG_INFO("按 Ctrl+C 停止采集\n")
+        
+        try:
+            while True:
+                self.collect_all_vms()
+                self.save_data()
+                LOG_INFO(f"\n等待 {self.poll_interval} 秒后开始下一次采集...\n")
+                time.sleep(self.poll_interval)
+        except KeyboardInterrupt:
+            LOG_INFO("\n===== 用户终止采集，程序退出 =====")
+        except Exception as e:
+            LOG_ERROR(f"轮询采集异常：{str(e)}")
+
 
 if __name__ == "__main__":
     main()
