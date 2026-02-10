@@ -19,6 +19,7 @@ declare -A dic=(
     [iommu]=Iommu配置
     [kernel_hot_patch]=内核热补丁
     [spectre_meltdown]=幽灵熔断漏洞
+    [tuned]=Tuned配置
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -111,6 +112,10 @@ check_kernel_func() {
     else
         log "spectre_meltdown" "没有安全漏洞Spectre与Meltdown检测脚本,跳过检测"
     fi
+
+    # 查看tuned-adm配置
+    tuned=`sudo tuned-adm active | awk -F": " '{print $2}'`
+    log "tuned" "tuned配置:$tuned"
 }
 
 usage() {
