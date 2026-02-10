@@ -177,4 +177,12 @@ function check_main()
         err_info "check -- error -- , hugapage size undefine , please checkout "
         return 1
     fi
+    for size in ${sizelist[@]}
+    do
+        if [ x"" = x"$size" ]; then
+            err_info "check -- error -- , wrong format, please checkout"
+        elif [ "$size" == "RSV" ]; then
+            continue
+        fi
+    done
 }
