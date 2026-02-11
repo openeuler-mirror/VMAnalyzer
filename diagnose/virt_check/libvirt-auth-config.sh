@@ -44,6 +44,22 @@ set_check_config() {
                 fi
             fi
         done
+    elif [ "$1" == $SASL_LIBVIRT_FILE ]; then
+        for key in $(sudo echo ${!SASL_LIBVIRT_CONF[*]}) ; do
+            cur=$(sudo grep ^${key} $1 | awk -F ':' '{ print $NF }')
+            if [[ $(sudo echo $cur | sed 's/\"//g') != ${SASL_LIBVIRT_CONF[$key]} ]];then
+                if [ $2 == true ]; then
+                    sudo echo "set $1 config failed"
+                    exit 1
+                else
+                    if [[ $(sudo echo $cur | sed 's/\"//g') != "" ]];then
+                        sudo sed -i "/^$key/c\\$key:${SASL_LIBVIRT_CONF[$key]}" $1
+                    else
+                        sudo echo "$key:${SASL_LIBVIRT_CONF[$key]}" |sudo tee -a $1
+                    fi
+                fi
+            fi
+        done
     fi
 }
 
