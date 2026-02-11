@@ -33,3 +33,8 @@ sudo bash check_secret.sh
 警告信息：标记为 warning，记录潜在的问题。
 
 错误信息：标记为 error，记录检查中发现的问题。
+
+3. 检查结果
+如果脚本发现错误，日志文件中会记录错误信息，并在脚本结束时输出错误数量。
+
+如果未发现错误，脚本会输出 Check completed successfully. No errors found.。
