@@ -101,6 +101,12 @@ parse_perf_results() {
     if [ "$blocked_percent_int" -gt 2 ]; then
         log "WARNING" "High resource blocking (${blocked_percent_int}%). Check for lock contention or memory pressure."
     fi
+
+    switch_percent=$(printf "%0.2f%%" "$switch_percent")
+    switch_percent_int=${switch_percent%.*}
+    if [ "$switch_percent_int" -gt 10 ]; then
+        log "WARNING" "High context switch rate (${switch_percent_int}%). Check for excessive task switching."
+    fi
 }
 
 main() {
