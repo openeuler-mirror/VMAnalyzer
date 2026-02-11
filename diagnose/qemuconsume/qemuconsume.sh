@@ -122,6 +122,10 @@ monitor() {
             clean_tmp
         exit -1
     fi
+    clean_tmp
+    echo "{\"qemuconsume\": {\"status\": OK,\"result\":\"generate cpu flamwgrapg\",\"details\": [{\"name\":\"download\",\"value\":\"$perf_svg\"}]}}" >> $datafile
+    echo "####################################################################################" >> $datafile
+    exit 0
 }
 
 while getopts 'h' OPT; do
