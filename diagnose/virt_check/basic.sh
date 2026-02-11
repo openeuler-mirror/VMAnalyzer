@@ -67,6 +67,12 @@ check_config() {
             bad=$((bad + 1))
         fi
     done < "$sysctl_config"
+    if [ "$bad" == "0" ]; then
+        log "$1" "sysctl的参数配置正常"
+    else
+        para=`echo ${array_name[@]}`
+        log "$1" "sysctl参数[$para]，请检查是否需要修改"
+    fi
 }
 
 # 系统信息
