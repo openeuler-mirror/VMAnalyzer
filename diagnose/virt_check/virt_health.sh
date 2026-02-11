@@ -17,4 +17,26 @@ if [ $# -eq 0 ]; then
     exit -1
 fi
 
+while getopts 'd:f:e:h:*' OPT; do
+        case $OPT in
+                "h")
+                        usage
+                        exit 0
+                        ;;
+                "e")
+                        edition=$OPTARG
+                        ;;
+                "f")
+                        flag=$OPTARG
+                        ;;
+                "d")
+                        domain=$OPTARG
+                        ;;
+                *)
+                        usage
+                        exit -1
+                ;;
+        esac
+done
+
 exit 0
