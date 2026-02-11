@@ -183,6 +183,17 @@ function check_main()
             err_info "check -- error -- , wrong format, please checkout"
         elif [ "$size" == "RSV" ]; then
             continue
+        elif [ "$size" == "1G" ]; then
+            size_set=`cat /proc/cmdline | grep " *hugepagesz=1G"`
+            if [ -z "$size_set" ]; then
+               err_info "check -- error -- , /proc/cmdline do not have 1G hugepage size !"
+            else
+               check_each_node_hugepage 'hugepages-1048576kB'
+               error_num=$(($error_num+$?))
+               if [ $? -ne 0 ]; then
+                  err_info "check -- error -- , 1G hugepages check exception, please check the operation!"
+               fi
+            fi
         fi
     done
 }
