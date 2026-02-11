@@ -4,6 +4,14 @@
 # History:
 # Dinglimin Create the file.
 
+# Generate args
+# 返回值
+ret=0
+# 日志
+virt_dir=/var/log/vmanalyzer/
+# 配置文件
+TOOLS_BIN=/usr/bin/vm_analyer/diagnose/virt_check
+
 usage() {
         echo "virt_health: virtualization os config health check"
         echo "options: -h,          help information"
@@ -48,4 +56,12 @@ else
     exit -1
 fi
 
-exit 0
+if [ $flag == "domain" ];then
+    sudo sh $TOOLS_BIN/$file_name -f $flag -d $domain
+else
+    sudo sh $TOOLS_BIN/$file_name -f $flag
+fi
+ret=`echo $?`
+
+# Exit
+exit $ret
