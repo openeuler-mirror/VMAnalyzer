@@ -95,6 +95,12 @@ parse_perf_results() {
     if [ "$iowait_percent_int" -gt 5 ]; then
         log "WARNING" "High I/O wait detected (${iowait_percent_int}%). Potential disk/network bottleneck."
     fi
+
+    blocked_percent=$(printf "%0.2f%%" "$blocked_percent")
+    blocked_percent_int=${blocked_percent%.*}
+    if [ "$blocked_percent_int" -gt 2 ]; then
+        log "WARNING" "High resource blocking (${blocked_percent_int}%). Check for lock contention or memory pressure."
+    fi
 }
 
 main() {
