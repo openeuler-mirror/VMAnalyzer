@@ -25,7 +25,10 @@ LOG_INFO = logging.info
 LOG_ERROR = logging.error
 
 class VMCollector:
-    def __init__(self):
+    def __init__(self, output_dir: str = "./get_vm_network_info_data"):
+        self.output_dir = output_dir
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
 
         self.all_vms_data = {
             "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.localtime()),
@@ -120,10 +123,24 @@ class VMCollector:
             vm_data = self.collect_single_vm_cpustinfo_data(vm_name)
             self.all_vms_data["vms"][vm_name] = vm_data
 
+    def save_data(self):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_name = f"get_network_info_{timestamp}.json"
+        file_path = os.path.join(self.output_dir, file_name)
+
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(self.all_vms_data, f, indent=2, ensure_ascii=False)
+            LOG_INFO(f"采集数据已保存到：{file_path}")
+        except Exception as e:
+            LOG_ERROR(f"保存数据失败：{str(e)}")
+
+
 def main():
     LOG_INFO("===== 开始进行虚拟机数据采集 =====")
     collector = VMCollector()
     collector.collect_all_vms()
+    collector.save_data()
     LOG_INFO("===== 数据采集与保存完成 =====")
 
 if __name__ == "__main__":
