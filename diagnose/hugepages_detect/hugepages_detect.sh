@@ -194,6 +194,16 @@ function check_main()
                   err_info "check -- error -- , 1G hugepages check exception, please check the operation!"
                fi
             fi
+        elif [ "$size" == "2M" ]; then
+            size_set_2M=`cat /proc/cmdline | grep " *hugepagesz=2M"`
+            if [ -z "$size_set_2M" ]; then
+               err_info "check -- error -- , /proc/cmdline do not have 2M hugepage size !"
+            else
+               check_each_node_hugepage 'hugepages-2048kB'
+               if [ $? -ne 0 ]; then
+                  err_info "check -- error -- , 2M hugepages check exception, please check the operation!"
+               fi
+            fi
         fi
     done
 }
