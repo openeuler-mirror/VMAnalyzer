@@ -88,6 +88,13 @@ parse_perf_results() {
     printf "%-30s %-10s %-10s\n" "sched_wakeup" "$wakeup_events" "$(printf "%0.2f%%" "$wakeup_percent")" | tee -a "$LOG_FILE"
     printf "%-30s %-10s %-10s\n" "sched_wait_task" "$wait_events" "$(printf "%0.2f%%" "$wait_percent")" | tee -a "$LOG_FILE"
     echo "----------------------------------------" | tee -a "$LOG_FILE"
+
+    # 分析高延迟原因
+    iowait_percent=$(printf "%0.2f%%" "$iowait_percent")
+    iowait_percent_int=${iowait_percent%.*}
+    if [ "$iowait_percent_int" -gt 5 ]; then
+        log "WARNING" "High I/O wait detected (${iowait_percent_int}%). Potential disk/network bottleneck."
+    fi
 }
 
 main() {
@@ -105,6 +112,17 @@ main() {
 
     # 解析结果
     parse_perf_results
+
+    # 清理临时文件
+    rm -f "$LOG_FILE.tmp"
+
+    log "INFO" "Analysis completed. See report in: $LOG_FILE"
 }
 
-main "$@"
+# 执行主函数
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <VM_NAME>"
+    exit 1
+fi
+
+main "$1"
