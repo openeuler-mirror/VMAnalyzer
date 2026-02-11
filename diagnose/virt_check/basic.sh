@@ -12,6 +12,7 @@ TOOLS_ROOT=/usr/bin/vm_analyer/diagnose/virt_check
 spectre_file=${TOOLS_ROOT}/spectre-meltdown-checker.sh
 spectre_log=${virt_dir}spectre-meltdown-checker-basic-`date "+%Y-%m-%d-%H-%M-%S"`.log
 default_config=${TOOLS_ROOT}/basic-config.env
+sysctl_config=${TOOLS_ROOT}/basic-config-sysctl.conf
 
 declare -A dic=(
     [os_version]=系统版本
@@ -22,6 +23,7 @@ declare -A dic=(
     [tuned]=Tuned配置
     [qemu_version]=Qemu版本
     [libvirt_version]=Libvirt版本
+    [sysctl_config]=sysctl配置
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -39,6 +41,32 @@ log() {
     # 打印信息
     check_name_cn=${dic[$1]}
     sudo echo "{\"PROJECT\":\"$check_name_cn\",\"LOG\":\"$2\"}," >> $hostfile
+}
+
+check_config() {
+    good=0
+    bad=0
+    array_name=()
+    while read -r line; do
+        # ignoring empty lines
+        if [ "$line" == "" ]; then
+            continue
+        fi
+        # ignoring comments
+        if echo "$line" | grep -qE '^#'; then
+            continue
+        fi
+        refname=$(echo "$line" | cut -d' ' -f1)
+        refpara=$(echo "$line" | awk -F '= ' '{print $(NF)}')
+        cur=$(sysctl -n "$refname")
+
+        if [ "$refpara" == "$cur" ];then
+            good=$((good + 1))
+        else
+            array_name[${bad}]=${refname}
+            bad=$((bad + 1))
+        fi
+    done < "$sysctl_config"
 }
 
 # 系统信息
