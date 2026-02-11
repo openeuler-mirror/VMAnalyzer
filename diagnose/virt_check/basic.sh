@@ -21,6 +21,7 @@ declare -A dic=(
     [spectre_meltdown]=幽灵熔断漏洞
     [tuned]=Tuned配置
     [qemu_version]=Qemu版本
+    [libvirt_version]=Libvirt版本
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -124,10 +125,13 @@ check_virt_version_func() {
     #sudo echo "--------------------Virt Version------------------------" >> $hostfile
     #qemu_ver=`sudo qemu-img --v | awk NR==1 | cut -d '(' -f 1 | egrep -o $version_regex`
     qemu_ver=`sudo rpm -qa qemu-img | egrep -o $version_regex`
+    libvirt_ver=`sudo rpm -qa libvirt | egrep -o $version_regex`
 
     [[ $qemu_ver == "" ]] && qemu_ver="没有安装Qemu"
+    [[ $libvirt_ver == "" ]] && libvirt_ver="没有安装Libvirt"
 
     log "qemu_version" "Qemu版本:$qemu_ver"
+    log "libvirt_version" "Libvirt版本:$libvirt_ver"
 }
 
 usage() {
