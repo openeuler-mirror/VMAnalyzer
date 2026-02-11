@@ -20,6 +20,7 @@ declare -A dic=(
     [kernel_hot_patch]=内核热补丁
     [spectre_meltdown]=幽灵熔断漏洞
     [tuned]=Tuned配置
+    [qemu_version]=Qemu版本
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -48,14 +49,14 @@ check_os_func() {
 # 内核信息
 check_kernel_func() {
     #sudo echo "--------------------kernel information------------------------" >> $hostfile
-    # 查看内核版本
+    # 1.查看内核版本
     kernel_ver=`sudo uname -r | egrep -o $Kernel_regex`
     log "kernel" "内核版本:$kernel_ver"
 
     # 查看内核参数
     Hygon=`grep '^vendor_id'  "/proc/cpuinfo" | awk '{print $3}' | head -1|grep HygonGenuine`
 
-    # 查看是否开启iommu
+    # 2.查看是否开启iommu
     iommu_flag_x86=`sudo cat /proc/cmdline|grep intel_iommu=on`
     amd_iommu_flag_x86=`sudo cat /proc/cmdline|grep amd_iommu=on`
     pt_flag=`sudo cat /proc/cmdline|grep iommu=pt`
@@ -83,7 +84,7 @@ check_kernel_func() {
         fi
     fi
 
-    # 查看内核热补丁
+    # 3.查看内核热补丁
     sudo which kpatch >/dev/null 2>&1
     if [ $? -eq 0 ];then
         num=$(sudo kpatch list 2>/dev/null | grep enabled | wc -l)
@@ -98,7 +99,7 @@ check_kernel_func() {
         log "kernel_hot_patch" "不存在内核热补丁"
     fi
 
-    # 漏洞检测
+    # 4.漏洞检测
     if [[ -f $spectre_file ]]; then
         sudo bash $spectre_file > $spectre_log
 
@@ -113,9 +114,20 @@ check_kernel_func() {
         log "spectre_meltdown" "没有安全漏洞Spectre与Meltdown检测脚本,跳过检测"
     fi
 
-    # 查看tuned-adm配置
+    # 5.查看tuned-adm配置
     tuned=`sudo tuned-adm active | awk -F": " '{print $2}'`
     log "tuned" "tuned配置:$tuned"
+}
+
+# 宿主机虚拟化版本
+check_virt_version_func() {
+    #sudo echo "--------------------Virt Version------------------------" >> $hostfile
+    #qemu_ver=`sudo qemu-img --v | awk NR==1 | cut -d '(' -f 1 | egrep -o $version_regex`
+    qemu_ver=`sudo rpm -qa qemu-img | egrep -o $version_regex`
+
+    [[ $qemu_ver == "" ]] && qemu_ver="没有安装Qemu"
+
+    log "qemu_version" "Qemu版本:$qemu_ver"
 }
 
 usage() {
