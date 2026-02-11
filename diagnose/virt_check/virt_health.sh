@@ -39,4 +39,13 @@ while getopts 'd:f:e:h:*' OPT; do
         esac
 done
 
+if [[ $edition == "premium" ]];then
+    file_name="premium.sh"   
+elif [[ $edition == "basic" ]];then
+    file_name="basic.sh"
+else
+    echo "Only basic and premium are supported after the -e argument"
+    exit -1
+fi
+
 exit 0
