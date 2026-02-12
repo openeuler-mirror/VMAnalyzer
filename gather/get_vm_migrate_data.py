@@ -61,6 +61,16 @@ class VMMigrationInfoCollector:
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
 
+    def is_vm_migrating(self, vm_name: str) -> bool:
+        cmd = f"virsh domjobinfo {vm_name}"
+        output = self.run_virsh_cmd(cmd)
+        if not output:
+            return False
+        
+        migration_pattern = re.compile(r"Job type:\s*migrate", re.IGNORECASE)
+        active_pattern = re.compile(r"Job state:\s*active", re.IGNORECASE)
+        return bool(migration_pattern.search(output) and active_pattern.search(output))
+
 
 if __name__ == "__main__":
     main()
