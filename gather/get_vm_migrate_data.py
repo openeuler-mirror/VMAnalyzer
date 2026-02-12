@@ -127,6 +127,18 @@ class VMMigrationInfoCollector:
         LOG_INFO(f"===== 虚拟机 {vm_name} 迁移参数采集完成 =====")
         return vm_info
 
+    def collect_all_migrating_vms(self):
+        migrating_vms = self.get_migrating_vms()
+        self.migration_data["migrating_vms_count"] = len(migrating_vms)
+
+        if not migrating_vms:
+            LOG_INFO("当前无处于迁移中的虚拟机")
+            return
+
+        for vm_name in migrating_vms:
+            vm_info = self.collect_migration_info(vm_name)
+            self.migration_data["migrating_vms"][vm_name] = vm_info
+
 
 if __name__ == "__main__":
     main()
