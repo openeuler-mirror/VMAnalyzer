@@ -52,6 +52,20 @@ def extract_affinity_from_output(output: str, vcpu_id: int) -> str:
             if affinity_part:
                 return affinity_part
     
+    for line in output_lines:
+        if 'VCPU' in line and 'CPU Affinity' in line:
+            continue
+        parts = line.split()
+        if len(parts) >= 2:
+            parsed_vcpu_id = parts[0].strip()
+            if parsed_vcpu_id == target_vcpu_str:
+                return parts[1].strip()
+    
+    if len(output_lines) == 1:
+        line = output_lines[0].strip()
+        if any(char in line for char in '- ,') or line.isdigit():
+            return line
+    
     return ""
 
 
