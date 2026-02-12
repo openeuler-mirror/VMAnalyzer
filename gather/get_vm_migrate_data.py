@@ -30,6 +30,32 @@ class VMMigrationInfoCollector:
             "migrating_vms": {}
         }
 
+    def run_virsh_cmd(self, cmd: str) -> Optional[str]:
+        try:
+            LOG_INFO(f"执行命令：{cmd}")
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=True,
+                universal_newlines=True,
+                check=True,
+                timeout=10
+            )
+            output = result.stdout.strip()
+            return output if output else None
+        except subprocess.CalledProcessError as e:
+            err_msg = e.stderr.strip()
+            if "no active migration" not in err_msg.lower() and "not found" not in err_msg.lower():
+                LOG_ERROR(f"命令执行失败：{cmd}，错误：{err_msg}")
+            return None
+        except subprocess.TimeoutExpired:
+            LOG_ERROR(f"命令执行超时：{cmd}（超过10秒）")
+            return None
+        except Exception as e:
+            LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
+            return None
+
 
 if __name__ == "__main__":
     main()
