@@ -85,6 +85,18 @@ class VMMigrationInfoCollector:
         output = self.run_virsh_cmd(cmd)
         return output if output else "未配置/查询失败"
 
+    def get_migrate_speed(self, vm_name: str) -> Optional[str]:
+        cmd = f"virsh migrate-getspeed {vm_name}"
+        output = self.run_virsh_cmd(cmd)
+        if output:
+            try:
+                bytes_per_sec = int(output)
+                mb_per_sec = round(bytes_per_sec / 1024 / 1024, 2)
+                return f"{bytes_per_sec} 字节/秒（{mb_per_sec} MB/秒）"
+            except ValueError:
+                return output
+        return "未配置/查询失败"
+
 
 if __name__ == "__main__":
     main()
