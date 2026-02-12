@@ -91,8 +91,20 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
         vm_status = state_map.get(vm_state, f"未知状态({vm_state})")
         LOG_INFO(f"虚拟机信息：名称={vm_name}, UUID={vm_id}, 状态={vm_status}")
         
+        LOG_INFO(f"正在解析 {vm_name} 的 XML 配置...")
+        xmldesc = dom.XMLDesc(0)
+        doc = libxml2.parseDoc(xmldesc)
+        context = doc.xpathNewContext()
+        
+        vcpu_total = 0
+        res = context.xpathEval('/domain/vcpu')
+        if res and len(res) > 0:
+            vcpu_total = int(res[0].content)
+        LOG_INFO(f"{vm_name} - vCPU 总数：{vcpu_total}")
+        
     
     return vm_stats
+
 
 if __name__ == "__main__":
     main()
