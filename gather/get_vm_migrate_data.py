@@ -107,6 +107,26 @@ class VMMigrationInfoCollector:
         output = self.run_virsh_cmd(cmd)
         return output if output else "未启用Multifd/查询失败"
 
+    def collect_migration_info(self, vm_name: str) -> Dict:
+        LOG_INFO(f"\n===== 开始采集迁移虚拟机 {vm_name} 参数 =====")
+        
+        maxdowntime = self.get_migrate_maxdowntime(vm_name)
+        speed = self.get_migrate_speed(vm_name)
+        pid = self.get_migration_pid(vm_name)
+        multifd_pids = self.get_migration_multifd_pids(vm_name)
+
+        domjobinfo = self.run_virsh_cmd(f"virsh domjobinfo {vm_name}")
+
+        vm_info = {
+            "max_tolerable_downtime": maxdowntime,
+            "max_migration_bandwidth": speed,
+            "migration_pid": pid,
+            "migration_multifd_pids": multifd_pids,
+            "migration_status_detail": domjobinfo if domjobinfo else "查询失败"
+        }
+        LOG_INFO(f"===== 虚拟机 {vm_name} 迁移参数采集完成 =====")
+        return vm_info
+
 
 if __name__ == "__main__":
     main()
