@@ -42,6 +42,18 @@ def parse_affinity_string(affinity_str: str) -> list:
     
     return allowed_cpus
 
+def extract_affinity_from_output(output: str, vcpu_id: int) -> str:
+    output_lines = [line.strip() for line in output.split('\n') if line.strip()]
+    target_vcpu_str = str(vcpu_id)
+    
+    for line in output_lines:
+        if 'CPU Affinity:' in line:
+            affinity_part = line.split('CPU Affinity:')[-1].strip()
+            if affinity_part:
+                return affinity_part
+    
+    return ""
+
 
 if __name__ == "__main__":
     main()
