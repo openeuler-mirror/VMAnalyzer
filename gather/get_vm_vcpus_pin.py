@@ -112,7 +112,24 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
             thread = int(topology[0].prop('threads')) if topology[0].prop('threads') else 0
         LOG_INFO(f"{vm_name} - vCPU 拓扑：socket={socket}, core={core}, thread={thread}")
         
-    
+        vcpupin_stats = {}
+        for vcpu_id in range(vcpu_total):
+            LOG_INFO(f"{vm_name} - 正在获取 vCPU {vcpu_id} 的亲和性信息...")
+            pin_info = {}
+            try:
+                result = subprocess.run(
+                    ['virsh', 'vcpupin', vm_name, str(vcpu_id)],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    timeout=10
+                )
+                
+                output = result.stdout.strip()
+                affinity_str = extract_affinity_from_output(output, vcpu_id)
+                if not affinity_str:
+                    raise Exception(f"未从输出中找到亲和性信息")
+                
     return vm_stats
 
 
