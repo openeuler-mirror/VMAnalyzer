@@ -65,6 +65,24 @@ class HostHypervisorCollector:
             elif "Running hypervisor" in line:
                 self.result["version"]["hypervisor"] = line.split(":")[-1].strip()
 
+    def parse_nodeinfo(self, output):
+       
+        if not output:
+            return
+        lines = output.split("\n")
+        for line in lines:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                key = key.strip().lower().replace(" ", "_")
+                value = value.strip()
+                # 转换数字类型
+                if key in ["cpu(s)", "cpu_frequency", "numa_node(s)", "memory_size"]:
+                    try:
+                        value = int(value.split()[0]) if " " in value else int(value)
+                    except:
+                        pass
+                self.result["nodeinfo"][key] = value
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
