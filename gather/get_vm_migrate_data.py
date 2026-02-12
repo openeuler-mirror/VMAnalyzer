@@ -71,6 +71,15 @@ class VMMigrationInfoCollector:
         active_pattern = re.compile(r"Job state:\s*active", re.IGNORECASE)
         return bool(migration_pattern.search(output) and active_pattern.search(output))
 
+    def get_migrating_vms(self) -> List[str]:
+        all_vms = self.get_all_vm_names()
+        migrating_vms = []
+        for vm_name in all_vms:
+            if self.is_vm_migrating(vm_name):
+                migrating_vms.append(vm_name)
+                LOG_INFO(f"检测到迁移中的虚拟机：{vm_name}")
+        return migrating_vms
+
 
 if __name__ == "__main__":
     main()
