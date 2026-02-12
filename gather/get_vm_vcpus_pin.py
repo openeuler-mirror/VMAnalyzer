@@ -130,6 +130,40 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
                 if not affinity_str:
                     raise Exception(f"未从输出中找到亲和性信息")
                 
+                allowed_physical_cpus = parse_affinity_string(affinity_str)
+                pin_info['vcpu_id'] = vcpu_id
+                pin_info['affinity_mask_hex'] = 'N/A'
+                pin_info['mask_length_bytes'] = 0
+                pin_info['allowed_physical_cpus'] = allowed_physical_cpus
+                pin_info['physical_cpu_count'] = len(allowed_physical_cpus)
+                pin_info['affinity_string'] = affinity_str
+                pin_info['socket'] = socket
+                pin_info['core'] = core
+                pin_info['thread'] = thread
+                pin_info['status'] = 'success'
+                
+                LOG_INFO(f"{vm_name} - vCPU {vcpu_id} 亲和性信息获取成功：绑定物理CPU范围={allowed_physical_cpus}")
+            
+            except Exception as e:
+                error_msg = str(e)
+                LOG_ERROR(f"{vm_name} - 获取 vCPU {vcpu_id} 亲和性信息失败：{error_msg}")
+                pin_info = {
+                    'vcpu_id': vcpu_id,
+                    'status': 'failed',
+                    'error_msg': error_msg,
+                    'allowed_physical_cpus': [],
+                    'physical_cpu_count': 0,
+                    'affinity_string': '',
+                    'socket': socket,
+                    'core': core,
+                    'thread': thread,
+                    'affinity_mask_hex': 'N/A',
+                    'mask_length_bytes': 0
+                }
+            
+            vcpupin_stats[f'vcpu_{vcpu_id}'] = pin_info
+        
+    
     return vm_stats
 
 
