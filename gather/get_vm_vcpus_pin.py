@@ -23,10 +23,25 @@ def parse_affinity_string(affinity_str: str) -> list:
     
     if not affinity_str or affinity_str == 'all':
         return allowed_cpus
+    elif '-' in affinity_str:
+        try:
+            start, end = map(int, affinity_str.split('-'))
+            if start <= end:
+                allowed_cpus = list(range(start, end + 1))
+        except ValueError:
+            LOG_ERROR(f"无效的亲和性范围格式：{affinity_str}")
+    elif ',' in affinity_str:
+        try:
+            allowed_cpus = list(map(int, affinity_str.split(',')))
+        except ValueError:
+            LOG_ERROR(f"无效的亲和性列表格式：{affinity_str}")
+    elif affinity_str.isdigit():
+        allowed_cpus = [int(affinity_str)]
     else:
         LOG_ERROR(f"不支持的亲和性格式：{affinity_str}")
     
     return allowed_cpus
+
 
 if __name__ == "__main__":
     main()
