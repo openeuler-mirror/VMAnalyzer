@@ -50,6 +50,21 @@ class HostHypervisorCollector:
             LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
             return None
 
+    def parse_version(self, output):
+        
+        if not output:
+            return
+        lines = output.split("\n")
+        for line in lines:
+            if "Compiled against library" in line:
+                self.result["version"]["compiled_libvirt"] = line.split(":")[-1].strip()
+            elif "Using library" in line:
+                self.result["version"]["used_libvirt"] = line.split(":")[-1].strip()
+            elif "Using API" in line:
+                self.result["version"]["api"] = line.split(":")[-1].strip()
+            elif "Running hypervisor" in line:
+                self.result["version"]["hypervisor"] = line.split(":")[-1].strip()
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
