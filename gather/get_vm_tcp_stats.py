@@ -114,6 +114,46 @@ class VMQgaTCPCollector:
             LOG_ERROR(f"计算 TCP 重传率失败：{str(e)}")
             return None
 
+    def collect_single_vm_tcp_data(self, vm_name: str) -> Dict:
+        """采集单台虚拟机的 TCP 相关数据"""
+        LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
+        vm_state = self.get_vm_state(vm_name)
+        is_running = self.is_vm_running(vm_name)
+        
+        # 仅运行中的虚拟机调用 QGA 接口
+        tcp_snmp = self.call_qga_interface(vm_name, "bc-guest-get-tcp-snmp") if is_running else {"status": "vm_not_running", "data": {}, "error": ""}
+        tcp_retrans_rate = self.calculate_tcp_retrans_rate(tcp_snmp["data"]) if tcp_snmp["status"] == "success" else None
+        
+        tcp_conn_state = self.call_qga_interface(vm_name, "guest-get-tcp-conn-state") if is_running else {"status": "vm_not_running", "data": {}, "error": ""}
+        tcp_conn = self.call_qga_interface(vm_name, "guest-get-tcp-conn") if is_running else {"status": "vm_not_running", "data": {}, "error": ""}
+
+        vm_data = {
+            "name": vm_name,
+            "state": vm_state,
+            "tcp_retrans_data": {
+                "interface": "bc-guest-get-tcp-snmp",
+                "status": tcp_snmp["status"],
+                "error": tcp_snmp["error"],
+                "data": tcp_snmp["data"],
+                "tcp_retrans_rate_percent": tcp_retrans_rate
+            },
+            "tcp_conn_state": {
+                "interface": "guest-get-tcp-conn-state",
+                "status": tcp_conn_state["status"],
+                "error": tcp_conn_state["error"],
+                "data": tcp_conn_state["data"]
+            },
+            "tcp_conn": {
+                "interface": "guest-get-tcp-conn",
+                "status": tcp_conn["status"],
+                "error": tcp_conn["error"],
+                "data": tcp_conn["data"]
+            }
+        }
+        LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
+        return vm_data
+
+
 def main():
     LOG_INFO("===== 开始执行虚拟机 QGA TCP 数据采集 =====")
     collector = VMQgaTCPCollector()
