@@ -144,6 +144,38 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
                 
                 LOG_INFO(f"{vm_name} - vCPU {vcpu_id} 亲和性信息获取成功：绑定物理CPU范围={allowed_physical_cpus}")
             
+            except subprocess.CalledProcessError as e:
+                error_msg = f"命令执行失败：{e.stderr.strip()}"
+                LOG_ERROR(f"{vm_name} - 获取 vCPU {vcpu_id} 亲和性信息失败：{error_msg}")
+                pin_info = {
+                    'vcpu_id': vcpu_id,
+                    'status': 'failed',
+                    'error_msg': error_msg,
+                    'allowed_physical_cpus': [],
+                    'physical_cpu_count': 0,
+                    'affinity_string': '',
+                    'socket': socket,
+                    'core': core,
+                    'thread': thread,
+                    'affinity_mask_hex': 'N/A',
+                    'mask_length_bytes': 0
+                }
+            except subprocess.TimeoutExpired:
+                error_msg = "命令执行超时（10秒）"
+                LOG_ERROR(f"{vm_name} - 获取 vCPU {vcpu_id} 亲和性信息失败：{error_msg}")
+                pin_info = {
+                    'vcpu_id': vcpu_id,
+                    'status': 'failed',
+                    'error_msg': error_msg,
+                    'allowed_physical_cpus': [],
+                    'physical_cpu_count': 0,
+                    'affinity_string': '',
+                    'socket': socket,
+                    'core': core,
+                    'thread': thread,
+                    'affinity_mask_hex': 'N/A',
+                    'mask_length_bytes': 0
+                }
             except Exception as e:
                 error_msg = str(e)
                 LOG_ERROR(f"{vm_name} - 获取 vCPU {vcpu_id} 亲和性信息失败：{error_msg}")
@@ -163,6 +195,29 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
             
             vcpupin_stats[f'vcpu_{vcpu_id}'] = pin_info
         
+        vm_stats[vm_id] = {
+            'uuid': vm['uuid'],
+            'name': vm['name'],
+            'status': vm_status,
+            'vcpu_total': vcpu_total,
+            'vcpu_topology': {
+                'socket': socket,
+                'core': core,
+                'thread': thread
+            },
+            'vcpupin_stats': vcpupin_stats,
+            'timestamp': int(time.time())
+        }
+        
+        context.xpathFreeContext()
+        doc.freeDoc()
+        LOG_INFO(f"{vm_name} - XML 资源已释放")
+    
+    except libvirt.libvirtError as e:
+        LOG_ERROR(f"{vm_name} - 处理虚拟机失败：{str(e)}")
+    finally:
+        if dom:
+            dom = None
     
     return vm_stats
 
