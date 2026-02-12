@@ -144,6 +144,40 @@ class HostHypervisorCollector:
                     value = int(value)
                 self.result["nodesevinfo"][key] = value
 
+    def parse_capabilities(self, output):
+    
+        if not output:
+            return
+        try:
+            root = ET.fromstring(output)
+            host = root.find("host")
+            if host:
+                
+                cpu = host.find("cpu")
+                if cpu:
+                    self.result["capabilities"]["cpu"] = {
+                        "arch": cpu.findtext("arch", ""),
+                        "model": cpu.findtext("model", ""),
+                        "vendor": cpu.findtext("vendor", ""),
+                        "topology": {}
+                    }
+                    topology = cpu.find("topology")
+                    if topology:
+                        self.result["capabilities"]["cpu"]["topology"] = {
+                            "sockets": topology.get("sockets", ""),
+                            "cores": topology.get("cores", ""),
+                            "threads": topology.get("threads", "")
+                        }
+              
+                memory = host.find("memory")
+                if memory:
+                    self.result["capabilities"]["memory"] = {
+                        "value": int(memory.text) if memory.text.isdigit() else 0,
+                        "unit": memory.get("unit", "KiB")
+                    }
+        except ET.ParseError as e:
+            LOG_ERROR(f"解析 capabilities XML 失败：{str(e)}")
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
