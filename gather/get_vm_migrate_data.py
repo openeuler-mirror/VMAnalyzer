@@ -150,6 +150,12 @@ class VMMigrationInfoCollector:
         except Exception as e:
             LOG_ERROR(f"保存JSON文件失败：{str(e)}")
 
+def main():
+    LOG_INFO("===== 开始采集迁移中虚拟机参数 =====")
+    collector = VMMigrationInfoCollector()
+    collector.collect_all_migrating_vms()
+    collector.save_to_json()
+    LOG_INFO("===== 采集完成 =====")
 
 if __name__ == "__main__":
     main()
