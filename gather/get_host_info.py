@@ -98,6 +98,17 @@ class HostHypervisorCollector:
                 except:
                     self.result["nodememstats"][key] = value.strip()
 
+    def parse_nodecpumap(self, output):
+       
+        if not output:
+            return
+        lines = output.split("\n")
+        for line in lines:
+            if "Node" in line and "CPUs:" in line:
+                node = line.split()[1].strip()
+                cpus = line.split(":", 1)[1].strip()
+                self.result["nodecpumap"][f"node_{node}"] = cpus
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
