@@ -74,6 +74,32 @@ class VMQgaTCPCollector:
         """判断虚拟机是否运行中"""
         return self.get_vm_state(vm_name) == "running"
 
+    def call_qga_interface(self, vm_name: str, interface: str) -> Dict:
+        """调用 QGA 接口，修复 JSON 格式解析问题"""
+        if not self.is_vm_running(vm_name):
+            LOG_INFO(f"虚拟机 {vm_name} 非运行状态，跳过 QGA 接口调用")
+            return {"status": "vm_not_running", "data": {}, "error": ""}
+        
+        # 关键修复：用双引号包裹 JSON，内部字段用转义双引号（shell 解析无歧义）
+        json_param = f'{{"execute":"{interface}"}}'
+        # 外层用单引号包裹 JSON 参数，避免 shell 转义冲突
+        cmd = f"virsh qemu-agent-command {vm_name} '{json_param}'"
+        output = self.run_virsh_cmd(cmd)
+        
+        if not output:
+            return {"status": "failed", "data": {}, "error": "命令无返回结果"}
+        
+        try:
+            resp = json.loads(output)
+            if "return" in resp:
+                return {"status": "success", "data": resp["return"], "error": ""}
+            else:
+                error_msg = resp.get("error", {}).get("message", "接口返回异常")
+                return {"status": "failed", "data": {}, "error": error_msg}
+        except json.JSONDecodeError as e:
+            LOG_ERROR(f"解析 {interface} 结果失败：{output}，错误：{str(e)}")
+            return {"status": "parse_error", "data": {}, "error": str(e)}
+
 
 def main():
     LOG_INFO("===== 开始执行虚拟机 QGA TCP 数据采集 =====")
