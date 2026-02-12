@@ -97,6 +97,11 @@ class VMMigrationInfoCollector:
                 return output
         return "未配置/查询失败"
 
+    def get_migration_pid(self, vm_name: str) -> Optional[str]:
+        cmd = f"virsh get-migration-pid {vm_name}"
+        output = self.run_virsh_cmd(cmd)
+        return output if output else "无活跃迁移进程/查询失败"
+
 
 if __name__ == "__main__":
     main()
