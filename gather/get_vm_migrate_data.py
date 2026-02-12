@@ -139,6 +139,17 @@ class VMMigrationInfoCollector:
             vm_info = self.collect_migration_info(vm_name)
             self.migration_data["migrating_vms"][vm_name] = vm_info
 
+    def save_to_json(self, file_path: Optional[str] = None):
+        if not file_path:
+            file_path = f"vm_migration_info_{int(time.time())}.json"
+        
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(self.migration_data, f, indent=2, ensure_ascii=False)
+            LOG_INFO(f"\n迁移虚拟机参数已保存到：{file_path}")
+        except Exception as e:
+            LOG_ERROR(f"保存JSON文件失败：{str(e)}")
+
 
 if __name__ == "__main__":
     main()
