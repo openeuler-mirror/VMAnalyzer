@@ -20,7 +20,6 @@ class VMSysMonitor:
 
     def _run_cmd(self, cmd: str) -> Optional[str]:
         try:
-            # 核心修复：用universal_newlines替代text，兼容Python3.6及以下
             res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 universal_newlines=True, check=True, timeout=30)
             return res.stdout.strip() or None

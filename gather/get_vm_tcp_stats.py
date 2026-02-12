@@ -31,10 +31,8 @@ class VMQgaTCPCollector:
         }
 
     def run_virsh_cmd(self, cmd: str) -> Optional[str]:
-        """执行 virsh 命令，兼容复杂引号和 JSON 格式"""
         try:
             LOG_INFO(f"执行命令：{cmd}")
-            # 启用 shell=True 解析复杂命令，避免 split() 破坏 JSON 结构
             result = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -42,12 +40,11 @@ class VMQgaTCPCollector:
                 shell=True,
                 universal_newlines=True,
                 check=True,
-                timeout=30  # 超时保护，避免命令卡死
+                timeout=30
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
             err_msg = e.stderr.strip()
-            # 过滤无关错误（如 FreeBSD 不支持某个接口）
             if "unsupported command" not in err_msg.lower() and "no such interface" not in err_msg.lower():
                 LOG_ERROR(f"命令执行失败：{cmd}，错误：{err_msg}")
             return None
@@ -59,30 +56,24 @@ class VMQgaTCPCollector:
             return None
 
     def get_all_vm_names(self) -> List[str]:
-        """获取所有有效虚拟机名称（过滤空行和无效值）"""
         cmd = "virsh list --name | grep -v '^$' | grep -v '^-$'"
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
 
     def get_vm_state(self, vm_name: str) -> str:
-        """获取虚拟机状态（running/shut off/paused 等）"""
         cmd = f"virsh domstate {vm_name}"
         output = self.run_virsh_cmd(cmd)
         return output.strip() if output else "unknown"
 
     def is_vm_running(self, vm_name: str) -> bool:
-        """判断虚拟机是否运行中"""
         return self.get_vm_state(vm_name) == "running"
 
     def call_qga_interface(self, vm_name: str, interface: str) -> Dict:
-        """调用 QGA 接口，修复 JSON 格式解析问题"""
         if not self.is_vm_running(vm_name):
             LOG_INFO(f"虚拟机 {vm_name} 非运行状态，跳过 QGA 接口调用")
             return {"status": "vm_not_running", "data": {}, "error": ""}
         
-        # 关键修复：用双引号包裹 JSON，内部字段用转义双引号（shell 解析无歧义）
         json_param = f'{{"execute":"{interface}"}}'
-        # 外层用单引号包裹 JSON 参数，避免 shell 转义冲突
         cmd = f"virsh qemu-agent-command {vm_name} '{json_param}'"
         output = self.run_virsh_cmd(cmd)
         
@@ -101,7 +92,6 @@ class VMQgaTCPCollector:
             return {"status": "parse_error", "data": {}, "error": str(e)}
 
     def calculate_tcp_retrans_rate(self, tcp_snmp_data: Dict) -> Optional[float]:
-        """计算 TCP 重传率（百分比，保留 4 位小数）"""
         try:
             retranssegs = int(tcp_snmp_data.get("retranssegs", 0))
             outsegs = int(tcp_snmp_data.get("outsegs", 0))
@@ -115,12 +105,10 @@ class VMQgaTCPCollector:
             return None
 
     def collect_single_vm_tcp_data(self, vm_name: str) -> Dict:
-        """采集单台虚拟机的 TCP 相关数据"""
         LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
         vm_state = self.get_vm_state(vm_name)
         is_running = self.is_vm_running(vm_name)
         
-        # 仅运行中的虚拟机调用 QGA 接口
         tcp_snmp = self.call_qga_interface(vm_name, "bc-guest-get-tcp-snmp") if is_running else {"status": "vm_not_running", "data": {}, "error": ""}
         tcp_retrans_rate = self.calculate_tcp_retrans_rate(tcp_snmp["data"]) if tcp_snmp["status"] == "success" else None
         
@@ -154,14 +142,12 @@ class VMQgaTCPCollector:
         return vm_data
 
     def collect_all_vms(self):
-        """采集所有虚拟机数据"""
         vm_names = self.get_all_vm_names()
         if not vm_names:
             LOG_ERROR("未找到任何虚拟机")
             return
         
         self.all_vms_data["vm_count"] = len(vm_names)
-        # 统计运行中的虚拟机数量
         running_vms = [name for name in vm_names if self.is_vm_running(name)]
         self.all_vms_data["running_vm_count"] = len(running_vms)
         
@@ -172,7 +158,6 @@ class VMQgaTCPCollector:
             self.all_vms_data["vms"][vm_name] = vm_data
 
     def save_to_json(self, file_path: Optional[str] = None):
-        """保存数据到 JSON 文件"""
         if not file_path:
             file_path = f"vm_qga_tcp_stats_{int(time.time())}.json"
         try:
