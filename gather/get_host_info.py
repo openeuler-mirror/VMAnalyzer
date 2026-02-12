@@ -109,6 +109,25 @@ class HostHypervisorCollector:
                 cpus = line.split(":", 1)[1].strip()
                 self.result["nodecpumap"][f"node_{node}"] = cpus
 
+    def parse_nodecpustats(self, output):
+      
+        if not output:
+            return
+        lines = output.split("\n")
+        current_node = None
+        for line in lines:
+            if "Node" in line:
+                current_node = line.split()[1].strip()
+                self.result["nodecpustats"][f"node_{current_node}"] = {}
+            elif ":" in line and current_node:
+                key, value = line.split(":", 1)
+                key = key.strip().lower()
+                try:
+                    value = float(value.strip())
+                except:
+                    value = value.strip()
+                self.result["nodecpustats"][f"node_{current_node}"][key] = value
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
