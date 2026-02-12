@@ -102,6 +102,16 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
             vcpu_total = int(res[0].content)
         LOG_INFO(f"{vm_name} - vCPU 总数：{vcpu_total}")
         
+        topology = context.xpathEval('/domain/cpu/topology')
+        socket = 0
+        core = 0
+        thread = 0
+        if topology and len(topology) > 0:
+            socket = int(topology[0].prop('sockets')) if topology[0].prop('sockets') else 0
+            core = int(topology[0].prop('cores')) if topology[0].prop('cores') else 0
+            thread = int(topology[0].prop('threads')) if topology[0].prop('threads') else 0
+        LOG_INFO(f"{vm_name} - vCPU 拓扑：socket={socket}, core={core}, thread={thread}")
+        
     
     return vm_stats
 
