@@ -58,6 +58,23 @@ class VMQgaTCPCollector:
             LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
             return None
 
+    def get_all_vm_names(self) -> List[str]:
+        """获取所有有效虚拟机名称（过滤空行和无效值）"""
+        cmd = "virsh list --name | grep -v '^$' | grep -v '^-$'"
+        output = self.run_virsh_cmd(cmd)
+        return output.split() if output else []
+
+    def get_vm_state(self, vm_name: str) -> str:
+        """获取虚拟机状态（running/shut off/paused 等）"""
+        cmd = f"virsh domstate {vm_name}"
+        output = self.run_virsh_cmd(cmd)
+        return output.strip() if output else "unknown"
+
+    def is_vm_running(self, vm_name: str) -> bool:
+        """判断虚拟机是否运行中"""
+        return self.get_vm_state(vm_name) == "running"
+
+
 def main():
     LOG_INFO("===== 开始执行虚拟机 QGA TCP 数据采集 =====")
     collector = VMQgaTCPCollector()
