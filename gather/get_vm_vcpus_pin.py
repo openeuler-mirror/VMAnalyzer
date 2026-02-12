@@ -221,6 +221,44 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
     
     return vm_stats
 
+def get_all_vms_vcpupin() -> dict:
+    """
+    获取所有虚拟机的 vCPU 绑核信息
+    :return: 所有虚拟机的绑核统计字典（key 为虚拟机 UUID）
+    """
+    conn = None
+    all_vms_stats = {}
+    
+    try:
+        LOG_INFO("正在连接 libvirt 服务...")
+        conn = libvirt.open("qemu:///system")
+        if not conn:
+            LOG_ERROR("连接 libvirt 服务失败！请检查 libvirtd 服务是否启动及权限是否足够")
+            return all_vms_stats
+        
+        LOG_INFO("正在获取所有虚拟机列表...")
+        domains = conn.listAllDomains()
+        vm_names = [dom.name() for dom in domains]
+        
+        if not vm_names:
+            LOG_INFO("未找到任何虚拟机")
+            return all_vms_stats
+        
+        LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机：{vm_names}")
+        
+        for vm_name in vm_names:
+            single_vm_stats = get_single_vm_vcpupin(vm_name, conn)
+            all_vms_stats.update(single_vm_stats)
+    
+    except libvirt.libvirtError as e:
+        LOG_ERROR(f"程序执行异常：{str(e)}")
+    finally:
+        if conn:
+            conn.close()
+            LOG_INFO("libvirt 连接已关闭")
+    
+    return all_vms_stats
+
 
 if __name__ == "__main__":
     main()
