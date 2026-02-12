@@ -153,6 +153,24 @@ class VMQgaTCPCollector:
         LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
         return vm_data
 
+    def collect_all_vms(self):
+        """采集所有虚拟机数据"""
+        vm_names = self.get_all_vm_names()
+        if not vm_names:
+            LOG_ERROR("未找到任何虚拟机")
+            return
+        
+        self.all_vms_data["vm_count"] = len(vm_names)
+        # 统计运行中的虚拟机数量
+        running_vms = [name for name in vm_names if self.is_vm_running(name)]
+        self.all_vms_data["running_vm_count"] = len(running_vms)
+        
+        LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机，其中 {len(running_vms)} 台运行中：{running_vms}")
+
+        for vm_name in vm_names:
+            vm_data = self.collect_single_vm_tcp_data(vm_name)
+            self.all_vms_data["vms"][vm_name] = vm_data
+
 
 def main():
     LOG_INFO("===== 开始执行虚拟机 QGA TCP 数据采集 =====")
