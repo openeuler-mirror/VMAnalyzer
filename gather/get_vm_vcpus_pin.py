@@ -68,6 +68,31 @@ def extract_affinity_from_output(output: str, vcpu_id: int) -> str:
     
     return ""
 
+def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
+    dom = None
+    vm_stats = {}
+    vm = {"uuid": "", "name": vm_name}
+    
+    try:
+        LOG_INFO(f"\n===== 开始处理虚拟机：{vm_name} =====")
+        dom = conn.lookupByName(vm_name)
+        if not dom:
+            LOG_ERROR(f"未找到名称为 {vm_name} 的虚拟机")
+            return vm_stats
+        
+        vm["uuid"] = dom.UUIDString()
+        vm_id = vm["uuid"]
+        vm_state = dom.state()[0]
+        state_map = {
+            libvirt.VIR_DOMAIN_RUNNING: "运行中",
+            libvirt.VIR_DOMAIN_SHUTOFF: "已关闭",
+            libvirt.VIR_DOMAIN_PAUSED: "已暂停"
+        }
+        vm_status = state_map.get(vm_state, f"未知状态({vm_state})")
+        LOG_INFO(f"虚拟机信息：名称={vm_name}, UUID={vm_id}, 状态={vm_status}")
+        
+    
+    return vm_stats
 
 if __name__ == "__main__":
     main()
