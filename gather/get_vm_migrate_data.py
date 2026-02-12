@@ -102,6 +102,11 @@ class VMMigrationInfoCollector:
         output = self.run_virsh_cmd(cmd)
         return output if output else "无活跃迁移进程/查询失败"
 
+    def get_migration_multifd_pids(self, vm_name: str) -> Optional[str]:
+        cmd = f"virsh get-migration-multifd-pids {vm_name}"
+        output = self.run_virsh_cmd(cmd)
+        return output if output else "未启用Multifd/查询失败"
+
 
 if __name__ == "__main__":
     main()
