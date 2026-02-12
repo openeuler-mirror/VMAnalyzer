@@ -259,6 +259,28 @@ def get_all_vms_vcpupin() -> dict:
     
     return all_vms_stats
 
+def main():
+    if len(sys.argv) != 1:
+        print("Usage: python3 vcpupin_check_all.py")
+        print("示例：python3 vcpupin_check_all.py")
+        sys.exit(1)
+    
+    LOG_INFO("===== 开始获取所有虚拟机的 vCPU 绑核信息 =====")
+    all_stats = get_all_vms_vcpupin()
+    
+    if all_stats:
+        LOG_INFO(f"\n===== 所有虚拟机 vCPU 绑核检测完成，共处理 {len(all_stats)} 台虚拟机 =====")
+        filename = f"vcpupin_stats_all_vms_{int(time.time())}.json"
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(all_stats, f, indent=2, ensure_ascii=False)
+        LOG_INFO(f"结果已保存到文件：{filename}")
+        
+        print("\n===== 简要统计 =====")
+        for vm_uuid, vm_info in all_stats.items():
+            print(f"虚拟机：{vm_info['name']}（{vm_info['status']}）- vCPU总数：{vm_info['vcpu_total']}")
+    else:
+        LOG_ERROR("未获取到任何虚拟机的 vCPU 绑核信息")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
