@@ -100,6 +100,19 @@ class VMQgaTCPCollector:
             LOG_ERROR(f"解析 {interface} 结果失败：{output}，错误：{str(e)}")
             return {"status": "parse_error", "data": {}, "error": str(e)}
 
+    def calculate_tcp_retrans_rate(self, tcp_snmp_data: Dict) -> Optional[float]:
+        """计算 TCP 重传率（百分比，保留 4 位小数）"""
+        try:
+            retranssegs = int(tcp_snmp_data.get("retranssegs", 0))
+            outsegs = int(tcp_snmp_data.get("outsegs", 0))
+            if outsegs == 0:
+                LOG_INFO("TCP 发送总数为 0，重传率设为 0.0")
+                return 0.0
+            retrans_rate = (retranssegs / outsegs) * 100
+            return round(retrans_rate, 4)
+        except (ValueError, ZeroDivisionError) as e:
+            LOG_ERROR(f"计算 TCP 重传率失败：{str(e)}")
+            return None
 
 def main():
     LOG_INFO("===== 开始执行虚拟机 QGA TCP 数据采集 =====")
