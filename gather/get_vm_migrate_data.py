@@ -80,6 +80,11 @@ class VMMigrationInfoCollector:
                 LOG_INFO(f"检测到迁移中的虚拟机：{vm_name}")
         return migrating_vms
 
+    def get_migrate_maxdowntime(self, vm_name: str) -> Optional[str]:
+        cmd = f"virsh migrate-getmaxdowntime {vm_name}"
+        output = self.run_virsh_cmd(cmd)
+        return output if output else "未配置/查询失败"
+
 
 if __name__ == "__main__":
     main()
