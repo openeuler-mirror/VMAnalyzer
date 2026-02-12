@@ -83,6 +83,21 @@ class HostHypervisorCollector:
                         pass
                 self.result["nodeinfo"][key] = value
 
+    def parse_nodememstats(self, output):
+       
+        if not output:
+            return
+        lines = output.split("\n")
+        for line in lines:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                key = key.strip().lower()
+                try:
+                    value = int(value.strip())
+                    self.result["nodememstats"][key] = value
+                except:
+                    self.result["nodememstats"][key] = value.strip()
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
