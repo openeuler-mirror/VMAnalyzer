@@ -128,6 +128,22 @@ class HostHypervisorCollector:
                     value = value.strip()
                 self.result["nodecpustats"][f"node_{current_node}"][key] = value
 
+    def parse_nodesevinfo(self, output):
+      
+        if not output:
+            return
+        lines = output.split("\n")
+        for line in lines:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                key = key.strip().lower().replace(" ", "_").replace("-", "_")
+                value = value.strip().lower()
+                if value in ["yes", "no"]:
+                    value = (value == "yes")
+                elif value.isdigit():
+                    value = int(value)
+                self.result["nodesevinfo"][key] = value
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
