@@ -93,13 +93,13 @@ class VMCollector:
     def collect_single_vm_data(self, vm_name: str) -> Dict:
         LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
         
-        tcp_conn_state = self.call_qga_interface(vm_name, "guest-get-memory-blocks")
+        memory_blocks = self.call_qga_interface(vm_name, "guest-get-memory-blocks")
         vm_data = {
             "name": vm_name,
             "get_memory_blocks": {
                 "interface": "guest-get-memory-blocks",
-                "error": tcp_conn_state["error"],
-                "data": tcp_conn_state["data"]
+                "error": memory_blocks["error"],
+                "data": memory_blocks["data"]
             },
         }
         LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
