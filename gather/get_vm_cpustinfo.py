@@ -93,13 +93,13 @@ class VMCpuStInfoCollector:
     def collect_single_vm_cpustinfo_data(self, vm_name: str) -> Dict:
         LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
         
-        tcp_conn_state = self.call_qga_interface(vm_name, "guest-get-cpustinfo")
+        cpu_st_info_state = self.call_qga_interface(vm_name, "guest-get-cpustinfo")
         vm_data = {
             "name": vm_name,
             "get_cpustinfo": {
                 "interface": "guest-get-cpustinfo",
-                "error": tcp_conn_state["error"],
-                "data": tcp_conn_state["data"]
+                "error": cpu_st_info_state["error"],
+                "data": cpu_st_info_state["data"]
             },
         }
         LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
