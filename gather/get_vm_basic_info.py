@@ -169,8 +169,8 @@ class VMDomainMonitor:
             return memstat
         lines = output.split("\n")
         for line in lines:
-            if ":" in line:
-                key, value = line.split(":", 1)
+            if " " in line:
+                key, value = line.split(" ", 1)
                 key = key.strip().lower()
                 value = value.strip()
                 try:
