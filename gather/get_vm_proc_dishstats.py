@@ -72,6 +72,48 @@ class VMDiskStatsCollector:
             logger.error(f"VM {dom.name()}: QGA命令失败 [{cmd_type}]，错误: {e}")
             return None
 
+    def record_stats(self):
+        vm_factory = self.__vm_factory
+        label = self.__label
+        stats_storage = self.__stats_storage
+
+        if vm_factory is None:
+            logger.error("VMFactory未初始化")
+            return
+
+        vc = vm_factory.vc
+        stats_info = {}
+
+        for vm_id, vm in list(vm_factory.vms.items()):
+            try:
+                dom = vc.lookupByUUIDString(vm['uuid'])
+            except Exception as err:
+                logger.debug(f"无法找到VM: {vm['name']} {err.args}")
+                continue
+            timestamp = int(datetime.now().timestamp())
+
+            if label == 'diskStats':
+                disk_stats = {
+                    'uuid': vm['uuid'],
+                    'name': vm['name'],
+                    'disk_mounts': [],
+                    'timestamp': timestamp
+                }
+
+                diskstats_cmd = {
+                    "execute": "bc-guest-get-diskstats"
+                }
+                diskstats_result = self._send_qga_command(dom, diskstats_cmd)
+                if diskstats_result and "return" in diskstats_result:
+                    disk_stats['disk_mounts'] = diskstats_result["return"]
+
+                stats_info[vm_id] = disk_stats
+            else:
+                logger.error(f"未知的标签: {label}")
+
+        stats_storage.save_stats_info(stats_info)
+
+
 
 if __name__ == "__main__":
     main()
