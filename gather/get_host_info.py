@@ -214,6 +214,22 @@ class HostHypervisorCollector:
         nodecpumap_output = self.run_virsh_cmd("virsh nodecpumap")
         self.parse_nodecpumap(nodecpumap_output)
        
+        nodecpustats_output = self.run_virsh_cmd("virsh nodecpustats")
+        self.parse_nodecpustats(nodecpustats_output)
+        
+       
+        nodesevinfo_output = self.run_virsh_cmd("virsh nodesevinfo")
+        self.parse_nodesevinfo(nodesevinfo_output)
+        
+        capabilities_output = self.run_virsh_cmd("virsh capabilities")
+        self.parse_capabilities(capabilities_output)
+        
+       
+        maxvcpus_output = self.run_virsh_cmd("virsh maxvcpus")
+        if maxvcpus_output and maxvcpus_output.isdigit():
+            self.result["maxvcpus"] = int(maxvcpus_output)
+        
+        
         sysinfo_output = self.run_virsh_cmd("virsh sysinfo")
         self.parse_sysinfo(sysinfo_output)
 
