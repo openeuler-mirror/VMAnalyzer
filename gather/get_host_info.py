@@ -178,6 +178,21 @@ class HostHypervisorCollector:
         except ET.ParseError as e:
             LOG_ERROR(f"解析 capabilities XML 失败：{str(e)}")
 
+    def parse_sysinfo(self, output):
+      
+        if not output:
+            return
+        try:
+            root = ET.fromstring(output)
+            for section in root.findall("*"):
+                section_name = section.tag.lower()
+                self.result["sysinfo"][section_name] = {}
+                for item in section.findall("*"):
+                    item_name = item.tag.lower()
+                    self.result["sysinfo"][section_name][item_name] = item.text.strip() if item.text else ""
+        except ET.ParseError as e:
+            LOG_ERROR(f"解析 sysinfo XML 失败：{str(e)}")
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
