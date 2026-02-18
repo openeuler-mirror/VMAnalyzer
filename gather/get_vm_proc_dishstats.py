@@ -114,6 +114,25 @@ class VMDiskStatsCollector:
         stats_storage.save_stats_info(stats_info)
 
 
+def main():
+    try:
+        conn = libvirt.open('qemu:///system')
+        if conn is None:
+            logger.error("无法连接到qemu:///system")
+            return
+
+        vm_factory = MockVMFactory(conn)
+        stats_storage = MockStatsStorage()
+        collector = VMDiskStatsCollector(vm_factory, stats_storage, 'diskStats')
+
+        collector.record_stats()
+
+        conn.close()
+        logger.info("虚拟机磁盘统计信息收集完成")
+
+    except Exception as e:
+        logger.error(f"主函数执行失败: {e}")
+
 
 if __name__ == "__main__":
     main()
