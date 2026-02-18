@@ -193,6 +193,30 @@ class HostHypervisorCollector:
         except ET.ParseError as e:
             LOG_ERROR(f"解析 sysinfo XML 失败：{str(e)}")
 
+    def collect_all(self):
+       
+        self.result["hostname"] = self.run_virsh_cmd("virsh hostname") or ""
+        self.result["uri"] = self.run_virsh_cmd("virsh uri") or ""
+        
+        
+        version_output = self.run_virsh_cmd("virsh version")
+        self.parse_version(version_output)
+        
+        
+        nodeinfo_output = self.run_virsh_cmd("virsh nodeinfo")
+        self.parse_nodeinfo(nodeinfo_output)
+        
+        
+        nodememstats_output = self.run_virsh_cmd("virsh nodememstats")
+        self.parse_nodememstats(nodememstats_output)
+        
+       
+        nodecpumap_output = self.run_virsh_cmd("virsh nodecpumap")
+        self.parse_nodecpumap(nodecpumap_output)
+       
+        sysinfo_output = self.run_virsh_cmd("virsh sysinfo")
+        self.parse_sysinfo(sysinfo_output)
+
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
