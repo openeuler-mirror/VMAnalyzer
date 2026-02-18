@@ -233,6 +233,18 @@ class HostHypervisorCollector:
         sysinfo_output = self.run_virsh_cmd("virsh sysinfo")
         self.parse_sysinfo(sysinfo_output)
 
+    def save_to_json(self, file_path=None):
+       
+        if not file_path:
+            file_path = f"host_hypervisor_info_{int(time.time())}.json"
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(self.result, f, indent=2, ensure_ascii=False)
+            LOG_INFO(f"所有信息已保存到文件：{file_path}")
+            return file_path
+        except Exception as e:
+            LOG_ERROR(f"保存 JSON 文件失败：{str(e)}")
+            return None
 
 def main():
     LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
