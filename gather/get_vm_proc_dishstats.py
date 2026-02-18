@@ -40,6 +40,23 @@ class MockVMFactory:
         return vms
 
 
+class MockStatsStorage:
+    def __init__(self, output_dir='/var/lib/vm_diskstats'):
+        self.output_dir = output_dir
+        os.makedirs(output_dir, exist_ok=True)
+
+    def save_stats_info(self, stats_info):
+        try:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = os.path.join(self.output_dir, f'diskstats_info_{timestamp}.json')
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(stats_info, f, ensure_ascii=False, indent=2)
+            logger.info(f"统计信息已保存到: {filename}")
+        except Exception as e:
+            logger.error(f"保存统计信息失败: {e}")
+
+
+
 if __name__ == "__main__":
     main()
 
