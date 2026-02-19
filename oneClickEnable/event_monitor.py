@@ -80,6 +80,26 @@ def check_exceptions(event_line):
             return True
     return False
 
+def main():
+    check_running()
+    with open(PID_FILE, 'w') as f:
+        f.write(str(os.getpid()))
+    logger.info("启动 virsh 事件监控")
+   
+    open(RAW_LOG_FILE, 'w').close()
+    virsh_cmd = ["stdbuf", "-oL", "-eL", "virsh", "event", "--all", "--loop", "--timestamp"]
+    global virsh_process
+    virsh_process = subprocess.Popen(
+        virsh_cmd,
+        stdout=open(RAW_LOG_FILE, 'a'),
+        stderr=subprocess.STDOUT,
+        universal_newlines=True
+    )
+    logger.info(f"virsh event 命令已启动，PID: {virsh_process.pid}")
+    logger.info(f"原始日志文件: {RAW_LOG_FILE}")
+    logger.info(f"分析日志文件: {LOG_FILE}")
+    logger.info("开始监控日志文件变化...")
+
 if __name__ == "__main__":
     main()
 
