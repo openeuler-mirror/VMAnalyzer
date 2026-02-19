@@ -38,6 +38,19 @@ EXCEPTION_EVENTS = [
     "canceled"
 ]
 
+def check_running():
+    if os.path.exists(PID_FILE):
+        with open(PID_FILE, 'r') as f:
+            pid = f.read().strip()
+        try:
+            os.kill(int(pid), 0)
+            logger.error(f"脚本已在运行，PID: {pid}")
+            print(f"脚本已在运行，PID: {pid}")
+            sys.exit(1)
+        except OSError:
+            logger.warning("发现旧的PID文件，已删除")
+            os.remove(PID_FILE)
+
 if __name__ == "__main__":
     main()
 
