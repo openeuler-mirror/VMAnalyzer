@@ -66,6 +66,20 @@ signal.signal(signal.SIGINT, lambda sig, frame: cleanup() or sys.exit(0))
 signal.signal(signal.SIGTERM, lambda sig, frame: cleanup() or sys.exit(0))
 atexit.register(cleanup)
 
+def check_exceptions(event_line):
+    for exception in EXCEPTION_EVENTS:
+        if exception.lower() in event_line.lower():
+            logger.error(f"检测到异常事件：{exception}")
+            logger.error(f"事件详情：{event_line}")
+          
+            if ALERT_SCRIPT and os.path.exists(ALERT_SCRIPT):
+                try:
+                    subprocess.run([ALERT_SCRIPT, event_line], check=True)
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"执行告警脚本失败：{e}")
+            return True
+    return False
+
 if __name__ == "__main__":
     main()
 
