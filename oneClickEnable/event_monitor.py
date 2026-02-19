@@ -51,6 +51,21 @@ def check_running():
             logger.warning("发现旧的PID文件，已删除")
             os.remove(PID_FILE)
 
+def cleanup():
+    logger.info("脚本正在退出，清理资源...")
+    if os.path.exists(PID_FILE):
+        os.remove(PID_FILE)
+    if 'virsh_process' in globals() and virsh_process.poll() is None:
+        virsh_process.terminate()
+        try:
+            virsh_process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            virsh_process.kill()
+
+signal.signal(signal.SIGINT, lambda sig, frame: cleanup() or sys.exit(0))
+signal.signal(signal.SIGTERM, lambda sig, frame: cleanup() or sys.exit(0))
+atexit.register(cleanup)
+
 if __name__ == "__main__":
     main()
 
