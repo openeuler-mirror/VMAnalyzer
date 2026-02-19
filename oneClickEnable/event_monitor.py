@@ -99,6 +99,20 @@ def main():
     logger.info(f"原始日志文件: {RAW_LOG_FILE}")
     logger.info(f"分析日志文件: {LOG_FILE}")
     logger.info("开始监控日志文件变化...")
+    last_size = os.path.getsize(RAW_LOG_FILE)
+    while True:
+        if virsh_process.poll() is not None:
+            logger.error("virsh event 命令已退出，正在重启...")
+            print("virsh event 命令已退出，正在重启...")
+            virsh_process = subprocess.Popen(
+                virsh_cmd,
+                stdout=open(RAW_LOG_FILE, 'a'),
+                stderr=subprocess.STDOUT,
+                universal_newlines=True
+            )
+            logger.info(f"virsh event 命令已重启，新PID: {virsh_process.pid}")
+          
+            last_size = os.path.getsize(RAW_LOG_FILE)
 
 if __name__ == "__main__":
     main()
