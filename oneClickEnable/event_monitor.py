@@ -113,6 +113,16 @@ def main():
             logger.info(f"virsh event 命令已重启，新PID: {virsh_process.pid}")
           
             last_size = os.path.getsize(RAW_LOG_FILE)
+        current_size = os.path.getsize(RAW_LOG_FILE)
+        if current_size > last_size:
+            with open(RAW_LOG_FILE, 'r') as f:
+                f.seek(last_size)
+                new_content = f.read()
+            for line in new_content.strip().split('\n'):
+                if line:
+                    check_exceptions(line)
+            last_size = current_size
+        time.sleep(CHECK_INTERVAL)
 
 if __name__ == "__main__":
     main()
