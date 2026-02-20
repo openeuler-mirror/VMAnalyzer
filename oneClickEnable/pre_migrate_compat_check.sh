@@ -41,3 +41,13 @@ check_source_to_target_network() {
     fi
 }
 
+get_vm_memory_info() {
+    local src_host=$1
+    local vm_name=$2
+    
+    local vm_mem_kb=$(ssh $src_host "virsh dominfo $vm_name | grep 'Used memory' | awk '{print \$3}'")
+    local vm_mem_gb=$(( (vm_mem_kb + 1024*1024 - 1) / (1024*1024) ))
+    local hugepage_used=$(ssh $src_host "virsh dumpxml $vm_name | grep -c '<memoryBacking>'")
+    
+    echo "$vm_mem_gb $hugepage_used"
+}
