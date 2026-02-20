@@ -51,3 +51,24 @@ get_vm_memory_info() {
     
     echo "$vm_mem_gb $hugepage_used"
 }
+
+check_target_memory() {
+    local dst_host=$1
+    local vm_mem_gb=$2
+    local hugepage_used=$3
+    
+    if [ "$hugepage_used" -eq 1 ]; then
+        log_info "虚拟机使用大页，检查目标主机大页情况..."
+        
+        local hugepage_info=$(ssh $dst_host "cat /proc/meminfo | grep Huge")
+        local hugepages_total=$(echo "$hugepage_info" | grep HugePages_Total | awk '{print $2}')
+        local hugepages_free=$(echo "$hugepage_info" | grep HugePages_Free | awk '{print $2}')
+        local hugepage_size=$(echo "$hugepage_info" | grep Hugepagesize | awk '{print $2}')
+        
+        log_info "目标主机大页信息："
+        log_info "  总大页数: $hugepages_total"
+        log_info "  空闲大页数: $hugepages_free"
+        log_info "  单大页大小: $hugepage_size kB"
+        
+}
+
