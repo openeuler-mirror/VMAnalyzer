@@ -24,3 +24,20 @@ check_command() {
     fi
 }
 
+check_source_to_target_network() {
+    local src_host=$1
+    local dst_host=$2
+    
+    log_info "检查源主机 $src_host 与目标主机 $dst_host 网络连通性..."
+    
+    local result=$(ssh $src_host "ping -c 3 -W 5 $dst_host &> /dev/null; echo \$?")
+    
+    if [ "$result" -eq 0 ]; then
+        log_info "网络连通性检查通过"
+        return 0
+    else
+        log_error "网络连通性检查失败，无法ping通目标主机"
+        return 1
+    fi
+}
+
