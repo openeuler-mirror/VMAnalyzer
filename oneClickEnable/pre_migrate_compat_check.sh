@@ -70,5 +70,18 @@ check_target_memory() {
         log_info "  空闲大页数: $hugepages_free"
         log_info "  单大页大小: $hugepage_size kB"
         
-}
-
+        local hugepage_size_mb=$((hugepage_size / 1024))
+        local required_hugepages=$(( (vm_mem_gb * 1024 + hugepage_size_mb - 1) / hugepage_size_mb ))
+        
+        log_info "虚拟机需要大页数: $required_hugepages"
+        
+        if [ "$hugepages_free" -lt "$required_hugepages" ]; then
+            log_error "目标主机空闲大页数不足，需要 $required_hugepages 个，可用 $hugepages_free 个"
+            return 1
+        else
+            log_info "目标主机大页数量充足"
+            return 0
+        fi
+    else
+        log_info "虚拟机不使用大页，检查目标主机可用内存..."
+} 
