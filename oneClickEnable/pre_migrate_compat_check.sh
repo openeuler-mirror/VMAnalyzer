@@ -186,6 +186,38 @@ echo "DST_QEMU_VER:$dst_qemu_ver"
 echo "DOMCAPABILITIES:$domcapabilities"
 EOF
         )
+        
+        dst_libvirt_ver=$(echo "$dst_info" | grep "DST_LIBVIRT_VER:" | cut -d':' -f2-)
+        dst_qemu_ver=$(echo "$dst_info" | grep "DST_QEMU_VER:" | cut -d':' -f2-)
+        domcapabilities=$(echo "$dst_info" | sed -n '/DOMCAPABILITIES:/,$p' | sed '1s/DOMCAPABILITIES://')
+        
+        echo "$domcapabilities" > /tmp/dst_domcapabilities.xml
+        
+        log_info "检查源主机与目标主机libvirt、qemu版本..."
+        log_info "源主机 libvirt 版本: $src_libvirt_ver, QEMU 版本: $src_qemu_ver"
+        log_info "目标主机 libvirt 版本: $dst_libvirt_ver, QEMU 版本: $dst_qemu_ver"
+        
+        ver_result=0
+        if [ -z "$src_libvirt_ver" ] || [ -z "$dst_libvirt_ver" ]; then
+            log_error "无法获取libvirt版本信息"
+            ver_result=1
+        elif [ "$(printf '%s\n' "$src_libvirt_ver" "$dst_libvirt_ver" | sort -V | head -n1)" != "$dst_libvirt_ver" ]; then
+            log_error "目标主机 libvirt 版本 ($dst_libvirt_ver) 低于源主机 ($src_libvirt_ver)"
+            ver_result=1
+        fi
+        
+        if [ -z "$src_qemu_ver" ] || [ -z "$dst_qemu_ver" ]; then
+            log_error "无法获取QEMU版本信息"
+            ver_result=1
+        elif [ "$(printf '%s\n' "$src_qemu_ver" "$dst_qemu_ver" | sort -V | head -n1)" != "$dst_qemu_ver" ]; then
+            log_error "目标主机 QEMU 版本 ($dst_qemu_ver) 低于源主机 ($src_qemu_ver)"
+            ver_result=1
+        fi
+        
+        if [ $ver_result -eq 0 ]; then
+            log_info "libvirt、qemu版本检查通过"
+        fi
+        
 }
 
 main "$@"
