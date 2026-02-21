@@ -29,4 +29,15 @@ class QgaMemoryStatus:
             LOG_ERROR(f"libvirt 连接异常：{str(e)}")
             raise
 
-
+    def get_vm_domain(self, vm_name: str) -> libvirt.virDomain:
+        if vm_name in self.domains:
+            return self.domains[vm_name]
+        
+        try:
+            dom = self.conn.lookupByName(vm_name)
+            self.domains[vm_name] = dom
+            LOG_INFO(f"成功获取虚拟机 {vm_name} 句柄")
+            return dom
+        except libvirt.libvirtError as e:
+            LOG_ERROR(f"获取虚拟机 {vm_name} 句柄失败：{str(e)}")
+            raise
