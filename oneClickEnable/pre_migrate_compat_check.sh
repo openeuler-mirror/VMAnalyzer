@@ -151,4 +151,41 @@ else
     src_qemu_ver=""
 fi
 
+vm_xml=\$(virsh dumpxml $vm_name)
+
+echo "SRC_LIBVIRT_VER:\$src_libvirt_ver"
+echo "SRC_QEMU_VER:\$src_qemu_ver"
+echo "VM_XML:\$vm_xml"
 EOF
+        )
+        
+        src_libvirt_ver=$(echo "$src_info" | grep "SRC_LIBVIRT_VER:" | cut -d':' -f2-)
+        src_qemu_ver=$(echo "$src_info" | grep "SRC_QEMU_VER:" | cut -d':' -f2-)
+        vm_xml=$(echo "$src_info" | sed -n '/VM_XML:/,$p' | sed '1s/VM_XML://')
+        
+        dst_info=$(ssh $dst_host "bash -s" << 'EOF'
+libvirt_rpm=$(rpm -qa | grep -E '^libvirt-[0-9]' | head -1)
+if [ -n "$libvirt_rpm" ]; then
+    dst_libvirt_ver=$(echo $libvirt_rpm | sed -E 's/^libvirt-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
+else
+    dst_libvirt_ver=""
+fi
+
+qemu_rpm=$(rpm -qa | grep -E '^qemu-[0-9]' | head -1)
+if [ -n "$qemu_rpm" ]; then
+    dst_qemu_ver=$(echo $qemu_rpm | sed -E 's/^qemu-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
+else
+    dst_qemu_ver=""
+fi
+
+virsh domcapabilities > /tmp/dst_domcapabilities.xml
+domcapabilities=$(cat /tmp/dst_domcapabilities.xml)
+
+echo "DST_LIBVIRT_VER:$dst_libvirt_ver"
+echo "DST_QEMU_VER:$dst_qemu_ver"
+echo "DOMCAPABILITIES:$domcapabilities"
+EOF
+        )
+}
+
+main "$@"
