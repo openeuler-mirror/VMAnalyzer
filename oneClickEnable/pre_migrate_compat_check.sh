@@ -100,3 +100,27 @@ check_target_memory() {
     fi
 }
 
+main() {
+    check_command ssh
+    check_command scp
+    check_command bc
+    
+    if [ $# -ne 3 ]; then
+        echo "用法: $0 <源主机> <目标主机> <虚拟机名称>"
+        echo "示例: $0 source-host dest-host vm1"
+        exit 1
+    fi
+    
+    src_host=$1
+    dst_host=$2
+    vm_name=$3
+    
+    log_info "开始虚拟机迁移前兼容性检查"
+    log_info "源主机: $src_host"
+    log_info "目标主机: $dst_host"
+    log_info "虚拟机名称: $vm_name"
+    
+    check_source_to_target_network $src_host $dst_host
+}
+
+main "$@"
