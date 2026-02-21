@@ -218,6 +218,20 @@ EOF
             log_info "libvirt、qemu版本检查通过"
         fi
         
+        log_info "检查虚拟机配置与目标主机能力的兼容性..."
+        
+        vm_cpu_model=$(echo "$vm_xml" | grep -oP '<model[^>]*>\K[^<]+')
+        if [ -n "$vm_cpu_model" ]; then
+            if grep -q "<model usable='yes'>$vm_cpu_model</model>" /tmp/dst_domcapabilities.xml; then
+                log_info "CPU模型 $vm_cpu_model 在目标主机上可用"
+            else
+                log_warn "CPU模型 $vm_cpu_model 在目标主机上不可用，可能需要调整"
+            fi
+        else
+            log_info "未找到虚拟机CPU模型信息，跳过CPU模型兼容性检查"
+        fi
+        
+    fi
 }
 
 main "$@"
