@@ -18,4 +18,15 @@ class QgaMemoryStatus:
         self.domains = {}
         self.QGA_MEMORY_CMD = '{"execute":"guest-get-memory-status"}'
 
+    def _init_libvirt_conn(self) -> libvirt.virConnect:
+        try:
+            conn = libvirt.open("qemu:///system")
+            if conn:
+                LOG_INFO("libvirt 连接成功（qemu:///system）")
+                return conn
+            raise Exception("libvirt 连接失败，未获取到连接句柄")
+        except libvirt.libvirtError as e:
+            LOG_ERROR(f"libvirt 连接异常：{str(e)}")
+            raise
+
 
