@@ -121,6 +121,34 @@ main() {
     log_info "虚拟机名称: $vm_name"
     
     check_source_to_target_network $src_host $dst_host
-}
+    net_result=$?
+    
+    if [ $net_result -eq 0 ]; then
+        log_info "获取源端虚拟机 $vm_name 的内存信息..."
+        read vm_mem_gb hugepage_used <<< $(get_vm_memory_info $src_host $vm_name)
+        log_info "虚拟机内存大小: $vm_mem_gb GB"
+        log_info "是否使用大页: $hugepage_used"
+        
+        check_target_memory $dst_host $vm_mem_gb $hugepage_used
+        mem_result=$?
+        
+        if [ $mem_result -ne 0 ]; then
+            exit 1
+        fi
+        
+        src_info=$(ssh $src_host "bash -s" << EOF
+libvirt_rpm=\$(rpm -qa | grep -E '^libvirt-[0-9]' | head -1)
+if [ -n "\$libvirt_rpm" ]; then
+    src_libvirt_ver=\$(echo \$libvirt_rpm | sed -E 's/^libvirt-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
+else
+    src_libvirt_ver=""
+fi
 
-main "$@"
+qemu_rpm=\$(rpm -qa | grep -E '^qemu-[0-9]' | head -1)
+if [ -n "\$qemu_rpm" ]; then
+    src_qemu_ver=\$(echo \$qemu_rpm | sed -E 's/^qemu-([0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+).*/\1/')
+else
+    src_qemu_ver=""
+fi
+
+EOF
