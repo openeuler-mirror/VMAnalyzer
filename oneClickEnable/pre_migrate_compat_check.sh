@@ -231,6 +231,29 @@ EOF
             log_info "未找到虚拟机CPU模型信息，跳过CPU模型兼容性检查"
         fi
         
+        vm_emulator=$(echo "$vm_xml" | grep "<emulator" | awk -F'>' '{print $2}' | awk -F'<' '{print $1}')
+        emulator_type=$(basename "$vm_emulator")
+        emulator_check=$(ssh $dst_host "which $emulator_type > /dev/null 2>&1 && echo 'found' || echo 'not found'")
+        
+        domain_result=0
+        if [ "$emulator_check" = "found" ]; then
+            log_info "虚拟化类型 $emulator_type 在目标主机上可用"
+        else
+            log_error "虚拟化类型 $emulator_type 在目标主机上不可用"
+            domain_result=1
+        fi
+        
+        if [ $domain_result -eq 0 ]; then
+            log_info "虚拟机配置与目标主机能力兼容性检查通过"
+        fi
+        
+        if [ $ver_result -eq 0 ] && [ $domain_result -eq 0 ]; then
+            log_info "所有兼容性检查通过，可以进行迁移"
+            exit 0
+        else
+            log_warn "部分兼容性检查未通过，建议检查并解决问题后再进行迁移"
+            exit 1
+        fi
     fi
 }
 
