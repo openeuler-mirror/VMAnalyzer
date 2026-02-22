@@ -101,3 +101,28 @@ class QgaMemoryStatus:
             results.append(result)
         return results
 
+    def close(self):
+        if self.conn:
+            self.conn.close()
+            LOG_INFO("libvirt 连接已关闭")
+
+if __name__ == "__main__":
+    qga_memory = QgaMemoryStatus()
+
+    try:
+        vm_name = "test-bclinux7.6-qga"
+        single_result = qga_memory.execute_qga_memory_cmd(vm_name)
+        print("\n" + "="*80)
+        print(f"虚拟机 {vm_name} 内存状态查询结果")
+        print("="*80)
+        print(f"查询时间：{single_result['collect_time']}")
+        mem = single_result["memory_info"]
+        print(f"总内存：{mem['total_mb']} MB")
+        print(f"已用内存：{mem['used_mb']} MB")
+        print(f"空闲内存：{mem['free_mb']} MB")
+        print(f"可用内存：{mem['available_mb']} MB")
+        print(f"内存使用率：{mem['usage_rate']} %")
+
+    finally:
+        qga_memory.close()
+
