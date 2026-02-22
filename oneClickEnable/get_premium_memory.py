@@ -93,3 +93,11 @@ class QgaMemoryStatus:
 
         return memory_status
 
+    def batch_execute(self, vm_names: list) -> list:
+        results = []
+        for vm_name in vm_names:
+            LOG_INFO(f"\n===== 开始处理虚拟机：{vm_name} =====")
+            result = self.execute_qga_memory_cmd(vm_name)
+            results.append(result)
+        return results
+
