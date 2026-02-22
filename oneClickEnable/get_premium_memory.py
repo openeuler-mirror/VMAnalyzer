@@ -69,9 +69,27 @@ class QgaMemoryStatus:
             if "return" not in output_json:
                 raise Exception("QGA 返回格式异常，缺失 'return' 字段")
 
+            memory_raw = output_json["return"]           
+            total = memory_raw.get("total", 0)
+            available = memory_raw.get("available", 0)
+            memory_info = {
+                "total_mb": round(total, 2),
+                "used_mb": round(total - available, 2),
+                "free_mb": round(memory_raw.get("free", 0), 2),
+                "available_mb": round(available, 2),
+                "usage_rate": round(((total - available) / total) * 100, 2) if total != 0 else 0.0
+            }
+
+            memory_status.update({
+                "status": "success",
+                "error_msg": "",
+                "memory_info": memory_info
+            })
+
         except Exception as e:
             error_msg = str(e)
             memory_status["error_msg"] = error_msg
             LOG_ERROR(f"执行 QGA 命令失败：{error_msg}")
 
         return memory_status
+
