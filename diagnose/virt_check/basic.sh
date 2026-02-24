@@ -168,6 +168,11 @@ check_virt_version_func() {
     log "libvirt_version" "Libvirt版本:$libvirt_ver"
 }
 
+# 查看sysctl配置
+check_sysctl_config_func() {
+check_config sysctl_config
+}
+
 usage() {
         echo "basic.sh: basic virtualization os config health check"
         echo "options: -h,          help information"
