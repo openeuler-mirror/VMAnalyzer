@@ -34,6 +34,31 @@ mk_log_dir() {
     return 0
 }
 
+#clean tmp files
+clean_tmp() {
+    local tmp_files=(
+        "${qemuconsume_dir}perf*out"
+        "${qemuconsume_dir}out*folded"
+    )
+    for tmp_file in "${tmp_files[@]}"
+    do
+        ls ${tmp_file} &>/dev/null
+        if [ $? -eq 0 ];
+        then
+            for file in `ls ${tmp_file}`
+            do
+                if [ -f $file ]; then
+                    rm -rf $file
+                    if [ $? -ne 0 ]; then
+                        echo "rm $file failed" >> $datafile
+                    fi
+                    echo "rm $file sucess" >> $datafile
+                fi
+            done
+        fi
+    done
+}
+
 perf_record() {
     command -v perf > /dev/null
     if [ $? -ne 0 ]; then
@@ -148,3 +173,5 @@ while getopts 'h' OPT; do
 done
 
 mk_log_dir
+
+monitor
