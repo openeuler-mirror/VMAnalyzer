@@ -92,6 +92,10 @@ set_auth() {
                  fi
             fi
     done
+    #set /etc/libvirt/libvirtd.conf
+    sudo cp -a -f ${LIBVIRTD_FILE} ${LIBVIRTD_FILE}_bak
+    set_check_config ${LIBVIRTD_FILE} false
+    set_check_config ${LIBVIRTD_FILE} true
 }
 
 usage() {
