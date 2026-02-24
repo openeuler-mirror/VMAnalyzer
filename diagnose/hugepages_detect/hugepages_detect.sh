@@ -204,6 +204,8 @@ function check_main()
                   err_info "check -- error -- , 2M hugepages check exception, please check the operation!"
                fi
             fi
+        else
+            err_info "check -- error -- , wrong format $size, please checkout"
         fi
     done
 }
