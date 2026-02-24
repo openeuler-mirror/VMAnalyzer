@@ -23,6 +23,7 @@ declare -A dic=(
     [tuned]=Tuned配置
     [qemu_version]=Qemu版本
     [libvirt_version]=Libvirt版本
+    [open_files]=最大打开文件数
     [sysctl_config]=sysctl配置
 )
 
@@ -166,6 +167,20 @@ check_virt_version_func() {
 
     log "qemu_version" "Qemu版本:$qemu_ver"
     log "libvirt_version" "Libvirt版本:$libvirt_ver"
+}
+
+# 虚拟化配置检测
+check_virt_config_func() {
+    #sudo echo "--------------------Virt Config------------------------" >> $hostfile
+    # 查看最大打开文件数
+    #current_open_files=`sudo ulimit -n`
+    libvirtd_pid=`pidof libvirtd`
+    current_open_files=`cat /proc/$libvirtd_pid/limits | grep "Max open files" | awk '{print $4}'`
+    if [[ "$current_open_files" == "$Open_Files" ]]; then
+        log "$open_files" "最大打开文件个数:$current_open_files"
+    else
+        log "open_files" "最大打开文件个数:$current_open_files,建议设置大于或者等于$Open_Files"
+    fi
 }
 
 # 查看sysctl配置
