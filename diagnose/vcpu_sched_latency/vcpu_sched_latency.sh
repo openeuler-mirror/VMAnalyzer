@@ -107,6 +107,12 @@ parse_perf_results() {
     if [ "$switch_percent_int" -gt 10 ]; then
         log "WARNING" "High context switch rate (${switch_percent_int}%). Check for excessive task switching."
     fi
+
+    migrate_percent=$(printf "%0.2f%%" "$migrate_percent")
+    migrate_percent_int=${migrate_percent%.*}
+    if [ "$migrate_percent_int" -gt 1 ]; then
+        log "WARNING" "High task migration (${migrate_percent_int}%). Check for CPU affinity issues."
+    fi
 }
 
 main() {
