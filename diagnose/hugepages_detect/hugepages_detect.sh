@@ -209,3 +209,11 @@ function check_main()
         fi
     done
 }
+
+if [ ! -e "${HUGEPAGE_NODE_CONF_PATH}" ]; then
+        err_info "check -- error -- , ${HUGEPAGE_NODE_CONF_PATH} not exist, skip check "
+        exit 1
+fi
+
+sum=0
+check_main
