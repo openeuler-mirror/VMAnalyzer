@@ -113,6 +113,12 @@ parse_perf_results() {
     if [ "$migrate_percent_int" -gt 1 ]; then
         log "WARNING" "High task migration (${migrate_percent_int}%). Check for CPU affinity issues."
     fi
+
+    wakeup_percent=$(printf "%0.2f%%" "$wakeup_percent")
+    wakeup_percent_int=${wakeup_percent%.*}
+    if [ "$wakeup_percent_int" -gt 5 ]; then
+        log "WARNING" "High task wakeup rate (${wakeup_percent_int}%). Check for wakeup storms."
+    fi
 }
 
 main() {
