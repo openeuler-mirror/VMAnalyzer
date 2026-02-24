@@ -79,6 +79,21 @@ set_check_config() {
     fi
 }
 
+set_auth() {
+    # install sasl package
+    for name in "${PACKAGE_NAME[@]}" ; do
+        sudo rpm -qa |grep -w $name
+            if [ $? -ne 0 ]; then
+                 sudo yum install -y $name --nogpgcheck
+                 sudo rpm -qa |grep -w $name
+                 if [ $? -ne 0 ]; then
+                         sudo echo "can not install $name"
+                         exit 1
+                 fi
+            fi
+    done
+}
+
 usage() {
     sudo echo "usage: $0 <set/fallback/check>"
     exit 1
