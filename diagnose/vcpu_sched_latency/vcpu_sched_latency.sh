@@ -4,17 +4,21 @@
 # History:
 # Dinglimin Create the file.
 
+# 日志文件
 LOG_DIR="/var/log/vmanalyzer"
 LOG_FILE="$LOG_DIR/vcpu_sched_latency-$(date +%Y%m%d%H%M%S).log"
 
+# 创建日志目录
 mkdir -p "$LOG_DIR"
 
+# 日志函数
 log() {
     local level=$1
     local message=$2
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] [$level] $message" | tee -a "$LOG_FILE"
 }
 
+# 检查虚拟机进程是否存在
 get_vm_pid() {
     local vm_name=$1
     vm_pid=$(pgrep -f "qemu.*$vm_name")
@@ -121,6 +125,7 @@ parse_perf_results() {
     fi
 }
 
+# 主函数
 main() {
     local vm_name=$1
     if [ -z "$vm_name" ]; then
@@ -128,6 +133,7 @@ main() {
         exit 1
     fi
     log "INFO" "Starting advanced vCPU scheduling analysis for VM: $vm_name"
+    # 获取虚拟机 PID
     vm_pid=$(get_vm_pid "$vm_name")
     log "INFO" "VM PID: $vm_pid"
 
