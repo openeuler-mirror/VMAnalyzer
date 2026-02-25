@@ -27,6 +27,7 @@ declare -A dic=(
     [sysctl_config]=sysctl配置
     [turbo_boost]=cpu睿频
     [cpu_module]=cpu模式
+    [transparent_hugepage]=透明大页
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -208,6 +209,18 @@ check_cpu_func(){
     cpufreq=`sudo cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
     [[ $cpufreq == "" ]] && cpufreq="无法获取CPU性能模式"
     log "cpu_module" "cpu性能模式:$cpufreq"
+}
+
+# 宿主机大页信息
+check_huge_page_func(){
+    #sudo echo "--------------------Host hugepage infomation------------------------" >> $hostfile
+    # 查看宿主机透明大页情况
+    flag=`sudo cut -d "]" -f 1 /sys/kernel/mm/transparent_hugepage/enabled | awk -F "[" '{print $2}'`
+    if [[ $flag == $THP_flag ]]; then
+        log "transparent_hugepage" "已开启透明大页"
+    else
+        log "transparent_hugepage" "透明大页未开启"
+    fi
 }
 
 usage() {
