@@ -25,6 +25,7 @@ declare -A dic=(
     [libvirt_version]=Libvirt版本
     [open_files]=最大打开文件数
     [sysctl_config]=sysctl配置
+    [turbo_boost]=cpu睿频
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -186,6 +187,22 @@ check_virt_config_func() {
 # 查看sysctl配置
 check_sysctl_config_func() {
 check_config sysctl_config
+}
+
+# CPU信息
+check_cpu_func(){
+    #sudo echo "--------------------CPU information------------------------" >> $hostfile
+    # 查看宿主机CPU是否开启睿频
+    if [ ! -e "/sys/devices/system/cpu/intel_pstate/no_turbo" ]; then
+        log "turbo_boost" "不支持睿频"
+    else
+        no_turbo_flag=`sudo cat /sys/devices/system/cpu/intel_pstate/no_turbo`
+        if [[ $no_turbo_flag == "0" ]];then
+            log "turbo_boost" "睿频开启"
+        else
+            log "turbo_boost" "睿频关闭"
+        fi
+    fi
 }
 
 usage() {
