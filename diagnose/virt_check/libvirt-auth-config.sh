@@ -104,6 +104,15 @@ set_auth() {
     sudo cp -a -f ${SYSCONFIG_LIBVIRT_FILE} ${SYSCONFIG_LIBVIRT_FILE}_bak
     set_check_config ${SYSCONFIG_LIBVIRT_FILE} false
     set_check_config ${SYSCONFIG_LIBVIRT_FILE} true
+    #set sals
+    (sudo echo -e  "$SASL_USERPASSWORD\n$SASL_USERPASSWORD" ) | sudo saslpasswd2 -a libvirt $SASL_USERNAME
+    sudo sasldblistusers2 -f /etc/libvirt/passwd.db |grep $SASL_USERNAME
+    if [[ $? -eq 0 ]]; then
+        sudo echo "sasl user set successfully"
+    else
+        sudo echo "sasl user set failed"
+        exit 1
+    fi
 
 }
 
