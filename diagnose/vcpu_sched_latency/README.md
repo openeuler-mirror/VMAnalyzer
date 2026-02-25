@@ -17,3 +17,10 @@ vcpu_sched_latency.sh
 分析虚拟机的整体调度性能。
 
 诊断虚拟机的高延迟问题。
+
+vcpu_sched_switch.sh
+功能：
+
+使用 perf trace 跟踪指定 vCPU 线程的上下文切换事件。
+
+分析上下文切换的总数、平均切换时间及切换原因分布。
