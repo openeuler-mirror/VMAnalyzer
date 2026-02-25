@@ -26,6 +26,7 @@ declare -A dic=(
     [open_files]=最大打开文件数
     [sysctl_config]=sysctl配置
     [turbo_boost]=cpu睿频
+    [cpu_module]=cpu模式
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -192,7 +193,7 @@ check_config sysctl_config
 # CPU信息
 check_cpu_func(){
     #sudo echo "--------------------CPU information------------------------" >> $hostfile
-    # 查看宿主机CPU是否开启睿频
+    # 1、查看宿主机CPU是否开启睿频
     if [ ! -e "/sys/devices/system/cpu/intel_pstate/no_turbo" ]; then
         log "turbo_boost" "不支持睿频"
     else
@@ -203,6 +204,10 @@ check_cpu_func(){
             log "turbo_boost" "睿频关闭"
         fi
     fi
+    # 2、查看宿主机CPU模式
+    cpufreq=`sudo cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+    [[ $cpufreq == "" ]] && cpufreq="无法获取CPU性能模式"
+    log "cpu_module" "cpu性能模式:$cpufreq"
 }
 
 usage() {
