@@ -100,6 +100,11 @@ set_auth() {
     sudo cp -a -f ${SASL_LIBVIRT_FILE} ${SASL_LIBVIRT_FILE}_bak
     set_check_config ${SASL_LIBVIRT_FILE} false
     set_check_config ${SASL_LIBVIRT_FILE} true
+    #set /etc/sysconfig/libvirtd
+    sudo cp -a -f ${SYSCONFIG_LIBVIRT_FILE} ${SYSCONFIG_LIBVIRT_FILE}_bak
+    set_check_config ${SYSCONFIG_LIBVIRT_FILE} false
+    set_check_config ${SYSCONFIG_LIBVIRT_FILE} true
+
 }
 
 usage() {
