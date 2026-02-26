@@ -58,9 +58,11 @@ def get_vm_qemu_agent_version(vm_name: str) -> str:
 
     version_cmd = ["virsh", "qemu-agent-command", vm_name, '{"execute":"guest-info"}']
     version_result = execute_cmd(version_cmd)
-    if version_result["code"] == 0:
-        version_json = json.loads(version_result["stdout"])
-        result["agent_version"] = version_json.get("return", {}).get("version", "")
+    if version_result["code"] != 0:
+        result["error"] = f"QGA连通性检测失败: {version_result['stderr']}"
+        return json.dumps(result, ensure_ascii=False, indent=2)
+    version_json = json.loads(version_result["stdout"])
+    result["agent_version"] = version_json.get("return", {}).get("version", "")
 
     result["success"] = True
     return json.dumps(result, ensure_ascii=False, indent=2)
