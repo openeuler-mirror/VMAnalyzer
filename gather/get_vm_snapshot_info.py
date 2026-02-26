@@ -30,6 +30,13 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stderr"] = f"命令执行异常: {str(e)}"
     return result
 
+def get_vm_list() -> list:
+    """获取宿主机所有虚机名称列表"""
+    cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
+    if cmd_result["code"] != 0:
+        return []
+    return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
+
 """采集虚机快照列表及详细信息"""
 def get_vm_snapshot_info(vm_name: str) -> str:
     """
@@ -114,7 +121,16 @@ def get_vm_snapshot_info(vm_name: str) -> str:
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) != 2:
-        print("Usage: python get_vm_snapshot_info.py <vm-name>")
+    vms = get_vm_list()
+    if not vms:
+        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
         sys.exit(1)
-    print(get_vm_snapshot_info(sys.argv[1]))
+
+    results = []
+    for vm in vms:
+        vm_result_json = get_vm_snapshot_info(vm)
+        vm_result = json.loads(vm_result_json)
+        results.append(vm_result)
+
+    # 输出所有虚机的结果（JSON数组）
+    print(json.dumps(results, ensure_ascii=False, indent=2))
