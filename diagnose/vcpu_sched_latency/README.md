@@ -30,3 +30,26 @@ vcpu_sched_switch.sh
 深入分析某个 vCPU 线程的上下文切换行为。
 
 诊断上下文切换频繁或延迟过高的问题。
+
+使用方法
+1. 运行 vcpu_sched_latency.sh
+命令格式：
+bash
+复制
+sudo bash vcpu_sched_latency.sh <VM_NAME>
+参数：
+
+<VM_NAME>：虚拟机的名称（如 vm1）。
+
+输出：
+
+日志文件：/var/log/vmanalyzer/vcpu_sched_latency-<时间戳>.log。
+
+报告内容：
+
+调度事件的计数和占比。
+
+高延迟警告（如 I/O 等待、资源阻塞等）。
+
+示例：
+sudo bash vcpu_sched_latency.sh vm1
