@@ -238,6 +238,22 @@ check_huge_page_func(){
     fi
 }
 
+# 内存检测
+check_memory_func(){
+    speed_list=()
+    support_list=()
+
+    # 查看宿主机内存信息
+    #sudo echo "--------------------Host memory information------------------------" >> $hostfile
+
+    # 获取实际内存频率
+    speed=`sudo dmidecode -t memory | grep -i "Configured Clock Speed" |grep -v Unknown`
+    for i in "${speed}"
+    do
+        speed_list=`sudo echo $i | tr -cd "[0-9]"`
+    done
+}
+
 usage() {
         echo "basic.sh: basic virtualization os config health check"
         echo "options: -h,          help information"
