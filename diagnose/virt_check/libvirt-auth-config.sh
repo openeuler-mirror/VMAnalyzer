@@ -113,6 +113,14 @@ set_auth() {
         sudo echo "sasl user set failed"
         exit 1
     fi
+
+    #remove /etc/sasl2/qemu*.conf
+    for i in $SASL_QEMU_FILE ; do
+        if [ -e ${SASL_PATH}/${i} ]; then
+            sudo mv -f ${SASL_PATH}/${i} ${SASL_PATH}/${i}_bak
+        fi
+    done
+
     #restart libvirt service
     sudo service libvirtd.service restart
     sudo service libvirtd.service status |grep active
