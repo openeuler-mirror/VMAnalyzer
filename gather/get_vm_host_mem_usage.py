@@ -42,6 +42,13 @@ def get_vm_pid(vm_name: str) -> str:
             return parts[1] if len(parts) >= 2 else ""
     return ""
 
+def get_vm_list() -> list:
+    """获取宿主机所有虚机名称列表"""
+    cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
+    if cmd_result["code"] != 0:
+        return []
+    return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
+
 """采集虚机占用宿主机内存（RSS/VSZ）"""
 def get_vm_host_mem_usage(vm_name: str) -> str:
     """
@@ -86,7 +93,16 @@ def get_vm_host_mem_usage(vm_name: str) -> str:
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) != 2:
-        print("Usage: python get_vm_host_mem_usage.py <vm-name>")
+    vms = get_vm_list()
+    if not vms:
+        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
         sys.exit(1)
-    print(get_vm_host_mem_usage(sys.argv[1]))
+
+    results = []
+    for vm in vms:
+        vm_result_json = get_vm_host_mem_usage(vm)
+        vm_result = json.loads(vm_result_json)
+        results.append(vm_result)
+
+    # 输出所有虚机的结果（JSON数组）
+    print(json.dumps(results, ensure_ascii=False, indent=2))
