@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""采集虚机Libvirt Domain XML配置"""
 import json
 import subprocess
 import json
@@ -107,7 +106,6 @@ if __name__ == "__main__":
     full = sys.argv[1].lower() == "true" if len(sys.argv) >= 2 else True
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
         vm_result_json = get_vm_libvirt_domain_xml(vm, full)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
