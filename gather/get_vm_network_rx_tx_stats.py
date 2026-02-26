@@ -62,7 +62,7 @@ def get_vm_nic_list(vm_name: str) -> list:
     return nics
 
 """采集虚机网卡收发包统计"""
-def get_vm_network_rx_stats(vm_name: str) -> str:
+def get_vm_network_rx_tx_stats(vm_name: str) -> str:
     result = {
         "vm_name": vm_name,
         "nics": [],
@@ -88,6 +88,10 @@ def get_vm_network_rx_stats(vm_name: str) -> str:
             "rx_packets": 0,
             "rx_errors": 0,
             "rx_dropped": 0,
+            "tx_bytes": 0,
+            "tx_packets": 0,
+            "tx_errors": 0,
+            "tx_dropped": 0
         }
 
         # 执行virsh domifstat
@@ -120,4 +124,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python get_vm_network_rx_tx_stats.py <vm-name>")
         sys.exit(1)
-    print(get_vm_network_rx_stats(sys.argv[1]))
+    print(get_vm_network_rx_tx_stats(sys.argv[1]))
