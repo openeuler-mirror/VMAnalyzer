@@ -113,7 +113,15 @@ set_auth() {
         sudo echo "sasl user set failed"
         exit 1
     fi
-
+    #restart libvirt service
+    sudo service libvirtd.service restart
+    sudo service libvirtd.service status |grep active
+    if [[ $? -eq 0 ]]; then
+        sudo echo "libvirt auth set successfully"
+    else
+        sudo echo "libvirt auth set failed"
+        exit 1
+    fi
 }
 
 usage() {
