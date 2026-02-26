@@ -15,6 +15,9 @@
 ###使用方法
 ##宿主机健康检查命令
 高级版：sh virt_health.sh -e premium -f host
+基础版：sh virt_health.sh -e basic -f host
+
 ##虚机健康检查命令
 高级版：sh virt_health.sh -e premium -f domain -d $domain_id
+基础版：sh virt_health.sh -e basic -f domain -d $domain_id
 其中，$domain_id：诊断的虚机域名或者id或者uuid
