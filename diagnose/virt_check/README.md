@@ -9,6 +9,8 @@
 高级版 premium-config-sysctl.conf	   内核调优配置	                 宿主机
 高级版 premium-config-sysctl-libvirt.conf  虚拟化sysctl-libvirt配置      宿主机
 高级版 premium-config.env	           除了上面四个配置以外的配置	 宿主机/虚拟机
+基础版 basic-config-sysctl.conf            内核调优配置                  宿主机
+基础版 basic-config.env                    除了上面一个配置以外的配置    宿主机/虚拟机
 
 ###使用方法
 ##宿主机健康检查命令
