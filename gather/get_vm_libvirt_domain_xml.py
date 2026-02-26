@@ -49,6 +49,14 @@ def parse_xml(xml_str: str) -> Optional[etree._Element]:
         print(f"XML解析失败: {e}")
         return None
 
+
+def get_vm_list() -> list:
+    """获取宿主机所有虚机名称列表"""
+    cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
+    if cmd_result["code"] != 0:
+        return []
+    return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
+
 def get_vm_libvirt_domain_xml(vm_name: str, full: bool = True) -> str:
     """
     获取虚机XML配置
@@ -91,9 +99,18 @@ def get_vm_libvirt_domain_xml(vm_name: str, full: bool = True) -> str:
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) < 2:
-        print("Usage: python get_vm_libvirt_domain_xml.py <vm-name> [full=True]")
-        sys.exit(1)
-    vm_name = sys.argv[1]
-    full = sys.argv[2].lower() == "true" if len(sys.argv) >= 3 else True
-    print(get_vm_libvirt_domain_xml(vm_name, full))
+    vms = get_vm_list()
+    if not vms:
+         print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
+         sys.exit(1)
+
+    full = sys.argv[1].lower() == "true" if len(sys.argv) >= 2 else True
+    results = []
+    for vm in vms:
+        # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
+        vm_result_json = get_vm_libvirt_domain_xml(vm, full)
+        vm_result = json.loads(vm_result_json)
+        results.append(vm_result)
+
+    # 输出所有虚机的结果（JSON数组）
+    print(json.dumps(results, ensure_ascii=False, indent=2))
