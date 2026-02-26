@@ -34,8 +34,6 @@ vcpu_sched_switch.sh
 使用方法
 1. 运行 vcpu_sched_latency.sh
 命令格式：
-bash
-复制
 sudo bash vcpu_sched_latency.sh <VM_NAME>
 参数：
 
@@ -53,3 +51,22 @@ sudo bash vcpu_sched_latency.sh <VM_NAME>
 
 示例：
 sudo bash vcpu_sched_latency.sh vm1
+
+2. 运行 vcpu_sched_switch.sh
+命令格式：
+sudo bash vcpu_sched_switch.sh <VM_NAME> <VCPU_ID>
+参数：
+
+<VM_NAME>：虚拟机的名称（如 vm1）。
+
+<VCPU_ID>：vCPU 的编号（如 0 表示第一个 vCPU）。
+
+输出：
+
+日志文件：/var/log/vmanalyzer/vcpu_sched_trace-<时间戳>.log。
+
+报告内容：
+
+上下文切换的总数和平均时间。
+
+切换原因的分布（如 S、R 等）。
