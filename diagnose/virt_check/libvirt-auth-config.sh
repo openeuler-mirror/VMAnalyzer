@@ -132,6 +132,17 @@ set_auth() {
     fi
 }
 
+fallback_auth() {
+    # fallback /etc/libvirt/libvirtd.conf
+    sudo cp -a -f ${LIBVIRTD_FILE}_bak ${LIBVIRTD_FILE}
+
+    # fallback /etc/sasl2/libvirt.conf
+    sudo cp -a -f ${SASL_LIBVIRT_FILE}_bak ${SASL_LIBVIRT_FILE}
+
+    # fallback /etc/sysconfig/libvirtd
+    sudo cp -a -f ${SYSCONFIG_LIBVIRT_FILE}_bak ${SYSCONFIG_LIBVIRT_FILE}
+}
+
 usage() {
     sudo echo "usage: $0 <set/fallback/check>"
     exit 1
