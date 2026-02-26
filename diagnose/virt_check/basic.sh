@@ -28,6 +28,7 @@ declare -A dic=(
     [turbo_boost]=cpu睿频
     [cpu_module]=cpu模式
     [transparent_hugepage]=透明大页
+    [hugepages]=静态大页
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -214,12 +215,26 @@ check_cpu_func(){
 # 宿主机大页信息
 check_huge_page_func(){
     #sudo echo "--------------------Host hugepage infomation------------------------" >> $hostfile
-    # 查看宿主机透明大页情况
+    # 1、查看宿主机透明大页情况
     flag=`sudo cut -d "]" -f 1 /sys/kernel/mm/transparent_hugepage/enabled | awk -F "[" '{print $2}'`
     if [[ $flag == $THP_flag ]]; then
         log "transparent_hugepage" "已开启透明大页"
     else
         log "transparent_hugepage" "透明大页未开启"
+    fi
+    # 2、查看宿主机静态大页情况
+    hug=`cat /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages`
+    hug_num=0
+    while read -r line;
+    do
+      if [[ $line -ne 0 ]];then
+          hug_num=$(($hug_num+1))
+      fi
+    done<<<`cat /sys/kernel/mm/hugepages/hugepages-*/nr_hugepages`
+    if [[ $hug_num -ne 0 ]]; then
+        log "hugepages" "已配置大页内存"
+    else
+        log "hugepages" "没有配置大页内存"
     fi
 }
 
