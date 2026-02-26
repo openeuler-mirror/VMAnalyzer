@@ -77,7 +77,6 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
         vm_result_json = get_vm_qemu_agent_version(vm)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
