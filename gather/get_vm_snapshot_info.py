@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import subprocess
+import json
+from lxml import etree
+from typing import Optional, Dict, Any
+import os
+import re
+
+def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
+    result = {
+        "code": -1,
+        "stdout": "",
+        "stderr": ""
+    }
+    try:
+        proc = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=timeout
+        )
+        result["code"] = proc.returncode
+        result["stdout"] = proc.stdout.strip()
+        result["stderr"] = proc.stderr.strip()
+    except subprocess.TimeoutExpired:
+        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+    except Exception as e:
+        result["stderr"] = f"命令执行异常: {str(e)}"
+    return result
+
+"""采集虚机快照列表及详细信息"""
+def get_vm_snapshot_info(vm_name: str) -> str:
+    """
+    获取快照名称、创建时间、状态、磁盘大小
+    输出标准化快照信息列表
+    """
+    result = {
+        "vm_name": vm_name,
+        "snapshots": [],
+        "success": False,
+        "error": ""
+    }
+
+    # 1. 获取快照列表
+    snap_list_cmd = ["virsh", "snapshot-list", vm_name]
+    snap_list_result = execute_cmd(snap_list_cmd)
+    if snap_list_result["code"] != 0:
+        result["error"] = snap_list_result["stderr"]
+        return json.dumps(result, ensure_ascii=False, indent=2)
+
+    # 解析快照列表（跳过表头）
+    lines = snap_list_result["stdout"].split("\n")[2:]
+    snap_names = []
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("---"):
+            continue
+        parts = re.split(r"\s+", line)
+        if len(parts) >= 1:
+            snap_names.append(parts[0])
+
+    # 2. 遍历快照获取详细信息
+    for snap_name in snap_names:
+        snap_info_cmd = ["virsh", "snapshot-info", vm_name, snap_name]
+        snap_info_result = execute_cmd(snap_info_cmd)
+        if snap_info_result["code"] != 0:
+            continue
+
+        snap_info = {
+            "name": snap_name,
+            "state": "",
+            "is_current": False
+        }
+
+        # 解析快照信息
+        for line in snap_info_result["stdout"].split("\n"):
+            line = line.strip()
+            if not line or ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            key = key.strip().lower()
+            value = value.strip()
+
+            if key == "state":
+                snap_info["state"] = value
+            elif key == "current":
+                snap_info["is_current"] = (value.lower() == "yes")
+
+        result["snapshots"].append(snap_info)
+
+    result["success"] = True
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) != 2:
+        print("Usage: python get_vm_snapshot_info.py <vm-name>")
+        sys.exit(1)
+    print(get_vm_snapshot_info(sys.argv[1]))
