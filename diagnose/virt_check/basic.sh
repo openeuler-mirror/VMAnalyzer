@@ -13,6 +13,8 @@ spectre_file=${TOOLS_ROOT}/spectre-meltdown-checker.sh
 spectre_log=${virt_dir}spectre-meltdown-checker-basic-`date "+%Y-%m-%d-%H-%M-%S"`.log
 default_config=${TOOLS_ROOT}/basic-config.env
 sysctl_config=${TOOLS_ROOT}/basic-config-sysctl.conf
+auth_file=${TOOLS_ROOT}/libvirt-auth-config.sh
+auth_log=${virt_dir}libvirt-auth-config-`date "+%Y-%m-%d-%H-%M-%S"`.log
 
 # cpu core
 final_core_list=()
@@ -35,6 +37,7 @@ declare -A dic=(
     [transparent_hugepage]=透明大页
     [hugepages]=静态大页
     [memory_frequency]=内存频率
+    [libvirt_auth]=libvirt鉴权
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -291,6 +294,21 @@ check_memory_func(){
         log "memory_frequency" "内存频率降频，请检查下内存"
     else
         log "memory_frequency" "内存频率正常"
+    fi
+}
+
+# 鉴权检测
+check_auth_func(){
+    if [[ -f ${auth_file} ]]; then
+        sudo bash $auth_file check &>$auth_log
+        sudo cat $auth_log | grep -i "libvirt auth is set" &>/dev/null
+        if [ $? -eq 0 ];then
+            log "libvirt_auth" "libvirt开启鉴权"
+        else
+            log "libvirt_auth" "libvirt没有开启鉴权"
+        fi
+    else
+        log "libvirt_auth" "没有libvirt鉴权检测脚本,跳过检测"
     fi
 }
 
