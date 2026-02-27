@@ -144,6 +144,9 @@ fallback_auth() {
 
     #delete sasl user
     sudo saslpasswd2 -a libvirt -d $SASL_USERNAME
+
+    #restart libvirt service
+    sudo service libvirtd.service restart
 }
 
 usage() {
