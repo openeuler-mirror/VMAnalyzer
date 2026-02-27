@@ -337,6 +337,20 @@ Split_cpu(){
     else
         cpu1=`echo $2`
     fi
+    if [ ! -n "$cpu2" ]; then
+        if [ ${cpu_arr[$cpu1]} == 1 ]; then
+            across_flag=0
+        fi
+    else
+        for(( m = $cpu1 ; m <= $cpu2 ; m = m+1 ))
+        do
+            if [ ${cpu_arr[$m]} == 1 ]; then
+                across_flag=0
+                break
+            fi
+        done
+    fi
+    return 0
 }
 
 usage() {
