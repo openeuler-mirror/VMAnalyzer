@@ -14,6 +14,11 @@ spectre_log=${virt_dir}spectre-meltdown-checker-basic-`date "+%Y-%m-%d-%H-%M-%S"
 default_config=${TOOLS_ROOT}/basic-config.env
 sysctl_config=${TOOLS_ROOT}/basic-config-sysctl.conf
 
+# cpu core
+final_core_list=()
+# 常见cpu支持的内存频率
+cpu_memory_frequency=('6248R 2933' '6148 2666' '5218 26667' '5118 2400')
+
 declare -A dic=(
     [os_version]=系统版本
     [kernel]=内核版本
@@ -29,6 +34,7 @@ declare -A dic=(
     [cpu_module]=cpu模式
     [transparent_hugepage]=透明大页
     [hugepages]=静态大页
+    [memory_frequency]=内存频率
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -259,6 +265,33 @@ check_memory_func(){
     do
         support_list=`sudo echo $i | tr -cd "[0-9]"`
     done
+
+    # 3、查看是否内存降频
+    model=$(grep 'model name' /proc/cpuinfo | head -n 1 | cut -d ':' -f 2 | xargs)
+    bad_num=0
+    for j in ${speed_list[@]};do
+        for k in ${support_list[@]};do
+            let num1=$k-$j
+            num1=${num1/-/}
+            if [[ $num1 -gt $Mem_Frequency ]];then
+                for g in "${cpu_memory_frequency[@]}" ; do
+                    echo $model |grep ${g[@]:1:1}
+                    if [ $? -eq 0 ];then
+                        let num2=$j-${g[@]:2:1}
+                        num2=${num2/-/}
+                        if [[ $num2 -gt $Mem_Frequency ]];then
+                            bad_num=$((bad_num + 1))
+                        fi
+                    fi
+                done
+            fi
+        done
+    done
+    if [[ $bad_num != 0 ]];then
+        log "memory_frequency" "内存频率降频，请检查下内存"
+    else
+        log "memory_frequency" "内存频率正常"
+    fi
 }
 
 usage() {
