@@ -167,6 +167,11 @@ check_auth() {
             exit 1
         fi
     fi
+    output=$(sudo expect -c "
+    spawn sudo virsh -c qemu+tcp://127.0.0.1/system quit
+    expect *name: { send \"$SASL_USERNAME\n\" }
+    expect *password: { send \"$SASL_USERPASSWORD\n\" }
+    ")
 }
 
 usage() {
