@@ -8,7 +8,6 @@ from typing import Optional, Dict, Any
 import os
 import re
 
-
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """
     执行系统命令，返回标准化结果
@@ -91,6 +90,17 @@ def get_vm_crash_status(vm_name: str) -> str:
 
         except Exception as e:
             result["error"] = f"读取日志失败: {str(e)}"
+
+    # 3. 检查虚机进程是否异常
+    ps_cmd = ["ps", "-ef"]
+    ps_result = execute_cmd(ps_cmd)
+    if ps_result["code"] == 0:
+        qemu_pattern = re.compile(rf"guest={vm_name}.*\s", re.I)
+        if not any(qemu_pattern.search(line) for line in ps_result["stdout"].split("\n")):
+            # 无QEMU进程但状态非关机
+            if result["crashed"] is False and state_result["stdout"].lower() != "shut off":
+                result["crashed"] = True
+                result["crash_reason"] = "QEMU进程已退出但虚机状态非关机"
 
     result["success"] = True
     return json.dumps(result, ensure_ascii=False, indent=2)
