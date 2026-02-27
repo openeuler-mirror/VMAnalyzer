@@ -156,6 +156,19 @@ fallback_auth() {
     fi
 }
 
+check_auth() {
+    # install expect package
+    sudo rpm -qa |grep -w expect
+    if [ $? -ne 0 ]; then
+        sudo yum install -y expect --nogpgcheck
+        sudo rpm -qa |grep -w expect
+        if [ $? -ne 0 ]; then
+            sudo echo "can not install expect"
+            exit 1
+        fi
+    fi
+}
+
 usage() {
     sudo echo "usage: $0 <set/fallback/check>"
     exit 1
