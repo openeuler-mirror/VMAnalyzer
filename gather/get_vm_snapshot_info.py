@@ -71,6 +71,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
         snap_info = {
             "name": snap_name,
             "state": "",
+            "disk_size_mb": 0,
             "is_current": False
         }
 
@@ -87,6 +88,24 @@ def get_vm_snapshot_info(vm_name: str) -> str:
                 snap_info["state"] = value
             elif key == "current":
                 snap_info["is_current"] = (value.lower() == "yes")
+
+        # 3. 获取快照磁盘大小（qemu-img）
+        snap_disk_cmd = ["virsh", "snapshot-dumpxml", vm_name, snap_name]
+        snap_disk_result = execute_cmd(snap_disk_cmd)
+        if snap_disk_result["code"] == 0:
+            disk_pattern = re.compile(r"<source file='([^']+)'")
+            disk_match = disk_pattern.search(snap_disk_result["stdout"])
+            if disk_match:
+                disk_path = disk_match.group(1)
+                img_cmd = ["qemu-img", "info", "--output", "json", disk_path]
+                img_result = execute_cmd(img_cmd)
+                if img_result["code"] == 0:
+                    try:
+                        img_json = json.loads(img_result["stdout"])
+                        size = img_json.get("virtual-size", 0)
+                        snap_info["disk_size_mb"] = round(size / (1024 * 1024), 2)
+                    except json.JSONDecodeError:
+                        pass
 
         result["snapshots"].append(snap_info)
 
