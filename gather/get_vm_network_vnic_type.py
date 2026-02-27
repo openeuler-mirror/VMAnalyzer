@@ -54,6 +54,7 @@ def get_vm_nic_list(vm_name: str) -> list:
         if len(parts) >= 4:
             nics.append({
                 "interface": parts[0],
+                "type": parts[1],
                 "source": parts[2],
                 "model": parts[3],
             })
@@ -77,6 +78,7 @@ def get_vm_network_vnic_type(vm_name: str) -> str:
     for nic in nics:
         nic_info = {
             "nic_name": nic["interface"],
+            "type": nic["type"],
             "host_iface": nic["source"],
         }
         result["nics"].append(nic_info)
