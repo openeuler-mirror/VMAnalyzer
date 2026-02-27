@@ -330,6 +330,13 @@ Split_cpu(){
     do
         cpu_arr[$k]=0
     done
+    sudo echo $2 | grep "-"
+    if [ $? == 0 ]; then
+        cpu1=`echo $2 | cut -d '-' -f1`
+        cpu2=`echo $2 | cut -d '-' -f2`
+    else
+        cpu1=`echo $2`
+    fi
 }
 
 usage() {
