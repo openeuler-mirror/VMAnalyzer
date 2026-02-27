@@ -319,6 +319,17 @@ Split_cpu(){
     if [ $? != 0 ];then
         return 1
     fi
+    first_cpu=`virsh vcpupin $1 | awk -F " " 'NR==3 {print $2}' | cut -d '-' -f1`
+    arr1=`numactl --hardware | grep cpus | awk -F ": "  '{print $2}' | grep  -w $first_cpu`
+    num=`lscpu | grep -E 'CPU:|CPU\(s\)' | head -n 1 | awk -F " " '{print $NF}'`
+    for((i=0;i<$num;i=i+1))
+    do
+        cpu_arr[i]=1
+    done
+    for k in $arr1
+    do
+        cpu_arr[$k]=0
+    done
 }
 
 usage() {
