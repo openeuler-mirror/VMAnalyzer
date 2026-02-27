@@ -353,6 +353,16 @@ Split_cpu(){
     return 0
 }
 
+Judge_across_numa(){
+    cpuset=`sudo virsh emulatorpin $1 | awk -F " " 'NR>=3 {print $2}'`
+    sudo virsh emulatorpin $1 | awk -F " " 'NR>=3 {print $2}' |grep ","
+    if [ $? == 0 ]; then
+        OLD_IFS="$IFS"
+        IFS=","
+        arr=($cpuset)
+        IFS="$OLD_IFS"
+}
+
 usage() {
         echo "basic.sh: basic virtualization os config health check"
         echo "options: -h,          help information"
