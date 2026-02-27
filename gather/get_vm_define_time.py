@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""采集虚机Libvirt定义创建时间"""
 import json
 import os
 from datetime import datetime
@@ -86,11 +85,9 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
         vm_result_json = get_vm_define_time(vm)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))
-
