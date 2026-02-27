@@ -172,6 +172,13 @@ check_auth() {
     expect *name: { send \"$SASL_USERNAME\n\" }
     expect *password: { send \"$SASL_USERPASSWORD\n\" }
     ")
+    sudo echo $output |grep "Please enter your authentication name"
+    if [[ $? -eq 1 ]]; then
+        sudo echo "libvirt auth is not set"
+        exit 1
+    else
+        sudo echo "libvirt auth is set"
+    fi
 }
 
 usage() {
