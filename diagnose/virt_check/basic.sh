@@ -312,6 +312,15 @@ check_auth_func(){
     fi
 }
 
+Split_cpu(){
+    cpu1=
+    cpu2=
+    Install_rpm "numactl"
+    if [ $? != 0 ];then
+        return 1
+    fi
+}
+
 usage() {
         echo "basic.sh: basic virtualization os config health check"
         echo "options: -h,          help information"
