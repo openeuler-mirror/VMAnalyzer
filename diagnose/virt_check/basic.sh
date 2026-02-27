@@ -246,11 +246,18 @@ check_memory_func(){
     # 查看宿主机内存信息
     #sudo echo "--------------------Host memory information------------------------" >> $hostfile
 
-    # 获取实际内存频率
+    # 1、获取实际内存频率
     speed=`sudo dmidecode -t memory | grep -i "Configured Clock Speed" |grep -v Unknown`
     for i in "${speed}"
     do
         speed_list=`sudo echo $i | tr -cd "[0-9]"`
+    done
+
+    # 2、查看内存最大支持的频率
+    support=`sudo dmidecode|grep -A16 "Memory Device"|grep 'Speed' |grep -v Unknown`
+    for i in "${support}"
+    do
+        support_list=`sudo echo $i | tr -cd "[0-9]"`
     done
 }
 
