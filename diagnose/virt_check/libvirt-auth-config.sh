@@ -187,11 +187,18 @@ usage() {
 }
 
 case $1 in
-    set|fallback|check)
-        ;;
+    set)
+        set_auth
+    ;;
+    fallback)
+        fallback_auth
+    ;;
+    check)
+        check_auth
+    ;;
     *)
         usage
-        ;;
+    ;;
 esac
 
 # Exit success
