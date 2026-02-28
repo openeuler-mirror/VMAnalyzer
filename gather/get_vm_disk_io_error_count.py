@@ -60,6 +60,13 @@ def get_vm_disk_list(vm_name: str) -> list:
             })
     return disks
 
+def get_vm_list() -> list:
+    """获取宿主机所有虚机名称列表"""
+    cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
+    if cmd_result["code"] != 0:
+        return []
+    return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
+
 """采集虚机磁盘IO错误次数"""
 def get_vm_disk_io_error_count(vm_name: str) -> str:
     result = {
@@ -110,7 +117,18 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) != 2:
-        print("Usage: python get_vm_disk_io_error_count.py <vm-name>")
+
+    vms = get_vm_list()
+    if not vms:
+        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
         sys.exit(1)
-    print(get_vm_disk_io_error_count(sys.argv[1]))
+
+    results = []
+    for vm in vms:
+        vm_result_json = get_vm_disk_io_error_count(vm)
+        vm_result = json.loads(vm_result_json)
+        results.append(vm_result)
+
+    # 输出所有虚机的结果（JSON数组）
+    print(json.dumps(results, ensure_ascii=False, indent=2))
+
