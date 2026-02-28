@@ -393,8 +393,12 @@ Judge_across_numa(){
 check_dom_vcpu(){
     # sudo echo "--------------------Domain cpu infomation------------------------" >> $hostfile
 
-    # 查看云主机的vcpu是否跨numa
+    # 1、查看云主机的vcpu是否跨numa
     Judge_across_numa $1
+
+    # 2、查看云主机里numa配置
+    Numa_Mode=`sudo virsh numatune $1 | awk -F " " 'NR==1 {print $3}'`
+    log "numa_mode" "虚机numa模式:$Numa_Mode"
 }
 
 usage() {
