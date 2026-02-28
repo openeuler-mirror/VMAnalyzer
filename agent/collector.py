@@ -317,6 +317,27 @@ class VMStatsCollector:
                         })
                     stats_info[vm_id]['cpu_top5'] = formatted_cpu_top
 
+                mem_top_cmd = {
+                    "execute": "guest-get-memtopn-status",
+                    "arguments": {"memtopn-num": "5"}
+                }
+                mem_top_result = self._send_qga_command(dom, mem_top_cmd)
+                if mem_top_result and "return" in mem_top_result:
+                    formatted_mem_top = []
+                    for proc in mem_top_result["return"]:
+                        proc_info = proc.get("process-info", {})
+                        if "process-info" in proc_info:
+                            proc_info = proc_info["process-info"]
+                        formatted_mem_top.append({
+                            "pid": proc.get("process-id", "N/A"),
+                            "user": proc_info.get("user", "N/A"),
+                            "cpu_util": proc_info.get("cpu-util", "0"),
+                            "mem_util": proc_info.get("mem-util", "0"),
+                            "open_files": proc_info.get("open-files", "N/A"),
+                            "cmd": proc_info.get("cmd-name", "N/A").strip().replace("\n", "")
+                        })
+                    stats_info[vm_id]['mem_top5'] = formatted_mem_top
+
             else:
                 logging.error('wrong label')
 
