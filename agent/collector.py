@@ -338,6 +338,42 @@ class VMStatsCollector:
                         })
                     stats_info[vm_id]['mem_top5'] = formatted_mem_top
 
+            elif label == 'log_vm':
+
+                log_file_path = f"/var/log/libvirt/qemu/{vm['name']}.log"
+
+                if not os.path.exists(log_file_path):
+                    logging.error('Log file not found: %s', log_file_path)
+                    continue
+
+                with open(log_file_path, 'r', encoding='utf-8') as log_file:
+                    log_content = log_file.readlines()
+
+                current_status = dom.state()[0]
+                latest_event = None
+                latest_status = None
+                latest_status_log = None
+                latest_status_line = None
+                latest_status_line_number = None
+                power_events = ['BOOT', 'stop', 'shutdown', 'destroyed',
+                                'error', 'SHUTDOWN', 'REBOOT', 'RESUME']
+                labels_def = {
+                        'shutdown': 'shutdown',
+                        'resume': 'running',
+                        'error': 'false',
+                        'stop': 'paused',
+                        'destroy': 'destroy'
+                    }
+
+                stats_info[vm_id] = {
+                    'uuid': vm['uuid'],
+                    'name': vm['name'],
+                    'current_state': current_status,
+                    'latest_event': latest_event,
+                    'state_log': latest_status_log,
+                    'timestamp': int(timestamp)
+                }
+
             else:
                 logging.error('wrong label')
 
