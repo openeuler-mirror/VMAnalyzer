@@ -1,21 +1,20 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
 
-#######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
-# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
 # THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
-#######################################################################################
-
 import logging
 import libvirt
 from utils import wrapper
+
 
 class VM:
     """
@@ -89,14 +88,15 @@ class VMFactory:
         if vm is None:
             logging.warning("No such VM: %d", vm_id)
             return
-        vm['analyzers'] = vm_analyzers
+        vm["analyzers"] = vm_analyzers
 
     def get_vm_analyzers(self, vm_id):
         vm = self.__vms.get(vm_id)
         if vm is None:
             logging.warning("No such VM: %d", vm_id)
             return None
-        return vm['analyzers']
+        return vm["analyzers"]
+
 
 def scan_active_vms():
     vm_factory = VMFactory()
@@ -110,13 +110,15 @@ def scan_active_vms():
             logging.error("VM %s is not running!", dom.name())
             continue
 
-        logging.debug("Domain %s(%s), UUID %s", dom.name(), dom.ID(), dom.UUIDString())
-        # FIXME, We need get analyzers info by libvirt api
+        logging.debug("Domain %s(%s), UUID %s",
+                     dom.name(), dom.ID(), dom.UUIDString())
         vm_id = dom.ID()
+        # FIXME, We need get analyzers info by libvirt api
         vm_info = {
-            'uuid': dom.UUIDString(),
-            'name': dom.name(),
-            'cpu_util': 0
+            "uuid": dom.UUIDString(),
+            "name": dom.name(),
+            "cpu_util": 0
         }
         if vm_id not in vm_factory.vms:
             vm_factory.add_vm(vm_id, vm_info)
+
