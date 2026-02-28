@@ -43,6 +43,7 @@ def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
         "vm_name": vm_name,
         "uuid": "",
         "state": "",
+        "memory": 0,
         "error": ""
     }
     cmd = ["virsh", "dominfo", vm_name]
@@ -63,6 +64,8 @@ def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
             result["uuid"] = value
         elif key == "state":
             result["state"] = value
+        elif key == "max memory":
+            result["memory"] = int(value.split()[0]) if value else 0
     return result
 
 def get_vm_libvirt_uuid(vm_name: str) -> str:
