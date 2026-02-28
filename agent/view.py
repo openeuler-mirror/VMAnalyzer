@@ -1,18 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# _*_coding: utf-8 _*_
 
-#######################################################################################
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
-# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
 # THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
-#######################################################################################
-
 import six
 import abc
 import json
@@ -20,13 +18,12 @@ import copy
 
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
-    # Iterate over dict values directly; no need to wrap in list() in Python 3
     for v in list(new_util.values()):
         if 'Current_cpu_utilization' in list(v.keys()):
             if isinstance(v['Current_cpu_utilization'], float):
-                v['Current_cpu_utilization'] = '{:.2%}'.format(v['Current_cpu_utilization'])
+                v['Current_cpu_utilization'] = \
+                    '{:.2f}%'.format(v['Current_cpu_utilization'])
     return new_util
-
 
 @six.add_metaclass(abc.ABCMeta)
 class VMAnalyzersView(object):
@@ -52,6 +49,7 @@ class VMAnalyzersConsoleView(VMAnalyzersView):
         for analyzers_info in vm_analyzers_info:
             print(json.dumps(convert_to_percent(analyzers_info)))
 
+
 class VMAnalyzersDWView(VMAnalyzersView):
     """
     `VMAnalyzersDWView` 类继承自 `VMAnalyzersView`，用于处理虚拟机分析器信息的输出。
@@ -61,4 +59,6 @@ class VMAnalyzersDWView(VMAnalyzersView):
     """
     def output(self, vm_analyzers_info):
         pass
+
+
 
