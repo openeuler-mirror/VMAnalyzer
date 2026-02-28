@@ -85,6 +85,7 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
             "dev": dev,
             "read_errors": 0,
             "write_errors": 0,
+            "flush_errors": 0
         }
 
         # 执行virsh domblkerror
@@ -98,6 +99,8 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
                     error_info["read_errors"] = int(line.split(":")[1].strip())
                 elif "Write errors:" in line:
                     error_info["write_errors"] = int(line.split(":")[1].strip())
+                elif "Flush errors:" in line:
+                    error_info["flush_errors"] = int(line.split(":")[1].strip())
 
         result["disks"].append(error_info)
 
