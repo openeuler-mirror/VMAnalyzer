@@ -38,6 +38,7 @@ declare -A dic=(
     [hugepages]=静态大页
     [memory_frequency]=内存频率
     [libvirt_auth]=libvirt鉴权
+    [vcpus_cross]=虚拟机vcpu是否跨numa
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -353,6 +354,7 @@ Split_cpu(){
     return 0
 }
 
+# 查看云主机的cpu是否跨numa
 Judge_across_numa(){
     cpuset=`sudo virsh emulatorpin $1 | awk -F " " 'NR>=3 {print $2}'`
     sudo virsh emulatorpin $1 | awk -F " " 'NR>=3 {print $2}' |grep ","
@@ -385,6 +387,14 @@ Judge_across_numa(){
     else
         log "vcpus_cross" "虚机vcpu不跨numa nodes!"
     fi
+}
+
+# 查看云主机的cpu信息
+check_dom_vcpu(){
+    # sudo echo "--------------------Domain cpu infomation------------------------" >> $hostfile
+
+    # 查看云主机的vcpu是否跨numa
+    Judge_across_numa $1
 }
 
 usage() {
