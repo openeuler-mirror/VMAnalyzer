@@ -33,6 +33,16 @@ class VMStatsCollector:
         self.__stats_storage = stats_storage
         self.__label = label
 
+    def _send_qga_command(self, dom, cmd_dict):
+        try:
+            cmd_json = json.dumps(cmd_dict)
+            result = libvirt_qemu.qemuAgentCommand(dom, cmd_json, 30 * 1000, 0)
+            return json.loads(result) if result else None
+        except Exception as e:
+            cmd_type = cmd_dict.get('execute', 'unknown')
+            logger.error(f"VM {dom.name()}: QGA命令失败 [{cmd_type}]，错误: {e}")
+            return None
+
     def record_stats(self):
         vm_factory = self.__vm_factory
         label = self.__label
