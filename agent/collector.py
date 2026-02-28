@@ -365,6 +365,50 @@ class VMStatsCollector:
                         'destroy': 'destroy'
                     }
 
+                for line_number in range(len(log_content) - 1, -1, -1):
+                    line = log_content[line_number]
+                    if 'event' in line and latest_event is None:
+                        event_start = \
+                            line.find('"event":') + len('"event":') + 2
+                        event_end = line.find('"', event_start)
+                        latest_event = line[event_start:event_end].strip()
+
+                    if latest_status is None:
+                        if 'shutdown' in line or 'SHUTDOWN' in line:
+                            latest_status = labels_def['shutdown']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif 'RESUME' in line:
+                            latest_status = labels_def['resume']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif 'error' in line:
+                            latest_status = labels_def['error']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif 'stop' in line:
+                            latest_status = labels_def['stop']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif 'destroy' in line:
+                            latest_status = labels_def['destroy']
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+                        elif any(event in line for event in power_events):
+                            latest_status = 'status=other'
+                            latest_status_line = line.strip()
+                            latest_status_line_number = line_number + 1
+
+                    # Stop looking if we have both event and status
+                    if latest_status and latest_status_line_number is not None:
+                        latest_status_log = f'log_state:{latest_status} ' \
+                                        f'line:{latest_status_line_number} '\
+                                        f'state_line:{latest_status_line}'
+
+
+                    if latest_event and latest_status:
+                        break
+
                 stats_info[vm_id] = {
                     'uuid': vm['uuid'],
                     'name': vm['name'],
