@@ -88,6 +88,7 @@ def get_vm_network_vnic_type(vm_name: str) -> str:
             "nic_name": nic["interface"],
             "type": nic["type"],
             "host_iface": nic["source"],
+            "model": nic["model"],
             "mac": nic["mac"]
         }
         result["nics"].append(nic_info)
