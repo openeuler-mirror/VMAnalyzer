@@ -361,6 +361,23 @@ Judge_across_numa(){
         IFS=","
         arr=($cpuset)
         IFS="$OLD_IFS"
+        for s in ${arr[@]}
+        do
+            Split_cpu $1 $s
+            if [ $? != 0 ]; then
+                across_flag=-1
+                break
+            fi
+            if [ $across_flag == 0 ]; then
+                break
+            fi
+        done
+    else
+        Split_cpu $1 $cpuset
+        if [ $? != 0 ]; then
+            across_flag=-1
+        fi
+    fi
 }
 
 usage() {
