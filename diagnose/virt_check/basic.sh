@@ -378,6 +378,13 @@ Judge_across_numa(){
             across_flag=-1
         fi
     fi
+    if [ $across_flag == 0 ]; then
+        log "vcpus_cross" "虚机vcpu跨numa nodes!"
+    elif [ $across_flag == -1 ]; then
+        log "vcpus_cross" "无法安装numactl包，跳过虚vcpu是否跨numa检测"
+    else
+        log "vcpus_cross" "虚机vcpu不跨numa nodes!"
+    fi
 }
 
 usage() {
