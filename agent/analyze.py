@@ -12,6 +12,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 import logging
+from utils import config
 
 class VMStatsAnalyze(object):
     """
@@ -44,7 +45,7 @@ class VMStatsAnalyze(object):
         logging.debug('Length of VM stats: %d', len(vm_stats_info))
 
         if label == 'cpuUsage':
-
+            cpu_utils = []
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
                 # User can adjust the number of vcpus???
@@ -73,7 +74,7 @@ class VMStatsAnalyze(object):
 
                 logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
                               vm_info['name'], vcpu_count, cpu_util * 100)
-
+                cpu_utils.append(cpu_util)
                 # FIXME, whether to keep 2 decimal digits
                 analyzers_info = {
                     'Current_cpu_utilization': round(cpu_util, 4),
@@ -81,7 +82,23 @@ class VMStatsAnalyze(object):
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
             # store VM analyzers in DB
-            vm_factory.set_vm_analyzers(vm_id, round(cpu_util, 4))
+            #vm_factory.set_vm_analyzers(vm_id, round(cpu_util, 4))
+            if cpu_utils:
+                vm_factory.set_vm_analyzers(vm_id, round(cpu_utils[-1], 4))
+
+
+                summary_info = {
+                    'min_cpu_utilization': round(min(cpu_utils), 4),
+                    'max_cpu_utilization': round(max(cpu_utils), 4),
+                    'avg_cpu_utilization': round(sum(cpu_utils) / len(cpu_utils), 4),
+                }
+                analyzers_list.append({vm_info['name'] + '_summary': summary_info})
+
+                threshold = config.ALERT_THRESHOLDS.get('cpu_usage', 90.0)
+                if cpu_utils[-1] > threshold:
+                    logging.warning(
+                        'ALERT: VM %s CPU usage %.2f%% exceeds threshold %.2f%%',
+                        vm_info['name'], cpu_utils[-1], threshold)
 
         elif label == 'memoryUsage':
 
