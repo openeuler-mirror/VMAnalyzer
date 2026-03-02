@@ -15,3 +15,6 @@ import unittest
 from unittest import mock
 import json
 from gather.get_vm_cpu_top_app import VMCPUTopNCollector
+
+class TestVMCPUTopNCollector(unittest.TestCase):
+    pass
