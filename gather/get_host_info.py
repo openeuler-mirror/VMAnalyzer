@@ -189,7 +189,8 @@ class HostHypervisorCollector:
                 self.result["sysinfo"][section_name] = {}
                 for item in section.findall("*"):
                     item_name = item.tag.lower()
-                    self.result["sysinfo"][section_name][item_name] = item.text.strip() if item.text else ""
+                    item_text = item.text.strip() if item.text else ""
+                    self.result["sysinfo"][section_name][item_name] = item_text
         except ET.ParseError as e:
             LOG_ERROR(f"解析 sysinfo XML 失败：{str(e)}")
 
