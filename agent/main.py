@@ -30,7 +30,7 @@ debug = False
 
 
 def usage():
-    print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdmnbilvp] [uri]"))
+    print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdmnbilvp] [-o FILE] [uri]"))
     print("   uri will default to qemu:///system")
     print("   --help, -h   Print this help message")
     print("   --debug, -d  Print debug output")
@@ -42,6 +42,7 @@ def usage():
     print("   --log_vm, -l Print vm status log")
     print("   --vcpus_info, -v  Print per-vCPU state and affinity")
     print("   --processInfo, -p  Print top-5 CPU/memory consuming processes")
+    print("   --output=FILE, -o  Write analysis results to FILE (JSON Lines)")
 
 def main():
     try:
@@ -58,6 +59,7 @@ def main():
     timeout = None
     interval = 1
     label = "cpuUsage"
+    output_file = None
     for o, a in opts:
         if o in ("-h", "--help"):
             usage()
@@ -77,6 +79,8 @@ def main():
             label = "blkio"
         if o in ("-l", "--log_vm"):
             label = "log_vm"
+        if o in ("-o", "--output"):
+            output_file = a
 
     if len(args) >= 1:
         uri = args[0]
@@ -121,7 +125,11 @@ def main():
 
     # Analyzer VM statistics and report info in duration period
     vm_analyzer = analyze.VMStatsAnalyze(vm_factory, label)
-    vm_viewer = view.VMAnalyzersConsoleView()
+    #vm_viewer = view.VMAnalyzersConsoleView()
+    if output_file:
+        vm_viewer = view.VMAnalyzersFileView(output_file)
+    else:
+        vm_viewer = view.VMAnalyzersConsoleView()
     vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage,
                                                vm_viewer, vm_analyzer, interval)
     reporter_timer = timer.RepeatedTimer(10 * interval, vm_reporter.start_report)
