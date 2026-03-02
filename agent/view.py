@@ -61,4 +61,16 @@ class VMAnalyzersDWView(VMAnalyzersView):
         pass
 
 
+class VMAnalyzersFileView(VMAnalyzersView):
+    """
+    将虚拟机分析结果以 JSON Lines 格式追加写入文件。
 
+    每次调用 output() 时，每条分析记录写为独立的一行 JSON，便于后续工具（如
+    logstash、jq）逐行解析。父目录不存在时自动创建。
+    """
+    def __init__(self, filepath):
+        self.__filepath = filepath
+        dirpath = os.path.dirname(os.path.abspath(filepath))
+        if dirpath and not os.path.exists(dirpath):
+            os.makedirs(dirpath, exist_ok=True)
+        logging.debug('VMAnalyzersFileView: output file = %s', filepath)
