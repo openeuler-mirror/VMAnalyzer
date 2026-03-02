@@ -16,3 +16,6 @@ import time
 import subprocess
 from unittest.mock import patch, MagicMock, mock_open
 from gather import get_vm_basic_info as vm_monitor
+
+class TestVMDomainMonitor(unittest.TestCase):
+   pass
