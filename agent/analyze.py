@@ -207,6 +207,17 @@ class VMStatsAnalyze(object):
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
 
+        elif label == 'processInfo':
+
+            for i in range(len(vm_stats_info) - 1):
+                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                analyzers_info = {
+                    'cpu_top5':  vm_stats_info[i]['cpu_top5'],
+                    'mem_top5':  vm_stats_info[i]['mem_top5'],
+                    'TimeStamp': vm_stats_info[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['name']: analyzers_info})
+
         elif label == 'log_vm':
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
