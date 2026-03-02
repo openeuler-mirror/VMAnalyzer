@@ -15,6 +15,8 @@ import six
 import abc
 import json
 import copy
+import logging
+import os
 
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
@@ -74,3 +76,12 @@ class VMAnalyzersFileView(VMAnalyzersView):
         if dirpath and not os.path.exists(dirpath):
             os.makedirs(dirpath, exist_ok=True)
         logging.debug('VMAnalyzersFileView: output file = %s', filepath)
+
+    def output(self, vm_analyzers_info):
+        try:
+            with open(self.__filepath, 'a', encoding='utf-8') as f:
+                for analyzers_info in vm_analyzers_info:
+                    f.write(json.dumps(convert_to_percent(analyzers_info)) + '\n')
+        except OSError as err:
+            logging.error('VMAnalyzersFileView: failed to write %s: %s',
+                          self.__filepath, err)
