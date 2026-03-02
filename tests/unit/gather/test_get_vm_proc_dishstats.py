@@ -18,3 +18,6 @@ import unittest
 from unittest.mock import MagicMock, patch, ANY
 import pytest
 import logging
+
+class TestGetVMProcDishstats(unittest.TestCase):
+    pass
