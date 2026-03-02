@@ -258,6 +258,23 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'timestamp': int(data_dict['timestamp'])
                 }
 
+            elif label == 'vcpus_info':
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'vcpuinfo': data_dict['vcpuinfo'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+
+            elif label == 'processInfo':
+                stats_dict = {
+                    'uuid': vm_info['uuid'],
+                    'name': data_dict['name'],
+                    'cpu_top5': data_dict['cpu_top5'],
+                    'mem_top5': data_dict['mem_top5'],
+                    'timestamp': int(data_dict['timestamp'])
+                }
+
             else:
                 logging.error('wrong label!')
 
