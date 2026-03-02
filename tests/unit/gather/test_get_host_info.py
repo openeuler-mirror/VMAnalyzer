@@ -15,3 +15,6 @@
 import unittest
 from unittest import mock
 from gather.get_host_info import HostHypervisorCollector
+
+class TestHostHypervisorCollector(unittest.TestCase):
+    pass
