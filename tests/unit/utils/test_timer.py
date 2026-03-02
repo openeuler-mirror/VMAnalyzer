@@ -22,4 +22,7 @@ from utils.timer import RepeatedTimer
 
 class TestRepeatedTimer(unittest.TestCase):
     """针对RepeatedTimer类的单元测试用例"""
-    pass
+    def setUp(self):
+        self.call_count = 0
+        self.count_lock = threading.Lock()
+        self.test_done = threading.Event()
