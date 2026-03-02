@@ -19,3 +19,10 @@ REDIS_DATABASE_CONFIG = {
 VM_ANALYZERS_CONFIG = {
     'duration': 10
 }
+
+# Alert thresholds: trigger a warning log when utilization exceeds these values.
+# CPU/memory values are in percent (0–100).
+ALERT_THRESHOLDS = {
+    'cpu_usage': 90.0,
+    'memory_usage': 85.0,
+}
