@@ -389,7 +389,7 @@ Judge_across_numa(){
     fi
 }
 
-# 查看云主机的cpu信息
+# 一、查看云主机的cpu信息
 check_dom_vcpu(){
     # sudo echo "--------------------Domain cpu infomation------------------------" >> $hostfile
 
@@ -404,6 +404,20 @@ check_dom_vcpu(){
     Cpu_Mode=`sudo virsh dumpxml $1 |grep "cpu mode" |awk -F "'" '{print $2}'` 
     log "cpu_mode" "虚机cpu模式:$Cpu_Mode"
 }
+
+# 二、查看云主机的内存信息
+check_dom_mem(){
+    #sudo echo "--------------------Domain memory infomation------------------------" >> $hostfile
+
+    # 1、查看云主机大页配置
+    huge_page_size=`sudo virsh dumpxml $1 | grep "page size" | awk -F "'" '{printf $2}'`
+    if [ -n "$huge_page_size" ]; then
+        log "dom_huge_page" "虚机配置了大页"
+    else
+        log "dom_huge_page" "虚机没有配置大页!"
+    fi
+}
+
 
 usage() {
         echo "basic.sh: basic virtualization os config health check"
