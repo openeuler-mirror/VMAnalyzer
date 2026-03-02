@@ -79,7 +79,7 @@ class HostHypervisorCollector:
                 if key in ["cpu(s)", "cpu_frequency", "numa_node(s)", "memory_size"]:
                     try:
                         value = int(value.split()[0]) if " " in value else int(value)
-                    except:
+                    except ValueError:
                         pass
                 self.result["nodeinfo"][key] = value
 
