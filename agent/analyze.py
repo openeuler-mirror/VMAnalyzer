@@ -171,6 +171,24 @@ class VMStatsAnalyze(object):
         elif label == 'blkio':
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                delta_timestamp = (vm_stats_info[i+1]['timestamp']
+                                   - vm_stats_info[i]['timestamp'])
+
+                io_rate = {}
+                prev_io = vm_stats_info[i]['blkI/O']
+                curr_io = vm_stats_info[i+1]['blkI/O']
+                if (delta_timestamp > 0
+                        and isinstance(prev_io, dict)
+                        and isinstance(curr_io, dict)):
+                    for dev, prev in prev_io.items():
+                        if dev in curr_io:
+                            curr = curr_io[dev]
+                            io_rate[dev] = {
+                                'read_bytes_rate':    round((curr['read_bytes']    - prev['read_bytes'])    / delta_timestamp, 2),
+                                'write_bytes_rate':   round((curr['write_bytes']   - prev['write_bytes'])   / delta_timestamp, 2),
+                                'read_requests_rate': round((curr['read_requests'] - prev['read_requests']) / delta_timestamp, 2),
+                                'write_requests_rate':round((curr['write_requests']- prev['write_requests'])/ delta_timestamp, 2),
+                            }
 
                 analyzers_info = {
                     'blkStatus': vm_stats_info[i]['blkStatus'],
