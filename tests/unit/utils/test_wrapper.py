@@ -18,3 +18,8 @@ import os
 from io import StringIO
 
 from utils.wrapper import singleton
+
+class TestSingletonDecorator(unittest.TestCase):
+    """针对singleton装饰器的单元测试用例"""
+    pass
+
