@@ -201,6 +201,29 @@ class VMStatsAnalyze(object):
 
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+
+                delta_timestamp = (vm_stats_info[i+1]['timestamp']
+                                   - vm_stats_info[i]['timestamp'])
+
+                # Calculate per-vCPU utilization from consecutive total_time samples.
+                # total_time is in seconds (converted in collector.py).
+                # util_pct = Δtotal_time / Δwall_time × 100
+                vcpu_utilization = []
+                prev_vcpus = vm_stats_info[i]['vcpuinfo']
+                curr_vcpus = vm_stats_info[i+1]['vcpuinfo']
+                if (delta_timestamp > 0
+                        and isinstance(prev_vcpus, list)
+                        and isinstance(curr_vcpus, list)
+                        and len(prev_vcpus) == len(curr_vcpus)):
+                    for prev_v, curr_v in zip(prev_vcpus, curr_vcpus):
+                        delta_cpu_time = curr_v['total_time'] - prev_v['total_time']
+                        util_pct = round(delta_cpu_time / delta_timestamp * 100, 2)
+                        vcpu_utilization.append({
+                            'vCPU_num': curr_v['vCPU num'],
+                            'state': curr_v['state'],
+                            'cpu_util_pct': util_pct,
+                            'cpuset': curr_v['cpuset'],
+                        })
                 analyzers_info = {
                     'vcpuinfo':  vm_stats_info[i]['vcpuinfo'],
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
