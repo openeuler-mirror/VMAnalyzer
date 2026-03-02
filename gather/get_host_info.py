@@ -171,8 +171,9 @@ class HostHypervisorCollector:
               
                 memory = host.find("memory")
                 if memory:
+                    mem_text = memory.text.strip() if memory.text else ""
                     self.result["capabilities"]["memory"] = {
-                        "value": int(memory.text) if memory.text.isdigit() else 0,
+                        "value": int(mem_text) if mem_text.isdigit() else 0,
                         "unit": memory.get("unit", "KiB")
                     }
         except ET.ParseError as e:
