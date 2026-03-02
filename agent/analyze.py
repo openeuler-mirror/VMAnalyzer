@@ -141,6 +141,24 @@ class VMStatsAnalyze(object):
 
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                delta_timestamp = (vm_stats_info[i+1]['timestamp']
+                                   - vm_stats_info[i]['timestamp'])
+         
+                traffic_rate = {}
+                prev_traffic = vm_stats_info[i]['networkTraffic']
+                curr_traffic = vm_stats_info[i+1]['networkTraffic']
+                if (delta_timestamp > 0
+                        and isinstance(prev_traffic, dict)
+                        and isinstance(curr_traffic, dict)):
+                    for iface, prev in prev_traffic.items():
+                        if iface in curr_traffic:
+                            curr = curr_traffic[iface]
+                            traffic_rate[iface] = {
+                                'rx_bytes_rate':   round((curr['rx_bytes']   - prev['rx_bytes'])   / delta_timestamp, 2),
+                                'tx_bytes_rate':   round((curr['tx_bytes']   - prev['tx_bytes'])   / delta_timestamp, 2),
+                                'rx_packets_rate': round((curr['rx_packets'] - prev['rx_packets']) / delta_timestamp, 2),
+                                'tx_packets_rate': round((curr['tx_packets'] - prev['tx_packets']) / delta_timestamp, 2),
+                            }
 
                 analyzers_info = {
                     'interfaceAddresses': \
