@@ -18,3 +18,8 @@ import sys
 import os
 
 from utils.timer import RepeatedTimer
+
+
+class TestRepeatedTimer(unittest.TestCase):
+    """针对RepeatedTimer类的单元测试用例"""
+    pass
