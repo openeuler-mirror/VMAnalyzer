@@ -18,7 +18,7 @@ LOG_ERROR = logging.error
 class HostHypervisorCollector:
     def __init__(self):
         self.result = {
-            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.localtime()),
+            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "hostname": "",
             "uri": "",
             "version": {},
