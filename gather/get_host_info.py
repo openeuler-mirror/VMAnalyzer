@@ -242,7 +242,7 @@ class HostHypervisorCollector:
                 json.dump(self.result, f, indent=2, ensure_ascii=False)
             LOG_INFO(f"所有信息已保存到文件：{file_path}")
             return file_path
-        except Exception as e:
+        except IOError as e:
             LOG_ERROR(f"保存 JSON 文件失败：{str(e)}")
             return None
 
