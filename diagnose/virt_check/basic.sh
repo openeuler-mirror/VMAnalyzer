@@ -418,6 +418,23 @@ check_dom_mem(){
     fi
 }
 
+# 三、查看云主机的调度信息
+check_dom_schedinfo(){
+    #sudo echo "--------------------Domain schedinfo infomation------------------------" >> $hostfile
+    bad_check=0
+    for i in $schedinfo
+    do
+        value=`sudo virsh schedinfo $1 | grep $i | awk -F ": " '{print $2}'`
+        if [[ $value != `eval echo '$'"${i}"` ]];then
+            bad_check=$((bad_check + 1))
+        fi
+    done
+    if [ $bad_check != 0 ];then
+        log "dom_schedinfo" "虚机的调度信息不是默认值"
+    else
+        log "dom_schedinfo" "虚机的调度信息正常"
+    fi
+}
 
 usage() {
         echo "basic.sh: basic virtualization os config health check"
