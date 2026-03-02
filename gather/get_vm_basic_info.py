@@ -117,7 +117,11 @@ class VMDomainMonitor:
         if_list = []
         if not output:
             return if_list
-        lines = output.split("\n")[2:]
+        lines = output.split("\n")
+        if len(lines) >= 3:
+            lines = lines[2:]
+        else:
+            lines = []
         for line in lines:
             line = line.strip()
             if not line:
