@@ -52,6 +52,13 @@ mk_log_dir() {
     fi
 }
 
+#Generate the json file used by bclinux_om
+generate_json(){
+    [ -f "$datafile" ] && sudo rm -rf $datafile
+    sudo \cp -rf $hostfile $datafile
+    sudo sed -i ':a;N;$!ba;s/\n//g' $datafile
+}
+
 log() {
     # 打印信息
     check_name_cn=${dic[$1]}
@@ -434,6 +441,57 @@ check_dom_schedinfo(){
     else
         log "dom_schedinfo" "虚机的调度信息正常"
     fi
+}
+
+#---------------------------------------------------------------------------------
+#-------------------------------HOST & DOM----------------------------------------
+
+HOST(){
+    #echo "=========================Start collecting information========================" > $hostfile
+
+    sudo echo "{\"OS\":[" > $hostfile
+    check_os_func
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"KERNEL\":[" >> $hostfile
+    check_kernel_func
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"VIRT_VERSION\":[" >> $hostfile
+    check_virt_version_func
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"VIRT_CONFIG\":[" >> $hostfile
+    check_virt_config_func
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"SYSCTL_CONFIG\":[" >> $hostfile
+    check_sysctl_config_func
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"HOST_CPU\":[" >> $hostfile
+    check_cpu_func
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"HUGE_PAGE\":[" >> $hostfile
+    check_huge_page_func
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"MEMORY\":[" >> $hostfile
+    check_memory_func
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"AUTH\":[" >> $hostfile
+    check_auth_func
+    sudo echo "]" >> $hostfile
+
+    sudo echo "}" >> $hostfile
+
+    # Remove unnecessary symbols
+    remove_symbols
+
+    # Generate the json file used by bclinux_om
+    generate_json
 }
 
 usage() {
