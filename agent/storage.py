@@ -170,6 +170,22 @@ class VMStatsRedisStorage(VMStatsStorage):
             logging.error('error label!')
         pipe.execute()
 
+        elif label == 'processInfo':
+            for vm_id, vm_stats in list(stats_info.items()):
+                try:
+                    data_dict = {
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'cpu_top5': vm_stats['cpu_top5'],
+                        'mem_top5': vm_stats['mem_top5'],
+                        'timestamp': vm_stats['timestamp']
+                    }
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
+
     def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
         # VM has been shutdown or destroyed???
         if vm_id not in list(self.__vm_factory.vms.keys()):
