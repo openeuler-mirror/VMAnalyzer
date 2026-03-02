@@ -64,6 +64,25 @@ class VMStatsRedisStorage(VMStatsStorage):
     def sr(self):
         return self.__sr
 
+    def check_connection(self):
+        """Verify that the Redis server is reachable by sending a PING.
+
+        Returns:
+            (True, None)  — Redis is up and responding.
+            (False, str)  — Redis is unreachable; str contains the reason.
+        """
+        host = config.REDIS_DATABASE_CONFIG['host']
+        port = config.REDIS_DATABASE_CONFIG['port']
+        try:
+            self.__sr.ping()
+            logging.debug('Redis connection OK (%s:%d)', host, port)
+            return True, None
+        except Exception as err:
+            msg = ('Cannot connect to Redis at %s:%d — %s\n'
+                   'Please ensure the Redis service is running '
+                   '(e.g. systemctl start redis).') % (host, port, err)
+            return False, msg
+
     def save_stats_info(self, stats_info):
         pipe = self.__sr.pipeline()
         pipe.multi()
