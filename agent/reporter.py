@@ -48,4 +48,7 @@ class VMAnalyzersReporter():
             vm_analyzers = self.__stats_analyzer.analyze_stats(vm_id, vm_stats)
             self.__analyzers_viewer.output(vm_analyzers)
 
-
+            # Remove Redis entries older than the configured retention window
+            retention = config.REDIS_RETENTION_SECONDS
+            if retention > 0:
+                self.__stats_storage.cleanup_old_stats(vm_id, retention)

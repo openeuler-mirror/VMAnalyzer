@@ -26,3 +26,7 @@ ALERT_THRESHOLDS = {
     'cpu_usage': 90.0,
     'memory_usage': 85.0,
 }
+
+# Redis data retention: automatically remove stats entries older than this many
+# seconds to prevent unbounded growth. Set to 0 to keep data forever.
+REDIS_RETENTION_SECONDS = 3600  # 1 hour
