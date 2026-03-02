@@ -14,3 +14,6 @@
 import unittest
 from unittest import mock
 from gather.get_vm_migrate_data import VMMigrationInfoCollector
+
+class TestVMMigrationInfoCollector(unittest.TestCase):
+    pass
