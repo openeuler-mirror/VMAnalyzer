@@ -18,7 +18,7 @@ import redis
 import json
 from utils import config
 from utils import wrapper
-
+import time
 
 @six.add_metaclass(abc.ABCMeta)
 class VMStatsStorage(object):
@@ -280,3 +280,22 @@ class VMStatsRedisStorage(VMStatsStorage):
 
             vm_stats.append(stats_dict)
         return vm_stats
+
+    def cleanup_old_stats(self, vm_id, retention_seconds):
+        """Remove stats entries older than retention_seconds for the given VM.
+
+        Uses Redis ZREMRANGEBYSCORE to delete all members whose score
+        (Unix timestamp) is older than (now - retention_seconds).
+        """
+        if vm_id not in list(self.__vm_factory.vms.keys()):
+            return
+        vm_info = self.__vm_factory.get_vm(vm_id)
+        cutoff = time.time() - retention_seconds
+        try:
+            removed = self.__sr.zremrangebyscore(vm_info['uuid'], '-inf', cutoff)
+            if removed:
+                logging.debug('Cleaned up %d old stats entries for VM %s',
+                              removed, vm_info['name'])
+        except Exception as err:
+            logging.warning('Unable to cleanup stats for VM %s: %s',
+                            vm_info['name'], err.args)
