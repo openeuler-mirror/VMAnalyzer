@@ -86,10 +86,8 @@ class VMDomainMonitor:
         return blk_list
 
     def parse_domblkerror(self, vm_name: str) -> Dict:
-        blk_errors = {}
         output = self.run_virsh_cmd(f"virsh domblkerror {vm_name}")
-        blk_errors[vm_name] = output.strip() if output else "no_error"
-        return blk_errors
+        return output.strip() if output else "no_error"
 
     def parse_domblkinfo(self, vm_name: str, blk_targets: List[str]) -> Dict:
         blk_info = {}
