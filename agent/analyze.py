@@ -197,6 +197,16 @@ class VMStatsAnalyze(object):
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
 
+        elif label == 'vcpus_info':
+
+            for i in range(len(vm_stats_info) - 1):
+                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                analyzers_info = {
+                    'vcpuinfo':  vm_stats_info[i]['vcpuinfo'],
+                    'TimeStamp': vm_stats_info[i + 1]['timestamp']
+                }
+                analyzers_list.append({vm_info['name']: analyzers_info})
+
         elif label == 'log_vm':
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
