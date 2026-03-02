@@ -119,6 +119,10 @@ def main():
 
     # Collect VM statistics and save into redis storage
     vm_storage = storage.VMStatsRedisStorage(vm_factory, label)
+    ok, err_msg = vm_storage.check_connection()
+    if not ok:
+        print('ERROR: ' + err_msg, file=sys.stderr)
+        sys.exit(1)
     vm_collector = collector.VMStatsCollector(vm_factory, vm_storage, label)
     collector_timer = timer.RepeatedTimer(interval, vm_collector.record_stats)
 
