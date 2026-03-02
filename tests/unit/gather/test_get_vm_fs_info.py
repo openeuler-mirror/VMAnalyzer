@@ -14,3 +14,6 @@
 import unittest
 import sys
 from unittest.mock import patch, MagicMock, mock_open
+
+class TestVMAnalyzer(unittest.TestCase):
+    pass
