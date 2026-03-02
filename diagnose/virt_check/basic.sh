@@ -399,6 +399,10 @@ check_dom_vcpu(){
     # 2、查看云主机里numa配置
     Numa_Mode=`sudo virsh numatune $1 | awk -F " " 'NR==1 {print $3}'`
     log "numa_mode" "虚机numa模式:$Numa_Mode"
+
+    # 3、查看云主机的cpu mode
+    Cpu_Mode=`sudo virsh dumpxml $1 |grep "cpu mode" |awk -F "'" '{print $2}'` 
+    log "cpu_mode" "虚机cpu模式:$Cpu_Mode"
 }
 
 usage() {
