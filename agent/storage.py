@@ -151,6 +151,20 @@ class VMStatsRedisStorage(VMStatsStorage):
                     logging.warning('Unable to save stats of %s: %s',
                                     vm_stats['name'], err.args)
 
+        elif label == 'vcpus_info':
+            for vm_id, vm_stats in list(stats_info.items()):
+                try:
+                    data_dict = {
+                        'id': vm_id,
+                        'name': vm_stats['name'],
+                        'vcpuinfo': vm_stats['vcpuinfo'],
+                        'timestamp': vm_stats['timestamp']
+                    }
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
+                except Exception as err:
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
 
         else:
             logging.error('error label!')
