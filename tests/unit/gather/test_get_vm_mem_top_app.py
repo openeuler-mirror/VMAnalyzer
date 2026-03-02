@@ -20,3 +20,7 @@ from datetime import datetime
 from unittest.mock import patch, MagicMock
 
 from gather.get_vm_mem_top_app import VMMemTopNCollector, logger, parse_args, main
+
+class TestGetVMMemTopApp(unittest.TestCase):
+    """VM内存TopN进程采集模块单元测试"""
+    pass
