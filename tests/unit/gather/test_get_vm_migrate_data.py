@@ -11,3 +11,6 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
+import unittest
+from unittest import mock
+from gather.get_vm_migrate_data import VMMigrationInfoCollector
