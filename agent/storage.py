@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-#######################################################################################
+
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
-# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
 # THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
-#######################################################################################
 import logging
 import six
 import abc
@@ -19,11 +19,18 @@ import json
 from utils import config
 from utils import wrapper
 
+
 @six.add_metaclass(abc.ABCMeta)
 class VMStatsStorage(object):
     """
     An abstract base class defining the interface for storing and retrieving
     virtual machine statistics information.
+
+    This class serves as a blueprint for any concrete implementations
+    that are responsible for managing
+    the storage and retrieval of statistics related to virtual machines.
+    Subclasses must implement
+    the abstract methods defined here to provide the actual functionality.
     """
     @abc.abstractmethod
     def save_stats_info(self, stats_info):
@@ -39,10 +46,16 @@ class VMStatsRedisStorage(VMStatsStorage):
     """
     A concrete implementation of the VMStatsStorage abstract base class
     that uses Redis as the storage backend.
+
+    This class provides functionality to save and retrieve virtual machine
+    statistics information
+    in a Redis database. It is initialized with a VM factory and a label to
+    specify the type of statistics being handled.
     """
     def __init__(self, vm_factory, label):
-        self.__pool = redis.ConnectionPool(host=config.REDIS_DATABASE_CONFIG['host'],
-                                           port=config.REDIS_DATABASE_CONFIG['port'])
+        self.__pool = redis.ConnectionPool(
+            host=config.REDIS_DATABASE_CONFIG['host'],
+            port=config.REDIS_DATABASE_CONFIG['port'])
         self.__sr = redis.StrictRedis(connection_pool=self.__pool)
         self.__vm_factory = vm_factory
         self.__label = label
@@ -54,6 +67,7 @@ class VMStatsRedisStorage(VMStatsStorage):
     def save_stats_info(self, stats_info):
         pipe = self.__sr.pipeline()
         pipe.multi()
+
         label = self.__label
 
         if label == 'cpuUsage':
@@ -66,9 +80,11 @@ class VMStatsRedisStorage(VMStatsStorage):
                         'cputime': vm_stats['cputime'],
                         'timestamp': vm_stats['timestamp']
                     }
-                    pipe.zadd(vm_stats['uuid'], {json.dumps(data_dict): vm_stats['timestamp']})
+                    pipe.zadd(vm_stats['uuid'],
+                              {json.dumps(data_dict): vm_stats['timestamp']})
                 except Exception as err:
-                    logging.warning("Unable to save stats of %s: %s", vm_stats['name'], err.args[0])
+                    logging.warning('Unable to save stats of %s: %s',
+                                    vm_stats['name'], err.args)
 
         elif label == 'memoryUsage':
             for vm_id, vm_stats in list(stats_info.items()):
@@ -135,8 +151,9 @@ class VMStatsRedisStorage(VMStatsStorage):
                     logging.warning('Unable to save stats of %s: %s',
                                     vm_stats['name'], err.args)
 
+
         else:
-            logging.error('wrong label!')
+            logging.error('error label!')
         pipe.execute()
 
     def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
@@ -154,14 +171,17 @@ class VMStatsRedisStorage(VMStatsStorage):
                                                      end_timestamp,
                                                      withscores=True))
         except Exception as err:
-            logging.warning("Unable to get stats of %s: %s", vm_info['name'], err.args[0])
+            logging.warning('Unable to get stats of %s: %s',
+                            vm_info['name'], err.args)
 
         vm_stats = []
         for data in data_list:
+            stats_dict = {}
             data_dict = json.loads(data[0])
             # We won't touch this because the VM has been hard rebooted
             if data_dict['id'] != vm_id:
                 continue
+
             if label == 'cpuUsage':
                 stats_dict = {
                     'uuid': vm_info['uuid'],
@@ -179,6 +199,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'usedMemory': data_dict['usedMemory'],
                     'timestamp': int(data_dict['timestamp'])
                 }
+
             elif label == 'networkTraffic':
                 stats_dict = {
                     'uuid': vm_info['uuid'],
@@ -211,5 +232,4 @@ class VMStatsRedisStorage(VMStatsStorage):
                 logging.error('wrong label!')
 
             vm_stats.append(stats_dict)
-
         return vm_stats
