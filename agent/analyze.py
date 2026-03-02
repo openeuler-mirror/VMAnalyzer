@@ -124,13 +124,18 @@ class VMStatsAnalyze(object):
             if mem_utils:
                 vm_factory.set_vm_analyzers(vm_id, round(mem_utils[-1], 4))
 
-                # ← 新增：汇总统计
                 summary_info = {
                     'min_mem_utilization': round(min(mem_utils), 4),
                     'max_mem_utilization': round(max(mem_utils), 4),
                     'avg_mem_utilization': round(sum(mem_utils) / len(mem_utils), 4),
                 }
                 analyzers_list.append({vm_info['name'] + '_summary': summary_info})
+
+                threshold = config.ALERT_THRESHOLDS.get('memory_usage', 85.0)
+                if mem_utils[-1] > threshold:
+                    logging.warning(
+                        'ALERT: VM %s memory usage %.2f%% exceeds threshold %.2f%%',
+                        vm_info['name'], mem_utils[-1], threshold)
 
         elif label == 'networkTraffic':
 
