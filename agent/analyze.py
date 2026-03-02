@@ -102,6 +102,7 @@ class VMStatsAnalyze(object):
 
         elif label == 'memoryUsage':
 
+            mem_utils = []
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
 
@@ -111,13 +112,25 @@ class VMStatsAnalyze(object):
 
                 logging.debug('VM %s: memory utilization: %.2f%%',
                               vm_info['name'], mem_util)
+
+                mem_utils.append(mem_util)
                 analyzers_info = {
                     'Current_mem_utilization': round(mem_util, 4),
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
             # store VM analyzers in DB
-            vm_factory.set_vm_analyzers(vm_id, round(mem_util, 4))
+            #vm_factory.set_vm_analyzers(vm_id, round(mem_util, 4))
+            if mem_utils:
+                vm_factory.set_vm_analyzers(vm_id, round(mem_utils[-1], 4))
+
+                # ← 新增：汇总统计
+                summary_info = {
+                    'min_mem_utilization': round(min(mem_utils), 4),
+                    'max_mem_utilization': round(max(mem_utils), 4),
+                    'avg_mem_utilization': round(sum(mem_utils) / len(mem_utils), 4),
+                }
+                analyzers_list.append({vm_info['name'] + '_summary': summary_info})
 
         elif label == 'networkTraffic':
 
