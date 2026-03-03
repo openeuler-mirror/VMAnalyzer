@@ -76,13 +76,16 @@ class VMDomainMonitor:
             if not line:
                 continue
             parts = line.split(maxsplit=3)
-            if len(parts) >= 4:
-                blk_list.append({
-                    "type": parts[0],
-                    "device": parts[1],
-                    "target": parts[2],
-                    "source": parts[3]
-                })
+            type_val = parts[0] if len(parts)>=1 else ""
+            device_val = parts[1] if len(parts)>=2 else ""
+            target_val = parts[2] if len(parts)>=3 else ""
+            source_val = parts[3] if len(parts)>=4 else ""
+            blk_list.append({
+                "type": parts[0],
+                "device": parts[1],
+                "target": parts[2],
+                "source": parts[3]
+            })
         return blk_list
 
     def parse_domblkerror(self, vm_name: str) -> Dict:
