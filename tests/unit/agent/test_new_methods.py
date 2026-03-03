@@ -38,3 +38,28 @@ _TEST_VM_INFO = {
     "name": "instance-test-new-methods",
     "cpu_util": 0.0,
 }
+
+def _ensure_test_vm():
+    """将测试 VM 注入 VMFactory 单例（幂等）。"""
+    factory = vm.VMFactory()
+    if _TEST_VM_ID not in factory.vms:
+        factory.add_vm(_TEST_VM_ID, _TEST_VM_INFO)
+    return factory
+
+
+# ── TestCheckConnection ───────────────────────────────────────────────────────
+
+class TestCheckConnection(unittest.TestCase):
+    """测试 VMStatsRedisStorage.check_connection()。"""
+
+    def setUp(self):
+        self.vm_factory = _ensure_test_vm()
+        # 获取（或创建）单例存储实例
+        self.vm_storage = storage.VMStatsRedisStorage(self.vm_factory, "cpuUsage")
+
+    def test_returns_true_when_ping_succeeds(self):
+        """Redis ping 成功时 check_connection 应返回 (True, None)。"""
+        with mock.patch.object(self.vm_storage.sr, "ping", return_value=True):
+            ok, msg = self.vm_storage.check_connection()
+        self.assertTrue(ok)
+        self.assertIsNone(msg)
