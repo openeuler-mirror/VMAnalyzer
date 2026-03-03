@@ -185,3 +185,29 @@ class VMOomChecker:
             "host_oom_events": oom_events,
         }
 
+# ── 主流程 ───────────────────────────────────────────────────────────────
+
+    def check_all_vms(self) -> Dict:
+        vm_names = self.get_running_vm_names()
+        for vm_name in vm_names:
+            LOG_INFO("检查 VM OOM 风险: %s", vm_name)
+            self.result["vms"][vm_name] = self.check_vm(vm_name)
+        self.result["vm_count"] = len(vm_names)
+        return self.result
+
+    def save_to_json(
+        self, filepath: str = "/var/log/vmanalyzer/vm_oom_check.json"
+    ):
+        os.makedirs(os.path.dirname(os.path.abspath(filepath)), exist_ok=True)
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(self.result, f, indent=2, ensure_ascii=False)
+        LOG_INFO("OOM 检查结果已保存到 %s", filepath)
+
+
+if __name__ == "__main__":
+    import sys
+
+    threshold = float(sys.argv[1]) if len(sys.argv) > 1 else OOM_RISK_THRESHOLD
+    checker = VMOomChecker(threshold=threshold)
+    data = checker.check_all_vms()
+    print(json.dumps(data, indent=2, ensure_ascii=False))
