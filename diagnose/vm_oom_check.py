@@ -115,3 +115,49 @@ class VMOomChecker:
             except (ValueError, IndexError):
                 pass
         return None
+
+# ── 宿主机 OOM 日志扫描 ──────────────────────────────────────────────────
+
+    def get_host_oom_events(
+        self, vm_name: str, qemu_pid: Optional[int]
+    ) -> List[str]:
+        """扫描内核日志，返回最近与该 VM 相关的 OOM kill 日志行（最多 10 条）。"""
+        events: List[str] = []
+
+        # 1. journalctl（systemd 系统）
+        jctl = self._run(
+            ["journalctl", "-k", "--no-pager", "-n", "500"], timeout=15
+        )
+        if jctl:
+            for line in jctl.splitlines():
+                if re.search(r"oom.kill|out.of.memory|killed.process", line, re.I):
+                    if vm_name in line or (
+                        qemu_pid and str(qemu_pid) in line
+                    ):
+                        events.append(line.strip())
+
+        # 2. /var/log/messages（非 systemd 或备用）
+        if os.path.exists("/var/log/messages"):
+            try:
+                with open("/var/log/messages", "r", errors="replace") as f:
+                    for line in f:
+                        if re.search(
+                            r"oom.killer|killed.process", line, re.I
+                        ):
+                            if vm_name in line or (
+                                qemu_pid and str(qemu_pid) in line
+                            ):
+                                events.append(line.strip())
+            except OSError as e:
+                LOG_ERROR("读取 /var/log/messages 失败: %s", e)
+
+        # 去重并截取最近 10 条
+        seen = set()
+        unique: List[str] = []
+        for e in reversed(events):
+            if e not in seen:
+                seen.add(e)
+                unique.append(e)
+            if len(unique) >= 10:
+                break
+        return list(reversed(unique))
