@@ -36,6 +36,9 @@ class VMDomainMonitor:
         except subprocess.CalledProcessError as e:
             LOG_ERROR(f"命令执行失败：{cmd}，错误：{e.stderr.strip()}")
             return None
+        except subprocess.TimeoutExpired:
+            LOG_ERROR(f"命令执行超时：{cmd}（超过30秒）")
+            return None
         except Exception as e:
             LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
             return None
