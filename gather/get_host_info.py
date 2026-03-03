@@ -96,7 +96,7 @@ class HostHypervisorCollector:
                 try:
                     value = int(value.strip())
                     self.result["nodememstats"][key] = value
-                except:
+                except ValueError:
                     self.result["nodememstats"][key] = value.strip()
 
     def parse_nodecpumap(self, output):
