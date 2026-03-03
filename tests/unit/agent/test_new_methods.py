@@ -106,3 +106,24 @@ class TestCleanupOldStats(unittest.TestCase):
         key, lo, _ = mock_zrem.call_args[0]
         self.assertEqual(key, _TEST_VM_INFO["uuid"])
         self.assertEqual(lo, "-inf")
+
+    def test_cutoff_is_before_now(self):
+        """cutoff 时间戳应严格小于当前时间。"""
+        import time
+        captured_cutoff = []
+
+        def fake_zrem(key, lo, hi):
+            captured_cutoff.append(hi)
+            return 0
+
+        with mock.patch.object(self.vm_storage.sr, "zremrangebyscore",
+                               side_effect=fake_zrem):
+            before = time.time()
+            self.vm_storage.cleanup_old_stats(_TEST_VM_ID, retention_seconds=3600)
+            after = time.time()
+
+        self.assertEqual(len(captured_cutoff), 1)
+        cutoff = captured_cutoff[0]
+        # cutoff = now - 3600，应在 (before-3600, after-3600) 范围内
+        self.assertGreater(cutoff, before - 3601)
+        self.assertLess(cutoff, after - 3599)
