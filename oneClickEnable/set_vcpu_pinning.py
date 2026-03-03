@@ -62,3 +62,17 @@ class VcpuPinningOptimizer:
         except Exception as e:
             LOG_ERROR("命令异常 %s: %s", " ".join(cmd), e)
         return None
+
+    def get_host_numa_cpus(self) -> Dict[int, List[int]]:
+        """解析 virsh nodecpumap，返回 {node_id: [cpu_list]}。"""
+        output = self._run(["virsh", "nodecpumap"])
+        topology: Dict[int, List[int]] = {}
+        if not output:
+            return topology
+        for line in output.splitlines():
+            m = re.match(r"node\s+(\d+)\s+cpus:\s+([\d\s]+)", line, re.I)
+            if m:
+                node_id = int(m.group(1))
+                topology[node_id] = [int(c) for c in m.group(2).split()]
+        return topology
+
