@@ -85,3 +85,24 @@ class TestCheckConnection(unittest.TestCase):
         # config 默认 host=localhost, port=6379
         self.assertIn("localhost", msg)
         self.assertIn("6379", msg)
+
+# ── TestCleanupOldStats ───────────────────────────────────────────────────────
+
+class TestCleanupOldStats(unittest.TestCase):
+    """测试 VMStatsRedisStorage.cleanup_old_stats()。"""
+
+    def setUp(self):
+        self.vm_factory = _ensure_test_vm()
+        self.vm_storage = storage.VMStatsRedisStorage(self.vm_factory, "cpuUsage")
+
+    def test_calls_zremrangebyscore_with_correct_key(self):
+        """cleanup_old_stats 应以 VM UUID 为 key 调用 zremrangebyscore。"""
+        with mock.patch.object(
+            self.vm_storage.sr, "zremrangebyscore", return_value=3
+        ) as mock_zrem:
+            self.vm_storage.cleanup_old_stats(_TEST_VM_ID, retention_seconds=3600)
+
+        mock_zrem.assert_called_once()
+        key, lo, _ = mock_zrem.call_args[0]
+        self.assertEqual(key, _TEST_VM_INFO["uuid"])
+        self.assertEqual(lo, "-inf")
