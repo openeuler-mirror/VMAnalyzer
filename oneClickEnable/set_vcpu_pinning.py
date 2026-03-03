@@ -76,3 +76,26 @@ class VcpuPinningOptimizer:
                 topology[node_id] = [int(c) for c in m.group(2).split()]
         return topology
 
+    # ── VM NUMA 绑定信息 ────────────────────────────────────────────────────
+
+    def get_vm_nodeset(self, vm_name: str) -> Optional[List[int]]:
+        """从 virsh numatune 解析 VM 绑定的 NUMA 节点编号列表。
+        返回 None 表示未绑定（使用全部节点）。
+        """
+        output = self._run(["virsh", "numatune", vm_name])
+        if not output:
+            return None
+        for line in output.splitlines():
+            if re.search(r"nodeset", line, re.I) and ":" in line:
+                value = line.split(":", 1)[1].strip()
+                if not value or value in ("-", ""):
+                    return None
+                nodes: List[int] = []
+                for part in re.split(r"[,\s]+", value):
+                    if "-" in part:
+                        lo, hi = part.split("-", 1)
+                        nodes.extend(range(int(lo), int(hi) + 1))
+                    elif part.isdigit():
+                        nodes.append(int(part))
+                return nodes if nodes else None
+        return None
