@@ -161,3 +161,27 @@ class VMOomChecker:
             if len(unique) >= 10:
                 break
         return list(reversed(unique))
+
+        # ── 单 VM 检查 ────────────────────────────────────────────────────────────
+
+    def check_vm(self, vm_name: str) -> Dict:
+        mem_stats = self.get_vm_mem_stats(vm_name)
+        usage_pct = mem_stats.get("usage_pct", 0.0)
+        qemu_pid = self.get_qemu_pid(vm_name)
+        oom_events = self.get_host_oom_events(vm_name, qemu_pid)
+        oom_risk = usage_pct >= self.threshold or len(oom_events) > 0
+
+        if oom_risk:
+            LOG_INFO(
+                "VM %s: OOM 风险！内存使用率 %.1f%%，主机 OOM 事件 %d 条",
+                vm_name, usage_pct, len(oom_events),
+            )
+
+        return {
+            "oom_risk": oom_risk,
+            "memory_usage_pct": usage_pct,
+            "memory_stats_kb": mem_stats,
+            "qemu_pid": qemu_pid,
+            "host_oom_events": oom_events,
+        }
+
