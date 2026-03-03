@@ -106,7 +106,6 @@ class VcpuPinningOptimizer:
         """返回 VM 当前活跃的 vCPU 数量。"""
         output = self._run(["virsh", "vcpucount", vm_name, "--active", "--live"])
         if not output:
-            # 降级：从 virsh vcpucount 不带 --live 取 config 值
             output = self._run(["virsh", "vcpucount", vm_name, "--active",
                                  "--config"])
         try:
@@ -153,18 +152,14 @@ class VcpuPinningOptimizer:
 
         for vcpu in range(vcpu_count):
             target_cpu = cpulist[vcpu % len(cpulist)]
-            # 构造 vcpupin 命令参数
             base_args = ["virsh", "vcpupin", vm_name, str(vcpu), str(target_cpu)]
             success = False
 
             if running:
-                # 先执行 --live（立即生效）
                 live_ok = self._run(base_args + ["--live"]) is not None
-                # 再写持久化（允许失败，不影响 live）
                 self._run(base_args + ["--config"])
                 success = live_ok
             else:
-                # 仅写持久化配置
                 success = self._run(base_args + ["--config"]) is not None
 
             if success:
@@ -180,3 +175,34 @@ class VcpuPinningOptimizer:
             })
         return results
 
+ # ── 单 VM 主流程 ────────────────────────────────────────────────────────
+
+    def pin_vm(self, vm_name: str) -> Dict:
+        """执行完整绑核流程，返回操作摘要。"""
+        node_cpus = self.get_host_numa_cpus()
+        nodeset = self.get_vm_nodeset(vm_name)
+        vcpu_count = self.get_vcpu_count(vm_name)
+        cpulist = self.build_target_cpulist(node_cpus, nodeset)
+        running = self._is_vm_running(vm_name)
+
+        LOG_INFO(
+            "VM %s: %d vCPU, NUMA 节点 %s, 目标 pCPU %s, 运行中=%s",
+            vm_name, vcpu_count, nodeset, cpulist, running,
+        )
+
+        if vcpu_count == 0:
+            LOG_WARN("VM %s: 无法获取 vCPU 数量，跳过", vm_name)
+            return {"vm_name": vm_name, "error": "vcpu_count=0"}
+
+        pin_results = self.pin_vcpus(vm_name, vcpu_count, cpulist, running)
+        success_count = sum(1 for r in pin_results if r["success"])
+        return {
+            "vm_name": vm_name,
+            "running": running,
+            "vcpu_count": vcpu_count,
+            "numa_nodeset": nodeset,
+            "target_cpulist": cpulist,
+            "pin_results": pin_results,
+            "success_count": success_count,
+            "failed_count": len(pin_results) - success_count,
+        }
