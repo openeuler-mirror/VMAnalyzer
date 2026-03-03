@@ -67,3 +67,54 @@ class VMVcpuSchedInfoCollector:
             LOG_ERROR("virsh %s 异常: %s", " ".join(args), e)
         return None
 
+# ── 采集逻辑 ─────────────────────────────────────────────────────────────
+
+    def get_all_vm_names(self) -> List[str]:
+        output = self._run_virsh(["list", "--all", "--name"])
+        return [n for n in (output or "").split() if n]
+
+    def parse_schedinfo(self, vm_name: str) -> Dict:
+        """解析 virsh schedinfo 输出，将数值字段自动转为 int。"""
+        output = self._run_virsh(["schedinfo", vm_name])
+        info: Dict = {}
+        if not output:
+            return info
+        for line in output.splitlines():
+            if ":" in line:
+                key, _, value = line.partition(":")
+                key = key.strip().lower().replace(" ", "_")
+                value = value.strip()
+                try:
+                    info[key] = int(value)
+                except ValueError:
+                    info[key] = value
+        return info
+
+    def collect_all_vms(self) -> Dict:
+        vm_names = self.get_all_vm_names()
+        for vm_name in vm_names:
+            LOG_INFO("收集 VM 调度信息: %s", vm_name)
+            sched = self.parse_schedinfo(vm_name)
+            # 附加可读性说明：quota=-1 表示不限制
+            if sched.get("vcpu_quota") == -1:
+                sched["vcpu_quota_note"] = "unlimited"
+            if sched.get("emulator_quota") == -1:
+                sched["emulator_quota_note"] = "unlimited"
+            self.result["vms"][vm_name] = sched
+        self.result["vm_count"] = len(vm_names)
+        return self.result
+
+    def save_to_json(
+        self, filepath: str = "/var/log/vmanalyzer/vm_vcpu_sched_info.json"
+    ):
+        os.makedirs(os.path.dirname(os.path.abspath(filepath)), exist_ok=True)
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(self.result, f, indent=2, ensure_ascii=False)
+        LOG_INFO("vCPU 调度信息已保存到 %s", filepath)
+
+
+if __name__ == "__main__":
+    collector = VMVcpuSchedInfoCollector()
+    data = collector.collect_all_vms()
+    print(json.dumps(data, indent=2, ensure_ascii=False))
+
