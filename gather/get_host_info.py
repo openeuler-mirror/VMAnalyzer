@@ -120,7 +120,7 @@ class HostHypervisorCollector:
             if "Node" in line:
                 current_node = line.split()[1].strip()
                 self.result["nodecpustats"][f"node_{current_node}"] = {}
-            elif ":" in line and current_node:
+            elif ":" in line and current_node is not None:
                 key, value = line.split(":", 1)
                 key = key.strip().lower()
                 try:
