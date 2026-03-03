@@ -63,3 +63,25 @@ class TestCheckConnection(unittest.TestCase):
             ok, msg = self.vm_storage.check_connection()
         self.assertTrue(ok)
         self.assertIsNone(msg)
+
+    def test_returns_false_when_ping_raises(self):
+        """Redis ping 抛出异常时应返回 (False, 包含错误信息的字符串)。"""
+        with mock.patch.object(
+            self.vm_storage.sr, "ping",
+            side_effect=Exception("Connection refused")
+        ):
+            ok, msg = self.vm_storage.check_connection()
+        self.assertFalse(ok)
+        self.assertIsInstance(msg, str)
+        self.assertIn("Connection refused", msg)
+
+    def test_error_message_contains_host_and_port(self):
+        """错误信息中应包含 Redis 服务器地址。"""
+        with mock.patch.object(
+            self.vm_storage.sr, "ping",
+            side_effect=Exception("timeout")
+        ):
+            _, msg = self.vm_storage.check_connection()
+        # config 默认 host=localhost, port=6379
+        self.assertIn("localhost", msg)
+        self.assertIn("6379", msg)
