@@ -187,3 +187,35 @@ class TestVMAnalyzersFileView(unittest.TestCase):
                 self.assertIsInstance(json.loads(line), dict)
         finally:
             os.unlink(path)
+
+    def test_appends_on_repeated_calls(self):
+        """多次调用 output() 应追加写入，不覆盖。"""
+        with tempfile.NamedTemporaryFile(
+            mode="r", suffix=".jsonl", delete=False
+        ) as f:
+            path = f.name
+        try:
+            fv = view.VMAnalyzersFileView(path)
+            fv.output(self._SAMPLE)
+            fv.output(self._SAMPLE)
+            with open(path, "r", encoding="utf-8") as f:
+                lines = [l for l in f.read().splitlines() if l]
+            self.assertEqual(len(lines), len(self._SAMPLE) * 2)
+        finally:
+            os.unlink(path)
+
+    def test_cpu_utilization_formatted_as_percent(self):
+        """输出中 Current_cpu_utilization 应被转换为百分比字符串。"""
+        with tempfile.NamedTemporaryFile(
+            mode="r", suffix=".jsonl", delete=False
+        ) as f:
+            path = f.name
+        try:
+            fv = view.VMAnalyzersFileView(path)
+            fv.output(self._SAMPLE)
+            with open(path, "r", encoding="utf-8") as f:
+                first = json.loads(f.readline())
+            cpu_val = list(first.values())[0]["Current_cpu_utilization"]
+            self.assertIn("%", cpu_val)
+        finally:
+            os.unlink(path)
