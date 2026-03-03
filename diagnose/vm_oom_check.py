@@ -47,3 +47,32 @@ LOG_ERROR = logging.error
 # 内存使用率超过此阈值（%）时视为 OOM 风险
 OOM_RISK_THRESHOLD = 90.0
 
+class VMOomChecker:
+    """检查所有运行中虚拟机的 OOM 风险。"""
+
+    def __init__(self, threshold: float = OOM_RISK_THRESHOLD):
+        self.threshold = threshold
+        self.result: Dict = {
+            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.localtime()),
+            "oom_risk_threshold_pct": threshold,
+            "vm_count": 0,
+            "vms": {},
+        }
+
+    # ── 工具方法 ─────────────────────────────────────────────────────────────
+
+    def _run(self, cmd: List[str], timeout: int = 10) -> Optional[str]:
+        try:
+            r = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=timeout
+            )
+            return r.stdout.strip() if r.returncode == 0 else None
+        except Exception as e:
+            LOG_ERROR("命令执行失败 %s: %s", " ".join(cmd), e)
+            return None
+
+    # ── VM 列表 ──────────────────────────────────────────────────────────────
+
+    def get_running_vm_names(self) -> List[str]:
+        output = self._run(["virsh", "list", "--state-running", "--name"])
+        return [n for n in (output or "").split() if n]
