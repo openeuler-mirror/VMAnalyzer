@@ -228,7 +228,7 @@ class HostHypervisorCollector:
         self.parse_capabilities(capabilities_output)
         
        
-        maxvcpus_output = self.run_virsh_cmd("virsh maxvcpus")
+        maxvcpus_output = self.run_virsh_cmd("virsh maxvcpus kvm")
         if maxvcpus_output and maxvcpus_output.isdigit():
             self.result["maxvcpus"] = int(maxvcpus_output)
         
