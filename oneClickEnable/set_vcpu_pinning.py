@@ -99,3 +99,35 @@ class VcpuPinningOptimizer:
                         nodes.append(int(part))
                 return nodes if nodes else None
         return None
+
+        # ── VM vCPU 数量 ────────────────────────────────────────────────────────
+
+    def get_vcpu_count(self, vm_name: str) -> int:
+        """返回 VM 当前活跃的 vCPU 数量。"""
+        output = self._run(["virsh", "vcpucount", vm_name, "--active", "--live"])
+        if not output:
+            # 降级：从 virsh vcpucount 不带 --live 取 config 值
+            output = self._run(["virsh", "vcpucount", vm_name, "--active",
+                                 "--config"])
+        try:
+            return int(output) if output else 0
+        except ValueError:
+            return 0
+
+    # ── 目标 CPU 列表构建 ───────────────────────────────────────────────────
+
+    def build_target_cpulist(
+        self,
+        node_cpus: Dict[int, List[int]],
+        nodeset: Optional[List[int]],
+    ) -> List[int]:
+        """根据 nodeset 返回可用的物理 CPU 列表（无绑定时返回全部）。"""
+        if not nodeset:
+            all_cpus: List[int] = []
+            for cpus in node_cpus.values():
+                all_cpus.extend(cpus)
+            return sorted(all_cpus)
+        cpus: List[int] = []
+        for node in nodeset:
+            cpus.extend(node_cpus.get(node, []))
+        return sorted(cpus)
