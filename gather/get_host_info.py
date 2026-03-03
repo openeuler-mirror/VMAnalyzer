@@ -125,7 +125,7 @@ class HostHypervisorCollector:
                 key = key.strip().lower()
                 try:
                     value = float(value.strip())
-                except:
+                except (ValueError, TypeError):
                     value = value.strip()
                 self.result["nodecpustats"][f"node_{current_node}"][key] = value
 
