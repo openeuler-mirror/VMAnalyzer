@@ -171,3 +171,19 @@ class TestVMAnalyzersFileView(unittest.TestCase):
             if os.path.exists(path):
                 os.unlink(path)
 
+    def test_writes_one_line_per_record(self):
+        """每条分析记录应写为一行 JSON。"""
+        with tempfile.NamedTemporaryFile(
+            mode="r", suffix=".jsonl", delete=False
+        ) as f:
+            path = f.name
+        try:
+            fv = view.VMAnalyzersFileView(path)
+            fv.output(self._SAMPLE)
+            with open(path, "r", encoding="utf-8") as f:
+                lines = [l for l in f.read().splitlines() if l]
+            self.assertEqual(len(lines), len(self._SAMPLE))
+            for line in lines:
+                self.assertIsInstance(json.loads(line), dict)
+        finally:
+            os.unlink(path)
