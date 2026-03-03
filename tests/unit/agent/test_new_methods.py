@@ -148,4 +148,26 @@ class TestCleanupOldStats(unittest.TestCase):
             except Exception:  # noqa: BLE001
                 self.fail("cleanup_old_stats 不应向上抛出 Redis 异常")
 
+# ── TestVMAnalyzersFileView ───────────────────────────────────────────────────
+
+class TestVMAnalyzersFileView(unittest.TestCase):
+    """测试 VMAnalyzersFileView 文件输出视图。"""
+
+    _SAMPLE = [
+        {"vm-a": {"Current_cpu_utilization": 0.35, "TimeStamp": 1700000000}},
+        {"vm-a": {"Current_cpu_utilization": 0.42, "TimeStamp": 1700000001}},
+    ]
+
+    def test_creates_output_file(self):
+        """output() 调用后目标文件应存在。"""
+        with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False) as f:
+            path = f.name
+        os.unlink(path)   # 先删掉，让 FileView 自己创建
+        try:
+            fv = view.VMAnalyzersFileView(path)
+            fv.output(self._SAMPLE)
+            self.assertTrue(os.path.exists(path))
+        finally:
+            if os.path.exists(path):
+                os.unlink(path)
 
