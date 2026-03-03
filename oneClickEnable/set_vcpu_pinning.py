@@ -131,3 +131,52 @@ class VcpuPinningOptimizer:
         for node in nodeset:
             cpus.extend(node_cpus.get(node, []))
         return sorted(cpus)
+
+    # ── 执行绑核 ────────────────────────────────────────────────────────────
+
+    def _is_vm_running(self, vm_name: str) -> bool:
+        output = self._run(["virsh", "domstate", vm_name])
+        return (output or "").strip() == "running"
+
+    def pin_vcpus(
+        self,
+        vm_name: str,
+        vcpu_count: int,
+        cpulist: List[int],
+        running: bool,
+    ) -> List[Dict]:
+        """Round-Robin 绑核；运行中时追加 --live，同时写持久化配置。"""
+        results: List[Dict] = []
+        if not cpulist:
+            LOG_WARN("VM %s: 可用 CPU 列表为空，跳过绑核", vm_name)
+            return results
+
+        for vcpu in range(vcpu_count):
+            target_cpu = cpulist[vcpu % len(cpulist)]
+            # 构造 vcpupin 命令参数
+            base_args = ["virsh", "vcpupin", vm_name, str(vcpu), str(target_cpu)]
+            success = False
+
+            if running:
+                # 先执行 --live（立即生效）
+                live_ok = self._run(base_args + ["--live"]) is not None
+                # 再写持久化（允许失败，不影响 live）
+                self._run(base_args + ["--config"])
+                success = live_ok
+            else:
+                # 仅写持久化配置
+                success = self._run(base_args + ["--config"]) is not None
+
+            if success:
+                LOG_INFO("VM %s: vCPU %d → pCPU %d", vm_name, vcpu, target_cpu)
+            else:
+                LOG_ERROR("VM %s: vCPU %d 绑定 pCPU %d 失败", vm_name, vcpu,
+                          target_cpu)
+
+            results.append({
+                "vcpu": vcpu,
+                "pcpu": target_cpu,
+                "success": success,
+            })
+        return results
+
