@@ -105,6 +105,16 @@ class VMDomainMonitor:
                     key, value = line.split(":", 1)
                     key = key.strip().lower().replace(" ", "_")
                     val_parts = value.strip().split()
+                    val = ""
+                    unit = ""
+                    if val_parts:
+                        val = val_parts[0]
+                        # 捕获int转换异常，避免崩溃
+                        try:
+                            val = int(val) if val.isdigit() else val
+                        except ValueError as e:
+                            LOG_ERROR(f"转换块设备数值失败：{key}={val}，错误：{e}")
+                        unit = val_parts[1] if len(val_parts) > 1 else ""
                     info[key] = {
                         "value": int(val_parts[0]) if val_parts[0].isdigit() else val_parts[0],
                         "unit": val_parts[1] if len(val_parts) > 1 else ""
