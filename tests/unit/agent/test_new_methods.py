@@ -127,3 +127,25 @@ class TestCleanupOldStats(unittest.TestCase):
         # cutoff = now - 3600，应在 (before-3600, after-3600) 范围内
         self.assertGreater(cutoff, before - 3601)
         self.assertLess(cutoff, after - 3599)
+
+    def test_skips_unknown_vm(self):
+        """未知 vm_id 时不应调用 Redis。"""
+        with mock.patch.object(
+            self.vm_storage.sr, "zremrangebyscore"
+        ) as mock_zrem:
+            self.vm_storage.cleanup_old_stats(vm_id=99999, retention_seconds=3600)
+        mock_zrem.assert_not_called()
+
+    def test_handles_redis_exception_gracefully(self):
+        """Redis 出错时不应向上抛出异常。"""
+        with mock.patch.object(
+            self.vm_storage.sr, "zremrangebyscore",
+            side_effect=Exception("connection lost")
+        ):
+            # 期望不抛出，仅记录日志
+            try:
+                self.vm_storage.cleanup_old_stats(_TEST_VM_ID, retention_seconds=60)
+            except Exception:  # noqa: BLE001
+                self.fail("cleanup_old_stats 不应向上抛出 Redis 异常")
+
+
