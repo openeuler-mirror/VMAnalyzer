@@ -206,3 +206,24 @@ class VcpuPinningOptimizer:
             "success_count": success_count,
             "failed_count": len(pin_results) - success_count,
         }
+
+   # ── 批量处理 ────────────────────────────────────────────────────────────
+
+    def pin_all_running_vms(self) -> Dict:
+        """对所有运行中 VM 执行绑核。"""
+        output = self._run(["virsh", "list", "--state-running", "--name"])
+        vm_names = [n for n in (output or "").split() if n]
+        results: Dict[str, Dict] = {}
+        for vm_name in vm_names:
+            results[vm_name] = self.pin_vm(vm_name)
+        return {"vm_count": len(vm_names), "results": results}
+
+if __name__ == "__main__":
+    optimizer = VcpuPinningOptimizer()
+    if len(sys.argv) > 1:
+        vm_name = sys.argv[1]
+        data = optimizer.pin_vm(vm_name)
+    else:
+        data = optimizer.pin_all_running_vms()
+    print(json.dumps(data, indent=2, ensure_ascii=False))
+
