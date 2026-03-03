@@ -219,3 +219,23 @@ class TestVMAnalyzersFileView(unittest.TestCase):
             self.assertIn("%", cpu_val)
         finally:
             os.unlink(path)
+
+    def test_write_error_does_not_raise(self):
+        """向不可写路径输出时，不应向上抛出异常。"""
+        fv = view.VMAnalyzersFileView("/nonexistent_dir/test.jsonl")
+        try:
+            fv.output(self._SAMPLE)
+        except Exception:  # noqa: BLE001
+            self.fail("VMAnalyzersFileView.output 不应向上抛出写文件异常")
+
+    def test_creates_parent_directory(self):
+        """父目录不存在时应自动创建。"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, "subdir", "out.jsonl")
+            fv = view.VMAnalyzersFileView(path)
+            fv.output(self._SAMPLE)
+            self.assertTrue(os.path.exists(path))
+
+
+if __name__ == "__main__":
+    unittest.main()
