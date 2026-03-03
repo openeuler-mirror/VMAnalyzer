@@ -76,3 +76,42 @@ class VMOomChecker:
     def get_running_vm_names(self) -> List[str]:
         output = self._run(["virsh", "list", "--state-running", "--name"])
         return [n for n in (output or "").split() if n]
+
+     # ── 客户机内存统计 ────────────────────────────────────────────────────────
+
+    def get_vm_mem_stats(self, vm_name: str) -> Dict:
+        """解析 virsh dommemstat，返回原始字段及计算后的使用率。"""
+        output = self._run(["virsh", "dommemstat", vm_name])
+        stats: Dict = {}
+        if not output:
+            return stats
+        for line in output.splitlines():
+            parts = line.split()
+            if len(parts) == 2:
+                try:
+                    stats[parts[0]] = int(parts[1])
+                except ValueError:
+                    pass
+        # 计算使用率
+        total = stats.get("actual", 0)
+        available = stats.get("available", 0)
+        if total > 0:
+            used = total - available
+            stats["used_kb"] = used
+            stats["usage_pct"] = round(used / total * 100, 2)
+        return stats
+
+    # ── 宿主机 QEMU PID ──────────────────────────────────────────────────────
+
+    def get_qemu_pid(self, vm_name: str) -> Optional[int]:
+        """在宿主机进程表中找到该 VM 对应的 QEMU 进程 PID。"""
+        output = self._run(
+            ["bash", "-c",
+             f"ps -ef | grep 'qemu.*{vm_name}' | grep -v grep | awk '{{print $2}}'"]
+        )
+        if output:
+            try:
+                return int(output.splitlines()[0])
+            except (ValueError, IndexError):
+                pass
+        return None
