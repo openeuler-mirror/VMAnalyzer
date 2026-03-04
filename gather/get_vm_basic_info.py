@@ -204,8 +204,8 @@ class VMDomainMonitor:
                 value = value.strip()
                 try:
                     value = int(value) if value.isdigit() else value
-                except:
-                    pass
+                except ValueError as e:
+                    LOG_ERROR(f"转换内存统计数值失败：{key}={value}，错误：{e}")
                 memstat[key] = value
         return memstat
 
