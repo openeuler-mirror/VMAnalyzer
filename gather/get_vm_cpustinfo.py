@@ -63,6 +63,12 @@ class VMCpuStInfoCollector:
             LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
             return None
 
+    def get_vm_state(self, vm_name: str) -> str:
+        """新增方法：获取虚拟机运行状态（running/stopped/unknown）"""
+        cmd = f"virsh domstate {shlex.quote(vm_name)}"  # 安全转义VM名称
+        output = self.run_virsh_cmd(cmd)
+        return output.strip().lower() if output else "unknown"
+
     def get_all_vm_names(self) -> List[str]:
         """获取所有有效虚拟机名称（过滤空行和无效值）"""
         cmd = "virsh list --name | grep -v '^$' | grep -v '^-$'"
