@@ -23,7 +23,18 @@ from gather.get_vm_mem_top_app import VMMemTopNCollector, logger, parse_args, ma
 
 class TestGetVMMemTopApp(unittest.TestCase):
     """VM内存TopN进程采集模块单元测试"""
-    pass
+    def setUp(self):
+        self.top_n = 5
+        self.poll_interval = 10
+        self.test_out_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "temp", "test_vm_mem_topn"
+        )
+        self.collector = VMMemTopNCollector(
+            top_n=self.top_n,
+            poll_interval=self.poll_interval,
+            output_dir=self.test_out_dir
+        )
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
