@@ -16,7 +16,9 @@ from unittest import mock
 from gather.get_vm_migrate_data import VMMigrationInfoCollector
 
 class TestVMMigrationInfoCollector(unittest.TestCase):
-    pass
+
+    def setUp(self):
+        self.collector = VMMigrationInfoCollector()
 
 if __name__ == "__main__":
     unittest.main()
