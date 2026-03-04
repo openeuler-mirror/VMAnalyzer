@@ -55,5 +55,14 @@ class TestGetVMMemTopApp(unittest.TestCase):
         })
         self.assertTrue(os.path.exists(self.test_out_dir))
 
+    def test__exec_virsh_cmd_all_scenarios(self):
+        test_cmd = "virsh list --name"
+
+        class TestableCollector(self.collector.__class__):
+            def call_exec_virsh_cmd(self, cmd):
+                return super()._exec_virsh_cmd(cmd)
+
+        self.collector = TestableCollector()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
