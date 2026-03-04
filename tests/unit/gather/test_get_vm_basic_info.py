@@ -28,5 +28,8 @@ class TestVMDomainMonitor(unittest.TestCase):
     def tearDown(self):
         self.monitor = None
 
+    def test_run_virsh_cmd_success(self):
+        test_cmd = "virsh list --all --name"
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
