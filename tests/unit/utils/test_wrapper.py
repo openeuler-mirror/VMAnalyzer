@@ -36,3 +36,8 @@ class TestSingletonDecorator(unittest.TestCase):
             def __init__(self, name, age=18):
                 self.name = name
                 self.age = age
+
+        @singleton
+        class AnotherTestClass:
+            def __init__(self, value):
+                self.value = value
