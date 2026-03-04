@@ -38,6 +38,8 @@ class TestVMDomainMonitor(unittest.TestCase):
             mock_result.returncode = 0
             mock_subprocess.return_value = mock_result
             result = self.monitor.run_virsh_cmd(test_cmd)
+            result = self.monitor.run_virsh_cmd(test_cmd)
+            self.assertEqual(result, mock_output)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
