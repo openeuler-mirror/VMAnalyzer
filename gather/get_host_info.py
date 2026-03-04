@@ -54,6 +54,7 @@ class HostHypervisorCollector:
     def parse_version(self, output):
         
         if not output:
+            LOG_INFO("virsh version输出为空，跳过解析")
             return
         lines = output.split("\n")
         for line in lines:
