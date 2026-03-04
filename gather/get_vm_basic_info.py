@@ -241,7 +241,7 @@ class VMDomainMonitor:
 
         if_list = self.parse_domiflist(vm_name)
         if_names = [iface["interface"] for iface in if_list if iface["interface"]]
-        if_addrs = self.parse_domifaddr(vm_name, if_names) if is_running else {}
+        if_addrs = self.parse_domifaddr(vm_name) if is_running else {}
         if_links = self.parse_domif_getlink(vm_name, if_names) if is_running else {}
 
         memstat = self.parse_dommemstat(vm_name) if is_running else {}
