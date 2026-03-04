@@ -28,7 +28,8 @@ from gather import get_vm_fs_info as vm_fs_info
 
 class TestVMAnalyzer(unittest.TestCase):
     """VMAnalyzer类单元测试，覆盖所有核心方法及正常/异常场景"""
-    pass
+    def setUp(self):
+        self.analyzer = vm_fs_info.VMAnalyzer()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
