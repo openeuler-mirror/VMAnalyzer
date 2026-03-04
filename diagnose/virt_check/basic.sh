@@ -65,6 +65,20 @@ log() {
     sudo echo "{\"PROJECT\":\"$check_name_cn\",\"LOG\":\"$2\"}," >> $hostfile
 }
 
+#public
+Install_rpm() {
+    rpm_name=$1
+    install1=`sudo rpm -qa $rpm_name`
+    if [ ! -n "$install1" ]; then
+        sudo yum install -y $rpm_name
+        install2=`sudo rpm -qa $rpm_name`
+        if [ ! -n "$install2" ]; then
+            return 1
+        fi
+    fi
+    return 0
+}
+
 check_config() {
     good=0
     bad=0
