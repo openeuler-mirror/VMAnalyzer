@@ -33,6 +33,8 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
             "Job state: Active\n"
         )
         result = self.collector.is_vm_migrating("vm1")
+        self.assertTrue(result)
+        mock_run.assert_called_with("virsh domjobinfo vm1")
 
 if __name__ == "__main__":
     unittest.main()
