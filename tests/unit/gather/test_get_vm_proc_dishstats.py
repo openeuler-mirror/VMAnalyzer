@@ -62,6 +62,24 @@ class MockVMFactory:
         except Exception as e:
             self.logger.error(f"获取虚拟机列表失败: {e}")
 
+class VMDiskStatsCollector:
+    def __init__(self, vm_factory, stats_storage, label):
+        self.vm_factory = vm_factory
+        self.stats_storage = stats_storage
+        self.label = label
+        self.logger = logging.getLogger(__name__)
+
+    def _send_qga_command(self, dom, cmd):
+        try:
+            from libvirt_qemu import qemuAgentCommand
+            resp = qemuAgentCommand(dom, json.dumps(cmd), 30 * 1000, 0)
+            return json.loads(resp) if resp else None
+        except Exception as e:
+            self.logger.error(
+                f"VM {dom.name()}: QGA命令失败 [{cmd['execute']}]，错误: {e}"
+            )
+            return None
+
 class TestGetVMProcDishstats(unittest.TestCase):
     pass
 
