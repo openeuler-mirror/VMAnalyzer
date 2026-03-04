@@ -25,5 +25,14 @@ class TestVMCPUTopNCollector(unittest.TestCase):
             output_dir="/tmp/test_vm_cpu_topn"
         )
 
+    @mock.patch.object(VMCPUTopNCollector, "run_virsh_cmd")
+    def test_get_running_vm_names(self, mock_run):
+        mock_run.return_value = "vm1\nvm2\nvm3"
+        vms = self.collector.get_running_vm_names()
+        self.assertEqual(vms, ["vm1", "vm2", "vm3"])
+        mock_run.assert_called_once_with(
+            "virsh list --name | grep -v '^$'"
+        )
+
 if __name__ == "__main__":
     unittest.main()
