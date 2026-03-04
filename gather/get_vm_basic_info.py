@@ -156,7 +156,7 @@ class VMDomainMonitor:
                 })
         return if_list
 
-    def parse_domifaddr(self, vm_name: str, if_names: List[str]) -> Dict:
+    def parse_domifaddr(self, vm_name: str) -> Dict:
         if_addrs = {}
         output = self.run_virsh_cmd(f"virsh domifaddr {vm_name}")
         if not output:
