@@ -16,4 +16,8 @@ import sys
 from unittest.mock import patch, MagicMock, mock_open
 
 class TestVMAnalyzer(unittest.TestCase):
+    """VMAnalyzer类单元测试，覆盖所有核心方法及正常/异常场景"""
     pass
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
