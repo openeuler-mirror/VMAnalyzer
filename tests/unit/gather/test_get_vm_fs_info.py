@@ -15,6 +15,17 @@ import unittest
 import sys
 from unittest.mock import patch, MagicMock, mock_open
 
+mock_libvirt = MagicMock()
+mock_libvirt.VIR_DOMAIN_RUNNING = 1
+mock_libvirt.VIR_DOMAIN_SHUTOFF = 5
+mock_libvirt.VIR_DOMAIN_PAUSED = 3
+# 定义libvirt异常类，让业务代码能识别
+mock_libvirt.libvirtError = type("libvirtError", (Exception,), {"__str__": lambda self: "连接失败"})
+sys.modules["libvirt"] = mock_libvirt
+sys.modules["gather.get_vm_fs_info.libvirt"] = mock_libvirt
+
+from gather import get_vm_fs_info as vm_fs_info
+
 class TestVMAnalyzer(unittest.TestCase):
     """VMAnalyzer类单元测试，覆盖所有核心方法及正常/异常场景"""
     pass
