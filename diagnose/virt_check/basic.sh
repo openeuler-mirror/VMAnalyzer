@@ -494,6 +494,34 @@ HOST(){
     generate_json
 }
 
+Dom(){
+    #echo "=========================Start collecting information========================" > $hostfile
+
+    sudo virsh domstate $1
+    if [ $? -ne 0 ]; then
+        sudo echo "vm can not find: $1" > $hostfile
+        exit -1
+    fi
+    sudo echo "{\"DOM_VCPU\":[" > $hostfile
+    check_dom_vcpu $1 
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"DOM_MEM\":[" >> $hostfile
+    check_dom_mem $1
+    sudo echo "]," >> $hostfile
+
+    sudo echo "\"DOM_SCHEDINFO\":[" >> $hostfile
+    check_dom_schedinfo $1
+    sudo echo "]" >> $hostfile
+    sudo echo "}" >> $hostfile
+
+    # Remove unnecessary symbols
+    remove_symbols
+
+    # Generate the json file used by bclinux_om
+    generate_json
+}
+
 usage() {
         echo "basic.sh: basic virtualization os config health check"
         echo "options: -h,          help information"
