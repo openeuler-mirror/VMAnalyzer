@@ -144,15 +144,17 @@ class VMDomainMonitor:
             if not line:
                 continue
             parts = line.split(maxsplit=3)
-            if len(parts) >= 4:
-                if_name = parts[0]
-                if if_name not in if_addrs:
-                    if_addrs[if_name] = []
-                if_addrs[if_name].append({
-                    "mac": parts[1],
-                    "protocol": parts[2],
-                    "address": parts[3]
-                })
+            if_name = parts[0] if len(parts)>=1 else ""
+            mac = parts[1] if len(parts)>=2 else ""
+            protocol = parts[2] if len(parts)>=3 else ""
+            address = parts[3] if len(parts)>=4 else ""
+            if if_name not in if_addrs:
+                if_addrs[if_name] = []
+            if_addrs[if_name].append({
+                "mac": mac,
+                "protocol": protocol,
+                "address": address
+            })
         return if_addrs
 
     def parse_domif_getlink(self, vm_name: str, if_names: List[str]) -> Dict:
