@@ -33,6 +33,13 @@ class TestRepeatedTimer(unittest.TestCase):
         if self.call_count >= 3:
             self.test_done.set()
 
+    def test_init_auto_start(self):
+        rt = RepeatedTimer(10, self.test_function)
+        try:
+            self.assertEqual(rt.is_running, True)
+        finally:
+            rt.stop()
+
     def tearDown(self):
         self.test_done.clear()
         self.call_count = 0
