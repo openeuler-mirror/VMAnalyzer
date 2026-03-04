@@ -40,3 +40,4 @@ class TestHostHypervisorCollector(unittest.TestCase):
         # ===== 断言 =====
         self.assertEqual(result["hostname"], "test-host")
         self.assertEqual(result["uri"], "qemu:///system")
+        self.assertEqual(result["version"]["compiled_libvirt"], "libvirt 8.0.0")
