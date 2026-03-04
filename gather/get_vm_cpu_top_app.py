@@ -168,6 +168,13 @@ def main():
     
     args = parser.parse_args()
     
+    if args.top_n < 1:
+        LOG_ERROR(f"参数错误：--top-n 必须≥1，当前值：{args.top_n}")
+        raise SystemExit(1)
+    if args.poll_interval < 1:
+        LOG_ERROR(f"参数错误：--poll-interval 必须≥1，当前值：{args.poll_interval}")
+        raise SystemExit(1)
+
     collector = VMCPUTopNCollector(
         top_n=args.top_n,
         poll_interval=args.poll_interval,
