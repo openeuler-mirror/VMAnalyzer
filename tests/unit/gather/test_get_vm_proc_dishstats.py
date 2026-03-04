@@ -19,6 +19,17 @@ from unittest.mock import MagicMock, patch, ANY
 import pytest
 import logging
 
+mock_libvirt_module = MagicMock()
+mock_libvirt_qemu_module = MagicMock()
+
+import sys
+sys.modules['libvirt'] = mock_libvirt_module
+sys.modules['libvirt_qemu'] = mock_libvirt_qemu_module
+
+mock_libvirt_module.open = MagicMock()
+mock_libvirt_module.LibvirtError = Exception
+mock_libvirt_qemu_module.qemuAgentCommand = MagicMock()
+
 class TestGetVMProcDishstats(unittest.TestCase):
     pass
 
