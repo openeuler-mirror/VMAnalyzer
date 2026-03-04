@@ -30,3 +30,9 @@ class TestSingletonDecorator(unittest.TestCase):
         formatter = logging.Formatter("%(levelname)s: %(message)s")
         self.log_handler.setFormatter(formatter)
         self.logger.addHandler(self.log_handler)
+
+        @singleton
+        class TestClass:
+            def __init__(self, name, age=18):
+                self.name = name
+                self.age = age
