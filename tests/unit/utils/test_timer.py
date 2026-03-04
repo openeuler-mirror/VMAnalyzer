@@ -62,6 +62,7 @@ class TestRepeatedTimer(unittest.TestCase):
             time.sleep(0.2)
             with self.count_lock:
                 self.assertEqual(self.call_count, current_count)
+            self.assertEqual(rt.is_running, False)
         finally:
             rt.stop()
 
