@@ -23,4 +23,7 @@ class TestSingletonDecorator(unittest.TestCase):
     """针对singleton装饰器的单元测试用例"""
     def setUp(self):
         self.logger = logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG) 
+        self.log_buffer = StringIO()
+        self.log_handler = logging.StreamHandler(self.log_buffer)
+        self.log_handler.setLevel(logging.DEBUG)
