@@ -94,7 +94,11 @@ class VMCpuStInfoCollector:
         LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
         
         vm_state = self.get_vm_state(vm_name)
-        cpu_st_info_state = self.call_qga_interface(vm_name, "guest-get-cpustinfo")
+         if vm_state == "running":
+            cpu_st_info_state = self.call_qga_interface(vm_name, "guest-get-cpustinfo")
+        else:
+            cpu_st_info_state = {"status": "skipped", "data": {}, "error": f"VM状态为{vm_state}，跳过QGA接口调用"}
+
         vm_data = {
             "name": vm_name,
             "state": vm_state,
