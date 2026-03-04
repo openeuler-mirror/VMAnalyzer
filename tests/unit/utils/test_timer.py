@@ -42,9 +42,26 @@ class TestRepeatedTimer(unittest.TestCase):
 
     def test_function_executed_repeatedly(self):
         interval = 0.1
+        expected_calls = 3
         rt = RepeatedTimer(interval, self.test_function)
         try:
             self.test_done.wait(timeout=1.0)
+            with self.count_lock:
+                self.assertEqual(self.call_count, expected_calls)
+        finally:
+            rt.stop()
+
+    def test_stop_stops_timer(self):
+        interval = 0.1
+        rt = RepeatedTimer(interval, self.test_function)
+        try:
+            time.sleep(0.15)
+            rt.stop()
+            with self.count_lock:
+                current_count = self.call_count
+            time.sleep(0.2)
+            with self.count_lock:
+                self.assertEqual(self.call_count, current_count)
         finally:
             rt.stop()
 
