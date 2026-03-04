@@ -30,6 +30,10 @@ class TestHostHypervisorCollector(unittest.TestCase):
                     "Using API: QEMU 8.0.0\n"
                     "Running hypervisor: QEMU 6.2.0"
                 ),
+                "virsh nodeinfo": (
+                    "CPU(s):              16\n"
+                    "Memory size:         32768 MB"
+                ),
             }
             return None
         with mock.patch.object(
