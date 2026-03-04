@@ -32,6 +32,20 @@ mock_libvirt_qemu_module.qemuAgentCommand = MagicMock()
 
 TEST_MODULE = __name__
 
+class MockStatsStorage:
+    def __init__(self, output_dir):
+        self.output_dir = output_dir
+        self.logger = logging.getLogger(__name__)
+        os.makedirs(output_dir, exist_ok=True)
+
+    def save_stats_info(self, stats):
+        now = datetime.datetime.now()
+        timestamp_str = now.strftime("%Y%m%d_%H%M%S")
+        test_file = os.path.join(self.output_dir, f"diskstats_info_{timestamp_str}.json")
+        with open(test_file, "w", encoding="utf-8") as f:
+            json.dump(stats, f, ensure_ascii=False)
+        self.logger.info(f"统计信息已保存到: {test_file}")
+
 class TestGetVMProcDishstats(unittest.TestCase):
     pass
 
