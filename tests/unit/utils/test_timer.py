@@ -27,6 +27,12 @@ class TestRepeatedTimer(unittest.TestCase):
         self.count_lock = threading.Lock()
         self.test_done = threading.Event()
 
+    def test_function(self):
+        with self.count_lock:
+            self.call_count += 1
+        if self.call_count >= 3:
+            self.test_done.set()
+
     def tearDown(self):
         self.test_done.clear()
         self.call_count = 0
