@@ -30,6 +30,8 @@ mock_libvirt_module.open = MagicMock()
 mock_libvirt_module.LibvirtError = Exception
 mock_libvirt_qemu_module.qemuAgentCommand = MagicMock()
 
+TEST_MODULE = __name__
+
 class TestGetVMProcDishstats(unittest.TestCase):
     pass
 
