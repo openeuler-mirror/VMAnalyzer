@@ -20,3 +20,9 @@ class TestHostHypervisorCollector(unittest.TestCase):
 
     def test_collect_all_basic(self):
         collector = HostHypervisorCollector()
+        def fake_run_virsh_cmd(cmd):
+            return None
+        with mock.patch.object(
+            collector, "run_virsh_cmd", side_effect=fake_run_virsh_cmd
+        ):
+            collector.collect_all()
