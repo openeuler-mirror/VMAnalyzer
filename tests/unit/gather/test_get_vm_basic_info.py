@@ -21,7 +21,9 @@ class TestVMDomainMonitor(unittest.TestCase):
     """
     虚拟机基础信息采集类的单元测试
     """
-    pass
+
+    def setUp(self):
+        self.monitor = vm_monitor.VMDomainMonitor()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
