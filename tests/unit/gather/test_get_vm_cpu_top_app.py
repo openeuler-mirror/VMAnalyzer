@@ -45,6 +45,8 @@ class TestVMCPUTopNCollector(unittest.TestCase):
             ]
         })
         result = self.collector.get_vm_cpu_topn_info("vm1")
+        self.assertIsInstance(result, list)
+        self.assertEqual(result[0]["process-id"], "1")
 
 if __name__ == "__main__":
     unittest.main()
