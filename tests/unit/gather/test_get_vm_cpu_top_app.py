@@ -17,7 +17,13 @@ import json
 from gather.get_vm_cpu_top_app import VMCPUTopNCollector
 
 class TestVMCPUTopNCollector(unittest.TestCase):
-    pass
+
+    def setUp(self):
+        self.collector = VMCPUTopNCollector(
+            top_n=2,
+            poll_interval=60,
+            output_dir="/tmp/test_vm_cpu_topn"
+        )
 
 if __name__ == "__main__":
     unittest.main()
