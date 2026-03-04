@@ -36,5 +36,12 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
         self.assertTrue(result)
         mock_run.assert_called_with("virsh domjobinfo vm1")
 
+    @mock.patch.object(VMMigrationInfoCollector, "run_virsh_cmd")
+    def test_is_vm_not_migrating(self, mock_run):
+        mock_run.return_value = (
+            "Job type: None\n"
+            "Job state: Completed\n"
+        )
+
 if __name__ == "__main__":
     unittest.main()
