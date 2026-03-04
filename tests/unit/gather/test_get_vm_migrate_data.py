@@ -20,5 +20,11 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
     def setUp(self):
         self.collector = VMMigrationInfoCollector()
 
+    @mock.patch.object(VMMigrationInfoCollector, "run_virsh_cmd")
+    def test_get_all_vm_names(self, mock_run):
+        mock_run.return_value = "vm1\nvm2\nvm3"
+        vms = self.collector.get_all_vm_names()
+        self.assertEqual(vms, ["vm1", "vm2", "vm3"])
+
 if __name__ == "__main__":
     unittest.main()
