@@ -37,7 +37,7 @@ class VMCollector:
             raise
 
         self.all_vms_data = {
-            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.localtime()),
+            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "vm_count": 0,
             "running_vm_count": 0,
             "vms": {}
