@@ -52,7 +52,7 @@ class VMCollector:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=True,
-                universal_newlines=True,
+                text=True,
                 check=True,
                 timeout=self.cmd_timeout  # 超时保护，避免命令卡死
             )
