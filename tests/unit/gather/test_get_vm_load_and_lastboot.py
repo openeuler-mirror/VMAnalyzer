@@ -28,6 +28,11 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
         test_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.test_out_dir = os.path.join(test_root, "temp", "test_vm_load_lastboot")
 
+        class TestableVMSysMonitor(VMSysMonitor):
+            def call_run_cmd(self, cmd):
+                return super()._run_cmd(cmd)
+
+        self.monitor = TestableVMSysMonitor(poll=self.poll_interval, out_dir=self.test_out_dir)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
