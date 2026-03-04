@@ -25,6 +25,9 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
     """VM负载和最后启动时间采集模块单测"""
     def setUp(self):
         self.poll_interval = 1
+        test_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.test_out_dir = os.path.join(test_root, "temp", "test_vm_load_lastboot")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
