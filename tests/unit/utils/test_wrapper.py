@@ -41,3 +41,11 @@ class TestSingletonDecorator(unittest.TestCase):
         class AnotherTestClass:
             def __init__(self, value):
                 self.value = value
+
+        self.TestClass = TestClass
+        self.AnotherTestClass = AnotherTestClass
+
+    def tearDown(self):
+        self.logger.removeHandler(self.log_handler)
+        self.log_handler.close()
+        self.log_buffer.close()
