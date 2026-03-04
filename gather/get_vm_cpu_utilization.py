@@ -25,8 +25,9 @@ LOG_INFO = logging.info
 LOG_ERROR = logging.error
 
 class VMCollector:
-    def __init__(self, output_dir: str = "./get_vm_cpu_utilization_data"):
+    def __init__(self, output_dir: str = "./get_vm_cpu_utilization_data", cmd_timeout: int = 30):
         self.output_dir = output_dir
+        self.cmd_timeout = cmd_timeout
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
@@ -49,7 +50,7 @@ class VMCollector:
                 shell=True,
                 universal_newlines=True,
                 check=True,
-                timeout=30  # 超时保护，避免命令卡死
+                timeout=self.cmd_timeout  # 超时保护，避免命令卡死
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
