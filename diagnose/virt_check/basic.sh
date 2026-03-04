@@ -79,6 +79,27 @@ Install_rpm() {
     return 0
 }
 
+#clean tmp files
+clean_tmp() {
+    local tmp_files=(
+        "${spectre_log}"
+        "${auth_log}"
+    )
+    for tmp_file in "${tmp_files[@]}"
+    do
+        ls ${tmp_file} &>/dev/null
+        if [ $? -eq 0 ];
+        then
+            for file in `ls ${tmp_file}`
+            do
+                if [ -f $file ]; then
+                    rm -rf $file
+                fi
+            done
+        fi
+    done
+}
+
 check_config() {
     good=0
     bad=0
