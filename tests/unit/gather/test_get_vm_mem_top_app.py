@@ -55,5 +55,26 @@ class TestGetVMMemTopApp(unittest.TestCase):
         })
         self.assertTrue(os.path.exists(self.test_out_dir))
 
+    def test__exec_virsh_cmd_all_scenarios(self):
+        test_cmd = "virsh list --name"
+
+        class TestableCollector(self.collector.__class__):
+            def call_exec_virsh_cmd(self, cmd):
+                return super()._exec_virsh_cmd(cmd)
+
+        self.collector = TestableCollector()
+
+        with patch("subprocess.run") as mock_subproc, patch.object(logger, "info") as mock_log_info, \
+                patch.object(logger, "error") as mock_log_err:
+            # 场景1：命令执行成功，返回非空输出
+            mock_res = MagicMock()
+            mock_res.stdout.strip.return_value = "vm1 vm2"
+            mock_subproc.return_value = mock_res
+            result = self.collector.call_exec_virsh_cmd(test_cmd)
+            self.assertEqual(result, "vm1 vm2")
+            mock_log_info.assert_called_with(f"执行命令：{test_cmd}")
+            mock_log_err.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
