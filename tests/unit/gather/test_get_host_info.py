@@ -24,6 +24,12 @@ class TestHostHypervisorCollector(unittest.TestCase):
             fake_outputs = {
                 "virsh hostname": "test-host",
                 "virsh uri": "qemu:///system",
+                "virsh version": (
+                    "Compiled against library: libvirt 8.0.0\n"
+                    "Using library: libvirt 8.0.0\n"
+                    "Using API: QEMU 8.0.0\n"
+                    "Running hypervisor: QEMU 6.2.0"
+                ),
             }
             return None
         with mock.patch.object(
