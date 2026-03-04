@@ -34,5 +34,17 @@ class TestVMCPUTopNCollector(unittest.TestCase):
             "virsh list --name | grep -v '^$'"
         )
 
+    @mock.patch.object(VMCPUTopNCollector, "run_virsh_cmd")
+    def test_get_vm_cpu_topn_info_success(self, mock_run):
+        mock_run.return_value = json.dumps({
+            "return": [
+                {
+                    "process-id": "1",
+                    "process-info": {"user": "root"}
+                }
+            ]
+        })
+        result = self.collector.get_vm_cpu_topn_info("vm1")
+
 if __name__ == "__main__":
     unittest.main()
