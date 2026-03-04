@@ -24,3 +24,6 @@ from gather.get_vm_load_and_lastboot import VMSysMonitor, logger
 class TestGetVMLoadAndLastboot(unittest.TestCase):
     """VM负载和最后启动时间采集模块单测"""
     pass
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
