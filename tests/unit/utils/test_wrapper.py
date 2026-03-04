@@ -27,3 +27,6 @@ class TestSingletonDecorator(unittest.TestCase):
         self.log_buffer = StringIO()
         self.log_handler = logging.StreamHandler(self.log_buffer)
         self.log_handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(levelname)s: %(message)s")
+        self.log_handler.setFormatter(formatter)
+        self.logger.addHandler(self.log_handler)
