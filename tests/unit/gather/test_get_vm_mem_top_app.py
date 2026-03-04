@@ -44,5 +44,16 @@ class TestGetVMMemTopApp(unittest.TestCase):
         if os.path.exists(temp_root):
             shutil.rmtree(temp_root)
 
+    def test_init_and_init_output_dir(self):
+        self.assertEqual(self.collector.top_n, self.top_n)
+        self.assertEqual(self.collector.poll_interval, self.poll_interval)
+        self.assertEqual(self.collector.output_dir, self.test_out_dir)
+        self.assertEqual(self.collector.collect_data, {
+            "collect_time": "",
+            "running_vm_count": 0,
+            "vm_list": {}
+        })
+        self.assertTrue(os.path.exists(self.test_out_dir))
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
