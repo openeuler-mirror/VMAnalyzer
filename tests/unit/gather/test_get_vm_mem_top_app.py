@@ -36,5 +36,13 @@ class TestGetVMMemTopApp(unittest.TestCase):
             output_dir=self.test_out_dir
         )
 
+    def tearDown(self):
+        temp_root = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "temp"
+        )
+        if os.path.exists(temp_root):
+            shutil.rmtree(temp_root)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
