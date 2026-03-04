@@ -4,6 +4,9 @@
 # History:
 # Dinglimin Create 
 
+# Generate args
+# 是否跨numa
+across_flag=1
 # 日志
 virt_dir=/var/log/vmanalyzer/
 
@@ -39,6 +42,10 @@ declare -A dic=(
     [memory_frequency]=内存频率
     [libvirt_auth]=libvirt鉴权
     [vcpus_cross]=虚拟机vcpu是否跨numa
+    [numa_mode]=虚拟机numa配置
+    [cpu_mode]=虚拟机cpu_mode
+    [dom_huge_page]=虚拟机大页
+    [dom_schedinfo]=虚拟机调度
 )
 
 SYSTEM_TYPE=`uname -p`
@@ -132,13 +139,15 @@ check_config() {
     fi
 }
 
-# 系统信息
+#---------------------------------------------------------------------------------
+#-------------------------------宿主机--------------------------------------------
+# 一、系统信息
 check_os_func() {
     #sudo echo "--------------------system information------------------------" >> $hostfile
     log "os_version" "系统版本:$VERSION_ID"
 }
 
-# 内核信息
+# 二、内核信息
 check_kernel_func() {
     #sudo echo "--------------------kernel information------------------------" >> $hostfile
     # 1.查看内核版本
@@ -211,7 +220,7 @@ check_kernel_func() {
     log "tuned" "tuned配置:$tuned"
 }
 
-# 宿主机虚拟化版本
+# 三、宿主机虚拟化版本
 check_virt_version_func() {
     #sudo echo "--------------------Virt Version------------------------" >> $hostfile
     #qemu_ver=`sudo qemu-img --v | awk NR==1 | cut -d '(' -f 1 | egrep -o $version_regex`
@@ -225,7 +234,7 @@ check_virt_version_func() {
     log "libvirt_version" "Libvirt版本:$libvirt_ver"
 }
 
-# 虚拟化配置检测
+# 四、虚拟化配置检测
 check_virt_config_func() {
     #sudo echo "--------------------Virt Config------------------------" >> $hostfile
     # 查看最大打开文件数
@@ -239,12 +248,12 @@ check_virt_config_func() {
     fi
 }
 
-# 查看sysctl配置
+#五、查看sysctl配置
 check_sysctl_config_func() {
 check_config sysctl_config
 }
 
-# CPU信息
+#六、CPU信息
 check_cpu_func(){
     #sudo echo "--------------------CPU information------------------------" >> $hostfile
     # 1、查看宿主机CPU是否开启睿频
@@ -264,7 +273,7 @@ check_cpu_func(){
     log "cpu_module" "cpu性能模式:$cpufreq"
 }
 
-# 宿主机大页信息
+#七、宿主机大页信息
 check_huge_page_func(){
     #sudo echo "--------------------Host hugepage infomation------------------------" >> $hostfile
     # 1、查看宿主机透明大页情况
@@ -290,7 +299,7 @@ check_huge_page_func(){
     fi
 }
 
-# 内存检测
+#八、内存检测
 check_memory_func(){
     speed_list=()
     support_list=()
@@ -340,7 +349,7 @@ check_memory_func(){
     fi
 }
 
-# 鉴权检测
+#九、鉴权检测
 check_auth_func(){
     if [[ -f ${auth_file} ]]; then
         sudo bash $auth_file check &>$auth_log
@@ -355,6 +364,8 @@ check_auth_func(){
     fi
 }
 
+#---------------------------------------------------------------------------------
+#-------------------------------虚拟机--------------------------------------------
 Split_cpu(){
     cpu1=
     cpu2=
@@ -588,9 +599,15 @@ mk_log_dir
 case $flag in
     host)
         hostfile=${virt_dir}host_health_basic_`date "+%Y-%m-%d-%H-%M-%S"`.log
+        datafile=${virt_dir}host_health_basic.json
+        HOST
+        clean_tmp
     ;;
     domain)
         hostfile=${virt_dir}domain_health_basic_`date "+%Y-%m-%d-%H-%M-%S"`.log
+        datafile=${virt_dir}domain_health_basic.json
+        Dom $domain
+        clean_tmp
     ;;
     *)
     usage
