@@ -26,6 +26,10 @@ sys.modules["gather.get_vm_fs_info.libvirt"] = mock_libvirt
 
 from gather import get_vm_fs_info as vm_fs_info
 
+VIR_DOMAIN_RUNNING = 1
+VIR_DOMAIN_SHUTOFF = 5
+VIR_DOMAIN_PAUSED = 3
+
 class TestVMAnalyzer(unittest.TestCase):
     """VMAnalyzer类单元测试，覆盖所有核心方法及正常/异常场景"""
     def setUp(self):
