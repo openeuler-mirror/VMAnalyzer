@@ -26,5 +26,13 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
         vms = self.collector.get_all_vm_names()
         self.assertEqual(vms, ["vm1", "vm2", "vm3"])
 
+    @mock.patch.object(VMMigrationInfoCollector, "run_virsh_cmd")
+    def test_is_vm_migrating(self, mock_run):
+        mock_run.return_value = (
+            "Job type: Migrate\n"
+            "Job state: Active\n"
+        )
+        result = self.collector.is_vm_migrating("vm1")
+
 if __name__ == "__main__":
     unittest.main()
