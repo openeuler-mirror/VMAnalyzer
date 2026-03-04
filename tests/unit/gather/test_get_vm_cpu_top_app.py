@@ -18,3 +18,6 @@ from gather.get_vm_cpu_top_app import VMCPUTopNCollector
 
 class TestVMCPUTopNCollector(unittest.TestCase):
     pass
+
+if __name__ == "__main__":
+    unittest.main()
