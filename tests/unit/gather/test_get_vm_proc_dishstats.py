@@ -10,7 +10,7 @@
 # THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-# See the Mulan PSL v2 for more details.#!/usr/bin/env python3
+# See the Mulan PSL v2 for more details.
 import os
 import json
 import datetime
@@ -21,3 +21,6 @@ import logging
 
 class TestGetVMProcDishstats(unittest.TestCase):
     pass
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
