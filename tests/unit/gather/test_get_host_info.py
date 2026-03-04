@@ -21,8 +21,16 @@ class TestHostHypervisorCollector(unittest.TestCase):
     def test_collect_all_basic(self):
         collector = HostHypervisorCollector()
         def fake_run_virsh_cmd(cmd):
+            fake_outputs = {
+                "virsh hostname": "test-host",
+                "virsh uri": "qemu:///system",
+            }
             return None
         with mock.patch.object(
             collector, "run_virsh_cmd", side_effect=fake_run_virsh_cmd
         ):
             collector.collect_all()
+        result = collector.result
+        # ===== 断言 =====
+        self.assertEqual(result["hostname"], "test-host")
+        self.assertEqual(result["uri"], "qemu:///system")
