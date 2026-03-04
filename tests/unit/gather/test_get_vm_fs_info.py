@@ -34,6 +34,11 @@ class TestVMAnalyzer(unittest.TestCase):
     """VMAnalyzer类单元测试，覆盖所有核心方法及正常/异常场景"""
     def setUp(self):
         self.analyzer = vm_fs_info.VMAnalyzer()
+        self.mock_raw_fsinfo = [
+            ("C:\\", "/var/lib/libvirt/images/win10_c.img", "ntfs", ["/dev/vda1"]),
+            ("Data", "/var/lib/libvirt/images/win10_data.img", "ntfs", ["/dev/vda2"]),
+            ("System Reserved", "/var/lib/libvirt/images/win10_reserved.img", "ntfs", ["/dev/vda3"])
+        ]
 
     def tearDown(self):
         self.analyzer = None
