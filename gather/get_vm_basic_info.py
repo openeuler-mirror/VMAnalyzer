@@ -161,7 +161,11 @@ class VMDomainMonitor:
         output = self.run_virsh_cmd(f"virsh domifaddr {vm_name}")
         if not output:
             return if_addrs
-        lines = output.split("\n")[2:]
+        lines = output.split("\n")
+        if len(lines) >= 3:
+            lines = lines[2:]
+        else:
+            lines = []
         for line in lines:
             line = line.strip()
             if not line:
