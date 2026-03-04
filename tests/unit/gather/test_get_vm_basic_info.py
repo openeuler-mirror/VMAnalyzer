@@ -18,4 +18,10 @@ from unittest.mock import patch, MagicMock, mock_open
 from gather import get_vm_basic_info as vm_monitor
 
 class TestVMDomainMonitor(unittest.TestCase):
-   pass
+    """
+    虚拟机基础信息采集类的单元测试
+    """
+    pass
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
