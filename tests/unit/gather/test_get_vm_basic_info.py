@@ -25,5 +25,8 @@ class TestVMDomainMonitor(unittest.TestCase):
     def setUp(self):
         self.monitor = vm_monitor.VMDomainMonitor()
 
+    def tearDown(self):
+        self.monitor = None
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
