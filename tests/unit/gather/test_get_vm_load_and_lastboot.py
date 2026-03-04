@@ -34,5 +34,12 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
 
         self.monitor = TestableVMSysMonitor(poll=self.poll_interval, out_dir=self.test_out_dir)
 
+    def tearDown(self):
+        test_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        temp_dir = os.path.join(test_root, "temp")
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
