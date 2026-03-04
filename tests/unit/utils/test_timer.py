@@ -40,6 +40,14 @@ class TestRepeatedTimer(unittest.TestCase):
         finally:
             rt.stop()
 
+    def test_function_executed_repeatedly(self):
+        interval = 0.1
+        rt = RepeatedTimer(interval, self.test_function)
+        try:
+            self.test_done.wait(timeout=1.0)
+        finally:
+            rt.stop()
+
     def tearDown(self):
         self.test_done.clear()
         self.call_count = 0
