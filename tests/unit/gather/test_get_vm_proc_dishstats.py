@@ -46,6 +46,22 @@ class MockStatsStorage:
             json.dump(stats, f, ensure_ascii=False)
         self.logger.info(f"统计信息已保存到: {test_file}")
 
+class MockVMFactory:
+    def __init__(self, conn):
+        self.vc = conn
+        self.vms = {}
+        self.logger = logging.getLogger(__name__)
+        try:
+            domains = conn.listAllDomains()
+            for idx, dom in enumerate(domains, start=1):
+                if dom.isActive():
+                    self.vms[idx] = {
+                        "uuid": dom.UUIDString(),
+                        "name": dom.name()
+                    }
+        except Exception as e:
+            self.logger.error(f"获取虚拟机列表失败: {e}")
+
 class TestGetVMProcDishstats(unittest.TestCase):
     pass
 
