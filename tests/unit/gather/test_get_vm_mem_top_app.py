@@ -24,3 +24,6 @@ from gather.get_vm_mem_top_app import VMMemTopNCollector, logger, parse_args, ma
 class TestGetVMMemTopApp(unittest.TestCase):
     """VM内存TopN进程采集模块单元测试"""
     pass
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
