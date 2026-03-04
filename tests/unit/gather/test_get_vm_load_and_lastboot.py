@@ -40,6 +40,14 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
 
+    def test__run_cmd_success(self):
+        test_cmd = "virsh list --name"
+        mock_stdout = "node-vm01 node-vm02"
+        with patch("subprocess.run") as mock_subproc:
+            mock_res = MagicMock()
+            mock_res.stdout.strip.return_value = mock_stdout
+            mock_subproc.return_value = mock_res
+            result = self.monitor.call_run_cmd(test_cmd)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
