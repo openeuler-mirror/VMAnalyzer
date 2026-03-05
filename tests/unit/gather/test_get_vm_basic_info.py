@@ -58,5 +58,10 @@ class TestVMDomainMonitor(unittest.TestCase):
             result = self.monitor.run_virsh_cmd(test_cmd)
             self.assertIsNone(result)
 
+    def test_get_all_vm_names(self):
+        mock_output = "\n".join(self.test_vm_names)
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=mock_output) as mock_run_cmd:
+            vm_names = self.monitor.get_all_vm_names()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
