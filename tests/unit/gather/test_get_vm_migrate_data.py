@@ -35,6 +35,11 @@ def fake_run_virsh_cmd(cmd):
         ),
         # vm3 查询失败
         "virsh domjobinfo vm3": None,
+        # vm1 迁移参数
+        "virsh migrate-getmaxdowntime vm1": "500",
+        "virsh migrate-getspeed vm1": "104857600",  # 100MB/s
+        "virsh get-migration-pid vm1": "12345",
+        "virsh get-migration-multifd-pids vm1": "23456 23457",
     }
     return fake_outputs.get(cmd)
 
