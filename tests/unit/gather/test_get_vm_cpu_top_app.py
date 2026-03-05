@@ -68,6 +68,10 @@ class TestVMCPUTopNCollector(unittest.TestCase):
             }
         ]
         formatted = self.collector.format_process_info(raw_data)
+        self.assertEqual(formatted[0]["process_id"], "123")
+        self.assertEqual(formatted[0]["user"], "root")
+        self.assertEqual(formatted[0]["cmd_name"], "bash")
+        self.assertEqual(formatted[0]["cpu_util"], "50")
 
 if __name__ == "__main__":
     unittest.main()
