@@ -75,6 +75,13 @@ class TestGetVMMemTopApp(unittest.TestCase):
             mock_log_info.assert_called_with(f"执行命令：{test_cmd}")
             mock_log_err.assert_not_called()
 
+            # 场景2：命令执行失败（CalledProcessError）
+            mock_subproc.side_effect = subprocess.CalledProcessError(
+                returncode=1, cmd=test_cmd, stderr="connect failed"
+            )
+            result = self.collector.call_exec_virsh_cmd(test_cmd)
+            self.assertIsNone(result)
+            mock_log_err.assert_called_with(f"命令执行失败：{test_cmd}，错误：connect failed")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
