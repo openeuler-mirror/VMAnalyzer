@@ -40,6 +40,12 @@ class TestVMDomainMonitor(unittest.TestCase):
             result = self.monitor.run_virsh_cmd(test_cmd)
             result = self.monitor.run_virsh_cmd(test_cmd)
             self.assertEqual(result, mock_output)
+            mock_subprocess.assert_called_once_with(
+                test_cmd.split(),
+                capture_output=True,
+                text=True,
+                check=True
+            )
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
