@@ -48,5 +48,9 @@ class TestVMAnalyzer(unittest.TestCase):
     def tearDown(self):
         self.analyzer = None
 
+    def test_parse_fsinfo_normal(self):
+        parsed_list = self.analyzer.parse_fsinfo(self.mock_raw_fsinfo)
+        self.assertEqual(len(parsed_list), 3)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
