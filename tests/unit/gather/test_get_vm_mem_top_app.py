@@ -109,5 +109,11 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertEqual(vms, ["vm-db01", "vm-web01", "vm-cache01"])
             mock_exec.assert_called_once_with("virsh list --name | grep -v '^$'")
 
+        # 场景2：无运行VM，返回空列表
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec:
+            mock_exec.return_value = None
+            vms = self.collector.get_running_vms()
+            self.assertEqual(vms, [])
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
