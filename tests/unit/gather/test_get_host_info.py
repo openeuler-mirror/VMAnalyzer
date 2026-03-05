@@ -51,3 +51,4 @@ class TestHostHypervisorCollector(unittest.TestCase):
         self.assertEqual(result["version"]["compiled_libvirt"], "libvirt 8.0.0")
         self.assertEqual(result["nodeinfo"]["cpu(s)"], 16)
         self.assertEqual(result["nodeinfo"]["memory_size"], 32768)
+        self.assertEqual(result["nodememstats"]["total"], 32768000)
