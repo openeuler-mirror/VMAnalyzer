@@ -45,3 +45,5 @@ class TestHostHypervisorCollector(unittest.TestCase):
         self.assertEqual(result["hostname"], "test-host")
         self.assertEqual(result["uri"], "qemu:///system")
         self.assertEqual(result["version"]["compiled_libvirt"], "libvirt 8.0.0")
+        self.assertEqual(result["nodeinfo"]["cpu(s)"], 16)
+        self.assertEqual(result["nodeinfo"]["memory_size"], 32768)
