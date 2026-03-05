@@ -73,5 +73,15 @@ class TestVMCPUTopNCollector(unittest.TestCase):
         self.assertEqual(formatted[0]["cmd_name"], "bash")
         self.assertEqual(formatted[0]["cpu_util"], "50")
 
+    # 测试collect_all_vms
+    @mock.patch.object(
+        VMCPUTopNCollector,
+        "run_virsh_cmd",
+        side_effect=fake_run_virsh_cmd
+    )
+    def test_collect_all_vms(self, mock_run):
+        self.collector.collect_all_vms()
+        data = self.collector.collect_data
+
 if __name__ == "__main__":
     unittest.main()
