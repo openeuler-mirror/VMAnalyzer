@@ -69,3 +69,7 @@ class TestSingletonDecorator(unittest.TestCase):
 
         self.assertIsNot(test_instance, another_instance)
         self.assertEqual(another_instance.value, 100)
+
+    def test_singleton_log_output(self):
+        self.log_buffer.seek(0)
+        self.log_buffer.truncate()
