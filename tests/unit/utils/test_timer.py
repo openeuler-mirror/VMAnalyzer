@@ -70,7 +70,10 @@ class TestRepeatedTimer(unittest.TestCase):
         interval = 0.1
         rt = RepeatedTimer(interval, self.test_function)
         try:
+            original_next_call = rt.next_call
             rt.start()
+            self.assertEqual(rt.next_call, original_next_call)
+            self.assertEqual(rt.is_running, True)
         finally:
             rt.stop()
 
