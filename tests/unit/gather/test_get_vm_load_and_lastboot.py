@@ -48,6 +48,11 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             mock_res.stdout.strip.return_value = mock_stdout
             mock_subproc.return_value = mock_res
             result = self.monitor.call_run_cmd(test_cmd)
+            self.assertEqual(result, mock_stdout)
+            mock_subproc.assert_called_once_with(
+                test_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                universal_newlines=True, check=True, timeout=30
+            )
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
