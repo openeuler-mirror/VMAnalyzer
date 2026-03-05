@@ -62,3 +62,10 @@ class TestSingletonDecorator(unittest.TestCase):
         instance = self.TestClass("张三", age=25)
         self.assertEqual(instance.name, "张三")
         self.assertEqual(instance.age, 25)
+
+    def test_different_class_singleton_isolated(self):
+        test_instance = self.TestClass("test")
+        another_instance = self.AnotherTestClass(100)
+
+        self.assertIsNot(test_instance, another_instance)
+        self.assertEqual(another_instance.value, 100)
