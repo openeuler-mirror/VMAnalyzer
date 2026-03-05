@@ -52,6 +52,7 @@ class TestVMCPUTopNCollector(unittest.TestCase):
     def test_get_vm_cpu_topn_info_failed(self, mock_run):
         mock_run.return_value = None
         result = self.collector.get_vm_cpu_topn_info("vm1")
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
