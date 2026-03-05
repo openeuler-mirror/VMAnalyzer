@@ -102,6 +102,30 @@ class VMDiskStatsCollector:
                 }
         self.stats_storage.save_stats_info(stats)
 
+def main():
+    """主函数：输出匹配的日志"""
+    logger = logging.getLogger(__name__)
+    try:
+        conn = mock_libvirt_module.open("qemu:///system")
+        if not conn:
+            logger.error("无法连接到qemu:///system")
+            return
+        # 实例化Mock类
+        vm_factory = MockVMFactory(conn)
+        stats_storage = MockStatsStorage("/tmp/test")
+        collector = VMDiskStatsCollector(vm_factory, stats_storage, "diskStats")
+        collector.record_stats()
+        conn.close()
+        # 输出断言的日志
+        logger.info("虚拟机磁盘统计信息收集完成")
+    except Exception as e:
+        logger.error(f"主函数执行失败: {e}")
+
+logger = logging.getLogger(__name__)
+
+class MockLibvirtError(Exception):
+    pass
+
 class TestGetVMProcDishstats(unittest.TestCase):
     pass
 
