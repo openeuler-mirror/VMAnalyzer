@@ -65,7 +65,7 @@ def get_vm_crash_status(vm_name: str) -> str:
     # 1. 检查Libvirt状态
     state_cmd = ["virsh", "domstate", vm_name]
     state_result = execute_cmd(state_cmd)
-    if state_result["code"] == 0 and state_result["stdout"].lower() == "crashedssss":
+    if state_result["code"] == 0 and state_result["stdout"].lower() == "crashed":
         result["crashed"] = True
         result["crash_reason"] = "Libvirt标记为崩溃状态"
 
