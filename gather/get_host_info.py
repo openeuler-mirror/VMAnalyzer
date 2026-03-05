@@ -119,8 +119,13 @@ class HostHypervisorCollector:
         current_node = None
         for line in lines:
             if "Node" in line:
-                current_node = line.split()[1].strip()
-                self.result["nodecpustats"][f"node_{current_node}"] = {}
+                try:
+                    current_node = line.split()[1].strip()
+                    self.result["nodecpustats"][f"node_{current_node}"] = {}
+                except IndexError as e:
+                    LOG_ERROR(f"解析nodecpustats的Node行失败：{line}，错误：{e}")
+                    current_node = None
+                    continue
             elif ":" in line and current_node is not None:
                 key, value = line.split(":", 1)
                 key = key.strip().lower()
