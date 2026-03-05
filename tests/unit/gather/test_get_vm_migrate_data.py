@@ -73,5 +73,15 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
         self.assertFalse(self.collector.is_vm_migrating("vm2"))
         mock_run.assert_called_with("virsh domjobinfo vm2")
 
+    @mock.patch.object(
+        VMMigrationInfoCollector,
+        "run_virsh_cmd",
+        side_effect=fake_run_virsh_cmd
+    )
+    def test_get_migrating_vms(self, mock_run):
+        migrating_vms = self.collector.get_migrating_vms()
+        self.assertEqual(migrating_vms, ["vm1"])
+
+
 if __name__ == "__main__":
     unittest.main()
