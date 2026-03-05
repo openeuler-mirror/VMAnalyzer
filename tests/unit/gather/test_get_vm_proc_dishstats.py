@@ -127,7 +127,11 @@ class MockLibvirtError(Exception):
     pass
 
 class TestGetVMProcDishstats(unittest.TestCase):
-    pass
+    def setUp(self):
+        self.test_output_dir = "/root/VMAnalyzer_unit_test/VMAnalyzer-0.1.0/tests/temp/test_vm_proc_dishstats"
+        if os.path.exists(self.test_output_dir):
+            import shutil
+            shutil.rmtree(self.test_output_dir)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
