@@ -64,5 +64,12 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
             mock_log_err.assert_not_called()
 
+            # 场景2：其他错误，打印错误日志
+            mock_subproc.side_effect = subprocess.CalledProcessError(
+                returncode=1, cmd=test_cmd, stderr="failed to connect to libvirt"
+            )
+            self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
+            mock_log_err.assert_called_once()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
