@@ -15,6 +15,17 @@ import unittest
 from unittest import mock
 from gather.get_vm_migrate_data import VMMigrationInfoCollector
 
+def fake_run_virsh_cmd(cmd):
+    """
+    根据不同 virsh 命令，返回假数据
+    """
+    fake_outputs = {
+        # 获取 VM 列表
+        "virsh list --name | grep -v '^$' | grep -v '^-$'":
+            "vm1\nvm2\nvm3",
+    }
+    return fake_outputs.get(cmd)
+
 class TestVMMigrationInfoCollector(unittest.TestCase):
 
     def setUp(self):
