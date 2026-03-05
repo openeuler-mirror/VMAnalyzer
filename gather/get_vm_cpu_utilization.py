@@ -172,8 +172,9 @@ def parse_args():
     return parser.parse_args()
 
 def main():
+    args = parse_args()
     LOG_INFO("===== 开始进行虚拟机数据采集 =====")
-    collector = VMCollector()
+    collector = VMCollector(output_dir=args.output_dir, cmd_timeout=args.timeou)
     collector.collect_all_vms()
     collector.save_data()
     LOG_INFO("===== 数据采集与保存完成 =====")
