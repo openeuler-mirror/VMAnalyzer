@@ -49,3 +49,11 @@ class TestSingletonDecorator(unittest.TestCase):
         self.logger.removeHandler(self.log_handler)
         self.log_handler.close()
         self.log_buffer.close()
+
+    def test_singleton_return_same_instance(self):
+        instance1 = self.TestClass("test", age=20)
+        instance2 = self.TestClass("another", age=30)
+
+        self.assertIs(instance1, instance2)
+        self.assertEqual(instance1.name, "test")
+        self.assertEqual(instance1.age, 20)
