@@ -54,5 +54,20 @@ class TestVMCPUTopNCollector(unittest.TestCase):
         result = self.collector.get_vm_cpu_topn_info("vm1")
         self.assertIsNone(result)
 
+    def test_format_process_info(self):
+        raw_data = [
+            {
+                "process-id": " 123 ",
+                "process-info": {
+                    "user": " root ",
+                    "cpu-util": "50",
+                    "mem-util": "20",
+                    "open-files": "5",
+                    "cmd-name": "bash\n"
+                }
+            }
+        ]
+        formatted = self.collector.format_process_info(raw_data)
+
 if __name__ == "__main__":
     unittest.main()
