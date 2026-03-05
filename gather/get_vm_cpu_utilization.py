@@ -103,10 +103,13 @@ class VMCollector:
 
     def collect_single_vm_data(self, vm_name: str) -> Dict:
         LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
+
+        vm_state = self.get_vm_state(vm_name)
         
         cpu_utilization = self.call_qga_interface(vm_name, "guest-get-cpu-utilization")
         vm_data = {
             "name": vm_name,
+            "state": vm_state,
             "get_cpu_utilization": {
                 "interface": "guest-get-cpu-utilization",
                 "error": cpu_utilization["error"],
