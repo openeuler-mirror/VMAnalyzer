@@ -132,6 +132,20 @@ class TestGetVMProcDishstats(unittest.TestCase):
         if os.path.exists(self.test_output_dir):
             import shutil
             shutil.rmtree(self.test_output_dir)
+        self.mock_dom1 = MagicMock()
+        self.mock_dom1.name.return_value = "vm-db01"
+        self.mock_dom1.UUIDString.return_value = "uuid-123-456"
+        self.mock_dom1.isActive.return_value = True
+
+        self.mock_dom2 = MagicMock()
+        self.mock_dom2.name.return_value = "vm-web01"
+        self.mock_dom2.UUIDString.return_value = "uuid-789-000"
+        self.mock_dom2.isActive.return_value = True
+
+        self.mock_dom_inactive = MagicMock()
+        self.mock_dom_inactive.isActive.return_value = False
+
+        self.mock_conn = MagicMock()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
