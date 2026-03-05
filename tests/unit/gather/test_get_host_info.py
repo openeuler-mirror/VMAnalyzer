@@ -34,6 +34,10 @@ class TestHostHypervisorCollector(unittest.TestCase):
                     "CPU(s):              16\n"
                     "Memory size:         32768 MB"
                 ),
+                "virsh nodememstats": (
+                    "total: 32768000\n"
+                    "free: 16384000"
+                ),
             }
             return None
         with mock.patch.object(
