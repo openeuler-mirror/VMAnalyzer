@@ -66,6 +66,14 @@ class TestRepeatedTimer(unittest.TestCase):
         finally:
             rt.stop()
 
+    def test_start_when_running(self):
+        interval = 0.1
+        rt = RepeatedTimer(interval, self.test_function)
+        try:
+            rt.start()
+        finally:
+            rt.stop()
+
     def tearDown(self):
         self.test_done.clear()
         self.call_count = 0
