@@ -146,6 +146,21 @@ class VMCollector:
         except Exception as e:
             LOG_ERROR(f"保存数据失败：{str(e)}")
 
+def parse_args():
+    """改动8：补充argparse参数解析，支持命令行配置"""
+    parser = argparse.ArgumentParser(description="采集KVM虚拟机CPU利用率数据")
+    parser.add_argument(
+        "-o", "--output-dir",
+        default="./get_vm_cpu_utilization_data",
+        help="数据输出目录（默认：./get_vm_cpu_utilization_data）"
+    )
+    parser.add_argument(
+        "-t", "--timeout",
+        type=int,
+        default=30,
+        help="virsh命令超时时间（秒，默认：30）"
+    )
+    return parser.parse_args()
 
 def main():
     LOG_INFO("===== 开始进行虚拟机数据采集 =====")
