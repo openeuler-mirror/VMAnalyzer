@@ -29,8 +29,13 @@ class VMCPUTopNCollector:
         self.top_n = top_n
         self.poll_interval = poll_interval
         self.output_dir = output_dir
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
+        try:
+            if not os.path.exists(self.output_dir):
+                os.makedirs(self.output_dir)
+                LOG_INFO(f"输出目录创建成功：{self.output_dir}")
+        except OSError as e:
+            LOG_ERROR(f"输出目录创建失败：{str(e)}，目录路径：{self.output_dir}")
+            raise SystemExit(1)
         
         self.collect_data = {
             "collect_time": "",
