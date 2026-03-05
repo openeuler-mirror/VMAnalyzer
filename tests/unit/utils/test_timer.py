@@ -80,3 +80,6 @@ class TestRepeatedTimer(unittest.TestCase):
     def tearDown(self):
         self.test_done.clear()
         self.call_count = 0
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
