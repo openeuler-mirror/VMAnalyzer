@@ -23,6 +23,18 @@ def fake_run_virsh_cmd(cmd):
         # 获取 VM 列表
         "virsh list --name | grep -v '^$' | grep -v '^-$'":
             "vm1\nvm2\nvm3",
+        # vm1 正在迁移
+        "virsh domjobinfo vm1": (
+            "Job type: Migrate\n"
+            "Job state: Active\n"
+        ),
+        # vm2 未迁移
+        "virsh domjobinfo vm2": (
+            "Job type: None\n"
+            "Job state: Completed\n"
+        ),
+        # vm3 查询失败
+        "virsh domjobinfo vm3": None,
     }
     return fake_outputs.get(cmd)
 
