@@ -147,5 +147,11 @@ class TestGetVMProcDishstats(unittest.TestCase):
 
         self.mock_conn = MagicMock()
 
+    def test_MockStatsStorage_all_scenarios(self):
+        # 场景1：初始化，自动创建输出目录
+        stats_storage = MockStatsStorage(output_dir=self.test_output_dir)
+        self.assertEqual(stats_storage.output_dir, self.test_output_dir)
+        self.assertTrue(os.path.exists(self.test_output_dir))
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
