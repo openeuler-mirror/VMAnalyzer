@@ -93,12 +93,12 @@ class VMCPUTopNCollector:
             process_info = process.get("process-info", {})
             
             formatted_info = {
-                "process_id": process_id.strip(),
-                "user": process_info.get("user", "未知").strip(),
-                "cpu_util": process_info.get("cpu-util", "0").strip(),
-                "mem_util": process_info.get("mem-util", "0").strip(),
-                "open_files": process_info.get("open-files", "N/A").strip(),
-                "cmd_name": process_info.get("cmd-name", "未知").strip().replace("\n", "")
+                "process_id": str(process_id).strip(),
+                "user": str(process_info.get("user", "未知")).strip(),
+                "cpu_util": str(process_info.get("cpu-util", "0")).strip(),
+                "mem_util": str(process_info.get("mem-util", "0")).strip(),
+                "open_files": str(process_info.get("open-files", "N/A")).strip(),
+                "cmd_name": str(process_info.get("cmd-name", "未知")).strip().replace("\n", "")
             }
             formatted_data.append(formatted_info)
         return formatted_data
