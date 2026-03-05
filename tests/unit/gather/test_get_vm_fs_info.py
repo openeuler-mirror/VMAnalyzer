@@ -51,6 +51,8 @@ class TestVMAnalyzer(unittest.TestCase):
     def test_parse_fsinfo_normal(self):
         parsed_list = self.analyzer.parse_fsinfo(self.mock_raw_fsinfo)
         self.assertEqual(len(parsed_list), 3)
+        c_drive = parsed_list[0]
+        self.assertTrue(c_drive["is_system_volume"])
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
