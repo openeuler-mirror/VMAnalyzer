@@ -74,6 +74,12 @@ class VMCollector:
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
 
+    def get_vm_state(self, vm_name: str) -> str:
+        """获取虚拟机状态（running/shut off等）"""
+        cmd = f"virsh domstate {vm_name}"
+        output = self.run_virsh_cmd(cmd)
+        return output.strip() if output else "unknown"
+
     def call_qga_interface(self, vm_name: str, interface: str) -> Dict:
         # 关键修复：用双引号包裹 JSON，内部字段用转义双引号（shell 解析无歧义）
         json_param = f'{{"execute":"{interface}"}}'
