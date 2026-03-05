@@ -49,6 +49,14 @@ class TestVMDomainMonitor(unittest.TestCase):
 
     def test_run_virsh_cmd_fail(self):
         test_cmd = "virsh domstate non-exist-vm"
+        with patch("subprocess.run") as mock_subprocess:
+            mock_subprocess.side_effect = subprocess.CalledProcessError(
+                returncode=1,
+                cmd=test_cmd.split(),
+                stderr="Domain not found"
+            )
+            result = self.monitor.run_virsh_cmd(test_cmd)
+            self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
