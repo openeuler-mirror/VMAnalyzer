@@ -79,5 +79,11 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
             mock_log_err.assert_called_once()
 
+            # 场景2：通用异常，先重置mock，再调用方法
+            mock_subproc.side_effect = Exception("system error")
+            mock_log_err.reset_mock()
+            self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
+            mock_log_err.assert_called_once()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
