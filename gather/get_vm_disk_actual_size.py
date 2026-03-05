@@ -49,7 +49,7 @@ def get_vm_disk_list(vm_name: str) -> list:
     cmd = ["virsh", "domblklist", vm_name, "--details"]
     cmd_result = execute_cmd(cmd)
     if cmd_result["code"] != 0:
-        return disks
+        return disks,f"执行virsh domblklist失败: {cmd_result['stderr']}"
 
     # 解析domblklist输出（跳过表头）
     lines = cmd_result["stdout"].split("\n")[2:]
