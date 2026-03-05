@@ -55,3 +55,4 @@ class TestHostHypervisorCollector(unittest.TestCase):
         self.assertEqual(result["nodeinfo"]["cpu(s)"], 16)
         self.assertEqual(result["nodeinfo"]["memory_size"], 32768)
         self.assertEqual(result["nodememstats"]["total"], 32768000)
+        self.assertEqual(result["nodecpumap"]["node_0"], "0-15")
