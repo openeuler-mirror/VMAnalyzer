@@ -54,5 +54,15 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
                 universal_newlines=True, check=True, timeout=30
             )
 
+    def test__run_cmd_called_process_error(self):
+        test_cmd = "virsh list --name"
+        with patch("subprocess.run") as mock_subproc, patch.object(logger, "error") as mock_log_err:
+            # 场景1：错误含not supported/unknown command，不打印错误日志
+            mock_subproc.side_effect = subprocess.CalledProcessError(
+                returncode=1, cmd=test_cmd, stderr="operation not supported"
+            )
+            self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
+            mock_log_err.assert_not_called()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
