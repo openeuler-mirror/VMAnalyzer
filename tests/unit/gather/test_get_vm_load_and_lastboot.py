@@ -71,5 +71,13 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
             mock_log_err.assert_called_once()
 
+    def test__run_cmd_other_exceptions(self):
+        test_cmd = "virsh list --name"
+        with patch("subprocess.run") as mock_subproc, patch.object(logger, "error") as mock_log_err:
+            # 场景1：超时异常
+            mock_subproc.side_effect = subprocess.TimeoutExpired(cmd=test_cmd, timeout=30)
+            self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
+            mock_log_err.assert_called_once()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
