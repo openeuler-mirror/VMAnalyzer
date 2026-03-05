@@ -89,5 +89,11 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"命令执行超时：{test_cmd}（超过30秒）")
 
+            # 场景4：通用异常（如权限不足）
+            mock_subproc.side_effect = Exception("permission denied")
+            result = self.collector.call_exec_virsh_cmd(test_cmd)
+            self.assertIsNone(result)
+            mock_log_err.assert_called_with(f"命令执行异常：{test_cmd}，错误：permission denied")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
