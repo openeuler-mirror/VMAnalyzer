@@ -73,3 +73,8 @@ class TestSingletonDecorator(unittest.TestCase):
     def test_singleton_log_output(self):
         self.log_buffer.seek(0)
         self.log_buffer.truncate()
+
+        @singleton
+        class LogTestClass:
+            def __init__(self):
+                pass
