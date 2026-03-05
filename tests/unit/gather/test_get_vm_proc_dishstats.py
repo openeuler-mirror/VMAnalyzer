@@ -80,6 +80,28 @@ class VMDiskStatsCollector:
             )
             return None
 
+    def record_stats(self):
+        stats = {}
+        for vm_id, vm_info in self.vm_factory.vms.items():
+            try:
+                dom = self.vm_factory.vc.lookupByUUIDString(vm_info["uuid"])
+                cmd = {"execute": "bc-guest-get-diskstats"}
+                qga_resp = self._send_qga_command(dom, cmd)
+                disk_mounts = qga_resp.get("return", []) if qga_resp else []
+                stats[vm_id] = {
+                    "name": vm_info["name"],
+                    "disk_mounts": disk_mounts,
+                    "timestamp": datetime.datetime.now().timestamp()
+                }
+            except Exception as e:
+                self.logger.debug(f"无法找到VM: {vm_info['name']} {e.args}")
+                stats[vm_id] = {
+                    "name": vm_info["name"],
+                    "disk_mounts": [],
+                    "timestamp": datetime.datetime.now().timestamp()
+                }
+        self.stats_storage.save_stats_info(stats)
+
 class TestGetVMProcDishstats(unittest.TestCase):
     pass
 
