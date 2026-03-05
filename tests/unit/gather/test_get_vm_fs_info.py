@@ -53,6 +53,8 @@ class TestVMAnalyzer(unittest.TestCase):
         self.assertEqual(len(parsed_list), 3)
         c_drive = parsed_list[0]
         self.assertTrue(c_drive["is_system_volume"])
+        data_drive = parsed_list[1]
+        self.assertFalse(data_drive["is_system_volume"])
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
