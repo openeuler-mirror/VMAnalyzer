@@ -67,7 +67,7 @@ def get_vm_disk_list(vm_name: str) -> list:
             })
     return disks
 
-def get_vm_disk_actual_size(vm_name: str) -> str:
+def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
     result = {
         "vm_name": vm_name,
         "disks": [],
@@ -120,8 +120,7 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        vm_result_json = get_vm_disk_actual_size(vm)
-        vm_result = json.loads(vm_result_json)
+        vm_result = get_vm_disk_actual_size(vm)
         results.append(vm_result)
 
     # 输出所有虚机的结果（JSON数组）
