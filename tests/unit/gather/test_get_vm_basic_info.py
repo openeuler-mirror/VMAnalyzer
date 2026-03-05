@@ -47,5 +47,8 @@ class TestVMDomainMonitor(unittest.TestCase):
                 check=True
             )
 
+    def test_run_virsh_cmd_fail(self):
+        test_cmd = "virsh domstate non-exist-vm"
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
