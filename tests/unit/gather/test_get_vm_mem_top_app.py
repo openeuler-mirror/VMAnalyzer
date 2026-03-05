@@ -95,5 +95,19 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"命令执行异常：{test_cmd}，错误：permission denied")
 
+            # 场景5：命令成功但无输出，返回None
+            mock_res.stdout.strip.return_value = ""
+            mock_subproc.side_effect = None
+            result = self.collector.call_exec_virsh_cmd(test_cmd)
+            self.assertIsNone(result)
+
+    def test_get_running_vms(self):
+        # 场景1：有运行VM，返回非空列表
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec:
+            mock_exec.return_value = "vm-db01 vm-web01 vm-cache01"
+            vms = self.collector.get_running_vms()
+            self.assertEqual(vms, ["vm-db01", "vm-web01", "vm-cache01"])
+            mock_exec.assert_called_once_with("virsh list --name | grep -v '^$'")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
