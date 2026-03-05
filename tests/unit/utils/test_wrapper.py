@@ -57,3 +57,8 @@ class TestSingletonDecorator(unittest.TestCase):
         self.assertIs(instance1, instance2)
         self.assertEqual(instance1.name, "test")
         self.assertEqual(instance1.age, 20)
+
+    def test_singleton_parameter_passing(self):
+        instance = self.TestClass("张三", age=25)
+        self.assertEqual(instance.name, "张三")
+        self.assertEqual(instance.age, 25)
