@@ -103,8 +103,8 @@ def get_vm_disk_actual_size(vm_name: str) -> str:
                     # 计算使用率
                     if disk_info["virtual_size"] > 0:
                         disk_info["usage_rate"] = round(disk_info["actual_size"] / disk_info["virtual_size"], 4)
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as e:
+                    disk_info["error"] = f"JSON解析失败: {str(e)}"
 
         result["disks"].append(disk_info)
 
