@@ -38,6 +38,9 @@ class TestHostHypervisorCollector(unittest.TestCase):
                     "total: 32768000\n"
                     "free: 16384000"
                 ),
+                "virsh nodecpumap": (
+                    "Node 0 CPUs: 0-15"
+                ),
             }
             return None
         with mock.patch.object(
