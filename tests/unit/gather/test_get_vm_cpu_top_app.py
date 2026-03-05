@@ -48,5 +48,10 @@ class TestVMCPUTopNCollector(unittest.TestCase):
         self.assertIsInstance(result, list)
         self.assertEqual(result[0]["process-id"], "1")
 
+    @mock.patch.object(VMCPUTopNCollector, "run_virsh_cmd")
+    def test_get_vm_cpu_topn_info_failed(self, mock_run):
+        mock_run.return_value = None
+        result = self.collector.get_vm_cpu_topn_info("vm1")
+
 if __name__ == "__main__":
     unittest.main()
