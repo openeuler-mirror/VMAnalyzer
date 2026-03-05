@@ -39,6 +39,11 @@ class TestVMAnalyzer(unittest.TestCase):
             ("Data", "/var/lib/libvirt/images/win10_data.img", "ntfs", ["/dev/vda2"]),
             ("System Reserved", "/var/lib/libvirt/images/win10_reserved.img", "ntfs", ["/dev/vda3"])
         ]
+        self.empty_raw_fsinfo = []
+        self.invalid_raw_fsinfo = [("OnlyName",), ("Name&Path", "/path",), (None, None, None)]
+        self.mock_vm_name = "test-win10"
+        self.mock_vm_uuid = "12345678-1234-1234-1234-1234567890ab"
+        self.mock_libvirt_error = mock_libvirt.libvirtError()
 
     def tearDown(self):
         self.analyzer = None
