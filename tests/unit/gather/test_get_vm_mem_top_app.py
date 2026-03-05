@@ -83,5 +83,11 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"命令执行失败：{test_cmd}，错误：connect failed")
 
+            # 场景3：命令执行超时（TimeoutExpired）
+            mock_subproc.side_effect = subprocess.TimeoutExpired(cmd=test_cmd, timeout=30)
+            result = self.collector.call_exec_virsh_cmd(test_cmd)
+            self.assertIsNone(result)
+            mock_log_err.assert_called_with(f"命令执行超时：{test_cmd}（超过30秒）")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
