@@ -82,6 +82,18 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
         migrating_vms = self.collector.get_migrating_vms()
         self.assertEqual(migrating_vms, ["vm1"])
 
+    @mock.patch.object(
+        VMMigrationInfoCollector,
+        "run_virsh_cmd",
+        side_effect=fake_run_virsh_cmd
+    )
+    def test_collect_migration_info(self, mock_run):
+        info = self.collector.collect_migration_info("vm1")
+        self.assertEqual(info["max_tolerable_downtime"], "500")
+        self.assertIn("104857600 字节/秒", info["max_migration_bandwidth"])
+        self.assertEqual(info["migration_pid"], "12345")
+        self.assertEqual(info["migration_multifd_pids"], "23456 23457")
+        self.assertIn("Job type: Migrate", info["migration_status_detail"])
 
 if __name__ == "__main__":
     unittest.main()
