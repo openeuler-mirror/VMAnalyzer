@@ -93,5 +93,9 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             self.assertEqual(vms, ["vm-web01", "vm-db01"])
             mock_run_cmd.assert_called_once_with("virsh list --name | grep -v '^$'")
 
+        with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
+            mock_run_cmd.return_value = None
+            self.assertEqual(self.monitor.get_running_vms(), [])
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
