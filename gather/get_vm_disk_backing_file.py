@@ -89,7 +89,8 @@ def get_vm_disk_backing_file(vm_name: str) -> str:
             "path": disk["source"],
             "backing_file": "",
             "format": "",
-            "read_only": False
+            "read_only": False,
+            "img_error": ""
         }
 
         # 判断是否只读（通过QEMU命令行）
