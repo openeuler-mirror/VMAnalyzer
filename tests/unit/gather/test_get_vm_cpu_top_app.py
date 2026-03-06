@@ -82,6 +82,9 @@ class TestVMCPUTopNCollector(unittest.TestCase):
     def test_collect_all_vms(self, mock_run):
         self.collector.collect_all_vms()
         data = self.collector.collect_data
+        self.assertEqual(data["running_vm_count"], 2)
+        self.assertIn("vm1", data["vm_list"])
+        self.assertIn("vm2", data["vm_list"])
 
 if __name__ == "__main__":
     unittest.main()
