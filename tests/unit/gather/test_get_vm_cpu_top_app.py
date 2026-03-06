@@ -85,6 +85,15 @@ class TestVMCPUTopNCollector(unittest.TestCase):
         self.assertEqual(data["running_vm_count"], 2)
         self.assertIn("vm1", data["vm_list"])
         self.assertIn("vm2", data["vm_list"])
+        # vm1 成功
+        vm1 = data["vm_list"]["vm1"]
+        self.assertEqual(vm1["status"], "采集成功")
+        self.assertEqual(vm1["top_n"], 2)
+        self.assertEqual(len(vm1["process_list"]), 2)
+        # vm2 失败
+        vm2 = data["vm_list"]["vm2"]
+        self.assertEqual(vm2["status"], "采集失败")
+        self.assertEqual(vm2["process_list"], [])
 
 if __name__ == "__main__":
     unittest.main()
