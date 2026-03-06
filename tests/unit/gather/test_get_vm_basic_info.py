@@ -69,6 +69,8 @@ class TestVMDomainMonitor(unittest.TestCase):
     def test_parse_domstate(self):
         with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_domstate_running) as mock_run_cmd:
             state = self.monitor.parse_domstate(self.test_vm_name)
+            self.assertEqual(state, self.mock_domstate_running)
+            mock_run_cmd.assert_called_once_with(f"virsh domstate {self.test_vm_name}")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
