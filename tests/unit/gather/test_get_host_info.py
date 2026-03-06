@@ -41,6 +41,13 @@ class TestHostHypervisorCollector(unittest.TestCase):
                 "virsh nodecpumap": (
                     "Node 0 CPUs: 0-15"
                 ),
+                "virsh nodecpustats": (
+                    "Node 0\n"
+                    "user: 1849008820000000\n"
+                    "system: 458427880000000\n"
+                    "idle: 123563844050000000\n"
+                    "iowait: 217276840000000"
+                ),
             }
             return None
         with mock.patch.object(
