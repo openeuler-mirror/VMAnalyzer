@@ -26,6 +26,7 @@ class TestVMDomainMonitor(unittest.TestCase):
         self.monitor = vm_monitor.VMDomainMonitor()
         self.test_vm_name = "vm-test-01"
         self.test_vm_names = ["vm-test-01", "vm-test-02"]
+        self.mock_domstate_running = "running"
     def tearDown(self):
         self.monitor = None
 
@@ -64,6 +65,10 @@ class TestVMDomainMonitor(unittest.TestCase):
             vm_names = self.monitor.get_all_vm_names()
             self.assertEqual(vm_names, self.test_vm_names)
             mock_run_cmd.assert_called_once_with("virsh list --all --name")
+
+    def test_parse_domstate(self):
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_domstate_running) as mock_run_cmd:
+            state = self.monitor.parse_domstate(self.test_vm_name)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
