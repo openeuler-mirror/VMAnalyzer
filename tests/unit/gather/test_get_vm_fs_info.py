@@ -60,5 +60,9 @@ class TestVMAnalyzer(unittest.TestCase):
         self.assertEqual(c_drive["device"], "/dev/vda1")
         self.assertEqual(c_drive["volume_path"], "/var/lib/libvirt/images/win10_c.img")
 
+    def test_parse_fsinfo_empty_and_invalid(self):
+        empty_parsed = self.analyzer.parse_fsinfo(self.empty_raw_fsinfo)
+        self.assertEqual(len(empty_parsed), 0)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
