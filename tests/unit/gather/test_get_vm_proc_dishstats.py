@@ -170,5 +170,15 @@ class TestGetVMProcDishstats(unittest.TestCase):
             self.assertEqual(save_data, mock_stats)
             mock_log_info.assert_called_once()
 
+    def test_MockVMFactory_all_scenarios(self):
+        # 场景1：获取成功，存在活跃VM
+        self.mock_conn.listAllDomains.return_value = [self.mock_dom1, self.mock_dom2]
+        vm_factory = MockVMFactory(self.mock_conn)
+        self.assertEqual(vm_factory.vc, self.mock_conn)
+        self.assertEqual(vm_factory.vms, {
+            1: {"uuid": "uuid-123-456", "name": "vm-db01"},
+            2: {"uuid": "uuid-789-000", "name": "vm-web01"}
+        })
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
