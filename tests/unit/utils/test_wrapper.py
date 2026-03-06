@@ -78,3 +78,8 @@ class TestSingletonDecorator(unittest.TestCase):
         class LogTestClass:
             def __init__(self):
                 pass
+
+        LogTestClass()
+        self.log_buffer.seek(0)
+        log_output = self.log_buffer.read().strip()
+        self.assertIn("DEBUG: () {}", log_output)
