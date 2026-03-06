@@ -153,5 +153,22 @@ class TestGetVMProcDishstats(unittest.TestCase):
         self.assertEqual(stats_storage.output_dir, self.test_output_dir)
         self.assertTrue(os.path.exists(self.test_output_dir))
 
+        # 场景2：保存统计信息成功（正确mock datetime）
+        mock_stats = {"1": {"name": "vm-db01", "disk_mounts": []}}
+        mock_timestamp = "20260207_100000"
+        mock_dt = MagicMock()
+        mock_dt.strftime.return_value = mock_timestamp
+        mock_dt.timestamp.return_value = 1738867200
+
+        with patch("datetime.datetime") as mock_datetime, patch.object(stats_storage.logger, "info") as mock_log_info:
+            mock_datetime.now.return_value = mock_dt
+            stats_storage.save_stats_info(mock_stats)
+            test_file = os.path.join(self.test_output_dir, f"diskstats_info_{mock_timestamp}.json")
+            self.assertTrue(os.path.exists(test_file))
+            with open(test_file, "r", encoding="utf-8") as f:
+                save_data = json.load(f)
+            self.assertEqual(save_data, mock_stats)
+            mock_log_info.assert_called_once()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
