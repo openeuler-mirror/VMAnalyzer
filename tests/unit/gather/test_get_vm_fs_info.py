@@ -57,6 +57,8 @@ class TestVMAnalyzer(unittest.TestCase):
         self.assertFalse(data_drive["is_system_volume"])
         res_drive = parsed_list[2]
         self.assertTrue(res_drive["is_system_volume"])
+        self.assertEqual(c_drive["device"], "/dev/vda1")
+        self.assertEqual(c_drive["volume_path"], "/var/lib/libvirt/images/win10_c.img")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
