@@ -95,5 +95,15 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
         self.assertEqual(info["migration_multifd_pids"], "23456 23457")
         self.assertIn("Job type: Migrate", info["migration_status_detail"])
 
+    @mock.patch.object(
+        VMMigrationInfoCollector,
+        "run_virsh_cmd",
+        side_effect=fake_run_virsh_cmd
+    )
+    def test_collect_all_migrating_vms(self, mock_run):
+        self.collector.collect_all_migrating_vms()
+        data = self.collector.migration_data
+        self.assertEqual(data["migrating_vms_count"], 1)
+
 if __name__ == "__main__":
     unittest.main()
