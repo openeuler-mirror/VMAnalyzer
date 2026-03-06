@@ -107,6 +107,8 @@ def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
                         disk_info["usage_rate"] = round(disk_info["actual_size"] / disk_info["virtual_size"], 4)
                 except json.JSONDecodeError as e:
                     disk_info["error"] = f"JSON解析失败: {str(e)}"
+        else:
+            disk_info["error"] = "磁盘source路径为空"
 
         result["disks"].append(disk_info)
 
