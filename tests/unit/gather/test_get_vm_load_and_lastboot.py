@@ -85,5 +85,13 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
             mock_log_err.assert_called_once()
 
+    def test_get_running_vms(self):
+        # 场景1：有运行的VM，返回非空列表
+        with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
+            mock_run_cmd.return_value = "vm-web01 vm-db01"
+            vms = self.monitor.get_running_vms()
+            self.assertEqual(vms, ["vm-web01", "vm-db01"])
+            mock_run_cmd.assert_called_once_with("virsh list --name | grep -v '^$'")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
