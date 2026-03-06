@@ -83,3 +83,6 @@ class TestSingletonDecorator(unittest.TestCase):
         self.log_buffer.seek(0)
         log_output = self.log_buffer.read().strip()
         self.assertIn("DEBUG: () {}", log_output)
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
