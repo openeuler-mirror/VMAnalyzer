@@ -70,6 +70,14 @@ class VMCollector:
         return output.split() if output else []
 
     def call_qga_interface(self, vm_name: str, interface: str) -> Dict:
+        vm_state = self.get_vm_state(vm_name)
+        if vm_state != "running":
+            return {
+                "status": "failed",
+                "data": {},
+                "error": f"VM状态为{vm_state}，无法调用QGA接口（仅运行中VM支持）"
+            }
+
         # 关键修复：用双引号包裹 JSON，内部字段用转义双引号（shell 解析无歧义）
         json_param = f'{{"execute":"{interface}"}}'
         # 外层用单引号包裹 JSON 参数，避免 shell 转义冲突
