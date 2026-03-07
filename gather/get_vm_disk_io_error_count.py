@@ -103,11 +103,20 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
             for line in blk_result["stdout"].split("\n"):
                 line = line.strip()
                 if "Read errors:" in line:
-                    error_info["read_errors"] = int(line.split(":")[1].strip())
+                    try:
+                        error_info["read_errors"] = int(line.split(":")[1].strip())
+                    except (IndexError, ValueError):
+                        error_info["read_errors"] = 0
                 elif "Write errors:" in line:
-                    error_info["write_errors"] = int(line.split(":")[1].strip())
+                    try:
+                        error_info["write_errors"] = int(line.split(":")[1].strip())
+                    except (IndexError, ValueError):
+                        error_info["write_errors"] = 0
                 elif "Flush errors:" in line:
-                    error_info["flush_errors"] = int(line.split(":")[1].strip())
+                    try:
+                        error_info["flush_errors"] = int(line.split(":")[1].strip())
+                    except (IndexError, ValueError):
+                        error_info["flush_errors"] = 0
 
         result["disks"].append(error_info)
 
