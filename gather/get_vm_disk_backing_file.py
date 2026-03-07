@@ -57,13 +57,13 @@ def get_vm_disk_list(vm_name: str) -> list:
         line = line.strip()
         if not line or line.startswith("---"):
             continue
-        parts = re.split(r"\s+", line)
+        parts = re.split(r"\s+", line, maxsplit=3)
         if len(parts) >= 4:
             disks.append({
                 "type": parts[0],
                 "device": parts[1],
                 "target": parts[2],
-                "source": parts[3] if len(parts) > 3 else ""
+                "source": parts[3].strip()
             })
     return disks
 
