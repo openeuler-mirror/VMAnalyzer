@@ -101,6 +101,7 @@ def get_vm_disk_backing_file(vm_name: str) -> str:
                     img_json = json.loads(img_result["stdout"])
                     disk_info["backing_file"] = img_json.get("backing-filename", "")
                     disk_info["format"] = img_json.get("format", "")
+                    disk_info["read_only"] = img_json.get("read-only", False)
                 except json.JSONDecodeError:
                     pass
 
