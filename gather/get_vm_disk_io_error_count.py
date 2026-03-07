@@ -116,6 +116,9 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
                         error_info["flush_errors"] = int(line.split(":")[1].strip())
                     except (IndexError, ValueError):
                         error_info["flush_errors"] = 0
+        else:
+            # 修复点3：记录domblkerror命令执行失败的原因
+            error_info["blk_error"] = f"domblkerror命令执行失败: {blk_result['stderr']}"
 
         result["disks"].append(error_info)
 
