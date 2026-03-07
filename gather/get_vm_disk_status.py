@@ -96,6 +96,7 @@ class VMCollector:
         disk_status = self.call_qga_interface(vm_name, "guest-get-disk-status")
         vm_data = {
             "name": vm_name,
+            "state": self.get_vm_state(vm_name),
             "get_disk_status": {
                 "interface": "guest-get-disk-status",
                 "error": disk_status["error"],
