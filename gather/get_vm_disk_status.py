@@ -7,6 +7,7 @@ import logging
 import time
 import argparse
 import os
+import shlex
 from datetime import datetime
 
 try:
@@ -62,6 +63,14 @@ class VMCollector:
         except Exception as e:
             LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
             return None
+
+    def get_vm_state(self, vm_name: str) -> str:
+        """新增方法：获取VM运行状态（running/stopped/unknown）"""
+        # 改动4：用shlex.quote转义VM名称，避免命令注入
+        escaped_vm_name = shlex.quote(vm_name)
+        cmd = f"virsh domstate {escaped_vm_name}"
+        output = self.run_virsh_cmd(cmd)
+        return output.strip().lower() if output else "unknown"
 
     def get_all_vm_names(self) -> List[str]:
         """获取所有有效虚拟机名称（过滤空行和无效值）"""
