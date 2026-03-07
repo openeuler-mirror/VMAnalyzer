@@ -92,7 +92,8 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
             "dev": dev,
             "read_errors": 0,
             "write_errors": 0,
-            "flush_errors": 0
+            "flush_errors": 0,
+            "blk_error": ""
         }
 
         # 执行virsh domblkerror
