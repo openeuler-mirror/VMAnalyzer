@@ -104,6 +104,9 @@ def get_vm_disk_backing_file(vm_name: str) -> str:
                     disk_info["read_only"] = img_json.get("read-only", False)
                 except json.JSONDecodeError as e:
                     disk_info["img_error"] = f"JSON解析失败: {str(e)}"
+            else:
+                # 记录qemu-img执行失败的错误信息  # 【改动8】捕获qemu-img执行错误
+                disk_info["img_error"] = f"qemu-img执行失败: {img_result['stderr']}"
 
         result["disks"].append(disk_info)
 
