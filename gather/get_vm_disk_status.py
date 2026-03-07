@@ -146,9 +146,12 @@ class VMCollector:
 
 def main():
     LOG_INFO("===== 开始进行虚拟机数据采集 =====")
-    collector = VMCollector()
-    collector.collect_all_vms()
-    collector.save_data()
+    try:
+        collector = VMCollector()
+        collector.collect_all_vms()
+        collector.save_data()
+    except Exception as e:
+        LOG_ERROR(f"数据采集流程异常终止：{str(e)}")
     LOG_INFO("===== 数据采集与保存完成 =====")
 
 if __name__ == "__main__":
