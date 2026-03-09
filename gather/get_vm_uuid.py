@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# _*_coding: utf-8 _*_
 """判断虚机是否崩溃"""
 import subprocess
 import json
