@@ -16,8 +16,45 @@ from unittest import mock
 import json
 from gather.get_vm_cpu_top_app import VMCPUTopNCollector
 
-class TestVMCPUTopNCollector(unittest.TestCase):
+def fake_run_virsh_cmd(cmd):
+    """
+    根据不同 virsh / qga 命令返回模拟数据
+    """
+    # 运行中的 VM 列表
+    if cmd == "virsh list --name | grep -v '^$'":
+        return "vm1\nvm2"
+    # vm1：QGA 正常返回 CPU TopN 数据
+    if "guest-get-cputopn-status" in cmd and "vm1" in cmd:
+        return json.dumps({
+            "return": [
+                {
+                    "process-id": "123",
+                    "process-info": {
+                        "user": "root",
+                        "cpu-util": "50.5",
+                        "mem-util": "10.2",
+                        "open-files": "12",
+                        "cmd-name": "python\n"
+                    }
+                },
+                {
+                    "process-id": "456",
+                    "process-info": {
+                        "user": "nobody",
+                        "cpu-util": "20.1",
+                        "mem-util": "5.6",
+                        "open-files": "3",
+                        "cmd-name": "nginx\n"
+                    }
+                }
+            ]
+        })
+    # vm2：QGA 查询失败
+    if "guest-get-cputopn-status" in cmd and "vm2" in cmd:
+        return None
+    return None
 
+class TestVMCPUTopNCollector(unittest.TestCase):
     def setUp(self):
         self.collector = VMCPUTopNCollector(
             top_n=2,
@@ -25,6 +62,7 @@ class TestVMCPUTopNCollector(unittest.TestCase):
             output_dir="/tmp/test_vm_cpu_topn"
         )
 
+    # 测试get_running_vm_names
     @mock.patch.object(VMCPUTopNCollector, "run_virsh_cmd")
     def test_get_running_vm_names(self, mock_run):
         mock_run.return_value = "vm1\nvm2\nvm3"
@@ -34,6 +72,7 @@ class TestVMCPUTopNCollector(unittest.TestCase):
             "virsh list --name | grep -v '^$'"
         )
 
+    # 测试 get_vm_cpu_topn_info
     @mock.patch.object(VMCPUTopNCollector, "run_virsh_cmd")
     def test_get_vm_cpu_topn_info_success(self, mock_run):
         mock_run.return_value = json.dumps({
@@ -54,6 +93,7 @@ class TestVMCPUTopNCollector(unittest.TestCase):
         result = self.collector.get_vm_cpu_topn_info("vm1")
         self.assertIsNone(result)
 
+    # 测试format_process_info
     def test_format_process_info(self):
         raw_data = [
             {
@@ -95,6 +135,7 @@ class TestVMCPUTopNCollector(unittest.TestCase):
         self.assertEqual(vm2["status"], "采集失败")
         self.assertEqual(vm2["process_list"], [])
 
+    # 测试save_data
     @mock.patch("builtins.open", new_callable=mock.mock_open)
     @mock.patch("json.dump")
     def test_save_data(self, mock_dump, mock_open):
