@@ -185,5 +185,12 @@ class TestGetVMProcDishstats(unittest.TestCase):
         vm_factory_empty = MockVMFactory(self.mock_conn)
         self.assertEqual(vm_factory_empty.vms, {})
 
+        # 场景3：获取VM列表失败
+        with patch.object(vm_factory.logger, "error") as mock_log_err:
+            self.mock_conn.listAllDomains.side_effect = MockLibvirtError("conn failed")
+            vm_factory_err = MockVMFactory(self.mock_conn)
+            self.assertEqual(vm_factory_err.vms, {})
+            mock_log_err.assert_called_with("获取虚拟机列表失败: conn failed")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
