@@ -95,5 +95,13 @@ class TestVMCPUTopNCollector(unittest.TestCase):
         self.assertEqual(vm2["status"], "采集失败")
         self.assertEqual(vm2["process_list"], [])
 
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    @mock.patch("json.dump")
+    def test_save_data(self, mock_dump, mock_open):
+        self.collector.collect_data = {"test": "ok"}
+        self.collector.save_data()
+        mock_open.assert_called_once()
+        mock_dump.assert_called_once()
+
 if __name__ == "__main__":
     unittest.main()
