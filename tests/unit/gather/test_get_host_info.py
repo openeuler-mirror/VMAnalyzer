@@ -48,6 +48,20 @@ class TestHostHypervisorCollector(unittest.TestCase):
                     "idle: 123563844050000000\n"
                     "iowait: 217276840000000"
                 ),
+                "virsh nodesevinfo": "",
+                "virsh capabilities": (
+                    "<capabilities>"
+                    "<host>"
+                    "<cpu>"
+                    "<arch>x86_64</arch>"
+                    "<model>Skylake</model>"
+                    "<vendor>Intel</vendor>"
+                    "<topology sockets='1' cores='8' threads='2'/>"
+                    "</cpu>"
+                    "<memory unit='KiB'>32768000</memory>"
+                    "</host>"
+                    "</capabilities>"
+                ),
             }
             return None
         with mock.patch.object(
