@@ -57,7 +57,7 @@ class VMEventLoopNative(VMEventLoop):
     def start(self):
         libvirt.virEventRegisterDefaultImpl()
         thread = threading.Thread(target=self.run_loop, name="libvirtEventLoop")
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
 
 
