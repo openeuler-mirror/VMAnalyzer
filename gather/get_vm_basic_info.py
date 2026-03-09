@@ -22,6 +22,7 @@ class VMDomainMonitor:
             "vm_count": 0,
             "vms": {}
         }
+        self._cache = {}
 
     def run_virsh_cmd(self, cmd: str) -> Optional[str]:
         try:
