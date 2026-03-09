@@ -83,127 +83,59 @@ class VMStatsRedisStorage(VMStatsStorage):
                    '(e.g. systemctl start redis).') % (host, port, err)
             return False, msg
 
-    def save_stats_info(self, stats_info):
-        pipe = self.__sr.pipeline()
-        pipe.multi()
+def save_stats_info(self, stats_info):
+    pipe = self.__sr.pipeline()
+    pipe.multi()
 
-        label = self.__label
+    label = self.__label
 
-        if label == 'cpuUsage':
-            for vm_id, vm_stats in list(stats_info.items()):
-                try:
-                    data_dict = {
-                        'id': vm_id,
-                        'name': vm_stats['name'],
-                        'vcpus': vm_stats['vcpus'],
-                        'cputime': vm_stats['cputime'],
-                        'timestamp': vm_stats['timestamp']
-                    }
-                    pipe.zadd(vm_stats['uuid'],
-                              {json.dumps(data_dict): vm_stats['timestamp']})
-                except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s',
-                                    vm_stats['name'], err.args)
+    if label == 'cpuUsage':
+        for vm_id, vm_stats in list(stats_info.items()):
+            try:
+                data_dict = {
+                    'id': vm_id,
+                    'name': vm_stats['name'],
+                    'vcpus': vm_stats['vcpus'],
+                    'cputime': vm_stats['cputime'],
+                    'timestamp': vm_stats['timestamp']
+                }
+                pipe.zadd(vm_stats['uuid'], {json.dumps(data_dict): vm_stats['timestamp']})
+            except Exception as err:
+                logging.warning('Unable to save stats of %s: %s', vm_stats['name'], err.args)
 
-        elif label == 'memoryUsage':
-            for vm_id, vm_stats in list(stats_info.items()):
-                try:
-                    data_dict = {
-                        'id': vm_id,
-                        'name': vm_stats['name'],
-                        'totalMemory': vm_stats['totalMemory'],
-                        'usedMemory': vm_stats['usedMemory'],
-                        'timestamp': vm_stats['timestamp']
-                    }
-                    pipe.zadd(vm_stats['uuid'],
-                              {json.dumps(data_dict): vm_stats['timestamp']})
-                except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s',
-                                    vm_stats['name'], err.args)
+    elif label == 'memoryUsage':
+        # 同上，构造 totalMemory/usedMemory 的 data_dict 并 zadd
 
-        elif label == 'networkTraffic':
-            for vm_id, vm_stats in list(stats_info.items()):
-                try:
-                    data_dict = {
-                        'id': vm_id,
-                        'name': vm_stats['name'],
-                        'interfaceAddresses': vm_stats['interfaceAddresses'],
-                        'networkTraffic': vm_stats['networkTraffic'],
-                        'timestamp': vm_stats['timestamp']
-                    }
-                    pipe.zadd(vm_stats['uuid'],
-                              {json.dumps(data_dict): vm_stats['timestamp']})
-                except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s',
-                                    vm_stats['name'], err.args)
+    elif label == 'networkTraffic':
+        # 同上，构造 interfaceAddresses/networkTraffic 的 data_dict 并 zadd
 
-        elif label == 'blkio':
-            for vm_id, vm_stats in list(stats_info.items()):
-                try:
-                    data_dict = {
-                        'id': vm_id,
-                        'name': vm_stats['name'],
-                        'blkStatus': vm_stats['blkStatus'],
-                        'blkI/O': vm_stats['blkI/O'],
-                        'timestamp': vm_stats['timestamp']
-                    }
-                    pipe.zadd(vm_stats['uuid'],
-                              {json.dumps(data_dict): vm_stats['timestamp']})
-                except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s',
-                                    vm_stats['name'], err.args)
+    elif label == 'blkio':
+        # 同上，构造 blkStatus/blkI/O 的 data_dict 并 zadd
 
-        elif label == 'log_vm':
-            for vm_id, vm_stats in list(stats_info.items()):
-                try:
-                    data_dict = {
-                        'id': vm_id,
-                        'name': vm_stats['name'],
-                        'current_state': vm_stats['current_state'],
-                        'latest_event': vm_stats['latest_event'],
-                        'state_log': vm_stats['state_log'],
-                        'timestamp': vm_stats['timestamp']
-                    }
-                    pipe.zadd(vm_stats['uuid'],
-                              {json.dumps(data_dict): vm_stats['timestamp']})
-                except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s',
-                                    vm_stats['name'], err.args)
+    elif label == 'log_vm':
+        # 同上，构造 current_state/latest_event/state_log 的 data_dict 并 zadd
 
-        elif label == 'vcpus_info':
-            for vm_id, vm_stats in list(stats_info.items()):
-                try:
-                    data_dict = {
-                        'id': vm_id,
-                        'name': vm_stats['name'],
-                        'vcpuinfo': vm_stats['vcpuinfo'],
-                        'timestamp': vm_stats['timestamp']
-                    }
-                    pipe.zadd(vm_stats['uuid'],
-                              {json.dumps(data_dict): vm_stats['timestamp']})
-                except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s',
-                                    vm_stats['name'], err.args)
+    elif label == 'vcpus_info':
+        # 同上，构造 vcpuinfo 的 data_dict 并 zadd
 
-        else:
-            logging.error('error label!')
-        pipe.execute()
+    elif label == 'processInfo':
+        for vm_id, vm_stats in list(stats_info.items()):
+            try:
+                data_dict = {
+                    'id': vm_id,
+                    'name': vm_stats['name'],
+                    'cpu_top5': vm_stats['cpu_top5'],
+                    'mem_top5': vm_stats['mem_top5'],
+                    'timestamp': vm_stats['timestamp']
+                }
+                pipe.zadd(vm_stats['uuid'], {json.dumps(data_dict): vm_stats['timestamp']})
+            except Exception as err:
+                logging.warning('Unable to save stats of %s: %s', vm_stats['name'], err.args)
 
-        elif label == 'processInfo':
-            for vm_id, vm_stats in list(stats_info.items()):
-                try:
-                    data_dict = {
-                        'id': vm_id,
-                        'name': vm_stats['name'],
-                        'cpu_top5': vm_stats['cpu_top5'],
-                        'mem_top5': vm_stats['mem_top5'],
-                        'timestamp': vm_stats['timestamp']
-                    }
-                    pipe.zadd(vm_stats['uuid'],
-                              {json.dumps(data_dict): vm_stats['timestamp']})
-                except Exception as err:
-                    logging.warning('Unable to save stats of %s: %s',
-                                    vm_stats['name'], err.args)
+    else:
+        logging.error('error label!')
+
+    pipe.execute()
 
     def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
         # VM has been shutdown or destroyed???
