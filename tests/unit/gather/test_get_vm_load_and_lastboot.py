@@ -109,5 +109,10 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
                 f"virsh qemu-agent-command {test_vm} '{{\"execute\":\"guest-get-lastboot-time\"}}'"
             )
 
+        # 场景2：命令执行失败，返回采集失败
+        with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
+            mock_run_cmd.return_value = None
+            self.assertEqual(self.monitor.get_boot_time(test_vm), "采集失败")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
