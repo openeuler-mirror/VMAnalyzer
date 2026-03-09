@@ -180,5 +180,10 @@ class TestGetVMProcDishstats(unittest.TestCase):
             2: {"uuid": "uuid-789-000", "name": "vm-web01"}
         })
 
+        # 场景2：无活跃VM
+        self.mock_conn.listAllDomains.return_value = [self.mock_dom_inactive]
+        vm_factory_empty = MockVMFactory(self.mock_conn)
+        self.assertEqual(vm_factory_empty.vms, {})
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
