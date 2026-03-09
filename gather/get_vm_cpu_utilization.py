@@ -29,8 +29,7 @@ class VMCollector:
         self.output_dir = output_dir
         self.cmd_timeout = cmd_timeout
         try:
-            if not os.path.exists(self.output_dir):
-                os.makedirs(self.output_dir)
+            os.makedirs(self.output_dir, exist_ok=True)
         except Exception as e:
             LOG_ERROR(f"创建输出目录失败：{self.output_dir}，错误：{str(e)}")
             raise SystemExit(1)
