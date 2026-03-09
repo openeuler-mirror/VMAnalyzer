@@ -14,12 +14,11 @@ import logging
 
 def singleton(cls, *args, **kwargs):
     instance = {}
-    logging.debug("%s %s", args, kwargs)
 
     def wrapperSingleton(*args, **kwargs):
         if cls not in instance:
+            logging.debug("Creating singleton instance for %s with args: %s %s", cls.__name__, args, kwargs)
             instance[cls] = cls(*args, **kwargs)
-
         return instance[cls]
 
     return wrapperSingleton
