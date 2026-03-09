@@ -81,3 +81,7 @@ class TestHostHypervisorCollector(unittest.TestCase):
             result["nodecpustats"]["node_0"]["user"],
             1849008820000000
         )
+        self.assertEqual(result["nodesevinfo"], {})
+        self.assertEqual(
+            result["capabilities"]["cpu"]["arch"], "x86_64"
+        )
