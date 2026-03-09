@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# _*_coding: utf-8 _*_
 import json
 import os
 from datetime import datetime
