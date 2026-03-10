@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# _*_coding: utf-8 _*_
 """采集虚机Libvirt生命周期状态"""
 import json
 import subprocess
-import json
 from lxml import etree
 from typing import Optional, Dict, Any
 

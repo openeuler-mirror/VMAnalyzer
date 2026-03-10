@@ -97,5 +97,22 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             mock_run_cmd.return_value = None
             self.assertEqual(self.monitor.get_running_vms(), [])
 
+    def test_get_boot_time(self):
+        test_vm = "vm-web01"
+        # 场景1：采集成功，正常解析JSON
+        mock_boot_resp = "{\"return\": {\"lastboot\": \"2026-02-05T08:00:00Z\"}}"
+        with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
+            mock_run_cmd.return_value = mock_boot_resp
+            boot_time = self.monitor.get_boot_time(test_vm)
+            self.assertEqual(boot_time, "2026-02-05T08:00:00Z")
+            mock_run_cmd.assert_called_once_with(
+                f"virsh qemu-agent-command {test_vm} '{{\"execute\":\"guest-get-lastboot-time\"}}'"
+            )
+
+        # 场景2：命令执行失败，返回采集失败
+        with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
+            mock_run_cmd.return_value = None
+            self.assertEqual(self.monitor.get_boot_time(test_vm), "采集失败")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

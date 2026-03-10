@@ -104,6 +104,9 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
         self.collector.collect_all_migrating_vms()
         data = self.collector.migration_data
         self.assertEqual(data["migrating_vms_count"], 1)
+        self.assertIn("vm1", data["migrating_vms"])
+        vm1_info = data["migrating_vms"]["vm1"]
+        self.assertEqual(vm1_info["migration_pid"], "12345")
 
 if __name__ == "__main__":
     unittest.main()

@@ -63,6 +63,11 @@ class TestVMAnalyzer(unittest.TestCase):
     def test_parse_fsinfo_empty_and_invalid(self):
         empty_parsed = self.analyzer.parse_fsinfo(self.empty_raw_fsinfo)
         self.assertEqual(len(empty_parsed), 0)
+        invalid_parsed = self.analyzer.parse_fsinfo(self.invalid_raw_fsinfo)
+        self.assertEqual(len(invalid_parsed), 3)
+        self.assertEqual(invalid_parsed[0]["fs_type"], "Unknown")
+        self.assertEqual(invalid_parsed[0]["device"], "Unknown")
+        self.assertEqual(invalid_parsed[2]["device"], "Unknown")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
