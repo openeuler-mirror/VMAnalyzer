@@ -62,6 +62,7 @@ class TestHostHypervisorCollector(unittest.TestCase):
                     "</host>"
                     "</capabilities>"
                 ),
+                "virsh maxvcpus": "128",
             }
             return None
         with mock.patch.object(
