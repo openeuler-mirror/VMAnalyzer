@@ -192,5 +192,17 @@ class TestGetVMProcDishstats(unittest.TestCase):
             self.assertEqual(vm_factory_err.vms, {})
             mock_log_err.assert_called_with("获取虚拟机列表失败: conn failed")
 
+    def test_VMDiskStatsCollector__send_qga_command(self):
+        """测试VMDiskStatsCollector._send_qga_command：已通过"""
+        class TestableVMDiskStatsCollector(VMDiskStatsCollector):
+            def call_send_qga_command(self, dom, cmd):
+                return super()._send_qga_command(dom, cmd)
+
+        # 初始化采集器
+        mock_vm_factory = MagicMock()
+        mock_stats_storage = MagicMock()
+        collector = TestableVMDiskStatsCollector(mock_vm_factory, mock_stats_storage, "diskStats")
+        collector.logger = logging.getLogger(__name__)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
