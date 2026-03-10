@@ -32,6 +32,11 @@ function log()
 # 检测宿主机各节点大页数量
 function record_node_hugepages()
 {
+    # 检查numactl命令是否存在
+    if ! command -v numactl &> /dev/null; then
+        err_info "numactl command not found, please install numactl first"
+        return 1
+    fi
     numanode_size=`numactl --hardware | grep "node .* size" | wc -l`
     for((i=0;i<$numanode_size;i++));
     do
