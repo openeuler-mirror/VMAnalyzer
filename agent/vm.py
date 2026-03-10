@@ -57,7 +57,7 @@ class VMFactory:
 
     @property
     def vc(self):
-        if not self.__vc or self.__vc.isAlive():
+        if not self.__vc or not self.__vc.isAlive():
             self.__vc = libvirt.openReadOnly(self.__uri)
         return self.__vc
 
