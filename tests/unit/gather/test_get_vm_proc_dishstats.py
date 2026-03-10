@@ -204,5 +204,15 @@ class TestGetVMProcDishstats(unittest.TestCase):
         collector = TestableVMDiskStatsCollector(mock_vm_factory, mock_stats_storage, "diskStats")
         collector.logger = logging.getLogger(__name__)
 
+        # 场景1：QGA命令成功
+        mock_cmd = {"execute": "bc-guest-get-diskstats"}
+        mock_qga_resp = "{\"return\": [{\"dev\": \"vda1\", \"read\": 100}]}"
+        with patch("libvirt_qemu.qemuAgentCommand", return_value=mock_qga_resp) as mock_qga_cmd:
+            result = collector.call_send_qga_command(self.mock_dom1, mock_cmd)
+            self.assertEqual(result, json.loads(mock_qga_resp))
+            mock_qga_cmd.assert_called_once_with(
+                self.mock_dom1, json.dumps(mock_cmd), 30 * 1000, 0
+            )
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
