@@ -19,7 +19,28 @@ import libvirt
 import gather.get_vm_schedu_info as get_vm_schedu_info
 
 class TestGetVMScheduInfo(unittest.TestCase):
-    pass
+    @patch("get_vm_schedu_info.open", new_callable=mock_open)
+    @patch("get_vm_schedu_info.libvirt.open")
+    def test_main_success(self, mock_libvirt_open, mock_file):
+        mock_conn = MagicMock()
+        mock_libvirt_open.return_value = mock_conn
+        mock_conn.listDomainsID.return_value = [1]
+        running_dom = MagicMock()
+        running_dom.name.return_value = "vm_running"
+        running_dom.schedulerType.return_value = "posix"
+        running_dom.schedulerParameters.return_value = {"cpu_shares": 1024}
+        running_dom.jobInfo.return_value = (1, 0, 100, 200)
+        running_dom.ioThreadInfo.return_value = [(1, {0, 1})]
+        mock_conn.lookupByID.return_value = running_dom
+
+        mock_conn.listDefinedDomains.return_value = ["vm_stop"]
+        stop_dom = MagicMock()
+        stop_dom.name.return_value = "vm_stop"
+        stop_dom.schedulerType.return_value = "posix"
+        stop_dom.schedulerParameters.return_value = {"cpu_shares": 512}
+        stop_dom.jobInfo.side_effect = libvirt.libvirtError("no job")
+        stop_dom.ioThreadInfo.return_value = []
+        mock_conn.lookupByName.return_value = stop_dom
 
 if __name__ == "__main__":
     unittest.main()
