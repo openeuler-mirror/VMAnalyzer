@@ -152,7 +152,7 @@ function check_each_node_hugepage()
                 num_2M_hugepages_sum=$sum
                 set_nr_hugepages=`cat "/sys/devices/system/node/node$nid/hugepages/$hugepagesize/nr_hugepages"`
                 if [ $num_2M_hugepages_sum -ne $set_nr_hugepages ]; then
-                    err_info "node$nid/hugepages/$hugepagesz/nr_hugepages system max-used is $set_nr_hugepages"
+                    err_info "node$nid/hugepages/$hugepagesize/nr_hugepages system max-used is $set_nr_hugepages"
                     return 1
                 fi
             fi
