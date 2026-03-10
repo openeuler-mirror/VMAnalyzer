@@ -75,5 +75,13 @@ class TestVMDomainMonitor(unittest.TestCase):
             state = self.monitor.parse_domstate(self.test_vm_name)
             self.assertEqual(state, "unknown")
 
+    def test_parse_domtime(self):
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_domtime_output) as mock_run_cmd:
+            domtime = self.monitor.parse_domtime(self.test_vm_name)
+            self.assertEqual(domtime["utc_time"], "2026-02-05 10:00:00")
+            self.assertEqual(domtime["local_time"], "2026-02-05 18:00:00")
+            self.assertEqual(domtime["time_offset"], "28800 seconds")
+            mock_run_cmd.assert_called_once_with(f"virsh domtime {self.test_vm_name}")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
