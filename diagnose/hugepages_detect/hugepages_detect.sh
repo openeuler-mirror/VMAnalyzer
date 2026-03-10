@@ -67,7 +67,7 @@ function record_vm_hugepages()
         pid=`ps -ef | grep qemu | grep $vm | awk '{print $2}'`
         total_2M=`grep -B 11 'KernelPageSize: 2048 kB' /proc/$pid/smaps | grep "^Size:" | awk 'BEGIN{sum=0}{sum+=$2}END{print sum/1024}'`
         total_1G=`grep -B 11 'KernelPageSize: 1048576 kB' /proc/$pid/smaps | grep "^Size:" | awk 'BEGIN{sum=0}{sum+=$2}END{print sum/1048576}'`
-        log "$vm occupied $total_2M M, occupied $total_1G G /n"
+        log "$vm occupied $total_2M M, occupied $total_1G G \n"
     done
 }
 
