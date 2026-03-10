@@ -17,3 +17,9 @@ import json
 import libvirt
 
 import gather.get_vm_schedu_info as get_vm_schedu_info
+
+class TestGetVMScheduInfo(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
