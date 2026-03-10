@@ -119,5 +119,17 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             mock_run_cmd.return_value = "invalid json string"
             self.assertEqual(self.monitor.get_boot_time(test_vm), "解析失败")
 
+    def test_get_load_avg(self):
+        test_vm = "vm-db01"
+        # 场景1：采集成功，正常解析1/5/15分钟负载
+        mock_load_resp = "{\"return\": {\"load1-average\": \"0.05\", \"load5-average\": \"0.03\", \"load15-average\": \"0.01\"}}"
+        with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
+            mock_run_cmd.return_value = mock_load_resp
+            load_data = self.monitor.get_load_avg(test_vm)
+            self.assertEqual(load_data["1min"], "0.05")
+            self.assertEqual(load_data["5min"], "0.03")
+            self.assertEqual(load_data["15min"], "0.01")
+            self.assertEqual(load_data["note"], "采集成功")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
