@@ -153,7 +153,7 @@ monitor() {
     exit 0
 }
 
-while getopts 'h' OPT; do
+while getopts 'ht:d:' OPT; do  # 声明 t/d 选项，: 表示带参数
     case $OPT in
         "h")
             usage
