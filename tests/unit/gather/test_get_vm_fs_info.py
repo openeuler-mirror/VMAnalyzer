@@ -93,5 +93,18 @@ class TestVMAnalyzer(unittest.TestCase):
         mock_dom.fsInfo.assert_called_once()
         mock_log_info.assert_any_call(f"{self.mock_vm_name} 文件系统信息获取完成（分区数：3）")
 
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_get_single_vm_info_shutoff(self, mock_log_info):
+        mock_dom = MagicMock()
+        mock_dom.UUIDString.return_value = self.mock_vm_uuid
+        mock_dom.state.return_value = (VIR_DOMAIN_SHUTOFF, 0)
+        mock_conn = MagicMock()
+        mock_conn.lookupByName.return_value = mock_dom
+        vm_info = self.analyzer.get_single_vm_info(self.mock_vm_name, mock_conn)
+        self.assertEqual(vm_info[self.mock_vm_uuid]["status"], "已关闭")
+        self.assertEqual(vm_info[self.mock_vm_uuid]["fs_info"], [])
+        mock_dom.fsInfo.assert_not_called()
+        mock_log_info.assert_any_call(f"{self.mock_vm_name} 非运行状态，跳过文件系统信息获取")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
