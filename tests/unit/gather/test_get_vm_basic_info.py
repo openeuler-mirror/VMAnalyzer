@@ -86,5 +86,23 @@ class TestVMDomainMonitor(unittest.TestCase):
             domtime = self.monitor.parse_domtime(self.test_vm_name)
             self.assertEqual(domtime, {})
 
+    def test_parse_domblklist(self):
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_domblklist_output):
+            blk_list = self.monitor.parse_domblklist(self.test_vm_name)
+            self.assertEqual(len(blk_list), 3)
+            self.assertEqual(blk_list[0]["type"], "file")
+            self.assertEqual(blk_list[0]["target"], "vda")
+            self.assertEqual(blk_list[2]["source"], "-")
+
+    def test_parse_domiflist_and_ifaddr(self):
+        # 1. 测试parse_domiflist
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_domiflist_output):
+            if_list = self.monitor.parse_domiflist(self.test_vm_name)
+            self.assertEqual(len(if_list), 2)
+            self.assertEqual(if_list[0]["interface"], "vnet0")
+            self.assertEqual(if_list[1]["mac"], "52:54:00:65:43:21")
+            if_names = [iface["interface"] for iface in if_list]
+            self.assertEqual(if_names, ["vnet0", "vnet1"])
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
