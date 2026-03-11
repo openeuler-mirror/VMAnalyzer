@@ -219,5 +219,13 @@ class TestGetVMProcDishstats(unittest.TestCase):
             result = collector.call_send_qga_command(self.mock_dom1, mock_cmd)
             self.assertIsNone(result)
 
+        # 场景3：QGA执行失败
+        with patch("libvirt_qemu.qemuAgentCommand", side_effect=MockLibvirtError("qga error")), patch.object(collector.logger, "error") as mock_log_err:
+            result = collector.call_send_qga_command(self.mock_dom1, mock_cmd)
+            self.assertIsNone(result)
+            mock_log_err.assert_called_with(
+                "VM vm-db01: QGA命令失败 [bc-guest-get-diskstats]，错误: qga error"
+            )
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
