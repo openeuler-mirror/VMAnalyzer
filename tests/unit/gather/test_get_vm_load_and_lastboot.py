@@ -164,5 +164,13 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
                         self.assertIn("vm-web01", self.monitor.data["vms"])
                         self.assertEqual(self.monitor.data["vms"]["vm-web01"]["status"], "success")
 
+            # 场景2：无运行的VM，采集空数据
+            self.monitor.data = {"collect_time": "", "vm_count": 0, "vms": {}}  # 恢复__init__的初始结构
+            with patch.object(self.monitor, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = []
+                self.monitor.collect()
+                self.assertEqual(self.monitor.data["vm_count"], 0)
+                self.assertEqual(self.monitor.data["vms"], {})
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
