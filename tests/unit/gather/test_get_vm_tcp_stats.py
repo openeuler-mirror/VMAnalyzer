@@ -16,3 +16,10 @@ from unittest.mock import patch, MagicMock, mock_open
 import json
 
 import gather.get_vm_tcp_stats as get_vm_tcp_stats
+
+
+class TestVMQgaTCPCollector(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
