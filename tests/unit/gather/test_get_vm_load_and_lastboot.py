@@ -131,5 +131,12 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             self.assertEqual(load_data["15min"], "0.01")
             self.assertEqual(load_data["note"], "采集成功")
 
+        # 场景2：命令执行失败，返回默认N/A
+        with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
+            mock_run_cmd.return_value = None
+            load_data = self.monitor.get_load_avg(test_vm)
+            self.assertEqual(load_data["1min"], "N/A")
+            self.assertEqual(load_data["note"], "不支持/采集失败")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
