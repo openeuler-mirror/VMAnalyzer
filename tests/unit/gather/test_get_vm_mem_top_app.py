@@ -131,5 +131,12 @@ class TestGetVMMemTopApp(unittest.TestCase):
             mock_exec.assert_called_once_with(f"virsh qemu-agent-command {test_vm} '{expected_qga_params}'")
             mock_log_err.assert_not_called()
 
+        # 场景2：命令无返回数据，采集失败
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
+            mock_exec.return_value = None
+            result = self.collector.get_vm_mem_topn(test_vm)
+            self.assertIsNone(result)
+            mock_log_err.assert_called_with(f"VM {test_vm} 内存TopN信息采集失败：无返回数据")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
