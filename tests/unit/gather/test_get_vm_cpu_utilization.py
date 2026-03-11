@@ -17,3 +17,10 @@ import subprocess
 import json
 
 import gather.get_vm_cpu_utilization as get_vm_cpu_utilization
+
+class TestRunVirshCmd(unittest.TestCase):
+    @patch("get_vm_cpu_utilization.subprocess.run")
+    def test_run_cmd_success(self, mock_run):
+        mock_result = MagicMock()
+        mock_result.stdout = "test output\n"
+        mock_run.return_value = mock_result
