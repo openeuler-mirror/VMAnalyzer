@@ -11,3 +11,9 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
+import unittest
+from unittest.mock import patch, MagicMock, mock_open
+import subprocess
+import json
+
+import gather.get_vm_cpu_utilization as get_vm_cpu_utilization
