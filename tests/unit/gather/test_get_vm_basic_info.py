@@ -110,5 +110,11 @@ class TestVMDomainMonitor(unittest.TestCase):
             self.assertEqual(len(if_addrs["vnet1"]), 1)
             self.assertEqual(if_addrs["vnet0"][0]["address"], "192.168.1.100/24")
 
+    def test_parse_dommemstat_and_domstats(self):
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_dommemstat_output):
+            memstat = self.monitor.parse_dommemstat(self.test_vm_name)
+            self.assertEqual(memstat["actual"], 2048)
+            self.assertEqual(type(memstat["actual"]), int)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
