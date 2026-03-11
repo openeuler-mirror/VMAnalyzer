@@ -43,5 +43,16 @@ class TestGetVMScheduInfo(unittest.TestCase):
         mock_conn.lookupByName.return_value = stop_dom
         get_vm_schedu_info.main()
 
+        mock_file.assert_called_once_with(
+            "vm_scheduler_info.json", "w", encoding="utf-8"
+        )
+        handle = mock_file()
+        written = "".join(call.args[0] for call in handle.write.call_args_list)
+        result = json.loads(written)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["name"], "vm_running")
+        self.assertEqual(result[1]["name"], "vm_stop")
+        mock_conn.close.assert_called_once()
+
 if __name__ == "__main__":
     unittest.main()
