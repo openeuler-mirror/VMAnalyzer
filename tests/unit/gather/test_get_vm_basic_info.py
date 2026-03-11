@@ -86,5 +86,13 @@ class TestVMDomainMonitor(unittest.TestCase):
             domtime = self.monitor.parse_domtime(self.test_vm_name)
             self.assertEqual(domtime, {})
 
+    def test_parse_domblklist(self):
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_domblklist_output):
+            blk_list = self.monitor.parse_domblklist(self.test_vm_name)
+            self.assertEqual(len(blk_list), 3)
+            self.assertEqual(blk_list[0]["type"], "file")
+            self.assertEqual(blk_list[0]["target"], "vda")
+            self.assertEqual(blk_list[2]["source"], "-")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
