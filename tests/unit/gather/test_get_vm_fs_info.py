@@ -69,5 +69,15 @@ class TestVMAnalyzer(unittest.TestCase):
         self.assertEqual(invalid_parsed[0]["device"], "Unknown")
         self.assertEqual(invalid_parsed[2]["device"], "Unknown")
 
+    @patch.object(vm_fs_info, "LOG_ERROR")
+    def test_get_single_vm_info_not_found(self, mock_log_error):
+        mock_conn = MagicMock()
+        mock_conn.lookupByName.return_value = None
+        vm_info = self.analyzer.get_single_vm_info(self.mock_vm_name, mock_conn)
+        vm_detail = next(iter(vm_info.values()))
+        self.assertIsInstance(vm_detail, str)
+        self.assertEqual(vm_detail, "")
+        mock_log_error.assert_called_with(f"未找到名称为 {self.mock_vm_name} 的虚拟机")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
