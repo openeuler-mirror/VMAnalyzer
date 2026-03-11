@@ -98,3 +98,6 @@ class TestHostHypervisorCollector(unittest.TestCase):
         self.assertEqual(
             result["sysinfo"]["system"]["manufacturer"], "ACME"
         )
+
+if __name__ == "__main__":
+    unittest.main()
