@@ -214,5 +214,10 @@ class TestGetVMProcDishstats(unittest.TestCase):
                 self.mock_dom1, json.dumps(mock_cmd), 30 * 1000, 0
             )
 
+        # 场景2：QGA返回空
+        with patch("libvirt_qemu.qemuAgentCommand", return_value=None):
+            result = collector.call_send_qga_command(self.mock_dom1, mock_cmd)
+            self.assertIsNone(result)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
