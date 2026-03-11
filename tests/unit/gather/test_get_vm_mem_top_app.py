@@ -115,5 +115,21 @@ class TestGetVMMemTopApp(unittest.TestCase):
             vms = self.collector.get_running_vms()
             self.assertEqual(vms, [])
 
+    def test_get_vm_mem_topn_all_scenarios(self):
+        test_vm = "vm-db01"
+        mock_qga_resp = "{\"return\": [{\"process-id\": \"123\", \"process-info\": {\"user\": \"root\"}}]}"
+        # 场景1：采集成功，正常返回数据
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
+            mock_exec.return_value = mock_qga_resp
+            result = self.collector.get_vm_mem_topn(test_vm)
+            self.assertIsInstance(result, list)
+            self.assertEqual(len(result), 1)
+            expected_qga_params = json.dumps({
+                "execute": "guest-get-memtopn-status",
+                "arguments": {"memtopn-num": str(self.top_n)}
+            })
+            mock_exec.assert_called_once_with(f"virsh qemu-agent-command {test_vm} '{expected_qga_params}'")
+            mock_log_err.assert_not_called()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
