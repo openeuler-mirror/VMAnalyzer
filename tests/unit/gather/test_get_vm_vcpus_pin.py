@@ -15,3 +15,10 @@ import unittest
 from unittest.mock import patch, MagicMock
 import subprocess
 import gather.get_vm_vcpus_pin as get_vm_vcpus_pin
+
+# affinity解析测试
+class TestParseAffinityString(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
