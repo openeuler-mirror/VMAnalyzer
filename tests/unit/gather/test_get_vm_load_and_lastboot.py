@@ -144,5 +144,25 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             load_data = self.monitor.get_load_avg(test_vm)
             self.assertEqual(load_data["note"], "解析失败")
 
+    def test_collect(self):
+        mock_collect_time = "2026-02-05 14:00:00"
+        with patch("gather.get_vm_load_and_lastboot.datetime") as mock_datetime:
+            mock_datetime.now.return_value = datetime.strptime(mock_collect_time, "%Y-%m-%d %H:%M:%S")
+            mock_datetime.strftime = datetime.strftime  # 保留strftime方法
+            # 场景1：有运行的VM，采集成功
+            with patch.object(self.monitor, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = ["vm-web01"]
+                with patch.object(self.monitor, "get_boot_time") as mock_boot:
+                    mock_boot.return_value = "2026-02-05T08:00:00Z"
+                    with patch.object(self.monitor, "get_load_avg") as mock_load:
+                        mock_load.return_value = {
+                            "1min": "0.05", "5min": "0.03", "15min": "0.01", "note": "采集成功"
+                        }
+                        self.monitor.collect()
+                        self.assertEqual(self.monitor.data["collect_time"], mock_collect_time)
+                        self.assertEqual(self.monitor.data["vm_count"], 1)
+                        self.assertIn("vm-web01", self.monitor.data["vms"])
+                        self.assertEqual(self.monitor.data["vms"]["vm-web01"]["status"], "success")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
