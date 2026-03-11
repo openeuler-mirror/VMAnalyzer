@@ -106,5 +106,15 @@ class TestVMAnalyzer(unittest.TestCase):
         mock_dom.fsInfo.assert_not_called()
         mock_log_info.assert_any_call(f"{self.mock_vm_name} 非运行状态，跳过文件系统信息获取")
 
+    @patch.object(vm_fs_info, "LOG_ERROR")
+    def test_get_single_vm_info_libvirt_error(self, mock_log_error):
+        mock_conn = MagicMock()
+        mock_conn.lookupByName.side_effect = self.mock_libvirt_error
+        vm_info = self.analyzer.get_single_vm_info(self.mock_vm_name, mock_conn)
+        vm_detail = next(iter(vm_info.values()))
+        self.assertIsInstance(vm_detail, dict)
+        self.assertEqual(vm_detail["status"], "异常(连接失败)")
+        mock_log_error.assert_called_with(f"{self.mock_vm_name} 信息获取异常：连接失败")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
