@@ -79,5 +79,19 @@ class TestVMAnalyzer(unittest.TestCase):
         self.assertEqual(vm_detail, "")
         mock_log_error.assert_called_with(f"未找到名称为 {self.mock_vm_name} 的虚拟机")
 
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_get_single_vm_info_running(self, mock_log_info):
+        mock_dom = MagicMock()
+        mock_dom.UUIDString.return_value = self.mock_vm_uuid
+        mock_dom.state.return_value = (VIR_DOMAIN_RUNNING, 0)
+        mock_dom.fsInfo.return_value = self.mock_raw_fsinfo
+        mock_conn = MagicMock()
+        mock_conn.lookupByName.return_value = mock_dom
+        vm_info = self.analyzer.get_single_vm_info(self.mock_vm_name, mock_conn)
+        self.assertEqual(vm_info[self.mock_vm_uuid]["status"], "运行中")
+        self.assertEqual(len(vm_info[self.mock_vm_uuid]["fs_info"]), 3)
+        mock_dom.fsInfo.assert_called_once()
+        mock_log_info.assert_any_call(f"{self.mock_vm_name} 文件系统信息获取完成（分区数：3）")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
