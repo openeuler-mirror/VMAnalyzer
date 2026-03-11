@@ -19,7 +19,9 @@ import gather.get_vm_tcp_stats as get_vm_tcp_stats
 
 
 class TestVMQgaTCPCollector(unittest.TestCase):
-    pass
+    @patch("get_vm_tcp_stats.subprocess.run")
+    def test_run_virsh_cmd_success(self, mock_run):
+        mock_run.return_value = MagicMock(stdout="output\n", stderr="", returncode=0)
 
 if __name__ == "__main__":
     unittest.main()
