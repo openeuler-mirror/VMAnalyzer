@@ -138,5 +138,11 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             self.assertEqual(load_data["1min"], "N/A")
             self.assertEqual(load_data["note"], "不支持/采集失败")
 
+        # 场景3：返回无效JSON，解析失败
+        with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
+            mock_run_cmd.return_value = "invalid json string"
+            load_data = self.monitor.get_load_avg(test_vm)
+            self.assertEqual(load_data["note"], "解析失败")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
