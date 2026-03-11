@@ -54,5 +54,9 @@ class TestGetVMScheduInfo(unittest.TestCase):
         self.assertEqual(result[1]["name"], "vm_stop")
         mock_conn.close.assert_called_once()
 
+    @patch("get_vm_schedu_info.libvirt.open")
+    def test_libvirt_connect_fail(self, mock_open):
+        mock_open.return_value = None
+
 if __name__ == "__main__":
     unittest.main()
