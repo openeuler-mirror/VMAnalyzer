@@ -95,3 +95,6 @@ class TestHostHypervisorCollector(unittest.TestCase):
             result["capabilities"]["cpu"]["arch"], "x86_64"
         )
         self.assertEqual(result["maxvcpus"], 128)
+        self.assertEqual(
+            result["sysinfo"]["system"]["manufacturer"], "ACME"
+        )
