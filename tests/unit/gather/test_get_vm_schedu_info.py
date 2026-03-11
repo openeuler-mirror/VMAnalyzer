@@ -57,6 +57,9 @@ class TestGetVMScheduInfo(unittest.TestCase):
     @patch("get_vm_schedu_info.libvirt.open")
     def test_libvirt_connect_fail(self, mock_open):
         mock_open.return_value = None
+        with patch("builtins.print") as mock_print:
+            get_vm_schedu_info.main()
+        mock_print.assert_any_call("无法连接到 libvirt 守护进程！")
 
 if __name__ == "__main__":
     unittest.main()
