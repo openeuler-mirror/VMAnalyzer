@@ -103,6 +103,12 @@ class TestVMDomainMonitor(unittest.TestCase):
             self.assertEqual(if_list[1]["mac"], "52:54:00:65:43:21")
             if_names = [iface["interface"] for iface in if_list]
             self.assertEqual(if_names, ["vnet0", "vnet1"])
+        # 2. 测试parse_domifaddr
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_domifaddr_output):
+            if_addrs = self.monitor.parse_domifaddr(self.test_vm_name, ["vnet0", "vnet1"])
+            self.assertEqual(len(if_addrs["vnet0"]), 2)
+            self.assertEqual(len(if_addrs["vnet1"]), 1)
+            self.assertEqual(if_addrs["vnet0"][0]["address"], "192.168.1.100/24")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
