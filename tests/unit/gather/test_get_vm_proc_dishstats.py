@@ -227,5 +227,19 @@ class TestGetVMProcDishstats(unittest.TestCase):
                 "VM vm-db01: QGA命令失败 [bc-guest-get-diskstats]，错误: qga error"
             )
 
+    def test_VMDiskStatsCollector_record_stats(self):
+        # 初始化mock依赖
+        mock_vm_factory = MagicMock()
+        mock_stats_storage = MagicMock()
+        mock_vm_factory.vc = self.mock_conn
+        mock_vm_factory.vms = {
+            1: {"uuid": "uuid-123-456", "name": "vm-db01"},
+            2: {"uuid": "uuid-789-000", "name": "vm-web01"}
+        }
+
+        # 初始化采集器
+        collector = VMDiskStatsCollector(mock_vm_factory, mock_stats_storage, "diskStats")
+        collector.logger = logging.getLogger(__name__)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
