@@ -22,6 +22,15 @@ class TestVMQgaTCPCollector(unittest.TestCase):
     @patch("get_vm_tcp_stats.subprocess.run")
     def test_run_virsh_cmd_success(self, mock_run):
         mock_run.return_value = MagicMock(stdout="output\n", stderr="", returncode=0)
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        result = collector.run_virsh_cmd("virsh list")
+        self.assertEqual(result, "output")
+
+    @patch("get_vm_tcp_stats.subprocess.run")
+    def test_run_virsh_cmd_error(self, mock_run):
+        mock_run.side_effect = get_vm_tcp_stats.subprocess.CalledProcessError(
+            1, "cmd", stderr="some error"
+        )
 
 if __name__ == "__main__":
     unittest.main()
