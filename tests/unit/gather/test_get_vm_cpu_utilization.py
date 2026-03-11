@@ -24,3 +24,6 @@ class TestRunVirshCmd(unittest.TestCase):
         mock_result = MagicMock()
         mock_result.stdout = "test output\n"
         mock_run.return_value = mock_result
+        collector = get_vm_cpu_utilization.VMCollector()
+        result = collector.run_virsh_cmd("virsh list")
+        self.assertEqual(result, "test output")
