@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+  vm-analyzer:
+    build: .
+    restart: always
+    depends_on:
+      - redis
+    volumes:
+      - /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+volumes:
+  redis_data:
