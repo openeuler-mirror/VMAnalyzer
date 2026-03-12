@@ -138,5 +138,12 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"VM {test_vm} 内存TopN信息采集失败：无返回数据")
 
+        # 场景3：QGA返回无return字段，格式异常
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
+            mock_exec.return_value = "{\"error\": \"unknown command\"}"
+            result = self.collector.get_vm_mem_topn(test_vm)
+            self.assertIsNone(result)
+            mock_log_err.assert_called_with(f"VM {test_vm} QGA返回格式异常：{{\"error\": \"unknown command\"}}")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
