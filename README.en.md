@@ -29,7 +29,7 @@ A lightweight virtualization performance monitoring analysis tool
       --timeout=SECS, -t  Quit after SECS seconds running
    ```
 
-2.  Execute the vm-Analyser-Agent program
+2.  Execute the vm-analyzer-agent program
    ```
    # vm-analyzer-agent
    ```
