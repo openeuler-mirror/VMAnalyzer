@@ -16,6 +16,7 @@ import atexit
 import getopt
 import os
 import time
+import logging.handlers
 from agent import event
 from agent import vm
 import logging
