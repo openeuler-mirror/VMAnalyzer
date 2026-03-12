@@ -247,9 +247,9 @@ class TestGetVMProcDishstats(unittest.TestCase):
             mock_lookup.side_effect = [self.mock_dom1, self.mock_dom2]
             mock_send_qga.return_value = {"return": mock_diskstats}
             mock_datetime.now().timestamp.return_value = 1738867200
-    
+
             collector.record_stats()
-    
+
             self.assertEqual(mock_lookup.call_count, 2)
             self.assertEqual(mock_send_qga.call_count, 2)
             mock_stats_storage.save_stats_info.assert_called_once()
@@ -259,6 +259,20 @@ class TestGetVMProcDishstats(unittest.TestCase):
             self.assertEqual(save_data[1]["name"], "vm-db01")
             self.assertEqual(save_data[1]["disk_mounts"], mock_diskstats)
             self.assertEqual(save_data[1]["timestamp"], 1738867200)
+
+        # 场景2：QGA返回None/无return字段
+        with patch.object(collector, "_send_qga_command") as mock_send_qga, patch.object(self.mock_conn, "lookupByUUIDString", return_value=self.mock_dom1), patch("datetime.datetime"):
+            # 子场景2.1：QGA返回None
+            mock_send_qga.return_value = None
+            collector.record_stats()
+            save_data = mock_stats_storage.save_stats_info.call_args[0][0]
+            self.assertEqual(save_data[1]["disk_mounts"], [])
+
+            # 子场景2.2：QGA返回无return字段
+            mock_send_qga.return_value = {"error": "unknown cmd"}
+            collector.record_stats()
+            save_data = mock_stats_storage.save_stats_info.call_args[0][0]
+            self.assertEqual(save_data[1]["disk_mounts"], [])
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
