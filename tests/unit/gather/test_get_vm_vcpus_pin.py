@@ -42,5 +42,11 @@ class TestParseAffinityString(unittest.TestCase):
             []
         )
 
+    def test_empty(self):
+        self.assertEqual(
+            get_vm_vcpus_pin.parse_affinity_string(""),
+            []
+        )
+
 if __name__ == "__main__":
     unittest.main()
