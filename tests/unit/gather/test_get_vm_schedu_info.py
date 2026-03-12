@@ -61,5 +61,13 @@ class TestGetVMScheduInfo(unittest.TestCase):
             get_vm_schedu_info.main()
         mock_print.assert_any_call("无法连接到 libvirt 守护进程！")
 
+    @patch("get_vm_schedu_info.open", new_callable=mock_open)
+    @patch("get_vm_schedu_info.libvirt.open")
+    def test_jobinfo_exception(self, mock_libvirt_open, mock_file):
+        mock_conn = MagicMock()
+        mock_libvirt_open.return_value = mock_conn
+        mock_conn.listDomainsID.return_value = [1]
+        mock_conn.listDefinedDomains.return_value = []
+
 if __name__ == "__main__":
     unittest.main()
