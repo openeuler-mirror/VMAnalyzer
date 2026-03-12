@@ -27,3 +27,9 @@ class TestRunVirshCmd(unittest.TestCase):
         collector = get_vm_cpu_utilization.VMCollector()
         result = collector.run_virsh_cmd("virsh list")
         self.assertEqual(result, "test output")
+
+    @patch("get_vm_cpu_utilization.subprocess.run")
+    def test_run_cmd_error(self, mock_run):
+        mock_run.side_effect = subprocess.CalledProcessError(
+            1, "virsh", stderr="error"
+        )
