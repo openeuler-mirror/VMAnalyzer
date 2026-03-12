@@ -1,0 +1,18 @@
+# ShellCheck Configuration File
+# For more details: https://github.com/koalaman/shellcheck/wiki/SC2004
+
+# Disable specific warnings
+disable=SC1090,SC1091,SC2004
+
+# Exclude certain files from checking
+exclude=./old_scripts/**.sh
+
+# Severity level
+severity=error
+
+# Shell dialect
+shell=bash
+
+# Enable or disable specific checks
+enable=all
+# disable=SC2059
