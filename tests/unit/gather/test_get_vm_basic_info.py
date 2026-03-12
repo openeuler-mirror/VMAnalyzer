@@ -115,6 +115,10 @@ class TestVMDomainMonitor(unittest.TestCase):
             memstat = self.monitor.parse_dommemstat(self.test_vm_name)
             self.assertEqual(memstat["actual"], 2048)
             self.assertEqual(type(memstat["actual"]), int)
+        with patch.object(self.monitor, "run_virsh_cmd", return_value=self.mock_domstats_output):
+            domstats = self.monitor.parse_domstats(self.test_vm_name)
+            self.assertEqual(domstats["cpu.time"], 12345678901234)
+            self.assertNotIn("domain", domstats)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
