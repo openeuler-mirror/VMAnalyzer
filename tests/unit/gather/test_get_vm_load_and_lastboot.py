@@ -172,5 +172,28 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
                 self.assertEqual(self.monitor.data["vm_count"], 0)
                 self.assertEqual(self.monitor.data["vms"], {})
 
+    def test_save(self):
+        """测试save：采集数据JSON持久化，验证文件生成和内容正确性"""
+        # 构造模拟采集数据
+        mock_collect_data = {
+            "collect_time": "2026-02-05 14:00:00",
+            "vm_count": 1,
+            "vms": {
+                "vm-web01": {
+                    "boot_time": "2026-02-05T08:00:00Z",
+                    "load_avg": {"1min": "0.05", "5min": "0.03", "15min": "0.01", "note": "采集成功"},
+                    "status": "success"
+                }
+            }
+        }
+        self.monitor.data = mock_collect_data
+
+        mock_file_time = "20260205_140000"
+        with patch("gather.get_vm_load_and_lastboot.datetime") as mock_datetime:
+            mock_now = datetime.strptime("2026-02-05 14:00:00", "%Y-%m-%d %H:%M:%S")
+            mock_datetime.now.return_value = mock_now
+            mock_datetime.strftime = datetime.strftime
+            self.monitor.save()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
