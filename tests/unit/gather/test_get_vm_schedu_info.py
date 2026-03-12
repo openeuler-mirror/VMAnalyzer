@@ -68,6 +68,13 @@ class TestGetVMScheduInfo(unittest.TestCase):
         mock_libvirt_open.return_value = mock_conn
         mock_conn.listDomainsID.return_value = [1]
         mock_conn.listDefinedDomains.return_value = []
+        dom = MagicMock()
+        dom.name.return_value = "vm1"
+        dom.schedulerType.return_value = "posix"
+        dom.schedulerParameters.return_value = {}
+        dom.jobInfo.side_effect = libvirt.libvirtError("no job")
+        dom.ioThreadInfo.return_value = []
+        mock_conn.lookupByID.return_value = dom
 
 if __name__ == "__main__":
     unittest.main()
