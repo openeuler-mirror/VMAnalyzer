@@ -33,3 +33,6 @@ class TestRunVirshCmd(unittest.TestCase):
         mock_run.side_effect = subprocess.CalledProcessError(
             1, "virsh", stderr="error"
         )
+        collector = get_vm_cpu_utilization.VMCollector()
+        result = collector.run_virsh_cmd("virsh list")
+        self.assertIsNone(result)
