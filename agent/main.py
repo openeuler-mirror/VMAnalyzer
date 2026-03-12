@@ -30,7 +30,7 @@ debug = False
 
 
 def usage():
-    print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdmnbilvp] [-o FILE] [uri]"))
+    print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdmnbilvpq] [-o FILE] [-l LEVEL] [uri]"))
     print("   uri will default to qemu:///system")
     print("   --help, -h   Print this help message")
     print("   --debug, -d  Print debug output")
@@ -43,14 +43,16 @@ def usage():
     print("   --vcpus_info, -v  Print per-vCPU state and affinity")
     print("   --processInfo, -p  Print top-5 CPU/memory consuming processes")
     print("   --output=FILE, -o  Write analysis results to FILE (JSON Lines)")
+    print("   --log-level=LEVEL, -q  Set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdmnbltvp:",
+        opts, args = getopt.getopt(sys.argv[1:], "hdmnbltvp:q:",
                                    ["help", "debug", "memoryUsage",
                                     "networkTraffic", "blkio",
                                     "timeout=", "log_vm","interval=",
-                                    "vcpus_info", "processInfo"])
+                                    "vcpus_info", "processInfo",
+                                    "log-level="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
