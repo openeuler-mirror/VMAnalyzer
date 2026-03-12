@@ -228,6 +228,7 @@ class TestGetVMProcDishstats(unittest.TestCase):
             )
 
     def test_VMDiskStatsCollector_record_stats(self):
+        """测试VMDiskStatsCollector.record_stats：已通过"""
         # 初始化mock依赖
         mock_vm_factory = MagicMock()
         mock_stats_storage = MagicMock()
@@ -273,6 +274,33 @@ class TestGetVMProcDishstats(unittest.TestCase):
             collector.record_stats()
             save_data = mock_stats_storage.save_stats_info.call_args[0][0]
             self.assertEqual(save_data[1]["disk_mounts"], [])
+
+        # 场景3：VM查找失败
+        with patch.object(self.mock_conn, "lookupByUUIDString", side_effect=MockLibvirtError("not found")), patch.object(collector.logger, "debug") as mock_log_debug, patch("datetime.datetime"):
+            collector.record_stats()
+            mock_log_debug.assert_any_call("无法找到VM: vm-db01 ('not found',)")
+
+    def test_main_all_scenarios(self):
+        # 场景1：主流程执行成功
+        with patch("libvirt.open", return_value=self.mock_conn) as mock_libvirt_open, \
+             patch.object(logging.getLogger(__name__), "info") as mock_log_info, \
+             patch.object(MockVMFactory, "__init__", return_value=None) as mock_vm_factory_init, \
+             patch.object(VMDiskStatsCollector, "__init__", return_value=None) as mock_collector_init, \
+             patch.object(VMDiskStatsCollector, "record_stats", return_value=None) as mock_record_stats:
+            # 模拟VMFactory实例
+            mock_vm_factory = MagicMock()
+            mock_vm_factory_init.return_value = None
+            MockVMFactory.vms = {1: {"name": "vm-db01"}}
+
+            # 执行main
+            main()
+
+            # 核心断言
+            mock_libvirt_open.assert_called_once_with("qemu:///system")
+            mock_record_stats.assert_called_once()
+            self.mock_conn.close.assert_called_once()
+            # 断言日志输出
+            mock_log_info.assert_any_call("虚拟机磁盘统计信息收集完成")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
