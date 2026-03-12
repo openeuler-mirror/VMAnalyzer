@@ -126,6 +126,25 @@ class TestVMAnalyzer(unittest.TestCase):
             mock_log_info.assert_any_call("未找到任何虚拟机")
             mock_conn.close.assert_called_once()
 
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_get_all_vms_info_normal(self, mock_log_info):
+        vm1_name = "test-win10-01"
+        vm2_name = "test-centos-01"
+        mock_dom1 = MagicMock()
+        mock_dom1.name.return_value = vm1_name
+        mock_dom2 = MagicMock()
+        mock_dom2.name.return_value = vm2_name
+        mock_conn = MagicMock()
+        mock_conn.listAllDomains.return_value = [mock_dom1, mock_dom2]
+        mock_vm1_info = {self.mock_vm_uuid: {"uuid": self.mock_vm_uuid, "name": vm1_name, "status": "运行中"}}
+        mock_vm2_info = {"87654321-4321-4321-4321-ba0987654321": {"uuid": "87654321", "name": vm2_name, "status": "已关闭"}}
+        with patch("gather.get_vm_fs_info.libvirt.open", return_value=mock_conn), \
+             patch.object(self.analyzer, "get_single_vm_info", side_effect=[mock_vm1_info, mock_vm2_info]):
+            all_vms = self.analyzer.get_all_vms_info()
+            self.assertEqual(len(all_vms), 2)
+            self.assertIn(self.mock_vm_uuid, all_vms)
+            mock_log_info.assert_any_call(f"共找到 2 台虚拟机：['{vm1_name}', '{vm2_name}']")
+            mock_conn.close.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
