@@ -120,5 +120,15 @@ class TestVMDomainMonitor(unittest.TestCase):
             self.assertEqual(domstats["cpu.time"], 12345678901234)
             self.assertNotIn("domain", domstats)
 
+    def test_collect_single_vm_running(self):
+        def mock_run_virsh_cmd(cmd):
+            if "domstate" in cmd:
+                return self.mock_domstate_running
+            else:
+                return "unknown"
+        with patch.object(self.monitor, "run_virsh_cmd", side_effect=mock_run_virsh_cmd):
+            vm_data = self.monitor.collect_single_vm_data(self.test_vm_name)
+            self.assertEqual(vm_data["state"], "running")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
