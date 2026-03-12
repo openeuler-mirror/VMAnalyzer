@@ -17,7 +17,7 @@ def singleton(cls, *args, **kwargs):
 
     def wrapperSingleton(*args, **kwargs):
         if cls not in instance:
-            logging.debug("Creating singleton instance for %s with args: %s %s", cls.__name__, args, kwargs)
+            logging.debug(f"Creating singleton instance for {cls.__name__} with args: {args} {kwargs}")
             instance[cls] = cls(*args, **kwargs)
         return instance[cls]
 
