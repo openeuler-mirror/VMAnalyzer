@@ -116,5 +116,16 @@ class TestVMAnalyzer(unittest.TestCase):
         self.assertEqual(vm_detail["status"], "异常(连接失败)")
         mock_log_error.assert_called_with(f"{self.mock_vm_name} 信息获取异常：连接失败")
 
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_get_all_vms_info_no_vms(self, mock_log_info):
+        mock_conn = MagicMock()
+        mock_conn.listAllDomains.return_value = []
+        with patch("gather.get_vm_fs_info.libvirt.open", return_value=mock_conn):
+            all_vms = self.analyzer.get_all_vms_info()
+            self.assertEqual(all_vms, {})
+            mock_log_info.assert_any_call("未找到任何虚拟机")
+            mock_conn.close.assert_called_once()
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
