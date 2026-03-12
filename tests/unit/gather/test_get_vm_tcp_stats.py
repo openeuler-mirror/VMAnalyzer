@@ -31,6 +31,9 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         mock_run.side_effect = get_vm_tcp_stats.subprocess.CalledProcessError(
             1, "cmd", stderr="some error"
         )
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        result = collector.run_virsh_cmd("virsh fail")
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
