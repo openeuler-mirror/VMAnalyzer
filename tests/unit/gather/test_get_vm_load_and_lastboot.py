@@ -195,5 +195,13 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             mock_datetime.strftime = datetime.strftime
             self.monitor.save()
 
+            test_file = f"vm_sys_{mock_file_time}.json"
+            test_file_path = os.path.join(self.test_out_dir, test_file)
+            self.assertTrue(os.path.exists(test_file_path))
+
+            with open(test_file_path, "r", encoding="utf-8") as f:
+                save_data = json.load(f)
+            self.assertEqual(save_data, mock_collect_data)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
