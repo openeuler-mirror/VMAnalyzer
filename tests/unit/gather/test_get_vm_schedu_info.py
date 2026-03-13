@@ -75,6 +75,8 @@ class TestGetVMScheduInfo(unittest.TestCase):
         dom.jobInfo.side_effect = libvirt.libvirtError("no job")
         dom.ioThreadInfo.return_value = []
         mock_conn.lookupByID.return_value = dom
+        get_vm_schedu_info.main()
+        mock_conn.close.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()
