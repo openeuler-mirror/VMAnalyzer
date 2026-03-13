@@ -152,5 +152,29 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertIsNone(result)
             self.assertIn(f"VM {test_vm} QGA返回解析失败", mock_log_err.call_args[0][0])
 
+    def test_format_process_data(self):
+        # 场景1：正常格式数据，字段完整
+        raw_normal = [
+            {
+                "process-id": "123",
+                "process-info": {
+                    "user": "root",
+                    "cpu-util": "10.5",
+                    "mem-util": "20.3",
+                    "open-files": "100",
+                    "cmd-name": "java\n-Dtest"
+                }
+            }
+        ]
+        formatted_normal = self.collector.format_process_data(raw_normal)
+        self.assertEqual(formatted_normal[0], {
+            "process_id": "123",
+            "user": "root",
+            "cpu_util": "10.5",
+            "mem_util": "20.3",
+            "open_files": "100",
+            "cmd_name": "java-Dtest"  # 验证\n被替换
+        })
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
