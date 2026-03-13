@@ -302,5 +302,11 @@ class TestGetVMProcDishstats(unittest.TestCase):
             # 断言日志输出
             mock_log_info.assert_any_call("虚拟机磁盘统计信息收集完成")
 
+        # 场景2：libvirt连接失败
+        with patch("libvirt.open", return_value=None), \
+             patch.object(logging.getLogger(__name__), "error") as mock_log_err:
+            main()
+            mock_log_err.assert_called_with("无法连接到qemu:///system")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
