@@ -54,5 +54,11 @@ class TestParseAffinityString(unittest.TestCase):
             []
         )
 
+    def test_invalid_string(self):
+        self.assertEqual(
+            get_vm_vcpus_pin.parse_affinity_string("abc"),
+            []
+        )
+
 if __name__ == "__main__":
     unittest.main()
