@@ -48,5 +48,11 @@ class TestParseAffinityString(unittest.TestCase):
             []
         )
 
+    def test_invalid_range(self):
+        self.assertEqual(
+            get_vm_vcpus_pin.parse_affinity_string("5-2"),
+            []
+        )
+
 if __name__ == "__main__":
     unittest.main()
