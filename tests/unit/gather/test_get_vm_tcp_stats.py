@@ -38,6 +38,9 @@ class TestVMQgaTCPCollector(unittest.TestCase):
     @patch("get_vm_tcp_stats.VMQgaTCPCollector.run_virsh_cmd")
     def test_get_all_vm_names(self, mock_run_cmd):
         mock_run_cmd.return_value = "vm1 vm2\n"
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        names = collector.get_all_vm_names()
+        self.assertEqual(names, ["vm1", "vm2"])
 
 if __name__ == "__main__":
     unittest.main()
