@@ -203,5 +203,14 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
                 save_data = json.load(f)
             self.assertEqual(save_data, mock_collect_data)
 
+    def test_main(self):
+        from gather import get_vm_load_and_lastboot as vm_module
+        # 场景1：使用默认参数，无--poll/--out-dir
+        with patch("sys.argv", ["get_vm_load_and_lastboot.py"]):
+            with patch.object(vm_module, "VMSysMonitor") as mock_mon:
+                vm_module.main()
+                mock_mon.assert_called_once_with(60, "./vm_sys_data")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
