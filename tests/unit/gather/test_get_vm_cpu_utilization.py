@@ -36,3 +36,7 @@ class TestRunVirshCmd(unittest.TestCase):
         collector = get_vm_cpu_utilization.VMCollector()
         result = collector.run_virsh_cmd("virsh list")
         self.assertIsNone(result)
+
+    @patch("get_vm_cpu_utilization.subprocess.run")
+    def test_run_cmd_timeout(self, mock_run):
+        mock_run.side_effect = subprocess.TimeoutExpired("virsh", 30)
