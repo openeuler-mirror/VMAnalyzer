@@ -308,5 +308,11 @@ class TestGetVMProcDishstats(unittest.TestCase):
             main()
             mock_log_err.assert_called_with("无法连接到qemu:///system")
 
+        # 场景3：主函数执行抛出异常
+        with patch("libvirt.open", side_effect=MockLibvirtError("main error")), \
+             patch.object(logging.getLogger(__name__), "error") as mock_log_err:
+            main()
+            mock_log_err.assert_called_with("主函数执行失败: main error")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
