@@ -176,5 +176,24 @@ class TestGetVMMemTopApp(unittest.TestCase):
             "cmd_name": "java-Dtest"  # 验证\n被替换
         })
 
+        # 场景2：异常格式
+        raw_nested = [
+            {
+                "process-id": "456",
+                "process-info": {
+                    "process-info": {
+                        "user": "nginx",
+                        "cpu-util": "0.5",
+                        "mem-util": "5.2",
+                        "open-files": "50",
+                        "cmd-name": "nginx"
+                    }
+                }
+            }
+        ]
+        formatted_nested = self.collector.format_process_data(raw_nested)
+        self.assertEqual(formatted_nested[0]["user"], "nginx")
+        self.assertEqual(formatted_nested[0]["cmd_name"], "nginx")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
