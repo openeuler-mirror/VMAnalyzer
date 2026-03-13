@@ -211,6 +211,11 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
                 vm_module.main()
                 mock_mon.assert_called_once_with(60, "./vm_sys_data")
 
+        # 场景2：使用自定义参数，指定轮询间隔和输出目录
+        with patch("sys.argv", ["get_vm_load_and_lastboot.py", "--poll", "30", "--out-dir", "/data/vm_mon"]):
+            with patch.object(vm_module, "VMSysMonitor") as mock_mon:
+                vm_module.main()
+                mock_mon.assert_called_once_with(30, "/data/vm_mon")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
