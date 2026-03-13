@@ -146,5 +146,17 @@ class TestVMAnalyzer(unittest.TestCase):
             mock_log_info.assert_any_call(f"共找到 2 台虚拟机：['{vm1_name}', '{vm2_name}']")
             mock_conn.close.assert_called_once()
 
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_save_to_json_specify_path(self, mock_log_info):
+        mock_data = {self.mock_vm_uuid: {"name": self.mock_vm_name, "status": "运行中"}}
+        test_file = "test_vm_fs_info.json"
+        with patch("builtins.open", mock_open()) as mock_file, \
+             patch("gather.get_vm_fs_info.json.dump") as mock_json_dump:
+            res_path = self.analyzer.save_to_json(mock_data, test_file)
+            self.assertEqual(res_path, test_file)
+            mock_file.assert_called_once_with(test_file, "w", encoding="utf-8")
+            mock_json_dump.assert_called_once_with(mock_data, mock_file(), indent=2, ensure_ascii=False)
+            mock_log_info.assert_called_with(f"所有虚拟机文件系统信息已保存到文件：{test_file}")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
