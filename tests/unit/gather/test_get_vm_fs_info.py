@@ -158,5 +158,15 @@ class TestVMAnalyzer(unittest.TestCase):
             mock_json_dump.assert_called_once_with(mock_data, mock_file(), indent=2, ensure_ascii=False)
             mock_log_info.assert_called_with(f"所有虚拟机文件系统信息已保存到文件：{test_file}")
 
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_save_to_json_default_path(self, mock_log_info):
+        mock_data = {self.mock_vm_uuid: {"name": self.mock_vm_name, "status": "运行中"}}
+        with patch("builtins.open", mock_open()) as mock_default_file, \
+             patch("gather.get_vm_fs_info.json.dump"):
+            res_path = self.analyzer.save_to_json(mock_data)
+            self.assertIn("vm_fs_info_all_", res_path)
+            mock_default_file.assert_called_once_with(res_path, "w", encoding="utf-8")
+            mock_log_info.assert_called_with(f"所有虚拟机文件系统信息已保存到文件：{res_path}")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
