@@ -151,5 +151,12 @@ class TestVMDomainMonitor(unittest.TestCase):
             self.assertEqual(len(vm_data["network_interfaces"]["list"]), 2)
             self.assertNotEqual(vm_data["memory_statistics"], {})
 
+    def test_collect_single_vm_shutdown(self):
+        with patch.object(self.monitor, "run_virsh_cmd", side_effect=lambda cmd: self.mock_domstate_shutdown if "domstate" in cmd else None):
+            vm_data = self.monitor.collect_single_vm_data(self.test_vm_name)
+            self.assertEqual(vm_data["state"], "shutdown")
+            self.assertEqual(vm_data["network_interfaces"]["ip_addresses"], {})
+            self.assertEqual(vm_data["memory_statistics"], {})
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
