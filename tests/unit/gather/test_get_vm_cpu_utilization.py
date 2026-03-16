@@ -43,3 +43,7 @@ class TestRunVirshCmd(unittest.TestCase):
         collector = get_vm_cpu_utilization.VMCollector()
         result = collector.run_virsh_cmd("virsh list")
         self.assertIsNone(result)
+
+class TestVMInfo(unittest.TestCase):
+    def setUp(self):
+        self.collector = get_vm_cpu_utilization.VMCollector()
