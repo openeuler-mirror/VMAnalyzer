@@ -195,5 +195,24 @@ class TestGetVMMemTopApp(unittest.TestCase):
         self.assertEqual(formatted_nested[0]["user"], "nginx")
         self.assertEqual(formatted_nested[0]["cmd_name"], "nginx")
 
+        # 场景3：键**不存在**，触发get默认值
+        raw_key_missing = [
+            {
+                # 缺失process-id键
+                "process-info": {
+                    # 缺失user/cpu-util/mem-util/open-files/cmd-name键
+                }
+            }
+        ]
+        formatted_key_missing = self.collector.format_process_data(raw_key_missing)
+        self.assertEqual(formatted_key_missing[0], {
+            "process_id": "未知",
+            "user": "未知",
+            "cpu_util": "0",
+            "mem_util": "0",
+            "open_files": "N/A",
+            "cmd_name": "未知"
+        })
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
