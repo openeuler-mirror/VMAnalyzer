@@ -158,5 +158,19 @@ class TestVMDomainMonitor(unittest.TestCase):
             self.assertEqual(vm_data["network_interfaces"]["ip_addresses"], {})
             self.assertEqual(vm_data["memory_statistics"], {})
 
+    def test_collect_all_vms(self):
+        self.monitor.all_vms_data["vm_count"] = 0
+        self.monitor.all_vms_data["vms"] = {}
+
+        # 测试多VM场景
+        with patch.object(self.monitor, "get_all_vm_names", return_value=self.test_vm_names):
+            mock_vm_data = {"name": self.test_vm_name, "state": "running"}
+            with patch.object(self.monitor, "collect_single_vm_data", return_value=mock_vm_data):
+                self.monitor.collect_all_vms()
+                self.assertEqual(self.monitor.all_vms_data["vm_count"], 2)
+                self.assertIn("vm-test-01", self.monitor.all_vms_data["vms"])
+                self.assertIn("vm-test-02", self.monitor.all_vms_data["vms"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
