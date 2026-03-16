@@ -16,3 +16,17 @@ from unittest.mock import patch, MagicMock, mock_open
 import json
 
 from gather import get_vm_crash_status
+
+class TestVmCrashStatus(unittest.TestCase):
+
+    # ------------------------------
+    # 测试 get_vm_list
+    # ------------------------------
+    @patch("gather.get_vm_crash_status.execute_cmd")
+    def test_get_vm_list_success(self, mock_exec):
+        mock_exec.return_value = {
+            "code": 0,
+            "stdout": "vm1\nvm2\n",
+            "stderr": ""
+        }
+        result = get_vm_crash_status.get_vm_list()
