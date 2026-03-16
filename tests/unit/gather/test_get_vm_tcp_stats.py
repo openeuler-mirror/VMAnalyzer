@@ -45,6 +45,9 @@ class TestVMQgaTCPCollector(unittest.TestCase):
     @patch("get_vm_tcp_stats.VMQgaTCPCollector.run_virsh_cmd")
     def test_get_vm_state(self, mock_run_cmd):
         mock_run_cmd.return_value = "running"
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        state = collector.get_vm_state("vm1")
+        self.assertEqual(state, "running")
 
 if __name__ == "__main__":
     unittest.main()
