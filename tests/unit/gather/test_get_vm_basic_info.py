@@ -162,7 +162,7 @@ class TestVMDomainMonitor(unittest.TestCase):
         self.monitor.all_vms_data["vm_count"] = 0
         self.monitor.all_vms_data["vms"] = {}
 
-        # 测试多VM场景
+        # 1. 测试多VM场景
         with patch.object(self.monitor, "get_all_vm_names", return_value=self.test_vm_names):
             mock_vm_data = {"name": self.test_vm_name, "state": "running"}
             with patch.object(self.monitor, "collect_single_vm_data", return_value=mock_vm_data):
@@ -171,6 +171,27 @@ class TestVMDomainMonitor(unittest.TestCase):
                 self.assertIn("vm-test-01", self.monitor.all_vms_data["vms"])
                 self.assertIn("vm-test-02", self.monitor.all_vms_data["vms"])
 
+        # 2. 测试无VM场景（关键：重置后再测试）
+        self.monitor.all_vms_data["vm_count"] = 0
+        self.monitor.all_vms_data["vms"] = {}
+        with patch.object(self.monitor, "get_all_vm_names", return_value=[]):
+            self.monitor.collect_all_vms()
+            self.assertEqual(self.monitor.all_vms_data["vm_count"], 0)
+            self.assertEqual(self.monitor.all_vms_data["vms"], {})
+
+    def test_save_to_json(self):
+        self.monitor.all_vms_data["vm_count"] = 1
+        self.monitor.all_vms_data["vms"][self.test_vm_name] = {"state": "running"}
+        test_file_path = "test_vm_monitor.json"
+
+        # 测试指定文件路径
+        with patch("builtins.open", mock_open()) as mock_file:
+            self.monitor.save_to_json(test_file_path)
+            mock_file.assert_called_once_with(test_file_path, "w", encoding="utf-8")
+            # 单独mock json.dump，避免作用域干扰
+            with patch("json.dump") as mock_json_dump:
+                self.monitor.save_to_json(test_file_path)
+                mock_json_dump.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
