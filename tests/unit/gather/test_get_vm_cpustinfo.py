@@ -25,3 +25,10 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
     def setUp(self, mock_mkdir, mock_exists):
         mock_exists.return_value = True
         self.collector = get_vm_cpustinfo.VMCpuStInfoCollector()
+
+    @patch("gather.get_vm_cpustinfo.subprocess.run")
+    def test_run_virsh_cmd_success(self, mock_run):
+        mock_result = MagicMock()
+        mock_result.stdout = "running\n"
+        mock_run.return_value = mock_result
+        result = self.collector.run_virsh_cmd("virsh domstate vm1")
