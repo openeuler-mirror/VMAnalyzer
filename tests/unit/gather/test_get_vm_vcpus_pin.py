@@ -59,3 +59,13 @@ class TestParseAffinityString(unittest.TestCase):
             get_vm_vcpus_pin.parse_affinity_string("abc"),
             []
         )
+
+# virsh输出解析测试
+class TestExtractAffinity(unittest.TestCase):
+    def test_affinity_standard(self):
+        output = """
+        VCPU: 0
+        CPU Affinity: 0-3
+        """
+        result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
+        self.assertEqual(result, "0-3")
