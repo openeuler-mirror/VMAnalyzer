@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# _*_coding: utf-8 _*_
+# -*- coding: utf-8 -*-
 
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
 # VMAnalyzer is licensed under Mulan PSL v2.
@@ -16,10 +16,10 @@ from unittest.mock import patch, MagicMock, mock_open
 import subprocess
 import json
 
-import gather.get_vm_cpu_utilization as get_vm_cpu_utilization
+from gather import get_vm_cpu_utilization
 
 class TestRunVirshCmd(unittest.TestCase):
-    @patch("get_vm_cpu_utilization.subprocess.run")
+    @patch("gather.get_vm_cpu_utilization.subprocess.run")
     def test_run_cmd_success(self, mock_run):
         mock_result = MagicMock()
         mock_result.stdout = "test output\n"
@@ -28,7 +28,7 @@ class TestRunVirshCmd(unittest.TestCase):
         result = collector.run_virsh_cmd("virsh list")
         self.assertEqual(result, "test output")
 
-    @patch("get_vm_cpu_utilization.subprocess.run")
+    @patch("gather.get_vm_cpu_utilization.subprocess.run")
     def test_run_cmd_error(self, mock_run):
         mock_run.side_effect = subprocess.CalledProcessError(
             1, "virsh", stderr="error"
@@ -37,7 +37,7 @@ class TestRunVirshCmd(unittest.TestCase):
         result = collector.run_virsh_cmd("virsh list")
         self.assertIsNone(result)
 
-    @patch("get_vm_cpu_utilization.subprocess.run")
+    @patch("gather.get_vm_cpu_utilization.subprocess.run")
     def test_run_cmd_timeout(self, mock_run):
         mock_run.side_effect = subprocess.TimeoutExpired("virsh", 30)
         collector = get_vm_cpu_utilization.VMCollector()
