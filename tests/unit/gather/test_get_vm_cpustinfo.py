@@ -17,3 +17,11 @@ import subprocess
 import json
 
 from gather import get_vm_cpustinfo
+
+class TestVMCpuStInfoCollector(unittest.TestCase):
+
+    @patch("gather.get_vm_cpustinfo.os.path.exists")
+    @patch("gather.get_vm_cpustinfo.os.makedirs")
+    def setUp(self, mock_mkdir, mock_exists):
+        mock_exists.return_value = True
+        self.collector = get_vm_cpustinfo.VMCpuStInfoCollector()
