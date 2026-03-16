@@ -214,5 +214,28 @@ class TestGetVMMemTopApp(unittest.TestCase):
             "cmd_name": "未知"
         })
 
+        # 场景4：键**存在但值为空**，验证空值处理逻辑
+        raw_value_empty = [
+            {
+                "process-id": "",
+                "process-info": {
+                    "user": "",
+                    "cpu-util": "",
+                    "mem-util": "",
+                    "open-files": "",
+                    "cmd-name": ""
+                }
+            }
+        ]
+        formatted_value_empty = self.collector.format_process_data(raw_value_empty)
+        self.assertEqual(formatted_value_empty[0], {
+            "process_id": "",
+            "user": "",
+            "cpu_util": "",
+            "mem_util": "",
+            "open_files": "",
+            "cmd_name": ""
+        })
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
