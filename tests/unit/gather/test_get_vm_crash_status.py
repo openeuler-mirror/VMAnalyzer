@@ -30,3 +30,4 @@ class TestVmCrashStatus(unittest.TestCase):
             "stderr": ""
         }
         result = get_vm_crash_status.get_vm_list()
+        self.assertEqual(result, ["vm1", "vm2"])
