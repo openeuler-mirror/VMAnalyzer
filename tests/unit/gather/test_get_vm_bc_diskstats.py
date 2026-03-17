@@ -19,7 +19,9 @@ import json
 from gather import get_vm_bc_diskstats
 
 class TestVMCollector(unittest.TestCase):
-    pass
+
+    def setUp(self):
+        self.collector = get_vm_bc_diskstats.VMCollector(output_dir="/tmp/test")
 
 if __name__ == "__main__":
     unittest.main()
