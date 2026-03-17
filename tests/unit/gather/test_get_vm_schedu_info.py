@@ -22,8 +22,11 @@ class TestGetVMScheduInfo(unittest.TestCase):
     @patch("get_vm_schedu_info.open", new_callable=mock_open)
     @patch("get_vm_schedu_info.libvirt.open")
     def test_main_success(self, mock_libvirt_open, mock_file):
+        """测试正常流程：存在运行虚机和关闭虚机"""
+        # mock connection
         mock_conn = MagicMock()
         mock_libvirt_open.return_value = mock_conn
+        # 运行虚机
         mock_conn.listDomainsID.return_value = [1]
         running_dom = MagicMock()
         running_dom.name.return_value = "vm_running"
@@ -32,7 +35,7 @@ class TestGetVMScheduInfo(unittest.TestCase):
         running_dom.jobInfo.return_value = (1, 0, 100, 200)
         running_dom.ioThreadInfo.return_value = [(1, {0, 1})]
         mock_conn.lookupByID.return_value = running_dom
-
+        # 关闭虚机
         mock_conn.listDefinedDomains.return_value = ["vm_stop"]
         stop_dom = MagicMock()
         stop_dom.name.return_value = "vm_stop"
@@ -42,7 +45,7 @@ class TestGetVMScheduInfo(unittest.TestCase):
         stop_dom.ioThreadInfo.return_value = []
         mock_conn.lookupByName.return_value = stop_dom
         get_vm_schedu_info.main()
-
+        # 检查文件是否写入
         mock_file.assert_called_once_with(
             "vm_scheduler_info.json", "w", encoding="utf-8"
         )
@@ -56,6 +59,7 @@ class TestGetVMScheduInfo(unittest.TestCase):
 
     @patch("get_vm_schedu_info.libvirt.open")
     def test_libvirt_connect_fail(self, mock_open):
+        """测试 libvirt 连接失败"""
         mock_open.return_value = None
         with patch("builtins.print") as mock_print:
             get_vm_schedu_info.main()
@@ -64,6 +68,7 @@ class TestGetVMScheduInfo(unittest.TestCase):
     @patch("get_vm_schedu_info.open", new_callable=mock_open)
     @patch("get_vm_schedu_info.libvirt.open")
     def test_jobinfo_exception(self, mock_libvirt_open, mock_file):
+        """测试 jobInfo 抛异常"""
         mock_conn = MagicMock()
         mock_libvirt_open.return_value = mock_conn
         mock_conn.listDomainsID.return_value = [1]
@@ -81,6 +86,7 @@ class TestGetVMScheduInfo(unittest.TestCase):
     @patch("get_vm_schedu_info.open", new_callable=mock_open)
     @patch("get_vm_schedu_info.libvirt.open")
     def test_iothread_exception(self, mock_libvirt_open, mock_file):
+        """测试 ioThreadInfo 抛异常"""
         mock_conn = MagicMock()
         mock_libvirt_open.return_value = mock_conn
         mock_conn.listDomainsID.return_value = [1]
