@@ -17,3 +17,9 @@ import subprocess
 import json
 
 from gather import get_vm_network_interfaces_info
+
+class TestVMCollector(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
