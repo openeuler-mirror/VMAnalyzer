@@ -33,3 +33,12 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         mock_run.return_value = mock_result
         result = self.collector.run_virsh_cmd("virsh domstate vm1")
         self.assertEqual(result, "running")
+
+    @patch("gather.get_vm_cpustinfo.subprocess.run")
+    def test_run_virsh_cmd_calledprocesserror(self, mock_run):
+        mock_run.side_effect = subprocess.CalledProcessError(
+            returncode=1,
+            cmd="virsh",
+            stderr="error"
+        )
+        result = self.collector.run_virsh_cmd("virsh domstate vm1")
