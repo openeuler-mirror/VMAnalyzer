@@ -56,3 +56,5 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         mock_get_vm_state.return_value = "running"
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
         self.assertTrue(collector.is_vm_running("vm1"))
+        mock_get_vm_state.return_value = "shut off"
+        self.assertFalse(collector.is_vm_running("vm2"))
