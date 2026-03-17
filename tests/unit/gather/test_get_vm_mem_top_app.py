@@ -266,5 +266,15 @@ class TestGetVMMemTopApp(unittest.TestCase):
                     self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "采集成功")
                     self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["top_n"], self.top_n)
 
+            self.collector.collect_data = {"collect_time": "", "running_vm_count": 0, "vm_list": {}}
+            # 场景3：单个VM采集失败（get_vm_mem_topn返回None）
+            with patch.object(self.collector, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = ["vm-db01"]
+                with patch.object(self.collector, "get_vm_mem_topn") as mock_get_topn:
+                    mock_get_topn.return_value = None
+                    self.collector.collect_all_vms_data()
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "采集失败")
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["process_list"], [])
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
