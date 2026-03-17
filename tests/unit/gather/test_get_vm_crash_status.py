@@ -41,3 +41,17 @@ class TestVmCrashStatus(unittest.TestCase):
         }
         result = get_vm_crash_status.get_vm_list()
         self.assertEqual(result, [])
+
+    # ------------------------------
+    # Libvirt crashed 状态
+    # ------------------------------
+    @patch("gather.get_vm_crash_status.execute_cmd")
+    @patch("gather.get_vm_crash_status.os.path.exists")
+    def test_vm_state_crashed(self, mock_exists, mock_exec):
+        mock_exists.return_value = False
+        mock_exec.side_effect = [
+            {"code": 0, "stdout": "crashed", "stderr": ""},
+            {"code": 0, "stdout": "", "stderr": ""}
+        ]
+        result_json = get_vm_crash_status.get_vm_crash_status("vm1")
+        result = json.loads(result_json)
