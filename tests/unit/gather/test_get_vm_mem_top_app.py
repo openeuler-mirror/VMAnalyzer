@@ -153,6 +153,7 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertIn(f"VM {test_vm} QGA返回解析失败", mock_log_err.call_args[0][0])
 
     def test_format_process_data(self):
+        """测试format_process_data：覆盖正常格式/嵌套process-info/字段缺失所有兼容场景"""
         # 场景1：正常格式数据，字段完整
         raw_normal = [
             {
@@ -236,6 +237,20 @@ class TestGetVMMemTopApp(unittest.TestCase):
             "open_files": "",
             "cmd_name": ""
         })
+
+    def test_collect_all_vms_data(self):
+        mock_collect_time = "2026-02-06 10:00:00"
+        with patch("gather.get_vm_mem_top_app.datetime") as mock_datetime:
+            mock_datetime.now.return_value = datetime.strptime(mock_collect_time, "%Y-%m-%d %H:%M:%S")
+            mock_datetime.strftime = datetime.strftime
+
+            # 场景1：当前无运行中的VM
+            with patch.object(self.collector, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = []
+                self.collector.collect_all_vms_data()
+                self.assertEqual(self.collector.collect_data["collect_time"], mock_collect_time)
+                self.assertEqual(self.collector.collect_data["running_vm_count"], 0)
+                self.assertEqual(self.collector.collect_data["vm_list"], {})
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
