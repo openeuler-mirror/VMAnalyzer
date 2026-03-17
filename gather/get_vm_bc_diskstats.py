@@ -107,15 +107,15 @@ class VMCollector:
     def collect_single_vm_data(self, vm_name: str) -> Dict:
         LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
         
-        get-diskstats = self.call_qga_interface(vm_name, "bc-guest-get-diskstats")
+        get_diskstats = self.call_qga_interface(vm_name, "bc-guest-get-diskstats")
         vm_state = self.get_vm_state(vm_name)
         vm_data = {
             "name": vm_name,
             "state": vm_state,
             "get_bc_diskstats": {
                 "interface": "bc-guest-get-diskstats",
-                "error": get-diskstats["error"],
-                "data": get-diskstats["data"]
+                "error": get_diskstats["error"],
+                "data": get_diskstats["data"]
             },
         }
         LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
@@ -161,4 +161,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
