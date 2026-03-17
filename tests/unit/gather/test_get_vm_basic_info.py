@@ -184,7 +184,7 @@ class TestVMDomainMonitor(unittest.TestCase):
         self.monitor.all_vms_data["vms"][self.test_vm_name] = {"state": "running"}
         test_file_path = "test_vm_monitor.json"
 
-        # 测试指定文件路径
+        # 1.测试指定文件路径
         with patch("builtins.open", mock_open()) as mock_file:
             self.monitor.save_to_json(test_file_path)
             mock_file.assert_called_once_with(test_file_path, "w", encoding="utf-8")
@@ -192,6 +192,15 @@ class TestVMDomainMonitor(unittest.TestCase):
             with patch("json.dump") as mock_json_dump:
                 self.monitor.save_to_json(test_file_path)
                 mock_json_dump.assert_called_once()
+
+        # 2.测试默认文件名：独立Mock块，避免复用之前的mock_file
+        with patch("builtins.open", mock_open()) as mock_default_file:
+            self.monitor.save_to_json()  # 不传入路径，使用默认名
+            # 断言默认文件名包含指定前缀
+            call_args = mock_default_file.call_args[0][0]
+            self.assertIn("vm_domain_monitor_", call_args)
+            # 断言文件打开模式正确
+            mock_default_file.assert_called_once_with(call_args, "w", encoding="utf-8")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
