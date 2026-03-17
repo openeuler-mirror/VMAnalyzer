@@ -16,11 +16,11 @@ from unittest.mock import patch, MagicMock, mock_open
 import json
 import libvirt
 
-import gather.get_vm_schedu_info as get_vm_schedu_info
+from gather import get_vm_schedu_info
 
 class TestGetVMScheduInfo(unittest.TestCase):
-    @patch("get_vm_schedu_info.open", new_callable=mock_open)
-    @patch("get_vm_schedu_info.libvirt.open")
+    @patch("gather.get_vm_schedu_info.open", new_callable=mock_open)
+    @patch("gather.get_vm_schedu_info.libvirt.open")
     def test_main_success(self, mock_libvirt_open, mock_file):
         """测试正常流程：存在运行虚机和关闭虚机"""
         # mock connection
@@ -57,7 +57,7 @@ class TestGetVMScheduInfo(unittest.TestCase):
         self.assertEqual(result[1]["name"], "vm_stop")
         mock_conn.close.assert_called_once()
 
-    @patch("get_vm_schedu_info.libvirt.open")
+    @patch("gather.get_vm_schedu_info.libvirt.open")
     def test_libvirt_connect_fail(self, mock_open):
         """测试 libvirt 连接失败"""
         mock_open.return_value = None
@@ -65,8 +65,8 @@ class TestGetVMScheduInfo(unittest.TestCase):
             get_vm_schedu_info.main()
         mock_print.assert_any_call("无法连接到 libvirt 守护进程！")
 
-    @patch("get_vm_schedu_info.open", new_callable=mock_open)
-    @patch("get_vm_schedu_info.libvirt.open")
+    @patch("gather.get_vm_schedu_info.open", new_callable=mock_open)
+    @patch("gather.get_vm_schedu_info.libvirt.open")
     def test_jobinfo_exception(self, mock_libvirt_open, mock_file):
         """测试 jobInfo 抛异常"""
         mock_conn = MagicMock()
@@ -83,8 +83,8 @@ class TestGetVMScheduInfo(unittest.TestCase):
         get_vm_schedu_info.main()
         mock_conn.close.assert_called_once()
 
-    @patch("get_vm_schedu_info.open", new_callable=mock_open)
-    @patch("get_vm_schedu_info.libvirt.open")
+    @patch("gather.get_vm_schedu_info.open", new_callable=mock_open)
+    @patch("gather.get_vm_schedu_info.libvirt.open")
     def test_iothread_exception(self, mock_libvirt_open, mock_file):
         """测试 ioThreadInfo 抛异常"""
         mock_conn = MagicMock()
