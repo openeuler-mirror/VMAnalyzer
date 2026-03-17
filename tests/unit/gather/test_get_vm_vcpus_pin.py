@@ -91,3 +91,15 @@ class TestExtractAffinity(unittest.TestCase):
         """
         result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
         self.assertEqual(result, "")
+
+# get_single_vm_vcpupin
+class TestGetSingleVMVcpupin(unittest.TestCase):
+    def setUp(self):
+        self.vm_name = "testvm"
+        self.mock_dom = MagicMock()
+        self.mock_dom.UUIDString.return_value = "uuid123"
+        self.mock_dom.state.return_value = (1, 0)
+        self.mock_dom.XMLDesc.return_value = "<domain></domain>"
+        self.mock_conn = MagicMock()
+        self.mock_conn.lookupByName.return_value = self.mock_dom
+
