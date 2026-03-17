@@ -65,3 +65,6 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         mock_is_running.return_value = True
         mock_run_cmd.return_value = '{"return":{"retranssegs":10,"outsegs":100}}'
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        result = collector.call_qga_interface("vm1", "bc-guest-get-tcp-snmp")
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["data"]["retranssegs"], 10)
