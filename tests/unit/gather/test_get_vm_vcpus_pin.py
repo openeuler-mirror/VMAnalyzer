@@ -69,3 +69,12 @@ class TestExtractAffinity(unittest.TestCase):
         """
         result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
         self.assertEqual(result, "0-3")
+
+    def test_affinity_table_format(self):
+        output = """
+        VCPU CPU Affinity
+        0 0-3
+        1 4-7
+        """
+        result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
+        self.assertEqual(result, "0-3")
