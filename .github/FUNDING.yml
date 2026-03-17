@@ -1,0 +1,34 @@
+# These are supported funding model platforms
+
+github: # Replace with a list of GitHub Sponsors-enabled usernames
+# github: [openeuler]
+
+patreon: # Replace with a single Patreon username
+# patreon: openeuler
+
+open_collective: # Replace with a single Open Collective username
+open_collective: openeuler
+
+ko_fi: # Replace with a single Ko-fi username
+# ko_fi: openeuler
+
+tidelift: # Replace with a single Tidelift platform-name/package-name e.g., npm/babel
+# tidelift: npm/babel
+
+community_bridge: # Replace with a single Community Bridge project-name e.g., cloud-foundry
+# community_bridge: cloud-foundry
+
+liberapay: # Replace with a single Liberapay username
+# liberapay: openeuler
+
+issuehunt: # Replace with a single IssueHunt username
+# issuehunt: openeuler
+
+otechie: # Replace with a single Otechie username
+# otechie: openeuler
+
+lfx_crowdfunding: # Replace with a single LFX Crowdfunding project-name e.g., cloud-foundry
+# lfx_crowdfunding: cloud-foundry
+
+custom: # Replace with up to 4 custom sponsorship URLs e.g., ['link1', 'link2']
+custom: ['https://www.openeuler.io/', 'https://opencollective.com/openeuler']
