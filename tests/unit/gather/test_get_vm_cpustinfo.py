@@ -43,3 +43,8 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         )
         result = self.collector.run_virsh_cmd("virsh domstate vm1")
         self.assertIsNone(result)
+
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "run_virsh_cmd")
+    def test_get_vm_state(self, mock_run):
+        mock_run.return_value = "running"
+        state = self.collector.get_vm_state("vm1")
