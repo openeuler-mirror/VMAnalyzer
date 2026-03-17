@@ -32,3 +32,4 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         mock_result.stdout = "running\n"
         mock_run.return_value = mock_result
         result = self.collector.run_virsh_cmd("virsh domstate vm1")
+        self.assertEqual(result, "running")
