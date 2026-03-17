@@ -58,3 +58,10 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         self.assertTrue(collector.is_vm_running("vm1"))
         mock_get_vm_state.return_value = "shut off"
         self.assertFalse(collector.is_vm_running("vm2"))
+
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.is_vm_running")
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.run_virsh_cmd")
+    def test_call_qga_interface_success(self, mock_run_cmd, mock_is_running):
+        mock_is_running.return_value = True
+        mock_run_cmd.return_value = '{"return":{"retranssegs":10,"outsegs":100}}'
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
