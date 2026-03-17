@@ -83,3 +83,11 @@ class TestExtractAffinity(unittest.TestCase):
         output = "0-3"
         result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
         self.assertEqual(result, "0-3")
+
+    def test_no_affinity(self):
+        output = """
+        some random text
+        without affinity
+        """
+        result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
+        self.assertEqual(result, "")
