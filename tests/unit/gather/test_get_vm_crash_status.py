@@ -31,3 +31,12 @@ class TestVmCrashStatus(unittest.TestCase):
         }
         result = get_vm_crash_status.get_vm_list()
         self.assertEqual(result, ["vm1", "vm2"])
+
+    @patch("gather.get_vm_crash_status.execute_cmd")
+    def test_get_vm_list_failed(self, mock_exec):
+        mock_exec.return_value = {
+            "code": 1,
+            "stdout": "",
+            "stderr": "error"
+        }
+        result = get_vm_crash_status.get_vm_list()
