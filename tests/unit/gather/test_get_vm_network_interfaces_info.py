@@ -19,7 +19,11 @@ import json
 from gather import get_vm_network_interfaces_info
 
 class TestVMCollector(unittest.TestCase):
-    pass
+
+    def setUp(self):
+        self.collector = get_vm_network_interfaces_info.VMCollector(
+            output_dir="/tmp/test_network"
+        )
 
 if __name__ == "__main__":
     unittest.main()
