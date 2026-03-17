@@ -50,3 +50,9 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
         state = collector.get_vm_state("vm1")
         self.assertEqual(state, "running")
+
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.get_vm_state")
+    def test_is_vm_running(self, mock_get_vm_state):
+        mock_get_vm_state.return_value = "running"
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        self.assertTrue(collector.is_vm_running("vm1"))
