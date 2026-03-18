@@ -57,3 +57,18 @@ class TestVmCrashStatus(unittest.TestCase):
         result = json.loads(result_json)
         self.assertTrue(result["crashed"])
         self.assertEqual(result["crash_reason"], "Libvirt标记为崩溃状态")
+
+    @patch("gather.get_vm_crash_status.execute_cmd")
+    @patch("gather.get_vm_crash_status.os.path.exists")
+    @patch("builtins.open", new_callable=mock_open)
+    def test_vm_log_detect_crash(self, mock_file, mock_exists, mock_exec):
+        mock_exists.return_value = True
+        mock_file.return_value.readlines.return_value = [
+            "kernel panic detected\n"
+        ]
+        mock_exec.side_effect = [
+            {"code": 0, "stdout": "running", "stderr": ""},
+            {"code": 0, "stdout": "qemu guest=vm1", "stderr": ""}
+        ]
+        result_json = get_vm_crash_status.get_vm_crash_status("vm1")
+        result = json.loads(result_json)
