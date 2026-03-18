@@ -59,3 +59,7 @@ class TestVMInfo(unittest.TestCase):
         mock_cmd.return_value = "running"
         result = self.collector.get_vm_state("vm1")
         self.assertEqual(result, "running")
+
+class TestQGA(unittest.TestCase):
+    def setUp(self):
+        self.collector = get_vm_cpu_utilization.VMCollector()
