@@ -127,3 +127,12 @@ class TestGetSingleVMVcpupin(unittest.TestCase):
         ]
         mock_doc.xpathNewContext.return_value = mock_ctx
         mock_parseDoc.return_value = mock_doc
+        result = get_vm_vcpus_pin.get_single_vm_vcpupin(
+            self.vm_name,
+            self.mock_conn
+        )
+        self.assertIn("uuid123", result)
+        self.assertEqual(
+            result["uuid123"]["vcpu_total"],
+            2
+        )
