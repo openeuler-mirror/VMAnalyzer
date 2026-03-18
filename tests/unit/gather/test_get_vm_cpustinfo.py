@@ -48,3 +48,4 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
     def test_get_vm_state(self, mock_run):
         mock_run.return_value = "running"
         state = self.collector.get_vm_state("vm1")
+        self.assertEqual(state, "running")
