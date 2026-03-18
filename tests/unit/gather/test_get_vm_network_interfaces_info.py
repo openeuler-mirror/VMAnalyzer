@@ -33,6 +33,8 @@ class TestVMCollector(unittest.TestCase):
         mock_res = MagicMock()
         mock_res.stdout = "output\n"
         mock_run.return_value = mock_res
+        result = self.collector.run_virsh_cmd("virsh list")
+        self.assertEqual(result, "output")
 
 if __name__ == "__main__":
     unittest.main()
