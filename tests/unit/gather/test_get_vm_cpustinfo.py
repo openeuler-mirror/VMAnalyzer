@@ -49,3 +49,8 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         mock_run.return_value = "running"
         state = self.collector.get_vm_state("vm1")
         self.assertEqual(state, "running")
+
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "run_virsh_cmd")
+    def test_get_all_vm_names(self, mock_run):
+        mock_run.return_value = "vm1\nvm2\n"
+        result = self.collector.get_all_vm_names()
