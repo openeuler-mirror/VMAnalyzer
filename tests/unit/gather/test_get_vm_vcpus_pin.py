@@ -103,3 +103,27 @@ class TestGetSingleVMVcpupin(unittest.TestCase):
         self.mock_conn = MagicMock()
         self.mock_conn.lookupByName.return_value = self.mock_dom
 
+    @patch("gather.get_vm_vcpus_pin.subprocess.run")
+    @patch("gather.get_vm_vcpus_pin.libxml2.parseDoc")
+    def test_success(self, mock_parseDoc, mock_run):
+        # mock virsh
+        mock_result = MagicMock()
+        mock_result.stdout = "CPU Affinity: 0-3"
+        mock_run.return_value = mock_result
+        # mock xml
+        mock_doc = MagicMock()
+        mock_ctx = MagicMock()
+        vcpu_node = MagicMock()
+        vcpu_node.content = "2"
+        topology_node = MagicMock()
+        topology_node.prop.side_effect = lambda x: {
+            "sockets": "1",
+            "cores": "2",
+            "threads": "1"
+        }.get(x)
+        mock_ctx.xpathEval.side_effect = [
+            [vcpu_node],
+            [topology_node]
+        ]
+        mock_doc.xpathNewContext.return_value = mock_ctx
+        mock_parseDoc.return_value = mock_doc
