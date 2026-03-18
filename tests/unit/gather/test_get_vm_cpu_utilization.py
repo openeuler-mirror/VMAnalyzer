@@ -63,3 +63,9 @@ class TestVMInfo(unittest.TestCase):
 class TestQGA(unittest.TestCase):
     def setUp(self):
         self.collector = get_vm_cpu_utilization.VMCollector()
+
+    @patch.object(get_vm_cpu_utilization.VMCollector, "run_virsh_cmd")
+    def test_qga_success(self, mock_cmd):
+        mock_cmd.return_value = json.dumps({
+            "return": {"cpu": 10}
+        })
