@@ -318,5 +318,10 @@ class TestGetVMMemTopApp(unittest.TestCase):
                 save_data = json.load(f)
             self.assertEqual(save_data, mock_collect_data)
 
+        with patch("builtins.open", side_effect=PermissionError("no write permission")), \
+                patch.object(logger, "error") as mock_log_err:
+            self.collector.save_collect_data()
+            mock_log_err.assert_called_with("保存数据失败：no write permission")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
