@@ -288,5 +288,35 @@ class TestGetVMMemTopApp(unittest.TestCase):
                     self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "采集成功")
                     self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "采集失败")
 
+    def test_save_collect_data(self):
+        mock_collect_data = {
+            "collect_time": "2026-02-06 10:00:00",
+            "running_vm_count": 1,
+            "vm_list": {
+                "vm-web01": {
+                    "status": "采集成功",
+                    "process_list": [{"process_id": "123", "user": "root"}],
+                    "top_n": 5
+                }
+            }
+        }
+        self.collector.collect_data = mock_collect_data
+
+        mock_file_time = "20260206_100000"
+        with patch("gather.get_vm_mem_top_app.datetime") as mock_datetime:
+            mock_now = datetime.strptime("2026-02-06 10:00:00", "%Y-%m-%d %H:%M:%S")
+            mock_datetime.now.return_value = mock_now
+            mock_datetime.strftime = datetime.strftime
+
+            self.collector.save_collect_data()
+
+            test_file = f"vm_mem_topn_{mock_file_time}.json"
+            test_file_path = os.path.join(self.test_out_dir, test_file)
+            self.assertTrue(os.path.exists(test_file_path))
+
+            with open(test_file_path, "r", encoding="utf-8") as f:
+                save_data = json.load(f)
+            self.assertEqual(save_data, mock_collect_data)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
