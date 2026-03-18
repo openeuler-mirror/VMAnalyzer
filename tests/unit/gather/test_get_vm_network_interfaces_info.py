@@ -25,5 +25,14 @@ class TestVMCollector(unittest.TestCase):
             output_dir="/tmp/test_network"
         )
 
+    # =========================
+    # run_virsh_cmd
+    # =========================
+    @patch("gather.get_vm_network_interfaces_info.subprocess.run")
+    def test_run_virsh_cmd_success(self, mock_run):
+        mock_res = MagicMock()
+        mock_res.stdout = "output\n"
+        mock_run.return_value = mock_res
+
 if __name__ == "__main__":
     unittest.main()
