@@ -72,3 +72,5 @@ class TestVmCrashStatus(unittest.TestCase):
         ]
         result_json = get_vm_crash_status.get_vm_crash_status("vm1")
         result = json.loads(result_json)
+        self.assertTrue(result["crashed"])
+        self.assertIn("kernel panic", result["crash_log_snippet"])
