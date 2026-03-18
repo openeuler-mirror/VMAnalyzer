@@ -73,3 +73,5 @@ class TestVMQgaTCPCollector(unittest.TestCase):
     def test_call_qga_interface_vm_not_running(self, mock_is_running):
         mock_is_running.return_value = False
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        result = collector.call_qga_interface("vm1", "bc-guest-get-tcp-snmp")
+        self.assertEqual(result["status"], "vm_not_running")
