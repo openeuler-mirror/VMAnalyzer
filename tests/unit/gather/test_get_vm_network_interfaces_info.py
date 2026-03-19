@@ -47,6 +47,8 @@ class TestVMCollector(unittest.TestCase):
     @patch("gather.get_vm_network_interfaces_info.subprocess.run")
     def test_run_virsh_cmd_timeout(self, mock_run):
         mock_run.side_effect = subprocess.TimeoutExpired(cmd="cmd", timeout=30)
+        result = self.collector.run_virsh_cmd("cmd")
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
