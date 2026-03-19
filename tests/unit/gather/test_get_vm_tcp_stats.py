@@ -83,3 +83,13 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         # outsegs 为 0
         rate = collector.calculate_tcp_retrans_rate({"retranssegs": 1, "outsegs": 0})
         self.assertEqual(rate, 0.0)
+
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.get_all_vm_names")
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.is_vm_running")
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.collect_single_vm_tcp_data")
+    def test_collect_all_vms(self, mock_collect_single, mock_is_running, mock_get_names):
+        mock_get_names.return_value = ["vm1", "vm2"]
+        mock_is_running.side_effect = [True, False]
+        mock_collect_single.side_effect = [{"name": "vm1"}, {"name": "vm2"}]
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        collector.collect_all_vms()
