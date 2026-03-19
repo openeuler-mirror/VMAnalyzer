@@ -18,7 +18,15 @@ import json
 from gather import get_vm_disk_backing_file
 
 class TestVMDiskBackingFile(unittest.TestCase):
-    pass
+
+    # =========================
+    # execute_cmd
+    # =========================
+    @patch("gather.get_vm_disk_backing_file.subprocess.run")
+    def test_execute_cmd_success(self, mock_run):
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "ok\n"
+        mock_run.return_value.stderr = ""
 
 if __name__ == "__main__":
     unittest.main()
