@@ -74,3 +74,17 @@ class TestVmCrashStatus(unittest.TestCase):
         result = json.loads(result_json)
         self.assertTrue(result["crashed"])
         self.assertIn("kernel panic", result["crash_log_snippet"])
+
+    # ------------------------------
+    # QEMU 进程丢失
+    # ------------------------------
+    @patch("gather.get_vm_crash_status.execute_cmd")
+    @patch("gather.get_vm_crash_status.os.path.exists")
+    def test_qemu_process_missing(self, mock_exists, mock_exec):
+        mock_exists.return_value = False
+        mock_exec.side_effect = [
+            {"code": 0, "stdout": "running", "stderr": ""},
+            {"code": 0, "stdout": "", "stderr": ""}
+        ]
+        result_json = get_vm_crash_status.get_vm_crash_status("vm1")
+        result = json.loads(result_json)
