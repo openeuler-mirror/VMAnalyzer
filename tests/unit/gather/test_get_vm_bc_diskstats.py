@@ -50,6 +50,8 @@ class TestVMCollector(unittest.TestCase):
     @patch.object(get_vm_bc_diskstats.VMCollector, "run_virsh_cmd")
     def test_get_vm_state(self, mock_cmd):
         mock_cmd.return_value = "Running"
+        state = self.collector.get_vm_state("vm1")
+        self.assertEqual(state, "running")
 
 if __name__ == "__main__":
     unittest.main()
