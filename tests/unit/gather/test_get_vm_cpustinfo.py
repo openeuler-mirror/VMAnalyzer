@@ -54,3 +54,4 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
     def test_get_all_vm_names(self, mock_run):
         mock_run.return_value = "vm1\nvm2\n"
         result = self.collector.get_all_vm_names()
+        self.assertEqual(result, ["vm1", "vm2"])
