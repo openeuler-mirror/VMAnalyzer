@@ -69,3 +69,9 @@ class TestQGA(unittest.TestCase):
         mock_cmd.return_value = json.dumps({
             "return": {"cpu": 10}
         })
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-cpu-utilization"
+        )
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["data"], {"cpu": 10})
