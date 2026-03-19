@@ -90,3 +90,17 @@ class TestVmCrashStatus(unittest.TestCase):
         result = json.loads(result_json)
         self.assertTrue(result["crashed"])
         self.assertEqual(result["crash_reason"], "QEMU进程已退出但虚机状态非关机")
+
+    # ------------------------------
+    # ps 命令失败
+    # ------------------------------
+    @patch("gather.get_vm_crash_status.execute_cmd")
+    @patch("gather.get_vm_crash_status.os.path.exists")
+    def test_ps_failed(self, mock_exists, mock_exec):
+        mock_exists.return_value = False
+        mock_exec.side_effect = [
+            {"code": 0, "stdout": "running", "stderr": ""},
+            {"code": 1, "stdout": "", "stderr": "ps error"}
+        ]
+        result_json = get_vm_crash_status.get_vm_crash_status("vm1")
+        result = json.loads(result_json)
