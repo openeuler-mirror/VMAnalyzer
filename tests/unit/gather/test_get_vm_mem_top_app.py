@@ -331,5 +331,17 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertEqual(args.poll_interval, 60)
             self.assertEqual(args.output_dir, "./vm_mem_topn_data")
 
+        # 场景2：自定义所有参数
+        with patch("sys.argv", [
+            "get_vm_mem_top_app.py",
+            "--top-n", "10",
+            "--poll-interval", "30",
+            "--output-dir", "/data/vm_mon/mem_topn"
+        ]):
+            args = parse_args()
+            self.assertEqual(args.top_n, 10)
+            self.assertEqual(args.poll_interval, 30)
+            self.assertEqual(args.output_dir, "/data/vm_mon/mem_topn")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
