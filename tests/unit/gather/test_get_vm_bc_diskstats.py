@@ -34,5 +34,13 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.run_virsh_cmd("virsh domstate vm1")
         self.assertEqual(result, "running")
 
+    @patch("gather.get_vm_bc_diskstats.subprocess.run")
+    def test_run_virsh_cmd_failed(self, mock_run):
+        mock_run.side_effect = subprocess.CalledProcessError(
+            returncode=1,
+            cmd="virsh",
+            stderr="error"
+        )
+
 if __name__ == "__main__":
     unittest.main()
