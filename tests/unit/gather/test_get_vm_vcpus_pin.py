@@ -136,3 +136,22 @@ class TestGetSingleVMVcpupin(unittest.TestCase):
             result["uuid123"]["vcpu_total"],
             2
         )
+
+    @patch("gather.get_vm_vcpus_pin.subprocess.run")
+    @patch("gather.get_vm_vcpus_pin.libxml2.parseDoc")
+    def test_subprocess_error(self, mock_parseDoc, mock_run):
+        mock_run.side_effect = subprocess.CalledProcessError(
+            1,
+            "virsh",
+            stderr="error"
+        )
+        mock_doc = MagicMock()
+        mock_ctx = MagicMock()
+        vcpu_node = MagicMock()
+        vcpu_node.content = "1"
+        mock_ctx.xpathEval.side_effect = [
+            [vcpu_node],
+            []
+        ]
+        mock_doc.xpathNewContext.return_value = mock_ctx
+        mock_parseDoc.return_value = mock_doc
