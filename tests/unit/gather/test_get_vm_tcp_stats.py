@@ -93,3 +93,7 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         mock_collect_single.side_effect = [{"name": "vm1"}, {"name": "vm2"}]
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
         collector.collect_all_vms()
+        self.assertEqual(collector.all_vms_data["vm_count"], 2)
+        self.assertEqual(collector.all_vms_data["running_vm_count"], 1)
+        self.assertIn("vm1", collector.all_vms_data["vms"])
+        self.assertIn("vm2", collector.all_vms_data["vms"])
