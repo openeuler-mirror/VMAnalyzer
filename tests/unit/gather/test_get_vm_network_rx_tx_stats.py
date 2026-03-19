@@ -35,6 +35,9 @@ class TestVMNetworkRxTxStats(unittest.TestCase):
     def test_execute_cmd_timeout(self, mock_run):
         from subprocess import TimeoutExpired
         mock_run.side_effect = TimeoutExpired(cmd="cmd", timeout=30)
+        result = get_vm_network_rx_tx_stats.execute_cmd(["cmd"])
+        self.assertNotEqual(result["code"], 0)
+        self.assertIn("超时", result["stderr"])
 
 if __name__ == "__main__":
     unittest.main()
