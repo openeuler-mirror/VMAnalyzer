@@ -44,5 +44,12 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.run_virsh_cmd("virsh domstate vm1")
         self.assertIsNone(result)
 
+    # -----------------------------
+    # get_vm_state
+    # -----------------------------
+    @patch.object(get_vm_bc_diskstats.VMCollector, "run_virsh_cmd")
+    def test_get_vm_state(self, mock_cmd):
+        mock_cmd.return_value = "Running"
+
 if __name__ == "__main__":
     unittest.main()
