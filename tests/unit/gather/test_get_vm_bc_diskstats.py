@@ -41,6 +41,8 @@ class TestVMCollector(unittest.TestCase):
             cmd="virsh",
             stderr="error"
         )
+        result = self.collector.run_virsh_cmd("virsh domstate vm1")
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
