@@ -75,3 +75,8 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
         result = collector.call_qga_interface("vm1", "bc-guest-get-tcp-snmp")
         self.assertEqual(result["status"], "vm_not_running")
+
+    def test_calculate_tcp_retrans_rate(self):
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        rate = collector.calculate_tcp_retrans_rate({"retranssegs": 5, "outsegs": 100})
+        self.assertAlmostEqual(rate, 5.0)
