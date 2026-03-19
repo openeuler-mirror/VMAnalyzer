@@ -55,3 +55,13 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         mock_run.return_value = "vm1\nvm2\n"
         result = self.collector.get_all_vm_names()
         self.assertEqual(result, ["vm1", "vm2"])
+
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "run_virsh_cmd")
+    def test_call_qga_interface_success(self, mock_run):
+        mock_run.return_value = json.dumps({
+            "return": {"cpu": 10}
+        })
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-cpustinfo"
+        )
