@@ -67,3 +67,11 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         )
         self.assertEqual(result["status"], "success")
         self.assertEqual(result["data"], {"cpu": 10})
+
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "run_virsh_cmd")
+    def test_call_qga_interface_parse_error(self, mock_run):
+        mock_run.return_value = "invalid json"
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-cpustinfo"
+        )
