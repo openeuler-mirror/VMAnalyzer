@@ -36,5 +36,11 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.run_virsh_cmd("virsh list")
         self.assertEqual(result, "output")
 
+    @patch("gather.get_vm_network_interfaces_info.subprocess.run")
+    def test_run_virsh_cmd_fail(self, mock_run):
+        mock_run.side_effect = subprocess.CalledProcessError(
+            returncode=1, cmd="cmd", stderr="error"
+        )
+
 if __name__ == "__main__":
     unittest.main()
