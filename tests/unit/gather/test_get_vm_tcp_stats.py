@@ -80,3 +80,6 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
         rate = collector.calculate_tcp_retrans_rate({"retranssegs": 5, "outsegs": 100})
         self.assertAlmostEqual(rate, 5.0)
+        # outsegs 为 0
+        rate = collector.calculate_tcp_retrans_rate({"retranssegs": 1, "outsegs": 0})
+        self.assertEqual(rate, 0.0)
