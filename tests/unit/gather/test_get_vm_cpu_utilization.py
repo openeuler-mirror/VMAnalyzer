@@ -75,3 +75,9 @@ class TestQGA(unittest.TestCase):
         )
         self.assertEqual(result["status"], "success")
         self.assertEqual(result["data"], {"cpu": 10})
+
+    @patch.object(get_vm_cpu_utilization.VMCollector, "run_virsh_cmd")
+    def test_qga_error(self, mock_cmd):
+        mock_cmd.return_value = json.dumps({
+            "error": {"message": "failed"}
+        })
