@@ -362,5 +362,22 @@ class TestGetVMMemTopApp(unittest.TestCase):
             )
             mock_collector_cls.return_value.start_polling.assert_called_once()
 
+    def test_start_polling(self):
+        with patch.object(self.collector, "collect_all_vms_data") as mock_collect, \
+                patch.object(self.collector, "save_collect_data") as mock_save, \
+                patch("time.sleep") as mock_sleep, \
+                patch.object(logger, "info") as mock_log_info:
+            mock_sleep.side_effect = KeyboardInterrupt()
+            try:
+                self.collector.start_polling()
+            except KeyboardInterrupt:
+                pass
+
+            mock_collect.assert_called_once()
+            mock_save.assert_called_once()
+            mock_sleep.assert_called_once_with(self.poll_interval)
+            all_logs = "".join([call[0][0] for call in mock_log_info.call_args_list])
+            self.assertIn("用户终止采集，程序退出", all_logs)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
