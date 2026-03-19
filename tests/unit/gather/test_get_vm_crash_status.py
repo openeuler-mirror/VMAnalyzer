@@ -104,3 +104,5 @@ class TestVmCrashStatus(unittest.TestCase):
         ]
         result_json = get_vm_crash_status.get_vm_crash_status("vm1")
         result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn("ps error", result["error"])
