@@ -41,6 +41,8 @@ class TestVMCollector(unittest.TestCase):
         mock_run.side_effect = subprocess.CalledProcessError(
             returncode=1, cmd="cmd", stderr="error"
         )
+        result = self.collector.run_virsh_cmd("cmd")
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
