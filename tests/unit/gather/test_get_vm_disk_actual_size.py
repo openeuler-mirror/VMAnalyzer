@@ -16,3 +16,9 @@ from unittest.mock import patch
 import json
 
 from gather import get_vm_disk_actual_size
+
+class TestVMDiskActualSize(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
