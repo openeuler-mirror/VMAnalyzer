@@ -161,3 +161,21 @@ class TestGetSingleVMVcpupin(unittest.TestCase):
         )
         vm = result["uuid123"]
         self.assertEqual(vm["vcpu_total"], 1)
+
+    @patch("gather.get_vm_vcpus_pin.subprocess.run")
+    @patch("gather.get_vm_vcpus_pin.libxml2.parseDoc")
+    def test_timeout(self, mock_parseDoc, mock_run):
+        mock_run.side_effect = subprocess.TimeoutExpired(
+            "virsh",
+            10
+        )
+        mock_doc = MagicMock()
+        mock_ctx = MagicMock()
+        vcpu_node = MagicMock()
+        vcpu_node.content = "1"
+        mock_ctx.xpathEval.side_effect = [
+            [vcpu_node],
+            []
+        ]
+        mock_doc.xpathNewContext.return_value = mock_ctx
+        mock_parseDoc.return_value = mock_doc
