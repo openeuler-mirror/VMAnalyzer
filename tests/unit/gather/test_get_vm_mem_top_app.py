@@ -343,5 +343,24 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertEqual(args.poll_interval, 30)
             self.assertEqual(args.output_dir, "/data/vm_mon/mem_topn")
 
+    def test_main(self):
+        with patch("gather.get_vm_mem_top_app.parse_args") as mock_parse, \
+                patch("gather.get_vm_mem_top_app.VMMemTopNCollector") as mock_collector_cls:
+            mock_args = MagicMock()
+            mock_args.top_n = 5
+            mock_args.poll_interval = 60
+            mock_args.output_dir = "./vm_mem_topn_data"
+            mock_parse.return_value = mock_args
+
+            main()
+
+            mock_parse.assert_called_once()
+            mock_collector_cls.assert_called_once_with(
+                top_n=5,
+                poll_interval=60,
+                output_dir="./vm_mem_topn_data"
+            )
+            mock_collector_cls.return_value.start_polling.assert_called_once()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
