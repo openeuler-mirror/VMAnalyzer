@@ -323,5 +323,13 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.collector.save_collect_data()
             mock_log_err.assert_called_with("保存数据失败：no write permission")
 
+    def test_parse_args(self):
+        # 场景1：使用默认参数，无命令行入参
+        with patch("sys.argv", ["get_vm_mem_top_app.py"]):
+            args = parse_args()
+            self.assertEqual(args.top_n, 5)
+            self.assertEqual(args.poll_interval, 60)
+            self.assertEqual(args.output_dir, "./vm_mem_topn_data")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
