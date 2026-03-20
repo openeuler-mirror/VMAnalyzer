@@ -200,3 +200,5 @@ class TestGetAllVMs(unittest.TestCase):
         mock_single.return_value = {
             "uuid123": {"name": "vm1"}
         }
+        result = get_vm_vcpus_pin.get_all_vms_vcpupin()
+        self.assertIn("uuid123", result)
