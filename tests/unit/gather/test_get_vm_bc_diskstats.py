@@ -53,5 +53,12 @@ class TestVMCollector(unittest.TestCase):
         state = self.collector.get_vm_state("vm1")
         self.assertEqual(state, "running")
 
+    # -----------------------------
+    # get_all_vm_names
+    # -----------------------------
+    @patch.object(get_vm_bc_diskstats.VMCollector, "run_virsh_cmd")
+    def test_get_all_vm_names(self, mock_cmd):
+        mock_cmd.return_value = "vm1\nvm2\n"
+
 if __name__ == "__main__":
     unittest.main()
