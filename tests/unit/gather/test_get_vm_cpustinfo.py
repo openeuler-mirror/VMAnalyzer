@@ -75,3 +75,4 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
             "vm1",
             "guest-get-cpustinfo"
         )
+        self.assertEqual(result["status"], "parse_error")
