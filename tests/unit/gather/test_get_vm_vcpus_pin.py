@@ -185,3 +185,18 @@ class TestGetSingleVMVcpupin(unittest.TestCase):
         )
         vm = result["uuid123"]
         self.assertEqual(vm["vcpu_total"], 1)
+
+# get_all_vms_vcpupin
+class TestGetAllVMs(unittest.TestCase):
+
+    @patch("gather.get_vm_vcpus_pin.get_single_vm_vcpupin")
+    @patch("gather.get_vm_vcpus_pin.libvirt.open")
+    def test_get_all(self, mock_open, mock_single):
+        mock_dom = MagicMock()
+        mock_dom.name.return_value = "vm1"
+        mock_conn = MagicMock()
+        mock_conn.listAllDomains.return_value = [mock_dom]
+        mock_open.return_value = mock_conn
+        mock_single.return_value = {
+            "uuid123": {"name": "vm1"}
+        }
