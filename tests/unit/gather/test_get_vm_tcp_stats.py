@@ -103,3 +103,6 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
         collector.all_vms_data = {"vm_count": 1}
         collector.save_to_json("test.json")
+        mock_file.assert_called_once_with("test.json", "w", encoding="utf-8")
+        handle = mock_file()
+        self.assertTrue(handle.write.called)
