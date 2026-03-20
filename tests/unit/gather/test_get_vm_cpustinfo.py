@@ -76,3 +76,14 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
             "guest-get-cpustinfo"
         )
         self.assertEqual(result["status"], "parse_error")
+
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "call_qga_interface")
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "get_vm_state")
+    def test_collect_single_vm_running(self, mock_state, mock_qga):
+        mock_state.return_value = "running"
+        mock_qga.return_value = {
+            "status": "success",
+            "data": {"cpu": 5},
+            "error": ""
+        }
+        result = self.collector.collect_single_vm_cpustinfo_data("vm1")
