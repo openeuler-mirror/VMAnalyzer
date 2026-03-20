@@ -90,3 +90,8 @@ class TestQGA(unittest.TestCase):
     @patch.object(get_vm_cpu_utilization.VMCollector, "run_virsh_cmd")
     def test_qga_parse_error(self, mock_cmd):
         mock_cmd.return_value = "invalid json"
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-cpu-utilization"
+        )
+        self.assertEqual(result["status"], "parse_error")
