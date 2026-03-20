@@ -379,5 +379,17 @@ class TestGetVMMemTopApp(unittest.TestCase):
             all_logs = "".join([call[0][0] for call in mock_log_info.call_args_list])
             self.assertIn("用户终止采集，程序退出", all_logs)
 
+        with patch.object(self.collector, "collect_all_vms_data") as mock_collect, \
+                patch.object(self.collector, "save_collect_data") as mock_save, \
+                patch("time.sleep"), \
+                patch.object(logger, "error") as mock_log_err:
+            mock_collect.side_effect = RuntimeError("poll error")
+            try:
+                self.collector.start_polling()
+            except RuntimeError:
+                pass
+
+            mock_log_err.assert_called_with("轮询采集异常：poll error")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
