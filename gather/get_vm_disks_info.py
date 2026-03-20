@@ -65,7 +65,7 @@ class VMCollector:
 
     def get_all_vm_names(self) -> List[str]:
         """获取所有有效虚拟机名称（过滤空行和无效值）"""
-        cmd = "virsh list --name | grep -v '^$' | grep -v '^-$'"
+        cmd = "virsh list --all --name | grep -v '^$' | grep -v '^-$'"
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
 
