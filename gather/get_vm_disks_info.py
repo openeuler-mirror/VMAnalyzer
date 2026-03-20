@@ -112,6 +112,8 @@ class VMCollector:
             LOG_ERROR("未找到任何虚拟机")
             return
         
+        running_vm_names = self.get_running_vm_names()
+
         self.all_vms_data["vm_count"] = len(vm_names)
         # 统计运行中的虚拟机数量
         running_vms = [name for name in vm_names]
