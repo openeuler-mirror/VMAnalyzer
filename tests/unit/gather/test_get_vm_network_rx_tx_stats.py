@@ -79,5 +79,23 @@ vnet0      bridge     br0        virtio      52:54:00:xx:xx:xx
         result = get_vm_network_rx_tx_stats.get_vm_list()
         self.assertEqual(result, [])
 
+    # =========================
+    # get_vm_network_rx_tx_stats
+    # =========================
+    @patch("gather.get_vm_network_rx_tx_stats.execute_cmd")
+    @patch("gather.get_vm_network_rx_tx_stats.get_vm_nic_list")
+    def test_get_vm_network_stats_success(self, mock_nics, mock_cmd):
+        mock_nics.return_value = [
+            {"interface": "vnet0"}
+        ]
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": """vnet0 rx_bytes 100
+vnet0 rx_packets 10
+vnet0 tx_bytes 200
+vnet0 tx_packets 20
+"""
+        }
+
 if __name__ == "__main__":
     unittest.main()
