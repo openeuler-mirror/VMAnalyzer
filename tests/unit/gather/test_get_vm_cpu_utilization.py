@@ -109,3 +109,9 @@ class TestCollectVM(unittest.TestCase):
             "data": {"cpu": 20},
             "error": ""
         }
+        result = self.collector.collect_single_vm_data("vm1")
+        self.assertEqual(result["state"], "running")
+        self.assertEqual(
+            result["get_cpu_utilization"]["data"],
+            {"cpu": 20}
+        )
