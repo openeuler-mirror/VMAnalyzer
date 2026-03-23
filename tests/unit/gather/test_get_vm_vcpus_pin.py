@@ -208,3 +208,5 @@ class TestGetAllVMs(unittest.TestCase):
         mock_conn = MagicMock()
         mock_conn.listAllDomains.return_value = []
         mock_open.return_value = mock_conn
+        result = get_vm_vcpus_pin.get_all_vms_vcpupin()
+        self.assertEqual(result, {})
