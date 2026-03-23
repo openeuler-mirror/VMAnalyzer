@@ -106,3 +106,7 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         mock_file.assert_called_once_with("test.json", "w", encoding="utf-8")
         handle = mock_file()
         self.assertTrue(handle.write.called)
+
+if __name__ == "__main__":
+    unittest.main()
+
