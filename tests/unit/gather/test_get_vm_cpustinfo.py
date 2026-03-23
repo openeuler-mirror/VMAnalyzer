@@ -89,3 +89,8 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         result = self.collector.collect_single_vm_cpustinfo_data("vm1")
         self.assertEqual(result["name"], "vm1")
         self.assertEqual(result["state"], "running")
+
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "get_vm_state")
+    def test_collect_single_vm_stopped(self, mock_state):
+        mock_state.return_value = "stopped"
+        result = self.collector.collect_single_vm_cpustinfo_data("vm1")
