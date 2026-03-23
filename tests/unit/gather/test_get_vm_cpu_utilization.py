@@ -99,3 +99,13 @@ class TestQGA(unittest.TestCase):
 class TestCollectVM(unittest.TestCase):
     def setUp(self):
         self.collector = get_vm_cpu_utilization.VMCollector()
+
+    @patch.object(get_vm_cpu_utilization.VMCollector, "call_qga_interface")
+    @patch.object(get_vm_cpu_utilization.VMCollector, "get_vm_state")
+    def test_collect_running_vm(self, mock_state, mock_qga):
+        mock_state.return_value = "running"
+        mock_qga.return_value = {
+            "status": "success",
+            "data": {"cpu": 20},
+            "error": ""
+        }
