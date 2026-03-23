@@ -16,3 +16,9 @@ from unittest.mock import patch, MagicMock, mock_open
 import json
 
 from gather import get_vm_oom_status
+
+class TestVMOOMCollector(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
