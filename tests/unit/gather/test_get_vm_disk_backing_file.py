@@ -50,6 +50,9 @@ class TestVMDiskBackingFile(unittest.TestCase):
 file       disk       vda        /path/disk.qcow2
 """
         }
+        result = get_vm_disk_backing_file.get_vm_disk_list("vm1")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["target"], "vda")
 
 if __name__ == "__main__":
     unittest.main()
