@@ -65,5 +65,15 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.get_all_vm_names()
         self.assertEqual(result, [])
 
+    # =========================
+    # call_qga_interface
+    # =========================
+
+    @patch.object(get_vm_network_interfaces_info.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_success(self, mock_cmd):
+        mock_cmd.return_value = json.dumps({
+            "return": {"eth0": "info"}
+        })
+
 if __name__ == "__main__":
     unittest.main()
