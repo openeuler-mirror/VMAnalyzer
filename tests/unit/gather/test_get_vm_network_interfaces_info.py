@@ -59,5 +59,9 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.get_all_vm_names()
         self.assertEqual(result, ["vm1", "vm2"])
 
+    @patch.object(get_vm_network_interfaces_info.VMCollector, "run_virsh_cmd")
+    def test_get_all_vm_names_empty(self, mock_cmd):
+        mock_cmd.return_value = None
+
 if __name__ == "__main__":
     unittest.main()
