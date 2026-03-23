@@ -59,6 +59,17 @@ class TestVMCollector(unittest.TestCase):
     @patch.object(get_vm_bc_diskstats.VMCollector, "run_virsh_cmd")
     def test_get_all_vm_names(self, mock_cmd):
         mock_cmd.return_value = "vm1\nvm2\n"
+        result = self.collector.get_all_vm_names()
+        self.assertEqual(result, ["vm1", "vm2"])
+
+    # -----------------------------
+    # call_qga_interface
+    # -----------------------------
+    @patch.object(get_vm_bc_diskstats.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_success(self, mock_cmd):
+        mock_cmd.return_value = json.dumps({
+            "return": {"disk": "data"}
+        })
 
 if __name__ == "__main__":
     unittest.main()
