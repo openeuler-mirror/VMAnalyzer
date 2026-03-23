@@ -61,5 +61,15 @@ vnet0      bridge     br0        virtio      52:54:00:xx:xx:xx
         result = get_vm_network_rx_tx_stats.get_vm_nic_list("vm1")
         self.assertEqual(result, [])
 
+    # =========================
+    # get_vm_list
+    # =========================
+    @patch("gather.get_vm_network_rx_tx_stats.execute_cmd")
+    def test_get_vm_list_success(self, mock_cmd):
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": "vm1\nvm2\n"
+        }
+
 if __name__ == "__main__":
     unittest.main()
