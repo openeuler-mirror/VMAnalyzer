@@ -16,3 +16,9 @@ from unittest.mock import patch, MagicMock, mock_open
 import json
 
 from gather import get_vm_load_average
+
+class TestVMCollector(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
