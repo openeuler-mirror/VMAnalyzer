@@ -35,6 +35,8 @@ class TestVMDiskBackingFile(unittest.TestCase):
     def test_execute_cmd_timeout(self, mock_run):
         from subprocess import TimeoutExpired
         mock_run.side_effect = TimeoutExpired(cmd="cmd", timeout=30)
+        result = get_vm_disk_backing_file.execute_cmd(["cmd"])
+        self.assertIn("超时", result["stderr"])
 
 if __name__ == "__main__":
     unittest.main()
