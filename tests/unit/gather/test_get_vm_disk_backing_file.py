@@ -64,5 +64,15 @@ file       disk       vda        /path/disk.qcow2
         result = get_vm_disk_backing_file.get_vm_disk_list("vm1")
         self.assertEqual(result, [])
 
+    # =========================
+    # get_vm_list
+    # =========================
+    @patch("gather.get_vm_disk_backing_file.execute_cmd")
+    def test_get_vm_list(self, mock_cmd):
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": "vm1\nvm2\n"
+        }
+
 if __name__ == "__main__":
     unittest.main()
