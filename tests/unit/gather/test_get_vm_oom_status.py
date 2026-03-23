@@ -18,7 +18,11 @@ import json
 from gather import get_vm_oom_status
 
 class TestVMOOMCollector(unittest.TestCase):
-    pass
+
+    def setUp(self):
+        self.collector = get_vm_oom_status.VMCollector(
+            output_dir="./test_output"
+        )
 
 if __name__ == "__main__":
     unittest.main()
