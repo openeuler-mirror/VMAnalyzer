@@ -16,3 +16,9 @@ from unittest.mock import patch
 import json
 
 from gather import get_vm_snapshot_info
+
+class TestVMSnapshotInfo(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
