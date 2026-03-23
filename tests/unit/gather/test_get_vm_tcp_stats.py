@@ -97,3 +97,9 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         self.assertEqual(collector.all_vms_data["running_vm_count"], 1)
         self.assertIn("vm1", collector.all_vms_data["vms"])
         self.assertIn("vm2", collector.all_vms_data["vms"])
+
+    @patch("gather.get_vm_tcp_stats.open", new_callable=mock_open)
+    def test_save_to_json(self, mock_file):
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        collector.all_vms_data = {"vm_count": 1}
+        collector.save_to_json("test.json")
