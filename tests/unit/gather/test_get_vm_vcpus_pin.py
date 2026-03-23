@@ -202,3 +202,9 @@ class TestGetAllVMs(unittest.TestCase):
         }
         result = get_vm_vcpus_pin.get_all_vms_vcpupin()
         self.assertIn("uuid123", result)
+
+    @patch("gather.get_vm_vcpus_pin.libvirt.open")
+    def test_no_vm(self, mock_open):
+        mock_conn = MagicMock()
+        mock_conn.listAllDomains.return_value = []
+        mock_open.return_value = mock_conn
