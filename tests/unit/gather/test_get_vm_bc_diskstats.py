@@ -70,6 +70,9 @@ class TestVMCollector(unittest.TestCase):
         mock_cmd.return_value = json.dumps({
             "return": {"disk": "data"}
         })
+        result = self.collector.call_qga_interface("vm1", "bc-guest-get-diskstats")
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["data"], {"disk": "data"})
 
 if __name__ == "__main__":
     unittest.main()
