@@ -87,3 +87,5 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
             "error": ""
         }
         result = self.collector.collect_single_vm_cpustinfo_data("vm1")
+        self.assertEqual(result["name"], "vm1")
+        self.assertEqual(result["state"], "running")
