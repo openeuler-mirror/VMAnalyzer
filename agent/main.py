@@ -26,6 +26,7 @@ from agent import analyze
 from agent import reporter
 from utils import timer
 
+__version__ = "0.1.0"
 debug = False
 
 
@@ -63,6 +64,9 @@ def main():
     for o, a in opts:
         if o in ("-h", "--help"):
             usage()
+            sys.exit()
+        if o in ("-V", "--version"):
+            print(f"vm-analyzer-agent {__version__}")
             sys.exit()
         if o in ("-d", "--debug"):
             global debug
