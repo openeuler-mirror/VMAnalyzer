@@ -95,3 +95,7 @@ class TestQGA(unittest.TestCase):
             "guest-get-cpu-utilization"
         )
         self.assertEqual(result["status"], "parse_error")
+
+class TestCollectVM(unittest.TestCase):
+    def setUp(self):
+        self.collector = get_vm_cpu_utilization.VMCollector()
