@@ -95,3 +95,10 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         mock_state.return_value = "stopped"
         result = self.collector.collect_single_vm_cpustinfo_data("vm1")
         self.assertEqual(result["state"], "stopped")
+
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "collect_single_vm_cpustinfo_data")
+    @patch.object(get_vm_cpustinfo.VMCpuStInfoCollector, "get_all_vm_names")
+    def test_collect_all_vms(self, mock_names, mock_collect):
+        mock_names.return_value = ["vm1", "vm2"]
+        mock_collect.return_value = {"name": "vm1"}
+        self.collector.collect_all_vms()
