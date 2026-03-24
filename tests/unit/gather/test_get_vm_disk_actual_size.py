@@ -61,6 +61,10 @@ file       disk       vda        /path/disk.qcow2
             "stdout": "",
             "stderr": "error"
         }
+        result = get_vm_disk_actual_size.get_vm_disk_list("vm1")
+        if isinstance(result, tuple):
+            result = result[0]
+        self.assertEqual(result, [])
 
 if __name__ == "__main__":
     unittest.main()
