@@ -74,6 +74,9 @@ class TestVMCollector(unittest.TestCase):
         mock_cmd.return_value = json.dumps({
             "return": {"eth0": "info"}
         })
+        result = self.collector.call_qga_interface("vm1", "guest-network-get-interfaces")
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["data"], {"eth0": "info"})
 
 if __name__ == "__main__":
     unittest.main()
