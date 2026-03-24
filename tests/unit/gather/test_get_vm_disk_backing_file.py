@@ -61,6 +61,8 @@ file       disk       vda        /path/disk.qcow2
             "stdout": "",
             "stderr": "error"
         }
+        result = get_vm_disk_backing_file.get_vm_disk_list("vm1")
+        self.assertEqual(result, [])
 
 if __name__ == "__main__":
     unittest.main()
