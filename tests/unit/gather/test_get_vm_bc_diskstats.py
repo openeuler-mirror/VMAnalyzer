@@ -80,5 +80,18 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.call_qga_interface("vm1", "bc-guest-get-diskstats")
         self.assertEqual(result["status"], "parse_error")
 
+    # -----------------------------
+    # collect_single_vm_data
+    # -----------------------------
+    @patch.object(get_vm_bc_diskstats.VMCollector, "call_qga_interface")
+    @patch.object(get_vm_bc_diskstats.VMCollector, "get_vm_state")
+    def test_collect_single_vm_data(self, mock_state, mock_qga):
+        mock_state.return_value = "running"
+        mock_qga.return_value = {
+            "status": "success",
+            "data": {"disk": "data"},
+            "error": ""
+        }
+
 if __name__ == "__main__":
     unittest.main()
