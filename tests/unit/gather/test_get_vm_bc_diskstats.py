@@ -77,6 +77,8 @@ class TestVMCollector(unittest.TestCase):
     @patch.object(get_vm_bc_diskstats.VMCollector, "run_virsh_cmd")
     def test_call_qga_interface_parse_error(self, mock_cmd):
         mock_cmd.return_value = "invalid json"
+        result = self.collector.call_qga_interface("vm1", "bc-guest-get-diskstats")
+        self.assertEqual(result["status"], "parse_error")
 
 if __name__ == "__main__":
     unittest.main()
