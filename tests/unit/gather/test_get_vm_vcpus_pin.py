@@ -214,3 +214,5 @@ class TestGetAllVMs(unittest.TestCase):
     @patch("gather.get_vm_vcpus_pin.libvirt.open")
     def test_libvirt_connect_fail(self, mock_open):
         mock_open.return_value = None
+        result = get_vm_vcpus_pin.get_all_vms_vcpupin()
+        self.assertEqual(result, {})
