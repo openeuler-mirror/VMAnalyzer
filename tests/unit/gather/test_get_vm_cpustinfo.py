@@ -102,3 +102,4 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
         mock_names.return_value = ["vm1", "vm2"]
         mock_collect.return_value = {"name": "vm1"}
         self.collector.collect_all_vms()
+        self.assertEqual(self.collector.all_vms_data["vm_count"], 2)
