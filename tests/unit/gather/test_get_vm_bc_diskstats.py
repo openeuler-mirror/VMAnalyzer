@@ -92,6 +92,9 @@ class TestVMCollector(unittest.TestCase):
             "data": {"disk": "data"},
             "error": ""
         }
+        result = self.collector.collect_single_vm_data("vm1")
+        self.assertEqual(result["name"], "vm1")
+        self.assertEqual(result["state"], "running")
 
 if __name__ == "__main__":
     unittest.main()
