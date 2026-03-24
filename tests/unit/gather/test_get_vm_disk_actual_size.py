@@ -78,5 +78,24 @@ file       disk       vda        /path/disk.qcow2
         result = get_vm_disk_actual_size.get_vm_list()
         self.assertEqual(result, ["vm1", "vm2"])
 
+    # =========================
+    # get_vm_disk_actual_size
+    # =========================
+    @patch("gather.get_vm_disk_actual_size.os.path.exists")
+    @patch("gather.get_vm_disk_actual_size.execute_cmd")
+    @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
+    def test_get_disk_size_success(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": json.dumps({
+                "actual-size": 100,
+                "virtual-size": 200
+            })
+        }
+
 if __name__ == "__main__":
     unittest.main()
