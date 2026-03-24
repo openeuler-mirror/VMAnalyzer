@@ -119,3 +119,8 @@ class TestCollectVM(unittest.TestCase):
     @patch.object(get_vm_cpu_utilization.VMCollector, "get_vm_state")
     def test_collect_shutdown_vm(self, mock_state):
         mock_state.return_value = "shut off"
+        result = self.collector.collect_single_vm_data("vm1")
+        self.assertEqual(
+            result["get_cpu_utilization"]["interface"],
+            "guest-get-cpu-utilization"
+        )
