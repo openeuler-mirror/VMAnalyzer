@@ -73,6 +73,8 @@ file       disk       vda        /path/disk.qcow2
             "code": 0,
             "stdout": "vm1\nvm2\n"
         }
+        result = get_vm_disk_backing_file.get_vm_list()
+        self.assertEqual(result, ["vm1", "vm2"])
 
 if __name__ == "__main__":
     unittest.main()
