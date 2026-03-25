@@ -104,6 +104,8 @@ class TestVMCollector(unittest.TestCase):
     def test_collect_all_vms(self, mock_names, mock_collect):
         mock_names.return_value = ["vm1", "vm2"]
         mock_collect.return_value = {"name": "vm1"}
+        self.collector.collect_all_vms()
+        self.assertEqual(self.collector.all_vms_data["vm_count"], 2)
 
 if __name__ == "__main__":
     unittest.main()
