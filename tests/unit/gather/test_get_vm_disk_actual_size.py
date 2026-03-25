@@ -96,6 +96,16 @@ file       disk       vda        /path/disk.qcow2
                 "virtual-size": 200
             })
         }
+        result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        self.assertEqual(result["disks"][0]["actual_size"], 100)
+        self.assertEqual(result["disks"][0]["virtual_size"], 200)
+        self.assertEqual(result["disks"][0]["usage_rate"], 0.5)
+
+    @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
+    def test_get_disk_size_no_disks(self, mock_disk_list):
+        mock_disk_list.return_value = []
 
 if __name__ == "__main__":
     unittest.main()
