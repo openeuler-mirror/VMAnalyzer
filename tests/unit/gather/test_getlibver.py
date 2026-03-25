@@ -18,7 +18,14 @@ from io import StringIO
 from gather import getlibver
 
 class TestGetLibVer(unittest.TestCase):
-    pass
+
+    # =========================
+    # createConnection
+    # =========================
+    @patch("gather.getlibver.libvirt.openReadOnly")
+    def test_create_connection_success(self, mock_open):
+        mock_conn = MagicMock()
+        mock_open.return_value = mock_conn
 
 if __name__ == "__main__":
     unittest.main()
