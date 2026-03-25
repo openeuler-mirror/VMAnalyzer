@@ -95,6 +95,13 @@ file       disk       vda        /path/disk.qcow2
                 "read-only": True
             })
         }
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        disk = result["disks"][0]
+        self.assertEqual(disk["backing_file"], "/base.qcow2")
+        self.assertEqual(disk["format"], "qcow2")
+        self.assertTrue(disk["read_only"])
 
 if __name__ == "__main__":
     unittest.main()
