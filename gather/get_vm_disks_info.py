@@ -31,7 +31,7 @@ class VMCollector:
             os.makedirs(self.output_dir)
 
         self.all_vms_data = {
-            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.localtime()),
+            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime()),
             "vm_count": 0,
             "running_vm_count": 0,
             "vms": {}
@@ -65,7 +65,13 @@ class VMCollector:
 
     def get_all_vm_names(self) -> List[str]:
         """获取所有有效虚拟机名称（过滤空行和无效值）"""
-        cmd = "virsh list --name | grep -v '^$' | grep -v '^-$'"
+        cmd = "virsh list --all --name | grep -v '^$' | grep -v '^-$'"
+        output = self.run_virsh_cmd(cmd)
+        return output.split() if output else []
+
+    def get_running_vm_names(self) -> List[str]:
+        """获取运行中的虚拟机名称"""
+        cmd = "virsh list --running --name | grep -v '^$' | grep -v '^-$'"
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
 
@@ -90,7 +96,7 @@ class VMCollector:
             LOG_ERROR(f"解析 {interface} 结果失败：{output}，错误：{str(e)}")
             return {"status": "parse_error", "data": {}, "error": str(e)}
 
-    def collect_single_vm_cpustinfo_data(self, vm_name: str) -> Dict:
+    def collect_single_vm_disks_info_data(self, vm_name: str) -> Dict:
         LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
         
         get_disks = self.call_qga_interface(vm_name, "guest-get-disks")
@@ -112,6 +118,8 @@ class VMCollector:
             LOG_ERROR("未找到任何虚拟机")
             return
         
+        running_vm_names = self.get_running_vm_names()
+
         self.all_vms_data["vm_count"] = len(vm_names)
         # 统计运行中的虚拟机数量
         running_vms = [name for name in vm_names]
@@ -120,7 +128,7 @@ class VMCollector:
         LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机，其中 {len(running_vms)} 台运行中：{running_vms}")
 
         for vm_name in vm_names:
-            vm_data = self.collect_single_vm_cpustinfo_data(vm_name)
+            vm_data = self.collect_single_vm_disks_info_data(vm_name)
             self.all_vms_data["vms"][vm_name] = vm_data
 
     def save_data(self):

@@ -1,0 +1,24 @@
+# This is a codeowners file for automatically requesting reviews.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global code owners
+* @openeuler/virtualization
+
+# Agent module owners
+/agent/ @openeuler/virtualization-agent
+
+# Gather module owners
+/gather/ @openeuler/virtualization-gather
+
+# Utils module owners  
+/utils/ @openeuler/virtualization-utils
+
+# Diagnose module owners
+/diagnose/ @openeuler/virtualization-diagnose
+
+# Documentation owners
+*.md @openeuler/virtualization-docs
+.github/ @openeuler/virtualization-docs
+
+# Test owners
+/tests/ @openeuler/virtualization-test

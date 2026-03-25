@@ -97,7 +97,7 @@ def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
             img_result = execute_cmd(img_cmd)
             if img_result["code"] != 0:
                 disk_info["error"] = f"qemu-img执行失败: {img_result['stderr']}"
-            else
+            else:
                 try:
                     img_json = json.loads(img_result["stdout"])
                     disk_info["actual_size"] = img_json.get("actual-size", 0)
@@ -129,4 +129,3 @@ if __name__ == "__main__":
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))
-

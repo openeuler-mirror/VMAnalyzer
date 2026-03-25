@@ -41,10 +41,30 @@ A lightweight virtualization performance monitoring analysis tool
 
 #### 参与贡献
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+欢迎参与VMAnalyzer项目贡献！详细贡献指南请参考 [CONTRIBUTING.md](CONTRIBUTING.md) 文件。
+
+基本贡献流程：
+1.  Fork 本仓库到自己的账号
+2.  克隆 fork 到本地：`git clone https://gitcode.com/[你的账号]/VMAnalyzer.git`
+3.  切换到开发分支：`git checkout develope-251121`
+4.  创建功能分支：`git checkout -b feat/[功能名称]` 或 `git checkout -b fix/[修复描述]`
+5.  进行代码修改，确保符合代码规范
+6.  提交代码：`git commit -m "[类型]: [描述]"`
+7.  推送分支到你的 fork：`git push origin [分支名称]`
+8.  提交 Pull Request 到上游仓库的 `develope-251121` 分支
+
+提交代码前请确保：
+- 所有单元测试通过：`pytest tests/unit/`
+- 代码符合PEP 8规范
+- 提交信息遵循约定式提交规范
+
+#### 文档资源
+
+- [架构设计文档](ARCHITECTURE.md)
+- [安装指南](INSTALL.md)
+- [使用示例](USAGE.md)
+- [常见问题](FAQ.md)
+- [项目路线图](ROADMAP.md)
 
 
 #### 特技

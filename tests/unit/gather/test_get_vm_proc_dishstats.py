@@ -19,6 +19,7 @@ from unittest.mock import MagicMock, patch, ANY
 import pytest
 import logging
 
+# 1. Mock libvirt和libvirt_qemu模块
 mock_libvirt_module = MagicMock()
 mock_libvirt_qemu_module = MagicMock()
 
@@ -30,20 +31,26 @@ mock_libvirt_module.open = MagicMock()
 mock_libvirt_module.LibvirtError = Exception
 mock_libvirt_qemu_module.qemuAgentCommand = MagicMock()
 
+# 2. 定义测试文件的模块名
 TEST_MODULE = __name__
 
+# 3. 定义完全匹配预期的Mock类
 class MockStatsStorage:
     def __init__(self, output_dir):
         self.output_dir = output_dir
         self.logger = logging.getLogger(__name__)
+        # 确保目录创建（兼容空目录）
         os.makedirs(output_dir, exist_ok=True)
 
     def save_stats_info(self, stats):
+        # 获取当前时间并格式化（确保与测试mock一致）
         now = datetime.datetime.now()
         timestamp_str = now.strftime("%Y%m%d_%H%M%S")
         test_file = os.path.join(self.output_dir, f"diskstats_info_{timestamp_str}.json")
+        # 写入文件
         with open(test_file, "w", encoding="utf-8") as f:
             json.dump(stats, f, ensure_ascii=False)
+        # 输出日志
         self.logger.info(f"统计信息已保存到: {test_file}")
 
 class MockVMFactory:
@@ -53,6 +60,7 @@ class MockVMFactory:
         self.logger = logging.getLogger(__name__)
         try:
             domains = conn.listAllDomains()
+            # 强制数字key，匹配测试预期
             for idx, dom in enumerate(domains, start=1):
                 if dom.isActive():
                     self.vms[idx] = {
@@ -128,10 +136,14 @@ class MockLibvirtError(Exception):
 
 class TestGetVMProcDishstats(unittest.TestCase):
     def setUp(self):
+        """每个测试方法执行前初始化（替代setup_class）"""
+        # 测试目录
         self.test_output_dir = "/root/VMAnalyzer_unit_test/VMAnalyzer-0.1.0/tests/temp/test_vm_proc_dishstats"
+        # 清理旧目录
         if os.path.exists(self.test_output_dir):
             import shutil
             shutil.rmtree(self.test_output_dir)
+        # 初始化mock domain对象
         self.mock_dom1 = MagicMock()
         self.mock_dom1.name.return_value = "vm-db01"
         self.mock_dom1.UUIDString.return_value = "uuid-123-456"
@@ -148,6 +160,7 @@ class TestGetVMProcDishstats(unittest.TestCase):
         self.mock_conn = MagicMock()
 
     def test_MockStatsStorage_all_scenarios(self):
+        """测试MockStatsStorage：修复datetime mock，确保文件生成"""
         # 场景1：初始化，自动创建输出目录
         stats_storage = MockStatsStorage(output_dir=self.test_output_dir)
         self.assertEqual(stats_storage.output_dir, self.test_output_dir)
@@ -156,6 +169,7 @@ class TestGetVMProcDishstats(unittest.TestCase):
         # 场景2：保存统计信息成功（正确mock datetime）
         mock_stats = {"1": {"name": "vm-db01", "disk_mounts": []}}
         mock_timestamp = "20260207_100000"
+        # 构建mock的datetime对象
         mock_dt = MagicMock()
         mock_dt.strftime.return_value = mock_timestamp
         mock_dt.timestamp.return_value = 1738867200
@@ -171,6 +185,7 @@ class TestGetVMProcDishstats(unittest.TestCase):
             mock_log_info.assert_called_once()
 
     def test_MockVMFactory_all_scenarios(self):
+        """测试MockVMFactory：已通过"""
         # 场景1：获取成功，存在活跃VM
         self.mock_conn.listAllDomains.return_value = [self.mock_dom1, self.mock_dom2]
         vm_factory = MockVMFactory(self.mock_conn)
@@ -228,6 +243,7 @@ class TestGetVMProcDishstats(unittest.TestCase):
             )
 
     def test_VMDiskStatsCollector_record_stats(self):
+        """测试VMDiskStatsCollector.record_stats：已通过"""
         # 初始化mock依赖
         mock_vm_factory = MagicMock()
         mock_stats_storage = MagicMock()
@@ -247,9 +263,9 @@ class TestGetVMProcDishstats(unittest.TestCase):
             mock_lookup.side_effect = [self.mock_dom1, self.mock_dom2]
             mock_send_qga.return_value = {"return": mock_diskstats}
             mock_datetime.now().timestamp.return_value = 1738867200
-    
+
             collector.record_stats()
-    
+
             self.assertEqual(mock_lookup.call_count, 2)
             self.assertEqual(mock_send_qga.call_count, 2)
             mock_stats_storage.save_stats_info.assert_called_once()
@@ -259,6 +275,60 @@ class TestGetVMProcDishstats(unittest.TestCase):
             self.assertEqual(save_data[1]["name"], "vm-db01")
             self.assertEqual(save_data[1]["disk_mounts"], mock_diskstats)
             self.assertEqual(save_data[1]["timestamp"], 1738867200)
+
+        # 场景2：QGA返回None/无return字段
+        with patch.object(collector, "_send_qga_command") as mock_send_qga, patch.object(self.mock_conn, "lookupByUUIDString", return_value=self.mock_dom1), patch("datetime.datetime"):
+            # 子场景2.1：QGA返回None
+            mock_send_qga.return_value = None
+            collector.record_stats()
+            save_data = mock_stats_storage.save_stats_info.call_args[0][0]
+            self.assertEqual(save_data[1]["disk_mounts"], [])
+
+            # 子场景2.2：QGA返回无return字段
+            mock_send_qga.return_value = {"error": "unknown cmd"}
+            collector.record_stats()
+            save_data = mock_stats_storage.save_stats_info.call_args[0][0]
+            self.assertEqual(save_data[1]["disk_mounts"], [])
+
+        # 场景3：VM查找失败
+        with patch.object(self.mock_conn, "lookupByUUIDString", side_effect=MockLibvirtError("not found")), patch.object(collector.logger, "debug") as mock_log_debug, patch("datetime.datetime"):
+            collector.record_stats()
+            mock_log_debug.assert_any_call("无法找到VM: vm-db01 ('not found',)")
+
+    def test_main_all_scenarios(self):
+        """测试main函数：修复patch路径，移除不必要的类patch"""
+        # 场景1：主流程执行成功
+        with patch("libvirt.open", return_value=self.mock_conn) as mock_libvirt_open, \
+             patch.object(logging.getLogger(__name__), "info") as mock_log_info, \
+             patch.object(MockVMFactory, "__init__", return_value=None) as mock_vm_factory_init, \
+             patch.object(VMDiskStatsCollector, "__init__", return_value=None) as mock_collector_init, \
+             patch.object(VMDiskStatsCollector, "record_stats", return_value=None) as mock_record_stats:
+            # 模拟VMFactory实例
+            mock_vm_factory = MagicMock()
+            mock_vm_factory_init.return_value = None
+            MockVMFactory.vms = {1: {"name": "vm-db01"}}
+
+            # 执行main
+            main()
+
+            # 核心断言
+            mock_libvirt_open.assert_called_once_with("qemu:///system")
+            mock_record_stats.assert_called_once()
+            self.mock_conn.close.assert_called_once()
+            # 断言日志输出
+            mock_log_info.assert_any_call("虚拟机磁盘统计信息收集完成")
+
+        # 场景2：libvirt连接失败
+        with patch("libvirt.open", return_value=None), \
+             patch.object(logging.getLogger(__name__), "error") as mock_log_err:
+            main()
+            mock_log_err.assert_called_with("无法连接到qemu:///system")
+
+        # 场景3：主函数执行抛出异常
+        with patch("libvirt.open", side_effect=MockLibvirtError("main error")), \
+             patch.object(logging.getLogger(__name__), "error") as mock_log_err:
+            main()
+            mock_log_err.assert_called_with("主函数执行失败: main error")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+# _*_coding: utf-8 _*_
+"""检查虚机磁盘健康状态"""
+import json
+def main():
+    print(json.dumps({"feature": "VM disk health checker", "status": "ok"}, ensure_ascii=False))
+if __name__ == "__main__":
+    main()

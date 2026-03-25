@@ -3,7 +3,6 @@
 """判断虚机是否崩溃"""
 import subprocess
 import json
-from lxml import etree
 from typing import Optional, Dict, Any
 import os
 import re
@@ -65,7 +64,7 @@ def get_vm_crash_status(vm_name: str) -> str:
     # 1. 检查Libvirt状态
     state_cmd = ["virsh", "domstate", vm_name]
     state_result = execute_cmd(state_cmd)
-    if state_result["code"] != 0
+    if state_result["code"] != 0:
         result["error"] = f"获取虚机状态失败: {state_result['stderr']}"
         return json.dumps(result, ensure_ascii=False, indent=2)
 

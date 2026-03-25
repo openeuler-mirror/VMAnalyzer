@@ -1,0 +1,27 @@
+image: gitpod/workspace-python-3.10
+
+tasks:
+  - name: Install dependencies
+    init: |
+      sudo apt update
+      sudo apt install -y libvirt-dev python3-libvirt redis-server
+      pip install -r requirements.txt
+      pip install -r requirements-dev.txt
+      pip install -e .
+    command: |
+      sudo service redis-server start
+      echo "VMAnalyzer development environment is ready!"
+      echo "Run 'vm-analyzer-agent --help' to get started"
+
+vscode:
+  extensions:
+    - ms-python.python
+    - ms-python.vscode-pylance
+    - EditorConfig.EditorConfig
+    - timonwong.shellcheck
+    - DavidAnson.vscode-markdownlint
+
+ports:
+  - port: 6379
+    onOpen: ignore
+    visibility: private

@@ -1,0 +1,32 @@
+[run]
+source = .
+omit =
+    */tests/*
+    */.git/*
+    */__pycache__/*
+    */setup.py
+    */config.py
+    */config.example.py
+    */.tox/*
+    */venv/*
+    */env/*
+
+[report]
+show_missing = True
+skip_covered = False
+fail_under = 70
+precision = 2
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if __name__ == .__main__.:
+    raise NotImplementedError
+    pass
+
+[html]
+directory = htmlcov
+title = VMAnalyzer Test Coverage Report
+
+[xml]
+output = coverage.xml
