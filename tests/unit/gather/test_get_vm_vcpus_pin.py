@@ -216,3 +216,6 @@ class TestGetAllVMs(unittest.TestCase):
         mock_open.return_value = None
         result = get_vm_vcpus_pin.get_all_vms_vcpupin()
         self.assertEqual(result, {})
+
+if __name__ == "__main__":
+    unittest.main()
