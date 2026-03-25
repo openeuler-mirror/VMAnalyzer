@@ -124,6 +124,11 @@ vnet0 tx_packets 20
 vnet0 tx_bytes 200
 """
         }
+        result_json = get_vm_network_rx_tx_stats.get_vm_network_rx_tx_stats("vm1")
+        result = json.loads(result_json)
+        # rx_bytes解析失败 -> 保持默认0
+        self.assertEqual(result["nics"][0]["rx_bytes"], 0)
+        self.assertEqual(result["nics"][0]["tx_bytes"], 200)
 
 if __name__ == "__main__":
     unittest.main()
