@@ -37,5 +37,16 @@ class TestVMOOMCollector(unittest.TestCase):
         result = self.collector.run_virsh_cmd("virsh list")
         self.assertEqual(result, "ok")
 
+    @patch("gather.get_vm_oom_status.subprocess.run")
+    def test_run_virsh_cmd_called_process_error(self, mock_run):
+        from subprocess import CalledProcessError
+        mock_run.side_effect = CalledProcessError(
+            returncode=1,
+            cmd="virsh fail",
+            stderr="some error"
+        )
+        result = self.collector.run_virsh_cmd("virsh fail")
+        self.assertIsNone(result)
+
 if __name__ == "__main__":
     unittest.main()
