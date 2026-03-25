@@ -124,3 +124,13 @@ class TestCollectVM(unittest.TestCase):
             result["get_cpu_utilization"]["interface"],
             "guest-get-cpu-utilization"
         )
+
+class TestCollectAll(unittest.TestCase):
+    @patch.object(get_vm_cpu_utilization.VMCollector, "collect_single_vm_data")
+    @patch.object(get_vm_cpu_utilization.VMCollector, "get_all_vm_names")
+    def test_collect_all_vms(self, mock_names, mock_collect):
+        mock_names.return_value = ["vm1", "vm2"]
+        mock_collect.side_effect = [
+            {"name": "vm1"},
+            {"name": "vm2"}
+        ]
