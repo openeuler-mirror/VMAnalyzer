@@ -103,5 +103,9 @@ file       disk       vda        /path/disk.qcow2
         self.assertEqual(disk["format"], "qcow2")
         self.assertTrue(disk["read_only"])
 
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_no_disks(self, mock_disk_list):
+        mock_disk_list.return_value = []
+
 if __name__ == "__main__":
     unittest.main()
