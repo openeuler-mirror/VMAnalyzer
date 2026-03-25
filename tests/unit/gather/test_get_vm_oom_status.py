@@ -34,6 +34,8 @@ class TestVMOOMCollector(unittest.TestCase):
             stderr="",
             returncode=0
         )
+        result = self.collector.run_virsh_cmd("virsh list")
+        self.assertEqual(result, "ok")
 
 if __name__ == "__main__":
     unittest.main()
