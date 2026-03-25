@@ -96,5 +96,14 @@ class TestVMCollector(unittest.TestCase):
         self.assertEqual(result["name"], "vm1")
         self.assertEqual(result["state"], "running")
 
+    # -----------------------------
+    # collect_all_vms
+    # -----------------------------
+    @patch.object(get_vm_bc_diskstats.VMCollector, "collect_single_vm_data")
+    @patch.object(get_vm_bc_diskstats.VMCollector, "get_all_vm_names")
+    def test_collect_all_vms(self, mock_names, mock_collect):
+        mock_names.return_value = ["vm1", "vm2"]
+        mock_collect.return_value = {"name": "vm1"}
+
 if __name__ == "__main__":
     unittest.main()
