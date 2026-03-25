@@ -111,5 +111,13 @@ file       disk       vda        /path/disk.qcow2
         self.assertFalse(result["success"])
         self.assertIn("未获取到虚机磁盘列表", result["error"])
 
+    @patch("gather.get_vm_disk_actual_size.os.path.exists")
+    @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
+    def test_get_disk_path_not_exist(self, mock_disk_list, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/not_exist.qcow2"}
+        ]
+        mock_exists.return_value = False
+
 if __name__ == "__main__":
     unittest.main()
