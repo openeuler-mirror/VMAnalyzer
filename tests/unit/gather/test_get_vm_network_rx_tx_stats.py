@@ -106,6 +106,10 @@ vnet0 tx_packets 20
     @patch("gather.get_vm_network_rx_tx_stats.get_vm_nic_list")
     def test_get_vm_network_stats_no_nics(self, mock_nics):
         mock_nics.return_value = []
+        result_json = get_vm_network_rx_tx_stats.get_vm_network_rx_tx_stats("vm1")
+        result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn("未获取到虚机网卡列表", result["error"])
 
 if __name__ == "__main__":
     unittest.main()
