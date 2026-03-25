@@ -106,6 +106,24 @@ vnet0 tx_packets 20
     @patch("gather.get_vm_network_rx_tx_stats.get_vm_nic_list")
     def test_get_vm_network_stats_no_nics(self, mock_nics):
         mock_nics.return_value = []
+        result_json = get_vm_network_rx_tx_stats.get_vm_network_rx_tx_stats("vm1")
+        result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn("未获取到虚机网卡列表", result["error"])
+
+    @patch("gather.get_vm_network_rx_tx_stats.execute_cmd")
+    @patch("gather.get_vm_network_rx_tx_stats.get_vm_nic_list")
+    def test_get_vm_network_stats_partial_invalid(self, mock_nics, mock_cmd):
+        """测试非数字解析容错"""
+        mock_nics.return_value = [
+            {"interface": "vnet0"}
+        ]
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": """vnet0 rx_bytes abc
+vnet0 tx_bytes 200
+"""
+        }
 
 if __name__ == "__main__":
     unittest.main()
