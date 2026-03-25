@@ -149,3 +149,6 @@ class TestSaveData(unittest.TestCase):
         collector = get_vm_cpu_utilization.VMCollector()
         collector.save_data()
         mock_file.assert_called()
+
+if __name__ == "__main__":
+    unittest.main()
