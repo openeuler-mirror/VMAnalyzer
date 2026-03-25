@@ -16,3 +16,9 @@ from unittest.mock import patch
 import json
 
 from gather import get_vm_qemu_agent_status
+
+class TestVMQemuAgentStatus(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
