@@ -107,5 +107,14 @@ class TestVMCollector(unittest.TestCase):
         self.collector.collect_all_vms()
         self.assertEqual(self.collector.all_vms_data["vm_count"], 2)
 
+    # -----------------------------
+    # save_data
+    # -----------------------------
+    @patch("gather.get_vm_bc_diskstats.open", new_callable=mock_open)
+    @patch("gather.get_vm_bc_diskstats.json.dump")
+    def test_save_data(self, mock_json_dump, mock_file):
+        self.collector.save_data()
+        mock_json_dump.assert_called()
+
 if __name__ == "__main__":
     unittest.main()
