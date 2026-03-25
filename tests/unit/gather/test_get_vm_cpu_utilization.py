@@ -140,3 +140,9 @@ class TestCollectAll(unittest.TestCase):
             len(collector.all_vms_data["vms"]),
             2
         )
+
+class TestSaveData(unittest.TestCase):
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("gather.get_vm_cpu_utilization.datetime")
+    def test_save_data(self, mock_datetime, mock_file):
+        mock_datetime.now.return_value.strftime.return_value = "20240101_120000"
