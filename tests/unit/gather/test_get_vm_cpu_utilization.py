@@ -134,3 +134,9 @@ class TestCollectAll(unittest.TestCase):
             {"name": "vm1"},
             {"name": "vm2"}
         ]
+        collector = get_vm_cpu_utilization.VMCollector()
+        collector.collect_all_vms()
+        self.assertEqual(
+            len(collector.all_vms_data["vms"]),
+            2
+        )
