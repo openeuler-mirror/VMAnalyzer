@@ -18,7 +18,15 @@ import json
 from gather import get_vm_qemu_agent_status
 
 class TestVMQemuAgentStatus(unittest.TestCase):
-    pass
+
+    # =========================
+    # execute_cmd
+    # =========================
+    @patch("gather.get_vm_qemu_agent_status.subprocess.run")
+    def test_execute_cmd_success(self, mock_run):
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "ok\n"
+        mock_run.return_value.stderr = ""
 
 if __name__ == "__main__":
     unittest.main()
