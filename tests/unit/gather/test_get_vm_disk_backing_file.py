@@ -76,5 +76,25 @@ file       disk       vda        /path/disk.qcow2
         result = get_vm_disk_backing_file.get_vm_list()
         self.assertEqual(result, ["vm1", "vm2"])
 
+    # =========================
+    # get_vm_disk_backing_file
+    # =========================
+    @patch("gather.get_vm_disk_backing_file.os.path.exists")
+    @patch("gather.get_vm_disk_backing_file.execute_cmd")
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_get_backing_file_success(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": json.dumps({
+                "backing-filename": "/base.qcow2",
+                "format": "qcow2",
+                "read-only": True
+            })
+        }
+
 if __name__ == "__main__":
     unittest.main()
