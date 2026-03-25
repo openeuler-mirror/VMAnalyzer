@@ -108,3 +108,4 @@ class TestVMCpuStInfoCollector(unittest.TestCase):
     @patch("gather.get_vm_cpustinfo.json.dump")
     def test_save_data(self, mock_json_dump, mock_file):
         self.collector.save_data()
+        mock_json_dump.assert_called()
