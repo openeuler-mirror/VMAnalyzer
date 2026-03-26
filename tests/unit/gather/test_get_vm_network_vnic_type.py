@@ -41,5 +41,15 @@ class TestVMNetworkVnicType(unittest.TestCase):
         result = get_vm_network_vnic_type.execute_cmd(["cmd"])
         self.assertIn("超时", result["stderr"])
 
+    # =========================
+    # get_vm_list
+    # =========================
+    @patch("gather.get_vm_network_vnic_type.execute_cmd")
+    def test_get_vm_list_success(self, mock_cmd):
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": "vm1\nvm2\n"
+        }
+
 if __name__ == "__main__":
     unittest.main()
