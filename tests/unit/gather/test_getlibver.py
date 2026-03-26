@@ -36,5 +36,11 @@ class TestGetLibVer(unittest.TestCase):
         result = getlibver.createConnection("qemu:///system")
         self.assertIsNone(result)
 
+    # =========================
+    # closeConnection
+    # =========================
+    def test_close_connection_success(self):
+        mock_conn = MagicMock()
+
 if __name__ == "__main__":
     unittest.main()
