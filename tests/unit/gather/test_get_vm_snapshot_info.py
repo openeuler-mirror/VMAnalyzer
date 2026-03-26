@@ -60,6 +60,45 @@ class TestVMSnapshotInfo(unittest.TestCase):
             "stdout": "",
             "stderr": "error"
         }
+        result = get_vm_snapshot_info.get_vm_list()
+        self.assertEqual(result, [])
+
+    # =========================
+    # get_vm_snapshot_info
+    # =========================
+    @patch("gather.get_vm_snapshot_info.execute_cmd")
+    def test_snapshot_info_success(self, mock_cmd):
+        """完整成功路径"""
+        mock_cmd.side_effect = [
+            # snapshot-list
+            {
+                "code": 0,
+                "stdout": """Name                 Creation Time             State
+------------------------------------------------------------
+snap1                2024-01-01 10:00:00      shutoff
+"""
+            },
+            # snapshot-info
+            {
+                "code": 0,
+                "stdout": """Name: snap1
+State: shutoff
+Current: yes
+"""
+            },
+            # snapshot-dumpxml
+            {
+                "code": 0,
+                "stdout": "<source file='/disk/snap1.qcow2'/>"
+            },
+            # qemu-img info
+            {
+                "code": 0,
+                "stdout": json.dumps({
+                    "virtual-size": 104857600
+                })
+            }
+        ]
 
 if __name__ == "__main__":
     unittest.main()
