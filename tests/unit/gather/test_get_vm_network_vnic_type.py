@@ -27,6 +27,9 @@ class TestVMNetworkVnicType(unittest.TestCase):
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "ok\n"
         mock_run.return_value.stderr = ""
+        result = get_vm_network_vnic_type.execute_cmd(["ls"])
+        self.assertEqual(result["code"], 0)
+        self.assertEqual(result["stdout"], "ok")
 
 if __name__ == "__main__":
     unittest.main()
