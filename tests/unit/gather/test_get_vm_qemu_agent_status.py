@@ -31,5 +31,13 @@ class TestVMQemuAgentStatus(unittest.TestCase):
         self.assertEqual(result["code"], 0)
         self.assertEqual(result["stdout"], "ok")
 
+    @patch("gather.get_vm_qemu_agent_status.subprocess.run")
+    def test_execute_cmd_timeout(self, mock_run):
+        from subprocess import TimeoutExpired
+        mock_run.side_effect = TimeoutExpired(
+            cmd="cmd",
+            timeout=30
+        )
+
 if __name__ == "__main__":
     unittest.main()
