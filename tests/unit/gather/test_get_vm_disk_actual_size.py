@@ -118,6 +118,9 @@ file       disk       vda        /path/disk.qcow2
             {"target": "vda", "source": "/not_exist.qcow2"}
         ]
         mock_exists.return_value = False
+        result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
+        result = json.loads(result_json)
+        self.assertEqual(result["disks"][0]["error"], "磁盘source路径为空")
 
 if __name__ == "__main__":
     unittest.main()
