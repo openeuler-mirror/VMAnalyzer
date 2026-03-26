@@ -38,6 +38,8 @@ class TestVMQemuAgentStatus(unittest.TestCase):
             cmd="cmd",
             timeout=30
         )
+        result = get_vm_qemu_agent_status.execute_cmd(["cmd"])
+        self.assertIn("超时", result["stderr"])
 
 if __name__ == "__main__":
     unittest.main()
