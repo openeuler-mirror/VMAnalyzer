@@ -124,5 +124,19 @@ file       disk       vda        /path/disk.qcow2
         self.assertEqual(disk["backing_file"], "")
         self.assertEqual(disk["format"], "")
 
+    @patch("gather.get_vm_disk_backing_file.os.path.exists")
+    @patch("gather.get_vm_disk_backing_file.execute_cmd")
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_qemu_img_fail(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 1,
+            "stderr": "qemu-img error",
+            "stdout": ""
+        }
+
 if __name__ == "__main__":
     unittest.main()
