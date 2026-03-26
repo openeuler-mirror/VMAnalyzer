@@ -7,6 +7,7 @@ from lxml import etree
 from typing import Optional, Dict, Any
 import os
 import re
+import sys
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     result = {
@@ -93,7 +94,6 @@ def get_vm_host_mem_usage(vm_name: str) -> str:
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    import sys
     vms = get_vm_list()
     if not vms:
         print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
