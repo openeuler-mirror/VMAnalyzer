@@ -67,5 +67,9 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.get_all_vm_names()
         self.assertEqual(result, ["vm1", "vm2", "vm3"])
 
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_get_all_vm_names_empty(self, mock_run):
+        mock_run.return_value = None
+
 if __name__ == "__main__":
     unittest.main()
