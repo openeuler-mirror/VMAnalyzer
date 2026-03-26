@@ -55,6 +55,8 @@ class TestVMCollector(unittest.TestCase):
             cmd="virsh list",
             timeout=30
         )
+        result = self.collector.run_virsh_cmd("virsh list")
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
