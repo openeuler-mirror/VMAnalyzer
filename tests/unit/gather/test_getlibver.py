@@ -16,3 +16,9 @@ from unittest.mock import patch, MagicMock
 from io import StringIO
 
 from gather import getlibver
+
+class TestGetLibVer(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
