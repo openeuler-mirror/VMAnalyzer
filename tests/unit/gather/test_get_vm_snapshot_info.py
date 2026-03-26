@@ -99,6 +99,15 @@ Current: yes
                 })
             }
         ]
+        result_json = get_vm_snapshot_info.get_vm_snapshot_info("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        self.assertEqual(len(result["snapshots"]), 1)
+        snap = result["snapshots"][0]
+        self.assertEqual(snap["name"], "snap1")
+        self.assertEqual(snap["state"], "shutoff")
+        self.assertTrue(snap["is_current"])
+        self.assertEqual(snap["disk_size_mb"], 100.0)
 
 if __name__ == "__main__":
     unittest.main()
