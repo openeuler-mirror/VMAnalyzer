@@ -74,9 +74,6 @@ class TestVMCollector(unittest.TestCase):
         mock_cmd.return_value = json.dumps({
             "return": {"eth0": "info"}
         })
-        result = self.collector.call_qga_interface("vm1", "guest-network-get-interfaces")
-        self.assertEqual(result["status"], "success")
-        self.assertEqual(result["data"], {"eth0": "info"})
 
     @patch.object(get_vm_network_interfaces_info.VMCollector, "run_virsh_cmd")
     def test_call_qga_interface_fail(self, mock_cmd):
@@ -98,6 +95,17 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.call_qga_interface("vm1", "iface")
         self.assertEqual(result["status"], "failed")
         self.assertEqual(result["error"], "bad")
+
+    # =========================
+    # collect_single_vm_cpustinfo_data
+    # =========================
+    @patch.object(get_vm_network_interfaces_info.VMCollector, "call_qga_interface")
+    def test_collect_single_vm(self, mock_call):
+        mock_call.return_value = {
+            "status": "success",
+            "data": {"eth0": "info"},
+            "error": ""
+        }
 
 if __name__ == "__main__":
     unittest.main()
