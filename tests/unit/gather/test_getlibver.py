@@ -44,5 +44,9 @@ class TestGetLibVer(unittest.TestCase):
         getlibver.closeConnection(mock_conn)
         mock_conn.close.assert_called_once()
 
+    def test_close_connection_exception(self):
+        mock_conn = MagicMock()
+        mock_conn.close.side_effect = Exception("close error")
+
 if __name__ == "__main__":
     unittest.main()
