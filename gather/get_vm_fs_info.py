@@ -84,7 +84,12 @@ class VMAnalyzer:
                 return all_vms_info
 
             LOG_INFO("正在获取所有虚拟机列表...")
-            domains = conn.listAllDomains()
+            try:
+                domains = conn.listAllDomains()
+            except libvirt.libvirtError as e:
+                LOG_ERROR(f"获取虚拟机列表失败：{str(e)}")
+                return all_vms_info
+
             vm_names = [dom.name() for dom in domains]
             if not vm_names:
                 LOG_INFO("未找到任何虚拟机")
