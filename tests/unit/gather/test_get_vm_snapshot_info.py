@@ -50,6 +50,8 @@ class TestVMSnapshotInfo(unittest.TestCase):
             "code": 0,
             "stdout": "vm1\nvm2\n"
         }
+        result = get_vm_snapshot_info.get_vm_list()
+        self.assertEqual(result, ["vm1", "vm2"])
 
 if __name__ == "__main__":
     unittest.main()
