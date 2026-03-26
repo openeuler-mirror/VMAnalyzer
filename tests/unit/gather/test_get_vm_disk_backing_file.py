@@ -137,6 +137,9 @@ file       disk       vda        /path/disk.qcow2
             "stderr": "qemu-img error",
             "stdout": ""
         }
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        self.assertIn("qemu-img执行失败", result["disks"][0]["img_error"])
 
 if __name__ == "__main__":
     unittest.main()
