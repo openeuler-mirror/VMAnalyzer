@@ -122,5 +122,18 @@ file       disk       vda        /path/disk.qcow2
         result = json.loads(result_json)
         self.assertEqual(result["disks"][0]["error"], "磁盘source路径为空")
 
+    @patch("gather.get_vm_disk_actual_size.os.path.exists")
+    @patch("gather.get_vm_disk_actual_size.execute_cmd")
+    @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
+    def test_get_disk_json_parse_error(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": "invalid json"
+        }
+
 if __name__ == "__main__":
     unittest.main()
