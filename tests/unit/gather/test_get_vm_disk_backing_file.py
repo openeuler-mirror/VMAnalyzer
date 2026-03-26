@@ -106,6 +106,10 @@ file       disk       vda        /path/disk.qcow2
     @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
     def test_no_disks(self, mock_disk_list):
         mock_disk_list.return_value = []
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn("未获取到虚机磁盘列表", result["error"])
 
 if __name__ == "__main__":
     unittest.main()
