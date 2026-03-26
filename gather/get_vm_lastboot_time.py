@@ -27,8 +27,12 @@ LOG_ERROR = logging.error
 class VMCollector:
     def __init__(self, output_dir: str = "./get_lastboot_time_data"):
         self.output_dir = output_dir
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
+        try:
+            if not os.path.exists(self.output_dir):
+                os.makedirs(self.output_dir)
+         except Exception as e:
+            LOG_ERROR(f"创建输出目录失败：{self.output_dir}，错误：{str(e)}")
+            raise
 
         self.all_vms_data = {
             "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.localtime()),
