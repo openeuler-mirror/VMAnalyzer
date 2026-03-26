@@ -1,0 +1,27 @@
+{
+    "_comment": "VMAnalyzer JSON Configuration File",
+    "redis": {
+        "host": "localhost",
+        "port": 6379,
+        "db": 0,
+        "password": null
+    },
+    "collection": {
+        "interval": 1,
+        "duration": 10,
+        "timeout": null
+    },
+    "thresholds": {
+        "cpu_usage": 90.0,
+        "memory_usage": 85.0,
+        "disk_usage": 90.0,
+        "network_drops": 100
+    },
+    "retention": {
+        "seconds": 3600
+    },
+    "logging": {
+        "level": "INFO",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    }
+}
