@@ -48,5 +48,13 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.run_virsh_cmd("virsh fail")
         self.assertIsNone(result)
 
+    @patch("gather.get_vm_load_average.subprocess.run")
+    def test_run_virsh_cmd_timeout(self, mock_run):
+        from subprocess import TimeoutExpired
+        mock_run.side_effect = TimeoutExpired(
+            cmd="virsh list",
+            timeout=30
+        )
+
 if __name__ == "__main__":
     unittest.main()
