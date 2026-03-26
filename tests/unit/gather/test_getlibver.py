@@ -26,6 +26,13 @@ class TestGetLibVer(unittest.TestCase):
     def test_create_connection_success(self, mock_open):
         mock_conn = MagicMock()
         mock_open.return_value = mock_conn
+        result = getlibver.createConnection("qemu:///system")
+        self.assertEqual(result, mock_conn)
+        mock_open.assert_called_once_with("qemu:///system")
+
+    @patch("gather.getlibver.libvirt.openReadOnly")
+    def test_create_connection_fail(self, mock_open):
+        mock_open.return_value = None
 
 if __name__ == "__main__":
     unittest.main()
