@@ -118,6 +118,11 @@ file       disk       vda        /path/disk.qcow2
             {"target": "vda", "source": "/not_exist.qcow2"}
         ]
         mock_exists.return_value = False
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        disk = result["disks"][0]
+        self.assertEqual(disk["backing_file"], "")
+        self.assertEqual(disk["format"], "")
 
 if __name__ == "__main__":
     unittest.main()
