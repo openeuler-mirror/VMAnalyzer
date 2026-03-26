@@ -45,6 +45,8 @@ class TestVMCollector(unittest.TestCase):
             cmd="virsh fail",
             stderr="some error"
         )
+        result = self.collector.run_virsh_cmd("virsh fail")
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
