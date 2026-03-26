@@ -122,10 +122,9 @@ class VMCollector:
 
         self.all_vms_data["vm_count"] = len(vm_names)
         # 统计运行中的虚拟机数量
-        running_vms = [name for name in vm_names]
-        self.all_vms_data["running_vm_count"] = len(running_vms)
+        self.all_vms_data["running_vm_count"] = len(running_vm_names)
         
-        LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机，其中 {len(running_vms)} 台运行中：{running_vms}")
+        LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机，其中 {len(running_vm_names)} 台运行中：{running_vm_names}")
 
         for vm_name in vm_names:
             vm_data = self.collect_single_vm_disks_info_data(vm_name)
