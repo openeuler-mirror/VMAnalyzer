@@ -64,6 +64,8 @@ class TestVMOOMCollector(unittest.TestCase):
     @patch.object(get_vm_oom_status.VMCollector, "run_virsh_cmd")
     def test_get_all_vm_names_success(self, mock_run):
         mock_run.return_value = "vm1 vm2 vm3"
+        result = self.collector.get_all_vm_names()
+        self.assertEqual(result, ["vm1", "vm2", "vm3"])
 
 if __name__ == "__main__":
     unittest.main()
