@@ -96,7 +96,7 @@ class VMCollector:
         memory_status = self.call_qga_interface(vm_name, "guest-get-memory-status")
         vm_data = {
             "name": vm_name,
-            "get_memory_ststus": {
+            "get_memory_status": {
                 "interface": "guest-get-memory-status",
                 "error": memory_status["error"],
                 "data": memory_status["data"]
