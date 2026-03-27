@@ -245,3 +245,14 @@ class VMStatsAnalyze(object):
 
         return analyzers_list
 
+
+def print_alerts(alerts):
+    """Print alerts to console"""
+    if not alerts:
+        return
+    
+    print("\n⚠️  告警信息:")
+    print("=" * 60)
+    for alert in alerts:
+        level = "🔴 严重" if alert["level"] == "critical" else "🟡 警告"
+        print(f"{level}: {alert['vm_name']} - {alert['metric']}: {alert['value']}% (阈值: {alert['threshold']}%)")
