@@ -51,3 +51,25 @@ htmlcov/
 
 # Local config
 config.local.py
+
+# Configuration files
+config.py
+config.json
+
+# Log files
+*.log
+logs/
+
+# Export files
+*.csv
+*.jsonl
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Temporary files
+*.tmp
+temp/
