@@ -99,6 +99,11 @@ class TestVMCollector(unittest.TestCase):
                 "message": "not supported"
             }
         })
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-load-average"
+        )
+        self.assertEqual(result["status"], "failed")
 
 if __name__ == "__main__":
     unittest.main()
