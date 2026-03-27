@@ -106,9 +106,10 @@ class VMStatsAnalyze(object):
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
 
-                # Calculate Memory utilization: (usedMemory / totalMemory) * 100
-                mem_util = (int(vm_stats_info[i]['usedMemory']) /
-                            int(vm_stats_info[i]['totalMemory'])) * 100
+                # Calculate Memory utilization from the newer (i+1) sample so
+                # that the value and the timestamp are consistent.
+                mem_util = (int(vm_stats_info[i+1]['usedMemory']) /
+                            int(vm_stats_info[i+1]['totalMemory'])) * 100
 
                 logging.debug('VM %s: memory utilization: %.2f%%',
                               vm_info['name'], mem_util)
@@ -195,6 +196,17 @@ class VMStatsAnalyze(object):
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
+
+
+                disk_write_threshold = config.ALERT_THRESHOLDS.get('disk_write_bytes_rate', 0)
+                if disk_write_threshold > 0:
+                    for dev, rates in io_rate.items():
+                        if rates['write_bytes_rate'] > disk_write_threshold:
+                            logging.warning(
+                                'ALERT: VM %s disk %s write rate %.2f B/s '
+                                'exceeds threshold %.2f B/s',
+                                vm_info['name'], dev,
+                                rates['write_bytes_rate'], disk_write_threshold)
 
         elif label == 'vcpus_info':
 
