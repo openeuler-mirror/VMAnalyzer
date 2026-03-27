@@ -112,9 +112,18 @@ if __name__ == "__main__":
     full = sys.argv[1].lower() == "true" if len(sys.argv) >= 2 else True
     results = []
     for vm in vms:
-        vm_result_json = get_vm_libvirt_domain_xml(vm, full)
-        vm_result = json.loads(vm_result_json)
-        results.append(vm_result)
+        try:
+            vm_result_json = get_vm_libvirt_domain_xml(vm, full)
+            vm_result = json.loads(vm_result_json)
+            results.append(vm_result)
+        except Exception as e:
+            # 记录异常并继续处理下一个VM
+            results.append({
+                "vm_name": vm,
+                "success": False,
+                "xml": "",
+                "error": f"处理VM {vm} 时发生未预期异常: {str(e)}"
+            })
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))
