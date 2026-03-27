@@ -13,9 +13,14 @@
 # See the Mulan PSL v2 for more details.
 import logging
 import time
+import json
 import libvirt
+import libvirt_qemu
 import libxml2
 import os
+
+
+logger = logging.getLogger(__name__)
 
 
 class VMStatsCollector:
@@ -230,24 +235,21 @@ class VMStatsCollector:
                 }
 
             elif label == 'vcpus_info':
-                result = dom.vcpus()
-                if result is None:
-                    logging.error("get vcpus info failed")
-                    stats_info[vm_id] = {
-                        'uuid': vm['uuid'],
-                        'name': vm['name'],
-                        'vcpuinfo':'null',
-                        'timestamp': int(timestamp)
-                    }
+                try:
+                    result = dom.vcpus()
+                except libvirt.libvirtError as e:
+                    logger.error(f"VM {dom.name()}: 获取VCPU信息失败: {e}")
+                    result = None
 
-                if not result or len(result) != 2:
-                    logging.error("unvalid result")
+                if not result or len(result) != 2 or not result[0]:
+                    logger.error(f"VM {dom.name()}: VCPU信息不可用或格式无效")
                     stats_info[vm_id] = {
                         'uuid': vm['uuid'],
                         'name': vm['name'],
-                        'vcpuinfo':'null',
+                        'vcpuinfo': 'null',
                         'timestamp': int(timestamp)
                     }
+                    continue
 
                 vcpu_info_list, cpumap_list = result
                 parsed_configs = []
@@ -355,8 +357,7 @@ class VMStatsCollector:
                 latest_status_log = None
                 latest_status_line = None
                 latest_status_line_number = None
-                power_events = ['BOOT', 'stop', 'shutdown', 'destroyed',
-                                'error', 'SHUTDOWN', 'REBOOT', 'RESUME']
+                power_events = {'BOOT', 'stop', 'shutdown', 'destroyed', 'error', 'SHUTDOWN', 'REBOOT', 'RESUME'}
                 labels_def = {
                         'shutdown': 'shutdown',
                         'resume': 'running',
@@ -374,30 +375,12 @@ class VMStatsCollector:
                         latest_event = line[event_start:event_end].strip()
 
                     if latest_status is None:
-                        if 'shutdown' in line or 'SHUTDOWN' in line:
-                            latest_status = labels_def['shutdown']
-                            latest_status_line = line.strip()
-                            latest_status_line_number = line_number + 1
-                        elif 'RESUME' in line:
-                            latest_status = labels_def['resume']
-                            latest_status_line = line.strip()
-                            latest_status_line_number = line_number + 1
-                        elif 'error' in line:
-                            latest_status = labels_def['error']
-                            latest_status_line = line.strip()
-                            latest_status_line_number = line_number + 1
-                        elif 'stop' in line:
-                            latest_status = labels_def['stop']
-                            latest_status_line = line.strip()
-                            latest_status_line_number = line_number + 1
-                        elif 'destroy' in line:
-                            latest_status = labels_def['destroy']
-                            latest_status_line = line.strip()
-                            latest_status_line_number = line_number + 1
-                        elif any(event in line for event in power_events):
-                            latest_status = 'status=other'
-                            latest_status_line = line.strip()
-                            latest_status_line_number = line_number + 1
+                        for event, status in labels_def.items():
+                            if event in line:
+                                latest_status = status
+                                latest_status_line = line.strip()
+                                latest_status_line_number = line_number + 1
+                                break  # Found the status, no need to check further
 
                     # Stop looking if we have both event and status
                     if latest_status and latest_status_line_number is not None:
@@ -422,3 +405,4 @@ class VMStatsCollector:
                 logging.error('wrong label')
 
         self.__stats_storage.save_stats_info(stats_info)
+
