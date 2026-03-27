@@ -128,7 +128,7 @@ class VMCollector:
             self.all_vms_data["vms"][vm_name] = vm_data
 
     def save_data(self):
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         file_name = f"get_lastboot_time_{timestamp}.json"
         file_path = os.path.join(self.output_dir, file_name)
 
