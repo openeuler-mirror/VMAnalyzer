@@ -122,5 +122,24 @@ Current: yes
         self.assertFalse(result["success"])
         self.assertIn("snapshot error", result["error"])
 
+    @patch("gather.get_vm_snapshot_info.execute_cmd")
+    def test_snapshot_info_fail(self, mock_cmd):
+        """snapshot-info 失败（应该跳过）"""
+        mock_cmd.side_effect = [
+            # snapshot-list
+            {
+                "code": 0,
+                "stdout": """Name
+----------------
+snap1
+"""
+            },
+            # snapshot-info fail
+            {
+                "code": 1,
+                "stderr": "error"
+            }
+        ]
+
 if __name__ == "__main__":
     unittest.main()
