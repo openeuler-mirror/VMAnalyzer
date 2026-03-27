@@ -83,6 +83,12 @@ class TestVMOOMCollector(unittest.TestCase):
                 "oom-kill": False
             }
         })
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-oom-status"
+        )
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["data"]["oom-kill"], False)
 
 if __name__ == "__main__":
     unittest.main()
