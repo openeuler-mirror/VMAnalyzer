@@ -60,10 +60,13 @@ class VMStatsCollector:
         }
         exec_result = self._send_qga_command(dom, exec_cmd)
         if not exec_result or "return" not in exec_result:
+            logger.error("VM %s: guest-exec launch failed for command: %.80s",
+                         dom.name(), shell_cmd)
             return None
         pid = exec_result["return"]["pid"]
 
-        for _ in range(20):
+        max_polls = 20
+        for attempt in range(max_polls):
             time.sleep(0.5)
             status_cmd = {
                 "execute": "guest-exec-status",
@@ -77,6 +80,9 @@ class VMStatsCollector:
                 if status.get("out-data"):
                     return base64.b64decode(status["out-data"]).decode("utf-8").strip()
                 return ""
+        logger.warning("VM %s: guest-exec pid=%d did not exit within %.1fs; "
+                       "command: %.80s",
+                       dom.name(), pid, max_polls * 0.5, shell_cmd)
         return None
 
     def record_stats(self):
