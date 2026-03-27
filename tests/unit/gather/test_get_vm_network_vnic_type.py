@@ -60,6 +60,8 @@ class TestVMNetworkVnicType(unittest.TestCase):
             "stdout": "",
             "stderr": "error"
         }
+        result = get_vm_network_vnic_type.get_vm_list()
+        self.assertEqual(result, [])
 
 if __name__ == "__main__":
     unittest.main()
