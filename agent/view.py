@@ -21,10 +21,11 @@ import os
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
     for v in list(new_util.values()):
-        if 'Current_cpu_utilization' in list(v.keys()):
-            if isinstance(v['Current_cpu_utilization'], float):
-                v['Current_cpu_utilization'] = \
-                    '{:.2f}%'.format(v['Current_cpu_utilization'])
+        if not isinstance(v, dict):
+            continue
+        for key in ('Current_cpu_utilization', 'Current_mem_utilization'):
+            if key in v and isinstance(v[key], float):
+                v[key] = '{:.2f}%'.format(v[key])
     return new_util
 
 @six.add_metaclass(abc.ABCMeta)
