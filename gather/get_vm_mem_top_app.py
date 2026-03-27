@@ -33,7 +33,7 @@ class VMMemTopNCollector:
 
     def _init_output_dir(self) -> None:
         if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir, exist_ok=True)
+            os.makedirs(self.output_dir, mode=0o755, exist_ok=True)
 
     def _exec_virsh_cmd(self, cmd: str) -> Optional[str]:
         try:
