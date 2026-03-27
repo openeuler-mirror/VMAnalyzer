@@ -63,5 +63,18 @@ class TestVMQemuAgentStatus(unittest.TestCase):
         result = get_vm_qemu_agent_status.get_vm_list()
         self.assertEqual(result, [])
 
+    # =========================
+    # get_vm_qemu_agent_status
+    # =========================
+    @patch("gather.get_vm_qemu_agent_status.execute_cmd")
+    def test_qemu_agent_online(self, mock_cmd):
+        """QGA 正常在线"""
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": json.dumps({
+                "return": {}
+            })
+        }
+
 if __name__ == "__main__":
     unittest.main()
