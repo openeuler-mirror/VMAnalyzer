@@ -70,6 +70,8 @@ class TestVMCollector(unittest.TestCase):
     @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
     def test_get_all_vm_names_empty(self, mock_run):
         mock_run.return_value = None
+        result = self.collector.get_all_vm_names()
+        self.assertEqual(result, [])
 
 if __name__ == "__main__":
     unittest.main()
