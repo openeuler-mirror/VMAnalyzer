@@ -11,36 +11,43 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 #######################################################################################
-VM_DOMAIN_EVENT_DEFINED = "defined"
-VM_DOMAIN_EVENT_UNDEFINED = "undefined"
-VM_DOMAIN_EVENT_STARTED = "started"
-VM_DOMAIN_EVENT_SUSPENDED = "suspended"
-VM_DOMAIN_EVENT_RESUMED = "resumed"
-VM_DOMAIN_EVENT_STOPPED = "stopped"
-VM_DOMAIN_EVENT_SHUTDOWN = "shutdown"
-VM_DOMAIN_EVENT_PMSUSPENDED = "PMSuspended"
-VM_DOMAIN_EVENT_CRASHED = "crashed"
 
-VM_DOMAIN_SUPPORTED_EVENTS = (VM_DOMAIN_EVENT_DEFINED,
-                              VM_DOMAIN_EVENT_UNDEFINED,
-                              VM_DOMAIN_EVENT_STARTED,
-                              VM_DOMAIN_EVENT_SUSPENDED,
-                              VM_DOMAIN_EVENT_RESUMED,
-                              VM_DOMAIN_EVENT_STOPPED,
-                              VM_DOMAIN_EVENT_SHUTDOWN,
-                              VM_DOMAIN_EVENT_PMSUSPENDED,
-                              VM_DOMAIN_EVENT_CRASHED)
+# Libvirt domain event type IDs (VIR_DOMAIN_EVENT_* from libvirt.h).
+# These are integer values passed by libvirt to domain-event callbacks.
+# The order must match the libvirt enumeration exactly so that
+# VM_DOMAIN_SUPPORTED_EVENTS[event_id] returns the human-readable name.
+VM_DOMAIN_EVENT_DEFINED    = 0
+VM_DOMAIN_EVENT_UNDEFINED  = 1
+VM_DOMAIN_EVENT_STARTED    = 2
+VM_DOMAIN_EVENT_SUSPENDED  = 3
+VM_DOMAIN_EVENT_RESUMED    = 4
+VM_DOMAIN_EVENT_STOPPED    = 5
+VM_DOMAIN_EVENT_SHUTDOWN   = 6
+VM_DOMAIN_EVENT_PMSUSPENDED = 7
+VM_DOMAIN_EVENT_CRASHED    = 8
 
-VM_DOMAIN_EVENT_CALLBACK = {
-    VM_DOMAIN_EVENT_CRASHED : 'add_vm'
-}
+# Human-readable names indexed by event integer ID.
+VM_DOMAIN_SUPPORTED_EVENTS = (
+    "defined",       # 0
+    "undefined",     # 1
+    "started",       # 2
+    "suspended",     # 3
+    "resumed",       # 4
+    "stopped",       # 5
+    "shutdown",      # 6
+    "PMSuspended",   # 7
+    "crashed",       # 8
+)
 
-CONNECTION_CLOSE_REASON_ERROR = "ERROR"
-CONNECTION_CLOSE_REASON_EOF = "End-Of-File"
-CONNECTION_CLOSE_REASON_KEEPALIVE = "Keepalive"
-CONNECTION_CLOSE_REASON_CLIENT = "Client"
+# Libvirt connection-close reason IDs (VIR_CONNECT_CLOSE_REASON_* from libvirt.h).
+CONNECTION_CLOSE_REASON_ERROR     = 0
+CONNECTION_CLOSE_REASON_EOF       = 1
+CONNECTION_CLOSE_REASON_KEEPALIVE = 2
+CONNECTION_CLOSE_REASON_CLIENT    = 3
 
-CONNECTION_CLOSE_REASON_STRINGS = (CONNECTION_CLOSE_REASON_ERROR,
-                                   CONNECTION_CLOSE_REASON_EOF,
-                                   CONNECTION_CLOSE_REASON_KEEPALIVE,
-                                   CONNECTION_CLOSE_REASON_CLIENT)
+CONNECTION_CLOSE_REASON_STRINGS = (
+    "ERROR",       # 0
+    "End-Of-File", # 1
+    "Keepalive",   # 2
+    "Client",      # 3
+)
