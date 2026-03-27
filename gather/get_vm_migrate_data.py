@@ -25,7 +25,7 @@ LOG_ERROR = logging.error
 class VMMigrationInfoCollector:
     def __init__(self):
         self.migration_data = {
-            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.localtime()),
+            "collect_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "migrating_vms_count": 0,
             "migrating_vms": {}
         }
