@@ -117,6 +117,10 @@ Current: yes
             "stderr": "snapshot error",
             "stdout": ""
         }
+        result_json = get_vm_snapshot_info.get_vm_snapshot_info("vm1")
+        result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn("snapshot error", result["error"])
 
 if __name__ == "__main__":
     unittest.main()
