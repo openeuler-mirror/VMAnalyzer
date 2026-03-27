@@ -14,7 +14,7 @@
 
 import threading
 import time
-
+import logging
 
 class RepeatedTimer(object):
     """
@@ -49,9 +49,12 @@ class RepeatedTimer(object):
         self.start()
         try:
             self.function(*self.args, **self.kwargs)
-        except Exception:
-            logging.exception('RepeatedTimer: unhandled exception in %s',
-                              getattr(self.function, '__name__', repr(self.function)))
+        except Exception as exc:
+            logging.exception(
+                'RepeatedTimer: unhandled exception in %s',
+                getattr(self.function, '__name__', repr(self.function)),
+                exc,
+            )
 
     def start(self):
         if not self.is_running:
@@ -60,6 +63,9 @@ class RepeatedTimer(object):
                                           self._run)
             self._timer.start()
             self.is_running = True
+            logging.debug('RepeatedTimer stopped: %s',
+                          getattr(self.function, '__name__', repr(self.function)))
+
 
     def stop(self):
         if self._timer is not None:
