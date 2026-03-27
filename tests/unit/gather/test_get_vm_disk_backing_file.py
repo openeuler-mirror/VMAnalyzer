@@ -141,5 +141,18 @@ file       disk       vda        /path/disk.qcow2
         result = json.loads(result_json)
         self.assertIn("qemu-img执行失败", result["disks"][0]["img_error"])
 
+    @patch("gather.get_vm_disk_backing_file.os.path.exists")
+    @patch("gather.get_vm_disk_backing_file.execute_cmd")
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_json_parse_error(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": "invalid json"
+        }
+
 if __name__ == "__main__":
     unittest.main()
