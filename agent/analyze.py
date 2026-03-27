@@ -144,12 +144,16 @@ class VMStatsAnalyze(object):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
                 delta_timestamp = (vm_stats_info[i+1]['timestamp']
                                    - vm_stats_info[i]['timestamp'])
-         
+        
+                if delta_timestamp <= 0:
+                    logging.warning('Skipping network sample with non-positive delta_timestamp (%d) for VM: %s',
+                                    delta_timestamp, vm_info['name'])
+                    continue
+
                 traffic_rate = {}
                 prev_traffic = vm_stats_info[i]['networkTraffic']
                 curr_traffic = vm_stats_info[i+1]['networkTraffic']
-                if (delta_timestamp > 0
-                        and isinstance(prev_traffic, dict)
+                    if (isinstance(prev_traffic, dict)
                         and isinstance(curr_traffic, dict)):
                     for iface, prev in prev_traffic.items():
                         if iface in curr_traffic:
@@ -173,12 +177,15 @@ class VMStatsAnalyze(object):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
                 delta_timestamp = (vm_stats_info[i+1]['timestamp']
                                    - vm_stats_info[i]['timestamp'])
-
+                if delta_timestamp <= 0:
+                    logging.warning('Skipping blkio sample with non-positive '
+                                    'delta_timestamp (%d) for VM: %s',
+                                    delta_timestamp, vm_info['name'])
+                    continue
                 io_rate = {}
                 prev_io = vm_stats_info[i]['blkI/O']
                 curr_io = vm_stats_info[i+1]['blkI/O']
-                if (delta_timestamp > 0
-                        and isinstance(prev_io, dict)
+                if (isinstance(prev_io, dict)
                         and isinstance(curr_io, dict)):
                     for dev, prev in prev_io.items():
                         if dev in curr_io:
