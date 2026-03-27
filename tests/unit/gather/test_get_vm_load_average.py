@@ -85,6 +85,12 @@ class TestVMCollector(unittest.TestCase):
                 "load15": 0.3
             }
         })
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-load-average"
+        )
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["data"]["load1"], 0.1)
 
 if __name__ == "__main__":
     unittest.main()
