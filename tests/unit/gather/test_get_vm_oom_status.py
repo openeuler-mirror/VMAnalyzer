@@ -73,5 +73,16 @@ class TestVMOOMCollector(unittest.TestCase):
         result = self.collector.get_all_vm_names()
         self.assertEqual(result, [])
 
+    # =========================
+    # call_qga_interface
+    # =========================
+    @patch.object(get_vm_oom_status.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_success(self, mock_run):
+        mock_run.return_value = json.dumps({
+            "return": {
+                "oom-kill": False
+            }
+        })
+
 if __name__ == "__main__":
     unittest.main()
