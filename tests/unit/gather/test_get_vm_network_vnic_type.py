@@ -63,5 +63,18 @@ class TestVMNetworkVnicType(unittest.TestCase):
         result = get_vm_network_vnic_type.get_vm_list()
         self.assertEqual(result, [])
 
+    # =========================
+    # get_vm_nic_list
+    # =========================
+    @patch("gather.get_vm_network_vnic_type.execute_cmd")
+    def test_get_vm_nic_list_success(self, mock_cmd):
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": """Interface  Type       Source     Model       MAC
+------------------------------------------------------------
+vnet0      bridge     br0        virtio      52:54:00:aa:bb:cc
+"""
+        }
+
 if __name__ == "__main__":
     unittest.main()
