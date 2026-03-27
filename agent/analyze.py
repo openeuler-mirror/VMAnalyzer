@@ -34,12 +34,12 @@ class VMStatsAnalyze(object):
         label = self.__label
 
         if vm_id not in vm_factory.vms:
-            return
+            return []
         vm_info = vm_factory.get_vm(vm_id)
         if len(vm_stats_info) < 2:
             logging.warning('There are too less stats of VM: %s',
                             vm_info['name'])
-            return
+            return []
 
         analyzers_list = []
         logging.debug('Length of VM stats: %d', len(vm_stats_info))
@@ -71,9 +71,9 @@ class VMStatsAnalyze(object):
                     continue
                 cpu_util = delta_cputime * 100.0 \
                            / (delta_timestamp * vcpu_count * 1e9)
+                # cpu_util is already a percentage (0–100); do not multiply again
+                logging.debug('VM %s: vcpu count: %d, cpu utilization: %.4f%%',vm_info['name'], vcpu_count, cpu_util)
 
-                logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
-                              vm_info['name'], vcpu_count, cpu_util * 100)
                 cpu_utils.append(cpu_util)
                 # FIXME, whether to keep 2 decimal digits
                 analyzers_info = {
