@@ -32,6 +32,14 @@ class HostHypervisorCollector:
             "sysinfo": {}
         }
 
+    def strip_xml_namespace(self, xml_content):
+        from xml.etree import ElementTree as ET
+        it = ET.iterparse(iter([xml_content]))
+        for _, el in it:
+            if '}' in el.tag:
+                el.tag = el.tag.split('}', 1)[1]
+        return it.root
+
     def run_virsh_cmd(self, cmd):
        
         try:
@@ -156,7 +164,7 @@ class HostHypervisorCollector:
         if not output:
             return
         try:
-            root = ET.fromstring(output)
+            root = self.strip_xml_namespace(output)
             host = root.find("host")
             if host:
                 
@@ -192,7 +200,7 @@ class HostHypervisorCollector:
         if not output:
             return
         try:
-            root = ET.fromstring(output)
+            root = self.strip_xml_namespace(output)
             for section in root.findall("*"):
                 section_name = section.tag.lower()
                 self.result["sysinfo"][section_name] = {}
