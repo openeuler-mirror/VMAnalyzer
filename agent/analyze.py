@@ -161,11 +161,10 @@ class VMStatsAnalyze(object):
                             }
 
                 analyzers_info = {
-                    'interfaceAddresses': \
-                        vm_stats_info[i]['interfaceAddresses'],
-                    'networkTraffic': vm_stats_info[i]['networkTraffic'],
+                    'interfaceAddresses': vm_stats_info[i]['interfaceAddresses'],
+                    'networkTraffic_rate': traffic_rate,
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
-                 }
+                }
                 analyzers_list.append({vm_info['name']: analyzers_info})
 
         elif label == 'blkio':
@@ -192,7 +191,7 @@ class VMStatsAnalyze(object):
 
                 analyzers_info = {
                     'blkStatus': vm_stats_info[i]['blkStatus'],
-                    'blkI/O': vm_stats_info[i]['blkI/O'],
+                    'blkI/O_rate': io_rate,
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
@@ -225,35 +224,24 @@ class VMStatsAnalyze(object):
                             'cpuset': curr_v['cpuset'],
                         })
                 analyzers_info = {
-                    'vcpuinfo':  vm_stats_info[i]['vcpuinfo'],
+                    'vcpu_utilization': vcpu_utilization,
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
 
-        elif label == 'processInfo':
-
+        elif label in ['processInfo', 'log_vm']:
+            key_map = {
+                'processInfo': ['cpu_top5', 'mem_top5'],
+                'log_vm': ['current_state', 'latest_event', 'state_log']
+            }
             for i in range(len(vm_stats_info) - 1):
                 assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
-                analyzers_info = {
-                    'cpu_top5':  vm_stats_info[i]['cpu_top5'],
-                    'mem_top5':  vm_stats_info[i]['mem_top5'],
-                    'TimeStamp': vm_stats_info[i + 1]['timestamp']
-                }
-                analyzers_list.append({vm_info['name']: analyzers_info})
-
-        elif label == 'log_vm':
-            for i in range(len(vm_stats_info) - 1):
-                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
-
-                analyzers_info = {
-                    'current_state': vm_stats_info[i]['current_state'],
-                    'latest_event': vm_stats_info[i]['latest_event'],
-                    'state_log': vm_stats_info[i]['state_log'],
-                    'TimeStamp': vm_stats_info[i + 1]['timestamp']
-                }
+                analyzers_info = {key: vm_stats_info[i][key] for key in key_map[label]}
+                analyzers_info['TimeStamp'] = vm_stats_info[i + 1]['timestamp']
                 analyzers_list.append({vm_info['name']: analyzers_info})
 
         else:
             logging.error('wrong label!')
 
         return analyzers_list
+
