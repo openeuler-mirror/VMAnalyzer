@@ -97,6 +97,11 @@ class TestVMOOMCollector(unittest.TestCase):
                 "message": "not supported"
             }
         })
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-oom-status"
+        )
+        self.assertEqual(result["status"], "failed")
 
 if __name__ == "__main__":
     unittest.main()
