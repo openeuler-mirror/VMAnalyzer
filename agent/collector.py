@@ -224,6 +224,10 @@ class VMStatsCollector:
                             target_dev_io['errors'] = tmp[4]
 
                             io_dic[target_dev] = target_dev_io
+                # Free libxml2 resources to prevent memory leaks in long-running
+                # processes; context must be freed before the document.
+                context.xpathFreeContext()
+                doc.freeDoc()
 
                 stats_info[vm_id] = {
                     'uuid': vm['uuid'],
