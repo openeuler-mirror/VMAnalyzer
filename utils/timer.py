@@ -47,7 +47,11 @@ class RepeatedTimer(object):
     def _run(self):
         self.is_running = False
         self.start()
-        self.function(*self.args, **self.kwargs)
+        try:
+            self.function(*self.args, **self.kwargs)
+        except Exception:
+            logging.exception('RepeatedTimer: unhandled exception in %s',
+                              getattr(self.function, '__name__', repr(self.function)))
 
     def start(self):
         if not self.is_running:
@@ -58,5 +62,6 @@ class RepeatedTimer(object):
             self.is_running = True
 
     def stop(self):
-        self._timer.cancel()
+        if self._timer is not None:
+            self._timer.cancel()
         self.is_running = False
