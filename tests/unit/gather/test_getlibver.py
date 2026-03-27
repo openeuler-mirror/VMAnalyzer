@@ -50,5 +50,29 @@ class TestGetLibVer(unittest.TestCase):
         with self.assertRaises(SystemExit):
             getlibver.closeConnection(mock_conn)
 
+    # =========================
+    # getESSDSerial
+    # =========================
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_get_essd_serial_success(self, mock_stdout):
+        mock_conn = MagicMock()
+        mock_dom = MagicMock()
+        xml_data = """
+        <domain>
+            <devices>
+                <disk>
+                    <target dev="vda"/>
+                    <serial>uuid-123</serial>
+                </disk>
+                <disk>
+                    <target dev="sdb"/>
+                    <serial>uuid-456</serial>
+                </disk>
+            </devices>
+        </domain>
+        """
+        mock_dom.XMLDesc.return_value = xml_data
+        mock_conn.lookupByName.return_value = mock_dom
+
 if __name__ == "__main__":
     unittest.main()
