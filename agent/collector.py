@@ -116,17 +116,24 @@ class VMStatsCollector:
 
             elif label == 'memoryUsage':
                 memstat = dom.memoryStats()
-                total_memory = int(memstat["actual"]) / 1024
-                available_memory = int(memstat["available"]) / 1024
+                # "actual" may be absent if balloon driver is not loaded;
+                # "available" is absent on some hypervisor builds.
+                actual_kb = memstat.get("actual") or memstat.get("rss")
+                available_kb = memstat.get("available") or memstat.get("unused")
+                if actual_kb is None or available_kb is None:
+                    logger.warning("VM %s: incomplete memoryStats keys=%s, "
+                                   "skipping sample", dom.name(), list(memstat))
+                    continue
+                total_memory = int(actual_kb) / 1024
+                available_memory = int(available_kb) / 1024
                 used_memory = total_memory - available_memory
-
                 stats_info[vm_id] = {
                     'uuid': vm['uuid'],
                     'name': vm['name'],
                     'totalMemory': total_memory,
                     'usedMemory': used_memory,
                     'timestamp': int(timestamp)
-               }
+                }
 
             elif label == 'networkTraffic':
 
