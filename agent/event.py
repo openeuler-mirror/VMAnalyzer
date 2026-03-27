@@ -90,3 +90,17 @@ class VMEventLoopNative(VMEventLoop):
         global run
         run = False
         logging.debug("status is %s", run)
+
+def handle_vm_lifecycle_event(event_type, vm_name):
+    """Handle VM lifecycle events and trigger alerts"""
+    event_messages = {
+        "start": f"🟢 虚拟机启动: {vm_name}",
+        "stop": f"🔴 虚拟机停止: {vm_name}",
+        "pause": f"🟡 虚拟机暂停: {vm_name}",
+        "resume": f"🟢 虚拟机恢复: {vm_name}",
+        "destroy": f"🔴 虚拟机销毁: {vm_name}",
+        "create": f"🆕 虚拟机创建: {vm_name}"
+    }
+    
+    if event_type in event_messages:
+        print(f"[事件告警] {event_messages[event_type]}")
