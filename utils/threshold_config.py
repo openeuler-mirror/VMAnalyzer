@@ -11,3 +11,7 @@ DEFAULT_THRESHOLDS = {
 
 # QEMU Guest Agent monitoring
 ALERT_QEMU_AGENT_DOWN = True
+
+# Network packet loss thresholds
+NETWORK_PACKET_LOSS_WARNING = 1.0  # 1%
+NETWORK_PACKET_LOSS_CRITICAL = 5.0 # 5%
