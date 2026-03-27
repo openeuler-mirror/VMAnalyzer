@@ -80,7 +80,6 @@ def get_vm_libvirt_domain_xml(vm_name: str, full: bool = True) -> str:
     xml_content = cmd_result["stdout"]
     if not full:
         # 只保留核心节点（vcpu/memory/disk/interface）
-        from lxml import etree
         root = etree.fromstring(xml_content.encode("utf-8"))
         core_nodes = ["vcpu", "memory", "disk", "interface", "os", "cpu"]
         core_xml = etree.Element("domain")
