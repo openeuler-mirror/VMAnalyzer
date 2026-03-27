@@ -42,7 +42,7 @@ def get_vm_list() -> list:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
-def get_vm_define_time(vm_name: str) -> str:
+def get_vm_define_time(vm_name: str) -> Dict[str, Any]:
     """
     获取虚机首次注册到Libvirt的时间
     :param vm_name: 虚机名称
@@ -85,8 +85,7 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        vm_result_json = get_vm_define_time(vm)
-        vm_result = json.loads(vm_result_json)
+        vm_result = get_vm_define_time(vm)
         results.append(vm_result)
 
     # 输出所有虚机的结果（JSON数组）
