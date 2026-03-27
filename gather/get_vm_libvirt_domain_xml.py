@@ -79,8 +79,12 @@ def get_vm_libvirt_domain_xml(vm_name: str, full: bool = True) -> str:
     # 精简XML（可选）
     xml_content = cmd_result["stdout"]
     if not full:
+        root = parse_xml(xml_content)
+        if root is None:  # 解析失败时记录错误并返回
+            result["error"] = f"VM {vm_name} 的XML解析失败"
+            return json.dumps(result, ensure_ascii=False, indent=2)
+
         # 只保留核心节点（vcpu/memory/disk/interface）
-        root = etree.fromstring(xml_content.encode("utf-8"))
         core_nodes = ["vcpu", "memory", "disk", "interface", "os", "cpu"]
         core_xml = etree.Element("domain")
         for node in core_nodes:
