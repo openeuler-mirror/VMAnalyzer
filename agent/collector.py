@@ -18,7 +18,7 @@ import libvirt
 import libvirt_qemu
 import libxml2
 import os
-
+import base64
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,6 @@ class VMStatsCollector:
             status = status_result["return"]
             if status.get("exited"):
                 if status.get("out-data"):
-                    import base64
                     return base64.b64decode(status["out-data"]).decode("utf-8").strip()
                 return ""
         return None
@@ -154,7 +153,7 @@ class VMStatsCollector:
 
                         if_addr_dic[k] = v['hwaddr']
 
-                        traffic_data_raw = dom.interfaceStats(v['hwaddr'])
+                        traffic_data_raw = dom.interfaceStats(k)
 
                         traffic_data = {
                                 'rx_bytes': traffic_data_raw[0],
