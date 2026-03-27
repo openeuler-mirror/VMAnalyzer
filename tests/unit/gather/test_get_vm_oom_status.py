@@ -106,6 +106,11 @@ class TestVMOOMCollector(unittest.TestCase):
     @patch.object(get_vm_oom_status.VMCollector, "run_virsh_cmd")
     def test_call_qga_interface_parse_error(self, mock_run):
         mock_run.return_value = "invalid json"
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-oom-status"
+        )
+        self.assertEqual(result["status"], "parse_error")
 
 if __name__ == "__main__":
     unittest.main()
