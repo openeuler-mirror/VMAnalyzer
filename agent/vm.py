@@ -58,6 +58,11 @@ class VMFactory:
     @property
     def vc(self):
         if not self.__vc or not self.__vc.isAlive():
+            if self.__vc is not None:
+                try:
+                    self.__vc.close()
+                except Exception:
+                    pass
             self.__vc = libvirt.openReadOnly(self.__uri)
         return self.__vc
 
@@ -100,14 +105,13 @@ class VMFactory:
 
 def scan_active_vms():
     vm_factory = VMFactory()
-    state = 0
     for dom in vm_factory.vc.listAllDomains():
         if dom.ID() == -1:
             continue
 
         state, _ = dom.state()
         if state != libvirt.VIR_DOMAIN_RUNNING:
-            logging.error("VM %s is not running!", dom.name())
+            logging.debug("Skipping non-running VM %s (state=%d)", dom.name(), state)
             continue
 
         logging.debug("Domain %s(%s), UUID %s",
