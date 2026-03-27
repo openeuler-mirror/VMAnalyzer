@@ -49,12 +49,12 @@ def usage():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdmnbltvp:q:",
+        opts, args = getopt.getopt(sys.argv[1:], "hdmnbltvo:i:t:pq:",
                                    ["help", "debug", "memoryUsage",
                                     "networkTraffic", "blkio",
-                                    "timeout=", "log_vm","interval=",
+                                    "timeout=", "log_vm", "interval=",
                                     "vcpus_info", "processInfo",
-                                    "log-level="])
+                                    "output=", "log-level="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
@@ -86,8 +86,19 @@ def main():
             label = "blkio"
         if o in ("-l", "--log_vm"):
             label = "log_vm"
+        if o in ("-v", "--vcpus_info"):
+            label = "vcpus_info"
+        if o in ("-p", "--processInfo"):
+            label = "processInfo"
         if o in ("-o", "--output"):
             output_file = a
+        if o in ("-q", "--log-level"):
+            numeric = getattr(logging, a.upper(), None)
+            if isinstance(numeric, int):
+                logging.basicConfig(level=numeric)
+            else:
+                print(f"Invalid log level: {a}")
+                sys.exit(2)
 
     if len(args) >= 1:
         uri = args[0]
