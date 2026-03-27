@@ -153,6 +153,9 @@ file       disk       vda        /path/disk.qcow2
             "code": 0,
             "stdout": "invalid json"
         }
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        self.assertIn("JSON解析失败", result["disks"][0]["img_error"])
 
 if __name__ == "__main__":
     unittest.main()
