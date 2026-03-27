@@ -77,6 +77,10 @@ def get_vm_network_rx_tx_stats(vm_name: str) -> str:
         "error": ""
     }
 
+    if not vm_name.strip():
+        result["error"] = "虚机名称不能为空"
+        return json.dumps(result, ensure_ascii=False, indent=2)
+
     # 1. 获取网卡列表
     nics = get_vm_nic_list(vm_name)
     if not nics:
