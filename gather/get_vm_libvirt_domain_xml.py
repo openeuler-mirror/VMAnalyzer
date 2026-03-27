@@ -86,13 +86,17 @@ def get_vm_libvirt_domain_xml(vm_name: str, full: bool = True) -> str:
             return json.dumps(result, ensure_ascii=False, indent=2)
 
         # 只保留核心节点（vcpu/memory/disk/interface）
-        core_nodes = ["vcpu", "memory", "disk", "interface", "os", "cpu"]
-        core_xml = etree.Element("domain")
-        for node in core_nodes:
-            elements = root.xpath(f".//{node}")
-            for elem in elements:
-                core_xml.append(elem)
-        xml_content = etree.tostring(core_xml, encoding="utf-8").decode("utf-8")
+        trt:
+            core_nodes = ["vcpu", "memory", "disk", "interface", "os", "cpu"]
+            core_xml = etree.Element("domain")
+            for node in core_nodes:
+                elements = root.xpath(f".//{node}")
+                for elem in elements:
+                    core_xml.append(elem)
+            xml_content = etree.tostring(core_xml, encoding="utf-8").decode("utf-8")
+        except Exception as e:
+            result["error"] = f"精简VM {vm_name} 的XML时出错: {str(e)}"
+            return json.dumps(result, ensure_ascii=False, indent=2)
 
     result["xml"] = xml_content
     result["success"] = True
