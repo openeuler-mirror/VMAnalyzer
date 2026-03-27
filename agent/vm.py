@@ -100,8 +100,12 @@ class VMFactory:
         if vm is None:
             logging.warning("No such VM: %d", vm_id)
             return None
-        return vm["analyzers"]
-
+        # "analyzers" is only present after set_vm_analyzers() has been called
+        # at least once; use .get() to avoid KeyError on first access.
+        if "analyzers" not in vm:
+            logging.debug("VM %d has no analyzers data yet", vm_id)
+            return None
+        return vm.get("analyzers")
 
 def scan_active_vms():
     vm_factory = VMFactory()
