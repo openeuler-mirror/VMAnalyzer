@@ -8,3 +8,6 @@ DEFAULT_THRESHOLDS = {
     "network_drops": 100,
     "disk_io_wait": 50.0
 }
+
+# QEMU Guest Agent monitoring
+ALERT_QEMU_AGENT_DOWN = True
