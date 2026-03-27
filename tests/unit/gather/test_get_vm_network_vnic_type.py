@@ -75,6 +75,14 @@ class TestVMNetworkVnicType(unittest.TestCase):
 vnet0      bridge     br0        virtio      52:54:00:aa:bb:cc
 """
         }
+        result = get_vm_network_vnic_type.get_vm_nic_list("vm1")
+        self.assertEqual(len(result), 1)
+        nic = result[0]
+        self.assertEqual(nic["interface"], "vnet0")
+        self.assertEqual(nic["type"], "bridge")
+        self.assertEqual(nic["source"], "br0")
+        self.assertEqual(nic["model"], "virtio")
+        self.assertEqual(nic["mac"], "52:54:00:aa:bb:cc")
 
 if __name__ == "__main__":
     unittest.main()
