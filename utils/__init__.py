@@ -5,6 +5,11 @@ VMAnalyzer utils module.
 """
 
 __all__ = [
+    "config_validator",
+    "csv_export",
+    "health_check",
+    "json_config",
+    "metrics_aggregation",
     'constants',
     'timer',
     'config',
