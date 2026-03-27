@@ -109,5 +109,14 @@ Current: yes
         self.assertTrue(snap["is_current"])
         self.assertEqual(snap["disk_size_mb"], 100.0)
 
+    @patch("gather.get_vm_snapshot_info.execute_cmd")
+    def test_snapshot_list_fail(self, mock_cmd):
+        """snapshot-list 失败"""
+        mock_cmd.return_value = {
+            "code": 1,
+            "stderr": "snapshot error",
+            "stdout": ""
+        }
+
 if __name__ == "__main__":
     unittest.main()
