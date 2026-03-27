@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vm-analyzer"
+version = "0.1.0"
+description = "A lightweight virtualization performance monitoring analysis tool"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {text = "Mulan PSL v2"}
+authors = [
+    {name = "China Mobile (SuZhou) Software Technology Co.,Ltd."}
+]
+keywords = ["virtualization", "monitoring", "performance", "libvirt", "qemu"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Mulan Permissive Software License v2 (Mulan PSL v2)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: System :: Monitoring",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = [
+    "redis",
+    "mock",
+    "python3-libvirt",
+]
+
+[project.scripts]
+vm-analyzer-agent = "agent.main:main"
+
+[project.urls]
+Homepage = "https://gitee.com/openeuler/VMAnalyzer"
+Repository = "https://gitee.com/openeuler/VMAnalyzer"
+Issues = "https://gitee.com/openeuler/VMAnalyzer/issues"
+
+[tool.setuptools]
+packages = ["agent", "gather", "utils", "diagnose", "oneClickEnable", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py36', 'py37', 'py38', 'py39', 'py310']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["agent", "gather", "utils", "diagnose", "oneClickEnable"]
