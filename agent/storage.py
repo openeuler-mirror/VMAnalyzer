@@ -194,8 +194,9 @@ class VMStatsRedisStorage(VMStatsStorage):
     def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
         # VM has been shutdown or destroyed???
         if vm_id not in list(self.__vm_factory.vms.keys()):
-            return {}
-
+            # Callers iterate this as a list; return [] not {} to avoid
+            # silent iteration over dict keys instead of stat entries.
+            return []
         vm_info = self.__vm_factory.get_vm(vm_id)
         label = self.__label
 
@@ -208,15 +209,19 @@ class VMStatsRedisStorage(VMStatsStorage):
         except Exception as err:
             logging.warning('Unable to get stats of %s: %s',
                             vm_info['name'], err.args)
-
+            return []
         vm_stats = []
         for data in data_list:
             stats_dict = {}
-            data_dict = json.loads(data[0])
-            # We won't touch this because the VM has been hard rebooted
-            if data_dict['id'] != vm_id:
+            try:
+                data_dict = json.loads(data[0])
+            except (json.JSONDecodeError, TypeError) as exc:
+                logging.warning('Corrupt Redis entry for VM %s, skipping: %s',
+                                vm_info['name'], exc)
                 continue
-
+            # We won't touch this because the VM has been hard rebooted
+            if data_dict.get('id') != vm_id:
+                continue
             if label == 'cpuUsage':
                 stats_dict = {
                     'uuid': vm_info['uuid'],
