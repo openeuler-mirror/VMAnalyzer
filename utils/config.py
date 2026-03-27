@@ -30,3 +30,27 @@ ALERT_THRESHOLDS = {
 # Redis data retention: automatically remove stats entries older than this many
 # seconds to prevent unbounded growth. Set to 0 to keep data forever.
 REDIS_RETENTION_SECONDS = 3600  # 1 hour
+import importlib
+import os
+import time
+
+_config_modified_time = 0
+_config = None
+
+def reload_config():
+    """Reload configuration file without restarting"""
+    global _config_modified_time, _config
+    
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'config.py')
+    if not os.path.exists(config_path):
+        return None
+    
+    mtime = os.path.getmtime(config_path)
+    if mtime > _config_modified_time or _config is None:
+        import config
+        importlib.reload(config)
+        _config = config
+        _config_modified_time = mtime
+        print("🔄 配置文件已重载")
+    
+    return _config
