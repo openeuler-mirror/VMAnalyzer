@@ -193,10 +193,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
-        from typing import Dict, List, Optional
-    except ImportError:
-        pass
 
     main()
 
