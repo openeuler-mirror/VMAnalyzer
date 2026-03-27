@@ -73,5 +73,18 @@ class TestVMCollector(unittest.TestCase):
         result = self.collector.get_all_vm_names()
         self.assertEqual(result, [])
 
+    # =========================
+    # call_qga_interface
+    # =========================
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_success(self, mock_run):
+        mock_run.return_value = json.dumps({
+            "return": {
+                "load1": 0.1,
+                "load5": 0.2,
+                "load15": 0.3
+            }
+        })
+
 if __name__ == "__main__":
     unittest.main()
