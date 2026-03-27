@@ -25,6 +25,7 @@ VM_ANALYZERS_CONFIG = {
 ALERT_THRESHOLDS = {
     'cpu_usage': 90.0,
     'memory_usage': 85.0,
+    'disk_write_bytes_rate': 0,
 }
 
 # Redis data retention: automatically remove stats entries older than this many
