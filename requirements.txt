@@ -1,3 +1,8 @@
+# Core dependencies
 redis>=4.0.0
-mock>=4.0.0
-python-libvirt>=7.0.0
+libvirt-python>=8.0.0
+
+# Optional dependencies for enhanced features
+psutil>=5.8.0
+
+# Development dependencies (install with: pip install -r requirements-dev.txt)
