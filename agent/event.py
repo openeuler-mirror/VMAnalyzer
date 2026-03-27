@@ -60,28 +60,28 @@ class VMEventLoopNative(VMEventLoop):
         thread.daemon = True
         thread.start()
 
-
     def dom_event_callback(self, conn, dom, event, detail, opaque):
+        event_name = (const.VM_DOMAIN_SUPPORTED_EVENTS[event]
+                      if 0 <= event < len(const.VM_DOMAIN_SUPPORTED_EVENTS)
+                      else str(event))
         logging.debug("dom_event_callback: Domain %s(%s) %s, UUID %s",
-                      dom.name(), dom.ID(),
-                      const.VM_DOMAIN_SUPPORTED_EVENTS[event],
-                      dom.UUIDString())
+                      dom.name(), dom.ID(), event_name, dom.UUIDString())
         vm_id = dom.ID()
-        # FIXME, We need get analyzers info by libvirt api
         vm_info = {
-                   "uuid": dom.UUIDString(),
-                   "name": dom.name(),
-                   "analyzers": 30
-                  }
+            "uuid": dom.UUIDString(),
+            "name": dom.name(),
+            "cpu_util": 0,
+        }
         vm_factory = vm.VMFactory()
-        if event == const.VM_DOMAIN_EVENT_CRASHED or \
-           event == const.VM_DOMAIN_EVENT_UNDEFINED:
+        if event in (const.VM_DOMAIN_EVENT_CRASHED,
+                     const.VM_DOMAIN_EVENT_UNDEFINED,
+                     const.VM_DOMAIN_EVENT_STOPPED):
             if vm_id in vm_factory.vms:
                 vm_factory.del_vm(vm_id)
-        elif event == const.VM_DOMAIN_EVENT_DEFINED:
-            if vm_id not in vm_factory.vms:
+        elif event in (const.VM_DOMAIN_EVENT_STARTED,
+                       const.VM_DOMAIN_EVENT_DEFINED):
+            if vm_id not in vm_factory.vms and vm_id != -1:
                 vm_factory.add_vm(vm_id, vm_info)
-
 
     def conn_close_callback(self, conn, reason, opaque):
         logging.debug("conn_close_callback: %s: %s",
