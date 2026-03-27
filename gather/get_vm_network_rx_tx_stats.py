@@ -52,12 +52,13 @@ def get_vm_nic_list(vm_name: str) -> list:
             continue
         parts = re.split(r"\s+", line)
         if len(parts) >= 4:
+            mac = parts[4] if len(parts) > 4 else ""
             nics.append({
                 "interface": parts[0],
                 "type": parts[1],
                 "source": parts[2],
                 "model": parts[3],
-                "mac": parts[4] if len(parts) > 4 else ""
+                "mac": mac
             })
     return nics
 
