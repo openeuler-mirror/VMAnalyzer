@@ -79,5 +79,21 @@ class TestGetLibVer(unittest.TestCase):
         self.assertIn("uuid-123", output)
         self.assertIn("sdb", output)
 
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_get_essd_serial_no_serial(self, mock_stdout):
+        mock_conn = MagicMock()
+        mock_dom = MagicMock()
+        xml_data = """
+        <domain>
+            <devices>
+                <disk>
+                    <target dev="vda"/>
+                </disk>
+            </devices>
+        </domain>
+        """
+        mock_dom.XMLDesc.return_value = xml_data
+        mock_conn.lookupByName.return_value = mock_dom
+
 if __name__ == "__main__":
     unittest.main()
