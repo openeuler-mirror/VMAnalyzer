@@ -93,5 +93,14 @@ vnet0      bridge     br0        virtio      52:54:00:aa:bb:cc
         result = get_vm_network_vnic_type.get_vm_nic_list("vm1")
         self.assertEqual(result, [])
 
+    @patch("gather.get_vm_network_vnic_type.execute_cmd")
+    def test_get_vm_nic_list_empty(self, mock_cmd):
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": """Interface  Type
+-------------------------
+"""
+        }
+
 if __name__ == "__main__":
     unittest.main()
