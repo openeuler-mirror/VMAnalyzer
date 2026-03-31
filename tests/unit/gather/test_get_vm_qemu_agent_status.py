@@ -75,6 +75,11 @@ class TestVMQemuAgentStatus(unittest.TestCase):
                 "return": {}
             })
         }
+        result_json = get_vm_qemu_agent_status.get_vm_qemu_agent_status("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        self.assertTrue(result["agent_online"])
+        self.assertEqual(result["vm_name"], "vm1")
 
 if __name__ == "__main__":
     unittest.main()
