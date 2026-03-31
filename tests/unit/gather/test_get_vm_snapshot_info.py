@@ -175,6 +175,11 @@ Current: no
                 "stdout": "invalid json"
             }
         ]
+        result_json = get_vm_snapshot_info.get_vm_snapshot_info("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        snap = result["snapshots"][0]
+        self.assertEqual(snap["disk_size_mb"], 0)
 
 if __name__ == "__main__":
     unittest.main()
