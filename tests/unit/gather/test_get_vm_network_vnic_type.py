@@ -90,6 +90,8 @@ vnet0      bridge     br0        virtio      52:54:00:aa:bb:cc
             "code": 1,
             "stderr": "error"
         }
+        result = get_vm_network_vnic_type.get_vm_nic_list("vm1")
+        self.assertEqual(result, [])
 
 if __name__ == "__main__":
     unittest.main()
