@@ -71,8 +71,8 @@ check_secret_usage() {
         # 标志位，用于判断密钥是否被使用
         KEY_USED=false
         # 获取所有虚拟机名称
-        VM_LIST=$(virsh list --all --name)
-        # 遍历每个虚拟机
+        VM_LIST=$(virsh list --all --name | grep -v '^[[:space:]]*$')
+	# 遍历每个虚拟机
         for VM_NAME in $VM_LIST; do
             # 获取虚拟机的 XML 配置
             VM_XML=$(virsh dumpxml "$VM_NAME")
@@ -80,9 +80,11 @@ check_secret_usage() {
             if echo "$VM_XML" | grep -q "$SECRET_UUID"; then
                 info "Secret UUID $SECRET_UUID is used in VM: $VM_NAME"
                 KEY_USED=true
-                # 提取磁盘路径
-                DISK_PATHS=$(echo "$VM_XML" | grep -oP '(?<=<source file=\").*?(?=\")')
-                for DISK_PATH in $DISK_PATHS; do
+                # Extract disk paths: POSIX-compatible replacement for grep -oP
+                DISK_PATHS=$(echo "$VM_XML" \
+                    | grep -o 'source file="[^"]*"' \
+                    | sed 's/source file="//;s/"$//')
+		for DISK_PATH in $DISK_PATHS; do
                     info "Disk path: $DISK_PATH"
                 done
             fi
@@ -109,8 +111,10 @@ check_secret_uniqueness() {
             continue
         fi
         # 解析 XML 文件，获取配置的虚拟机名称
-        VM_NAME=$(grep -oP '(?<=<description>).*?(?=</description>)' "$SECRET_XML")
-        if [ -z "$VM_NAME" ]; then
+        # POSIX-compatible replacement for grep -oP look-around
+        VM_NAME=$(grep -o '<description>[^<]*</description>' "$SECRET_XML" \
+                  | sed 's/<description>//;s/<\/description>//')
+	if [ -z "$VM_NAME" ]; then
             error "No VM name found in secret XML for UUID $SECRET_UUID."
             #continue
         else 
