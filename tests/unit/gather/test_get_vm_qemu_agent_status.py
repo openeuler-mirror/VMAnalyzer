@@ -81,5 +81,14 @@ class TestVMQemuAgentStatus(unittest.TestCase):
         self.assertTrue(result["agent_online"])
         self.assertEqual(result["vm_name"], "vm1")
 
+    @patch("gather.get_vm_qemu_agent_status.execute_cmd")
+    def test_qemu_agent_offline(self, mock_cmd):
+        """命令执行失败"""
+        mock_cmd.return_value = {
+            "code": 1,
+            "stderr": "guest agent not running",
+            "stdout": ""
+        }
+
 if __name__ == "__main__":
     unittest.main()
