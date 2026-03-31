@@ -105,5 +105,9 @@ class TestVMCollector(unittest.TestCase):
         )
         self.assertEqual(result["status"], "failed")
 
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_parse_error(self, mock_run):
+        mock_run.return_value = "invalid json"
+
 if __name__ == "__main__":
     unittest.main()
