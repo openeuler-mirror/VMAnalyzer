@@ -112,5 +112,14 @@ class TestVMOOMCollector(unittest.TestCase):
         )
         self.assertEqual(result["status"], "parse_error")
 
+    @patch.object(get_vm_oom_status.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_no_output(self, mock_run):
+        mock_run.return_value = None
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-oom-status"
+        )
+        self.assertEqual(result["status"], "failed")
+
 if __name__ == "__main__":
     unittest.main()
