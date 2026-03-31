@@ -145,5 +145,36 @@ snap1
         self.assertTrue(result["success"])
         self.assertEqual(len(result["snapshots"]), 0)
 
+    @patch("gather.get_vm_snapshot_info.execute_cmd")
+    def test_qemu_img_json_error(self, mock_cmd):
+        """qemu-img JSON 解析失败"""
+        mock_cmd.side_effect = [
+            # snapshot-list
+            {
+                "code": 0,
+                "stdout": """Name
+----------------
+snap1
+"""
+            },
+            # snapshot-info
+            {
+                "code": 0,
+                "stdout": """State: running
+Current: no
+"""
+            },
+            # snapshot-dumpxml
+            {
+                "code": 0,
+                "stdout": "<source file='/disk/snap1.qcow2'/>"
+            },
+            # qemu-img invalid json
+            {
+                "code": 0,
+                "stdout": "invalid json"
+            }
+        ]
+
 if __name__ == "__main__":
     unittest.main()
