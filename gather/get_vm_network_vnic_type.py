@@ -49,7 +49,7 @@ def get_vm_nic_list(vm_name: str) -> list:
     cmd = ["virsh", "domiflist", vm_name]
     cmd_result = execute_cmd(cmd)
     if cmd_result["code"] != 0:
-        return nics
+        return nics, f"执行virsh domiflist失败: {cmd_result['stderr']}"
 
     # 解析domiflist输出（跳过表头）
     lines = cmd_result["stdout"].split("\n")[2:]
