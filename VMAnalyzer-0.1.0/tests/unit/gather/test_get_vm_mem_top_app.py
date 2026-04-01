@@ -112,6 +112,202 @@ class TestGetVMMemTopApp(unittest.TestCase):
             result = self.collector.call_exec_virsh_cmd(test_cmd)
             self.assertIsNone(result)
 
+    def test_get_running_vms(self):
+        """测试get_running_vms：获取运行VM列表，覆盖有/无VM两种场景"""
+        # 场景1：有运行VM，返回非空列表
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec:
+            mock_exec.return_value = "vm-db01 vm-web01 vm-cache01"
+            vms = self.collector.get_running_vms()
+            self.assertEqual(vms, ["vm-db01", "vm-web01", "vm-cache01"])
+            mock_exec.assert_called_once_with("virsh list --name | grep -v '^$'")
+
+        # 场景2：无运行VM，返回空列表
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec:
+            mock_exec.return_value = None
+            vms = self.collector.get_running_vms()
+            self.assertEqual(vms, [])
+
+    def test_get_vm_mem_topn_all_scenarios(self):
+        """测试get_vm_mem_topn：覆盖采集成功/无返回/无return字段/JSON解析失败所有场景"""
+        test_vm = "vm-db01"
+        # 构造正常QGA返回数据
+        mock_qga_resp = "{\"return\": [{\"process-id\": \"123\", \"process-info\": {\"user\": \"root\"}}]}"
+        # 场景1：采集成功，正常返回数据
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
+            mock_exec.return_value = mock_qga_resp
+            result = self.collector.get_vm_mem_topn(test_vm)
+            self.assertIsInstance(result, list)
+            self.assertEqual(len(result), 1)
+            # 断言拼接的QGA命令正确（json.dumps后的参数）
+            expected_qga_params = json.dumps({
+                "execute": "guest-get-memtopn-status",
+                "arguments": {"memtopn-num": str(self.top_n)}
+            })
+            mock_exec.assert_called_once_with(f"virsh qemu-agent-command {test_vm} '{expected_qga_params}'")
+            mock_log_err.assert_not_called()
+
+        # 场景2：命令无返回数据，采集失败
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
+            mock_exec.return_value = None
+            result = self.collector.get_vm_mem_topn(test_vm)
+            self.assertIsNone(result)
+            mock_log_err.assert_called_with(f"VM {test_vm} 内存TopN信息采集失败：无返回数据")
+
+        # 场景3：QGA返回无return字段，格式异常
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
+            mock_exec.return_value = "{\"error\": \"unknown command\"}"
+            result = self.collector.get_vm_mem_topn(test_vm)
+            self.assertIsNone(result)
+            mock_log_err.assert_called_with(f"VM {test_vm} QGA返回格式异常：{{\"error\": \"unknown command\"}}")
+
+        # 场景4：JSON解析失败，返回无效字符串
+        with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
+            mock_exec.return_value = "invalid json string"
+            result = self.collector.get_vm_mem_topn(test_vm)
+            self.assertIsNone(result)
+            self.assertIn(f"VM {test_vm} QGA返回解析失败", mock_log_err.call_args[0][0])
+
+    def test_format_process_data(self):
+        """测试format_process_data：覆盖正常格式/嵌套process-info/字段缺失所有兼容场景"""
+        # 场景1：正常格式数据，字段完整
+        raw_normal = [
+            {
+                "process-id": "123",
+                "process-info": {
+                    "user": "root",
+                    "cpu-util": "10.5",
+                    "mem-util": "20.3",
+                    "open-files": "100",
+                    "cmd-name": "java\n-Dtest"
+                }
+            }
+        ]
+        formatted_normal = self.collector.format_process_data(raw_normal)
+        self.assertEqual(formatted_normal[0], {
+            "process_id": "123",
+            "user": "root",
+            "cpu_util": "10.5",
+            "mem_util": "20.3",
+            "open_files": "100",
+            "cmd_name": "java-Dtest"  # 验证\n被替换
+        })
+
+        # 场景2：异常格式
+        raw_nested = [
+            {
+                "process-id": "456",
+                "process-info": {
+                    "process-info": {
+                        "user": "nginx",
+                        "cpu-util": "0.5",
+                        "mem-util": "5.2",
+                        "open-files": "50",
+                        "cmd-name": "nginx"
+                    }
+                }
+            }
+        ]
+        formatted_nested = self.collector.format_process_data(raw_nested)
+        self.assertEqual(formatted_nested[0]["user"], "nginx")
+        self.assertEqual(formatted_nested[0]["cmd_name"], "nginx")
+
+        # 场景3：键**不存在**，触发get默认值
+        raw_key_missing = [
+            {
+                # 缺失process-id键
+                "process-info": {
+                    # 缺失user/cpu-util/mem-util/open-files/cmd-name键
+                }
+            }
+        ]
+        formatted_key_missing = self.collector.format_process_data(raw_key_missing)
+        self.assertEqual(formatted_key_missing[0], {
+            "process_id": "未知",
+            "user": "未知",
+            "cpu_util": "0",
+            "mem_util": "0",
+            "open_files": "N/A",
+            "cmd_name": "未知"
+        })
+
+        # 场景4：键**存在但值为空**，验证空值处理逻辑
+        raw_value_empty = [
+            {
+                "process-id": "",
+                "process-info": {
+                    "user": "",
+                    "cpu-util": "",
+                    "mem-util": "",
+                    "open-files": "",
+                    "cmd-name": ""
+                }
+            }
+        ]
+        formatted_value_empty = self.collector.format_process_data(raw_value_empty)
+        self.assertEqual(formatted_value_empty[0], {
+            "process_id": "",
+            "user": "",
+            "cpu_util": "",
+            "mem_util": "",
+            "open_files": "",
+            "cmd_name": ""
+        })
+
+    def test_collect_all_vms_data(self):
+        """测试collect_all_vms_data：覆盖无VM/单VM成功/单VM失败/多VM混合场景"""
+        mock_collect_time = "2026-02-06 10:00:00"
+        # 正确patch业务模块中的datetime，避免内置类型错误
+        with patch("gather.get_vm_mem_top_app.datetime") as mock_datetime:
+            mock_datetime.now.return_value = datetime.strptime(mock_collect_time, "%Y-%m-%d %H:%M:%S")
+            mock_datetime.strftime = datetime.strftime
+
+            # 场景1：当前无运行中的VM
+            with patch.object(self.collector, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = []
+                self.collector.collect_all_vms_data()
+                self.assertEqual(self.collector.collect_data["collect_time"], mock_collect_time)
+                self.assertEqual(self.collector.collect_data["running_vm_count"], 0)
+                self.assertEqual(self.collector.collect_data["vm_list"], {})
+
+            # 重置采集数据，隔离场景1
+            self.collector.collect_data = {"collect_time": "", "running_vm_count": 0, "vm_list": {}}
+            # 场景2：单个VM采集成功
+            with patch.object(self.collector, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = ["vm-web01"]
+                # 模拟get_vm_mem_topn返回正常数据
+                mock_raw_data = [{"process-id": "123", "process-info": {"user": "root"}}]
+                with patch.object(self.collector, "get_vm_mem_topn") as mock_get_topn:
+                    mock_get_topn.return_value = mock_raw_data
+                    self.collector.collect_all_vms_data()
+                    self.assertEqual(self.collector.collect_data["running_vm_count"], 1)
+                    self.assertIn("vm-web01", self.collector.collect_data["vm_list"])
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "采集成功")
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["top_n"], self.top_n)
+
+            # 重置采集数据
+            self.collector.collect_data = {"collect_time": "", "running_vm_count": 0, "vm_list": {}}
+            # 场景3：单个VM采集失败（get_vm_mem_topn返回None）
+            with patch.object(self.collector, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = ["vm-db01"]
+                with patch.object(self.collector, "get_vm_mem_topn") as mock_get_topn:
+                    mock_get_topn.return_value = None
+                    self.collector.collect_all_vms_data()
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "采集失败")
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["process_list"], [])
+
+            # 重置采集数据
+            self.collector.collect_data = {"collect_time": "", "running_vm_count": 0, "vm_list": {}}
+            # 场景4：多个VM，部分成功部分失败
+            with patch.object(self.collector, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = ["vm-web01", "vm-db01"]
+                with patch.object(self.collector, "get_vm_mem_topn") as mock_get_topn:
+                    # 第一个VM成功，第二个失败
+                    mock_get_topn.side_effect = [mock_raw_data, None]
+                    self.collector.collect_all_vms_data()
+                    self.assertEqual(self.collector.collect_data["running_vm_count"], 2)
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "采集成功")
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "采集失败")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
