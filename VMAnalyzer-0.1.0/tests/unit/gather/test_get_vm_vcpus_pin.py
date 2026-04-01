@@ -60,5 +60,37 @@ class TestParseAffinityString(unittest.TestCase):
             []
         )
 
+# virsh输出解析测试
+class TestExtractAffinity(unittest.TestCase):
+    def test_affinity_standard(self):
+        output = """
+        VCPU: 0
+        CPU Affinity: 0-3
+        """
+        result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
+        self.assertEqual(result, "0-3")
+
+    def test_affinity_table_format(self):
+        output = """
+        VCPU CPU Affinity
+        0 0-3
+        1 4-7
+        """
+        result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
+        self.assertEqual(result, "0-3")
+
+    def test_single_line(self):
+        output = "0-3"
+        result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
+        self.assertEqual(result, "0-3")
+
+    def test_no_affinity(self):
+        output = """
+        some random text
+        without affinity
+        """
+        result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
+        self.assertEqual(result, "")
+
 if __name__ == "__main__":
     unittest.main()
