@@ -77,7 +77,10 @@ def get_vm_network_vnic_type(vm_name: str) -> str:
     }
 
     # 获取网卡列表
-    nics = get_vm_nic_list(vm_name)
+    nics, nic_error = get_vm_nic_list(vm_name)
+    if nic_error:
+       result["error"] = nic_error
+       return json.dumps(result, ensure_ascii=False, indent=2)
     if not nics:
         result["error"] = "未获取到虚机网卡列表"
         return json.dumps(result, ensure_ascii=False, indent=2)
