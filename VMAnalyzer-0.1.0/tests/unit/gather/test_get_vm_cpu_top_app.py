@@ -113,5 +113,36 @@ class TestVMCPUTopNCollector(unittest.TestCase):
         self.assertEqual(formatted[0]["cmd_name"], "bash")
         self.assertEqual(formatted[0]["cpu_util"], "50")
 
+    # 测试collect_all_vms
+    @mock.patch.object(
+        VMCPUTopNCollector,
+        "run_virsh_cmd",
+        side_effect=fake_run_virsh_cmd
+    )
+    def test_collect_all_vms(self, mock_run):
+        self.collector.collect_all_vms()
+        data = self.collector.collect_data
+        self.assertEqual(data["running_vm_count"], 2)
+        self.assertIn("vm1", data["vm_list"])
+        self.assertIn("vm2", data["vm_list"])
+        # vm1 成功
+        vm1 = data["vm_list"]["vm1"]
+        self.assertEqual(vm1["status"], "采集成功")
+        self.assertEqual(vm1["top_n"], 2)
+        self.assertEqual(len(vm1["process_list"]), 2)
+        # vm2 失败
+        vm2 = data["vm_list"]["vm2"]
+        self.assertEqual(vm2["status"], "采集失败")
+        self.assertEqual(vm2["process_list"], [])
+
+    # 测试save_data
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    @mock.patch("json.dump")
+    def test_save_data(self, mock_dump, mock_open):
+        self.collector.collect_data = {"test": "ok"}
+        self.collector.save_data()
+        mock_open.assert_called_once()
+        mock_dump.assert_called_once()
+
 if __name__ == "__main__":
     unittest.main()
