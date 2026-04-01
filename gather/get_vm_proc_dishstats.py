@@ -47,6 +47,9 @@ class MockStatsStorage:
 
     def save_stats_info(self, stats_info):
         try:
+            if not stats_info:
+                logger.warning("无可用的虚拟机磁盘统计数据，将创建空文件")
+
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             filename = os.path.join(self.output_dir, f'diskstats_info_{timestamp}.json')
             with open(filename, 'w', encoding='utf-8') as f:
