@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
+# VMAnalyzer is licensed under Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
+# You may obtain a copy of Mulan PSL v2 at:
+#          http://license.coscl.org.cn/MulanPSL2
+# THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+# EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+# MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+# See the Mulan PSL v2 for more details.
+import unittest
+import sys
+from unittest.mock import patch, MagicMock, mock_open
+
+mock_libvirt = MagicMock()
+mock_libvirt.VIR_DOMAIN_RUNNING = 1
+mock_libvirt.VIR_DOMAIN_SHUTOFF = 5
+mock_libvirt.VIR_DOMAIN_PAUSED = 3
+# 定义libvirt异常类，让业务代码能识别
+mock_libvirt.libvirtError = type("libvirtError", (Exception,), {"__str__": lambda self: "连接失败"})
+sys.modules["libvirt"] = mock_libvirt
+sys.modules["gather.get_vm_fs_info.libvirt"] = mock_libvirt
+
+from gather import get_vm_fs_info as vm_fs_info
+
+# 业务代码用到的状态常量
+VIR_DOMAIN_RUNNING = 1
+VIR_DOMAIN_SHUTOFF = 5
+VIR_DOMAIN_PAUSED = 3
+
+
+class TestVMAnalyzer(unittest.TestCase):
+    """VMAnalyzer类单元测试，覆盖所有核心方法及正常/异常场景"""
+
+    def setUp(self):
+        """测试前置：创建实例+定义通用模拟数据+模拟libvirt异常"""
+        self.analyzer = vm_fs_info.VMAnalyzer()
+        # 模拟原始fsInfo数据
+        self.mock_raw_fsinfo = [
+            ("C:\\", "/var/lib/libvirt/images/win10_c.img", "ntfs", ["/dev/vda1"]),
+            ("Data", "/var/lib/libvirt/images/win10_data.img", "ntfs", ["/dev/vda2"]),
+            ("System Reserved", "/var/lib/libvirt/images/win10_reserved.img", "ntfs", ["/dev/vda3"])
+        ]
+        self.empty_raw_fsinfo = []
+        self.invalid_raw_fsinfo = [("OnlyName",), ("Name&Path", "/path",), (None, None, None)]
+        # 通用虚拟机名称/UUID
+        self.mock_vm_name = "test-win10"
+        self.mock_vm_uuid = "12345678-1234-1234-1234-1234567890ab"
+        # 创建业务代码可识别的libvirt异常实例
+        self.mock_libvirt_error = mock_libvirt.libvirtError()
+
+    def tearDown(self):
+        """测试后置：重置实例"""
+        self.analyzer = None
+
+    def test_parse_fsinfo_normal(self):
+        """测试parse_fsinfo：正常原始数据解析场景"""
+        parsed_list = self.analyzer.parse_fsinfo(self.mock_raw_fsinfo)
+        self.assertEqual(len(parsed_list), 3)
+        # 断言系统卷/非系统卷判断正确
+        c_drive = parsed_list[0]
+        self.assertTrue(c_drive["is_system_volume"])
+        data_drive = parsed_list[1]
+        self.assertFalse(data_drive["is_system_volume"])
+        res_drive = parsed_list[2]
+        self.assertTrue(res_drive["is_system_volume"])
+        # 断言字段解析正确
+        self.assertEqual(c_drive["device"], "/dev/vda1")
+        self.assertEqual(c_drive["volume_path"], "/var/lib/libvirt/images/win10_c.img")
+
+    def test_parse_fsinfo_empty_and_invalid(self):
+        """测试parse_fsinfo：空数据/字段不全的边界场景"""
+        # 空数据
+        empty_parsed = self.analyzer.parse_fsinfo(self.empty_raw_fsinfo)
+        self.assertEqual(len(empty_parsed), 0)
+        # 字段不全数据
+        invalid_parsed = self.analyzer.parse_fsinfo(self.invalid_raw_fsinfo)
+        self.assertEqual(len(invalid_parsed), 3)
+        # 断言默认值填充
+        self.assertEqual(invalid_parsed[0]["fs_type"], "Unknown")
+        self.assertEqual(invalid_parsed[0]["device"], "Unknown")
+        self.assertEqual(invalid_parsed[2]["device"], "Unknown")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
