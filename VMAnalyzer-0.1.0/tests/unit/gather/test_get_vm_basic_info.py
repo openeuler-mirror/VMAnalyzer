@@ -172,5 +172,45 @@ balloon.maximum=4194304"""
             self.assertEqual(domstats["cpu.time"], 12345678901234)
             self.assertNotIn("domain", domstats)
 
+    def test_collect_single_vm_running(self):
+        """测试collect_single_vm_data：虚拟机RUNNING状态（全量采集）"""
+        def mock_run_virsh_cmd(cmd):
+            if "domstate" in cmd:
+                return self.mock_domstate_running
+            elif "domtime" in cmd:
+                return self.mock_domtime_output
+            elif "domblklist" in cmd:
+                return self.mock_domblklist_output
+            elif "domblkerror" in cmd:
+                return "no_error"
+            elif "domblkinfo" in cmd:
+                return "Capacity: 100 GiB\nAllocation: 20 GiB\nPhysical: 20 GiB"
+            elif "domiflist" in cmd:
+                return self.mock_domiflist_output
+            elif "domifaddr" in cmd:
+                return self.mock_domifaddr_output
+            elif "domif-getlink" in cmd:
+                return "Link state: up"
+            elif "dommemstat" in cmd:
+                return self.mock_dommemstat_output
+            elif "domstats" in cmd:
+                return self.mock_domstats_output
+            else:
+                return "unknown"
+        with patch.object(self.monitor, "run_virsh_cmd", side_effect=mock_run_virsh_cmd):
+            vm_data = self.monitor.collect_single_vm_data(self.test_vm_name)
+            self.assertEqual(vm_data["state"], "running")
+            self.assertEqual(len(vm_data["block_devices"]["list"]), 3)
+            self.assertEqual(len(vm_data["network_interfaces"]["list"]), 2)
+            self.assertNotEqual(vm_data["memory_statistics"], {})
+
+    def test_collect_single_vm_shutdown(self):
+        """测试collect_single_vm_data：虚拟机SHUTDOWN状态（部分采集）"""
+        with patch.object(self.monitor, "run_virsh_cmd", side_effect=lambda cmd: self.mock_domstate_shutdown if "domstate" in cmd else None):
+            vm_data = self.monitor.collect_single_vm_data(self.test_vm_name)
+            self.assertEqual(vm_data["state"], "shutdown")
+            self.assertEqual(vm_data["network_interfaces"]["ip_addresses"], {})
+            self.assertEqual(vm_data["memory_statistics"], {})
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
