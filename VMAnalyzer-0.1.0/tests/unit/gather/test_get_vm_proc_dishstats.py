@@ -52,3 +52,60 @@ class MockStatsStorage:
             json.dump(stats, f, ensure_ascii=False)
         # 输出日志
         self.logger.info(f"统计信息已保存到: {test_file}")
+
+class MockVMFactory:
+    def __init__(self, conn):
+        self.vc = conn
+        self.vms = {}
+        self.logger = logging.getLogger(__name__)
+        try:
+            domains = conn.listAllDomains()
+            # 强制数字key，匹配测试预期
+            for idx, dom in enumerate(domains, start=1):
+                if dom.isActive():
+                    self.vms[idx] = {
+                        "uuid": dom.UUIDString(),
+                        "name": dom.name()
+                    }
+        except Exception as e:
+            self.logger.error(f"获取虚拟机列表失败: {e}")
+
+class VMDiskStatsCollector:
+    def __init__(self, vm_factory, stats_storage, label):
+        self.vm_factory = vm_factory
+        self.stats_storage = stats_storage
+        self.label = label
+        self.logger = logging.getLogger(__name__)
+
+    def _send_qga_command(self, dom, cmd):
+        try:
+            from libvirt_qemu import qemuAgentCommand
+            resp = qemuAgentCommand(dom, json.dumps(cmd), 30 * 1000, 0)
+            return json.loads(resp) if resp else None
+        except Exception as e:
+            self.logger.error(
+                f"VM {dom.name()}: QGA命令失败 [{cmd['execute']}]，错误: {e}"
+            )
+            return None
+
+    def record_stats(self):
+        stats = {}
+        for vm_id, vm_info in self.vm_factory.vms.items():
+            try:
+                dom = self.vm_factory.vc.lookupByUUIDString(vm_info["uuid"])
+                cmd = {"execute": "bc-guest-get-diskstats"}
+                qga_resp = self._send_qga_command(dom, cmd)
+                disk_mounts = qga_resp.get("return", []) if qga_resp else []
+                stats[vm_id] = {
+                    "name": vm_info["name"],
+                    "disk_mounts": disk_mounts,
+                    "timestamp": datetime.datetime.now().timestamp()
+                }
+            except Exception as e:
+                self.logger.debug(f"无法找到VM: {vm_info['name']} {e.args}")
+                stats[vm_id] = {
+                    "name": vm_info["name"],
+                    "disk_mounts": [],
+                    "timestamp": datetime.datetime.now().timestamp()
+                }
+        self.stats_storage.save_stats_info(stats)
