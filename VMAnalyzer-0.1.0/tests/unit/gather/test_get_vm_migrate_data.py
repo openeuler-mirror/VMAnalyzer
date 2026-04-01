@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+# _*_coding: utf-8 _*_
+
+# Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
+# VMAnalyzer is licensed under Mulan PSL v2.
+# You can use this software according to the terms and conditions of
+# the Mulan PSL v2.
+# You may obtain a copy of Mulan PSL v2 at:
+#          http://license.coscl.org.cn/MulanPSL2
+# THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+# EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+# MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+# See the Mulan PSL v2 for more details.
+import unittest
+from unittest import mock
+from gather.get_vm_migrate_data import VMMigrationInfoCollector
+
+def fake_run_virsh_cmd(cmd):
+    """
+    根据不同 virsh 命令，返回假数据
+    """
+    fake_outputs = {
+        # 获取 VM 列表
+        "virsh list --name | grep -v '^$' | grep -v '^-$'":
+            "vm1\nvm2\nvm3",
+        # vm1 正在迁移
+        "virsh domjobinfo vm1": (
+            "Job type: Migrate\n"
+            "Job state: Active\n"
+        ),
+        # vm2 未迁移
+        "virsh domjobinfo vm2": (
+            "Job type: None\n"
+            "Job state: Completed\n"
+        ),
+        # vm3 查询失败
+        "virsh domjobinfo vm3": None,
+        # vm1 迁移参数
+        "virsh migrate-getmaxdowntime vm1": "500",
+        "virsh migrate-getspeed vm1": "104857600",  # 100MB/s
+        "virsh get-migration-pid vm1": "12345",
+        "virsh get-migration-multifd-pids vm1": "23456 23457",
+    }
+    return fake_outputs.get(cmd)
+
+class TestVMMigrationInfoCollector(unittest.TestCase):
+    def setUp(self):
+        self.collector = VMMigrationInfoCollector()
+
+    @mock.patch.object(VMMigrationInfoCollector, "run_virsh_cmd")
+    def test_get_all_vm_names(self, mock_run):
+        mock_run.return_value = "vm1\nvm2\nvm3"
+        vms = self.collector.get_all_vm_names()
+        self.assertEqual(vms, ["vm1", "vm2", "vm3"])
+
+    @mock.patch.object(VMMigrationInfoCollector, "run_virsh_cmd")
+    def test_is_vm_migrating(self, mock_run):
+        mock_run.return_value = (
+            "Job type: Migrate\n"
+            "Job state: Active\n"
+        )
+        result = self.collector.is_vm_migrating("vm1")
+        self.assertTrue(result)
+        mock_run.assert_called_with("virsh domjobinfo vm1")
+
+    @mock.patch.object(VMMigrationInfoCollector, "run_virsh_cmd")
+    def test_is_vm_not_migrating(self, mock_run):
+        mock_run.return_value = (
+            "Job type: None\n"
+            "Job state: Completed\n"
+        )
+        self.assertFalse(self.collector.is_vm_migrating("vm2"))
+        mock_run.assert_called_with("virsh domjobinfo vm2")
+
+    @mock.patch.object(
+        VMMigrationInfoCollector,
+        "run_virsh_cmd",
+        side_effect=fake_run_virsh_cmd
+    )
+    def test_get_migrating_vms(self, mock_run):
+        migrating_vms = self.collector.get_migrating_vms()
+        self.assertEqual(migrating_vms, ["vm1"])
+
+    @mock.patch.object(
+        VMMigrationInfoCollector,
+        "run_virsh_cmd",
+        side_effect=fake_run_virsh_cmd
+    )
+    def test_collect_migration_info(self, mock_run):
+        info = self.collector.collect_migration_info("vm1")
+        self.assertEqual(info["max_tolerable_downtime"], "500")
+        self.assertIn("104857600 字节/秒", info["max_migration_bandwidth"])
+        self.assertEqual(info["migration_pid"], "12345")
+        self.assertEqual(info["migration_multifd_pids"], "23456 23457")
+        self.assertIn("Job type: Migrate", info["migration_status_detail"])
+
+    @mock.patch.object(
+        VMMigrationInfoCollector,
+        "run_virsh_cmd",
+        side_effect=fake_run_virsh_cmd
+    )
+    def test_collect_all_migrating_vms(self, mock_run):
+        self.collector.collect_all_migrating_vms()
+        data = self.collector.migration_data
+        self.assertEqual(data["migrating_vms_count"], 1)
+        self.assertIn("vm1", data["migrating_vms"])
+        vm1_info = data["migrating_vms"]["vm1"]
+        self.assertEqual(vm1_info["migration_pid"], "12345")
+
+if __name__ == "__main__":
+    unittest.main()
