@@ -90,7 +90,7 @@ class VMCollector:
             LOG_ERROR(f"解析 {interface} 结果失败：{output}，错误：{str(e)}")
             return {"status": "parse_error", "data": {}, "error": str(e)}
 
-    def collect_single_vm_cpustinfo_data(self, vm_name: str) -> Dict:
+    def collect_single_vm_memory_block_info_data(self, vm_name: str) -> Dict:
         LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
         
         memory_block_info = self.call_qga_interface(vm_name, "guest-get-memory-block-info")
@@ -120,7 +120,7 @@ class VMCollector:
         LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机，其中 {len(running_vms)} 台运行中：{running_vms}")
 
         for vm_name in vm_names:
-            vm_data = self.collect_single_vm_cpustinfo_data(vm_name)
+            vm_data = self.collect_single_vm_memory_block_info_data(vm_name)
             self.all_vms_data["vms"][vm_name] = vm_data
 
     def save_data(self):
