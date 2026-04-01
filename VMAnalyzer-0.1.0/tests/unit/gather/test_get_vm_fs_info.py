@@ -84,6 +84,65 @@ class TestVMAnalyzer(unittest.TestCase):
         self.assertEqual(invalid_parsed[0]["device"], "Unknown")
         self.assertEqual(invalid_parsed[2]["device"], "Unknown")
 
+    @patch.object(vm_fs_info, "LOG_ERROR")
+    def test_get_single_vm_info_not_found(self, mock_log_error):
+        """测试get_single_vm_info：未找到指定虚拟机场景"""
+        mock_conn = MagicMock()
+        mock_conn.lookupByName.return_value = None
+        vm_info = self.analyzer.get_single_vm_info(self.mock_vm_name, mock_conn)
+        vm_detail = next(iter(vm_info.values()))
+        self.assertIsInstance(vm_detail, str)
+        self.assertEqual(vm_detail, "")
+        mock_log_error.assert_called_with(f"未找到名称为 {self.mock_vm_name} 的虚拟机")
+
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_get_single_vm_info_running(self, mock_log_info):
+        """测试get_single_vm_info：虚拟机运行中（正常获取fsInfo）场景"""
+        mock_dom = MagicMock()
+        mock_dom.UUIDString.return_value = self.mock_vm_uuid
+        mock_dom.state.return_value = (VIR_DOMAIN_RUNNING, 0)
+        mock_dom.fsInfo.return_value = self.mock_raw_fsinfo
+        # Mock连接对象
+        mock_conn = MagicMock()
+        mock_conn.lookupByName.return_value = mock_dom
+        # 调用方法
+        vm_info = self.analyzer.get_single_vm_info(self.mock_vm_name, mock_conn)
+        # 断言
+        self.assertEqual(vm_info[self.mock_vm_uuid]["status"], "运行中")
+        self.assertEqual(len(vm_info[self.mock_vm_uuid]["fs_info"]), 3)
+        mock_dom.fsInfo.assert_called_once()
+        mock_log_info.assert_any_call(f"{self.mock_vm_name} 文件系统信息获取完成（分区数：3）")
+
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_get_single_vm_info_shutoff(self, mock_log_info):
+        """测试get_single_vm_info：虚拟机已关闭（跳过fsInfo）场景"""
+        mock_dom = MagicMock()
+        mock_dom.UUIDString.return_value = self.mock_vm_uuid
+        mock_dom.state.return_value = (VIR_DOMAIN_SHUTOFF, 0)
+        mock_conn = MagicMock()
+        mock_conn.lookupByName.return_value = mock_dom
+        # 调用
+        vm_info = self.analyzer.get_single_vm_info(self.mock_vm_name, mock_conn)
+        # 断言
+        self.assertEqual(vm_info[self.mock_vm_uuid]["status"], "已关闭")
+        self.assertEqual(vm_info[self.mock_vm_uuid]["fs_info"], [])
+        mock_dom.fsInfo.assert_not_called()
+        mock_log_info.assert_any_call(f"{self.mock_vm_name} 非运行状态，跳过文件系统信息获取")
+
+    @patch.object(vm_fs_info, "LOG_ERROR")
+    def test_get_single_vm_info_libvirt_error(self, mock_log_error):
+        """测试get_single_vm_info：抛出libvirtError异常场景"""
+        mock_conn = MagicMock()
+        # 抛出业务代码可识别的libvirt异常
+        mock_conn.lookupByName.side_effect = self.mock_libvirt_error
+        # 调用方法
+        vm_info = self.analyzer.get_single_vm_info(self.mock_vm_name, mock_conn)
+        # 异常处理后value是字典，正常断言status
+        vm_detail = next(iter(vm_info.values()))
+        self.assertIsInstance(vm_detail, dict)
+        self.assertEqual(vm_detail["status"], "异常(连接失败)")
+        # 核心断言：错误日志已正确调用
+        mock_log_error.assert_called_with(f"{self.mock_vm_name} 信息获取异常：连接失败")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
