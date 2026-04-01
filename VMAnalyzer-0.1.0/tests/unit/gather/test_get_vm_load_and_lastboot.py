@@ -157,5 +157,87 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             load_data = self.monitor.get_load_avg(test_vm)
             self.assertEqual(load_data["note"], "解析失败")
 
+    def test_collect(self):
+        """测试collect：核心采集逻辑，覆盖有/无VM场景"""
+        # 固定采集时间，避免动态时间导致断言失败
+        mock_collect_time = "2026-02-05 14:00:00"
+        # 关键：patch gather.get_vm_load_and_lastboot里的datetime，而非全局datetime
+        with patch("gather.get_vm_load_and_lastboot.datetime") as mock_datetime:
+            mock_datetime.now.return_value = datetime.strptime(mock_collect_time, "%Y-%m-%d %H:%M:%S")
+            mock_datetime.strftime = datetime.strftime  # 保留strftime方法
+            # 场景1：有运行的VM，采集成功
+            with patch.object(self.monitor, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = ["vm-web01"]
+                with patch.object(self.monitor, "get_boot_time") as mock_boot:
+                    mock_boot.return_value = "2026-02-05T08:00:00Z"
+                    with patch.object(self.monitor, "get_load_avg") as mock_load:
+                        mock_load.return_value = {
+                            "1min": "0.05", "5min": "0.03", "15min": "0.01", "note": "采集成功"
+                        }
+                        self.monitor.collect()
+                        # 断言采集数据正确性
+                        self.assertEqual(self.monitor.data["collect_time"], mock_collect_time)
+                        self.assertEqual(self.monitor.data["vm_count"], 1)
+                        self.assertIn("vm-web01", self.monitor.data["vms"])
+                        self.assertEqual(self.monitor.data["vms"]["vm-web01"]["status"], "success")
+
+            # 场景2：无运行的VM，采集空数据
+            self.monitor.data = {"collect_time": "", "vm_count": 0, "vms": {}}  # 恢复__init__的初始结构
+            with patch.object(self.monitor, "get_running_vms") as mock_get_vms:
+                mock_get_vms.return_value = []
+                self.monitor.collect()
+                self.assertEqual(self.monitor.data["vm_count"], 0)
+                self.assertEqual(self.monitor.data["vms"], {})
+
+    def test_save(self):
+        """测试save：采集数据JSON持久化，验证文件生成和内容正确性"""
+        # 构造模拟采集数据
+        mock_collect_data = {
+            "collect_time": "2026-02-05 14:00:00",
+            "vm_count": 1,
+            "vms": {
+                "vm-web01": {
+                    "boot_time": "2026-02-05T08:00:00Z",
+                    "load_avg": {"1min": "0.05", "5min": "0.03", "15min": "0.01", "note": "采集成功"},
+                    "status": "success"
+                }
+            }
+        }
+        self.monitor.data = mock_collect_data
+
+        mock_file_time = "20260205_140000"
+        with patch("gather.get_vm_load_and_lastboot.datetime") as mock_datetime:
+            mock_now = datetime.strptime("2026-02-05 14:00:00", "%Y-%m-%d %H:%M:%S")
+            mock_datetime.now.return_value = mock_now
+            mock_datetime.strftime = datetime.strftime
+            self.monitor.save()
+
+            # 断言文件生成成功
+            test_file = f"vm_sys_{mock_file_time}.json"
+            test_file_path = os.path.join(self.test_out_dir, test_file)
+            self.assertTrue(os.path.exists(test_file_path))
+
+            # 断言文件内容与采集数据一致
+            with open(test_file_path, "r", encoding="utf-8") as f:
+                save_data = json.load(f)
+            self.assertEqual(save_data, mock_collect_data)
+
+    def test_main(self):
+        """测试main函数：命令行参数解析，覆盖默认/自定义参数场景"""
+        from gather import get_vm_load_and_lastboot as vm_module
+        # 场景1：使用默认参数，无--poll/--out-dir
+        with patch("sys.argv", ["get_vm_load_and_lastboot.py"]):
+            with patch.object(vm_module, "VMSysMonitor") as mock_mon:
+                vm_module.main()
+                mock_mon.assert_called_once_with(60, "./vm_sys_data")
+
+        # 场景2：使用自定义参数，指定轮询间隔和输出目录
+        with patch("sys.argv", ["get_vm_load_and_lastboot.py", "--poll", "30", "--out-dir", "/data/vm_mon"]):
+            with patch.object(vm_module, "VMSysMonitor") as mock_mon:
+                vm_module.main()
+                mock_mon.assert_called_once_with(30, "/data/vm_mon")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
