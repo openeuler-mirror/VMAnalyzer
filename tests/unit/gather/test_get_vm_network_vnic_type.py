@@ -118,6 +118,17 @@ vnet0      bridge     br0        virtio      52:54:00:aa:bb:cc
                 "mac": "52:54:00:aa:bb:cc"
             }
         ]
+        result_json = get_vm_network_vnic_type.get_vm_network_vnic_type("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        self.assertEqual(result["vm_name"], "vm1")
+        self.assertEqual(len(result["nics"]), 1)
+        nic = result["nics"][0]
+        self.assertEqual(nic["nic_name"], "vnet0")
+        self.assertEqual(nic["type"], "bridge")
+        self.assertEqual(nic["host_iface"], "br0")
+        self.assertEqual(nic["model"], "virtio")
+        self.assertEqual(nic["mac"], "52:54:00:aa:bb:cc")
 
     @patch("gather.get_vm_network_vnic_type.get_vm_nic_list")
     def test_get_vm_network_vnic_type_no_nic(self, mock_nics):
