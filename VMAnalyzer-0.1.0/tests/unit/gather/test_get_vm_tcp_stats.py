@@ -84,6 +84,29 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         rate = collector.calculate_tcp_retrans_rate({"retranssegs": 1, "outsegs": 0})
         self.assertEqual(rate, 0.0)
 
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.get_all_vm_names")
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.is_vm_running")
+    @patch("gather.get_vm_tcp_stats.VMQgaTCPCollector.collect_single_vm_tcp_data")
+    def test_collect_all_vms(self, mock_collect_single, mock_is_running, mock_get_names):
+        mock_get_names.return_value = ["vm1", "vm2"]
+        mock_is_running.side_effect = [True, False]
+        mock_collect_single.side_effect = [{"name": "vm1"}, {"name": "vm2"}]
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        collector.collect_all_vms()
+        self.assertEqual(collector.all_vms_data["vm_count"], 2)
+        self.assertEqual(collector.all_vms_data["running_vm_count"], 1)
+        self.assertIn("vm1", collector.all_vms_data["vms"])
+        self.assertIn("vm2", collector.all_vms_data["vms"])
+
+    @patch("gather.get_vm_tcp_stats.open", new_callable=mock_open)
+    def test_save_to_json(self, mock_file):
+        collector = get_vm_tcp_stats.VMQgaTCPCollector()
+        collector.all_vms_data = {"vm_count": 1}
+        collector.save_to_json("test.json")
+        mock_file.assert_called_once_with("test.json", "w", encoding="utf-8")
+        handle = mock_file()
+        self.assertTrue(handle.write.called)
+
 if __name__ == "__main__":
     unittest.main()
 
