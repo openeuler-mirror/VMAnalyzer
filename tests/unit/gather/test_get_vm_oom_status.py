@@ -132,6 +132,9 @@ class TestVMOOMCollector(unittest.TestCase):
             "data": {"oom-kill": False},
             "error": ""
         }
+        result = self.collector.collect_single_vm_data("vm1")
+        self.assertEqual(result["name"], "vm1")
+        self.assertIn("get_oom_status", result)
 
 if __name__ == "__main__":
     unittest.main()
