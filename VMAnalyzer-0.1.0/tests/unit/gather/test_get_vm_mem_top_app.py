@@ -308,6 +308,94 @@ class TestGetVMMemTopApp(unittest.TestCase):
                     self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "采集成功")
                     self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "采集失败")
 
+    def test_save_collect_data(self):
+        """测试save_collect_data：验证JSON文件生成、文件名格式、内容正确性"""
+        # 构造模拟采集数据
+        mock_collect_data = {
+            "collect_time": "2026-02-06 10:00:00",
+            "running_vm_count": 1,
+            "vm_list": {
+                "vm-web01": {
+                    "status": "采集成功",
+                    "process_list": [{"process_id": "123", "user": "root"}],
+                    "top_n": 5
+                }
+            }
+        }
+        self.collector.collect_data = mock_collect_data
+
+        # mock datetime固定文件名，避免动态时间
+        mock_file_time = "20260206_100000"
+        with patch("gather.get_vm_mem_top_app.datetime") as mock_datetime:
+            mock_now = datetime.strptime("2026-02-06 10:00:00", "%Y-%m-%d %H:%M:%S")
+            mock_datetime.now.return_value = mock_now
+            mock_datetime.strftime = datetime.strftime
+
+            # 执行保存
+            self.collector.save_collect_data()
+
+            # 断言文件生成成功（匹配命名规则：vm_mem_topn_时间戳.json）
+            test_file = f"vm_mem_topn_{mock_file_time}.json"
+            test_file_path = os.path.join(self.test_out_dir, test_file)
+            self.assertTrue(os.path.exists(test_file_path))
+
+            # 断言文件内容与采集数据一致（JSON序列化正确，中文/缩进正常）
+            with open(test_file_path, "r", encoding="utf-8") as f:
+                save_data = json.load(f)
+            self.assertEqual(save_data, mock_collect_data)
+
+        # 测试保存失败场景（如无写入权限）
+        with patch("builtins.open", side_effect=PermissionError("no write permission")), \
+                patch.object(logger, "error") as mock_log_err:
+            self.collector.save_collect_data()
+            mock_log_err.assert_called_with("保存数据失败：no write permission")
+
+    def test_parse_args(self):
+        """测试parse_args：命令行参数解析，覆盖默认参数/自定义参数场景"""
+        # 场景1：使用默认参数，无命令行入参
+        with patch("sys.argv", ["get_vm_mem_top_app.py"]):
+            args = parse_args()
+            self.assertEqual(args.top_n, 5)
+            self.assertEqual(args.poll_interval, 60)
+            self.assertEqual(args.output_dir, "./vm_mem_topn_data")
+
+        # 场景2：自定义所有参数
+        with patch("sys.argv", [
+            "get_vm_mem_top_app.py",
+            "--top-n", "10",
+            "--poll-interval", "30",
+            "--output-dir", "/data/vm_mon/mem_topn"
+        ]):
+            args = parse_args()
+            self.assertEqual(args.top_n, 10)
+            self.assertEqual(args.poll_interval, 30)
+            self.assertEqual(args.output_dir, "/data/vm_mon/mem_topn")
+
+    def test_main(self):
+        """测试main函数：验证实例化和启动逻辑"""
+        # patch parse_args和VMMemTopNCollector，避免真实执行
+        with patch("gather.get_vm_mem_top_app.parse_args") as mock_parse, \
+                patch("gather.get_vm_mem_top_app.VMMemTopNCollector") as mock_collector_cls:
+            # 模拟解析的参数
+            mock_args = MagicMock()
+            mock_args.top_n = 5
+            mock_args.poll_interval = 60
+            mock_args.output_dir = "./vm_mem_topn_data"
+            mock_parse.return_value = mock_args
+
+            # 执行main
+            main()
+
+            # 断言参数解析被调用
+            mock_parse.assert_called_once()
+            # 断言采集器被正确实例化
+            mock_collector_cls.assert_called_once_with(
+                top_n=5,
+                poll_interval=60,
+                output_dir="./vm_mem_topn_data"
+            )
+            # 断言start_polling被调用
+            mock_collector_cls.return_value.start_polling.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
