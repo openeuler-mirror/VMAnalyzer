@@ -130,5 +130,9 @@ vnet0      bridge     br0        virtio      52:54:00:aa:bb:cc
         self.assertEqual(nic["model"], "virtio")
         self.assertEqual(nic["mac"], "52:54:00:aa:bb:cc")
 
+    @patch("gather.get_vm_network_vnic_type.get_vm_nic_list")
+    def test_get_vm_network_vnic_type_no_nic(self, mock_nics):
+        mock_nics.return_value = []
+
 if __name__ == "__main__":
     unittest.main()
