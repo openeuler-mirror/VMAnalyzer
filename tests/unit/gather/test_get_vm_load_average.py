@@ -121,6 +121,7 @@ class TestVMCollector(unittest.TestCase):
             "vm1",
             "guest-get-load-average"
         )
+
         self.assertEqual(result["status"], "failed")
 
     # =========================
@@ -133,6 +134,9 @@ class TestVMCollector(unittest.TestCase):
             "data": {"load1": 0.1},
             "error": ""
         }
+        result = self.collector.collect_single_vm_data("vm1")
+        self.assertEqual(result["name"], "vm1")
+        self.assertIn("get_load_average", result)
 
 if __name__ == "__main__":
     unittest.main()
