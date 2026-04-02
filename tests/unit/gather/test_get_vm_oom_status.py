@@ -121,5 +121,17 @@ class TestVMOOMCollector(unittest.TestCase):
         )
         self.assertEqual(result["status"], "failed")
 
+    # =========================
+    # collect_single_vm_data
+    # =========================
+
+    @patch.object(get_vm_oom_status.VMCollector, "call_qga_interface")
+    def test_collect_single_vm_data(self, mock_call):
+        mock_call.return_value = {
+            "status": "success",
+            "data": {"oom-kill": False},
+            "error": ""
+        }
+
 if __name__ == "__main__":
     unittest.main()
