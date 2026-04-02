@@ -89,6 +89,11 @@ class TestVMQemuAgentStatus(unittest.TestCase):
             "stderr": "guest agent not running",
             "stdout": ""
         }
+        result_json = get_vm_qemu_agent_status.get_vm_qemu_agent_status("vm1")
+        result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn("QGA连通性检测失败", result["error"])
+        self.assertFalse(result["agent_online"])
 
 if __name__ == "__main__":
     unittest.main()
