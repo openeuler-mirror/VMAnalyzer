@@ -144,5 +144,77 @@ class TestVMAnalyzer(unittest.TestCase):
         # 核心断言：错误日志已正确调用
         mock_log_error.assert_called_with(f"{self.mock_vm_name} 信息获取异常：连接失败")
 
+    @patch.object(vm_fs_info, "LOG_ERROR")
+    def test_get_all_vms_info_connect_failed(self, mock_log_error):
+        """测试get_all_vms_info：libvirt服务连接失败场景"""
+        with patch("gather.get_vm_fs_info.libvirt.open", return_value=None):
+            all_vms = self.analyzer.get_all_vms_info()
+            self.assertEqual(all_vms, {})
+            mock_log_error.assert_called_with("连接 libvirt 服务失败！请检查 libvirtd 服务是否启动及权限是否足够")
+
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_get_all_vms_info_no_vms(self, mock_log_info):
+        """测试get_all_vms_info：连接成功但无虚拟机场景"""
+        mock_conn = MagicMock()
+        mock_conn.listAllDomains.return_value = []
+        with patch("gather.get_vm_fs_info.libvirt.open", return_value=mock_conn):
+            all_vms = self.analyzer.get_all_vms_info()
+            self.assertEqual(all_vms, {})
+            mock_log_info.assert_any_call("未找到任何虚拟机")
+            mock_conn.close.assert_called_once()
+
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_get_all_vms_info_normal(self, mock_log_info):
+        """测试get_all_vms_info：连接成功且有多个虚拟机场景"""
+        # 模拟两个虚拟机
+        vm1_name = "test-win10-01"
+        vm2_name = "test-centos-01"
+        mock_dom1 = MagicMock()
+        mock_dom1.name.return_value = vm1_name
+        mock_dom2 = MagicMock()
+        mock_dom2.name.return_value = vm2_name
+        # Mock连接
+        mock_conn = MagicMock()
+        mock_conn.listAllDomains.return_value = [mock_dom1, mock_dom2]
+        # Mock单虚拟机信息返回
+        mock_vm1_info = {self.mock_vm_uuid: {"uuid": self.mock_vm_uuid, "name": vm1_name, "status": "运行中"}}
+        mock_vm2_info = {"87654321-4321-4321-4321-ba0987654321": {"uuid": "87654321", "name": vm2_name, "status": "已关闭"}}
+        # 嵌套Mock
+        with patch("gather.get_vm_fs_info.libvirt.open", return_value=mock_conn), \
+             patch.object(self.analyzer, "get_single_vm_info", side_effect=[mock_vm1_info, mock_vm2_info]):
+            all_vms = self.analyzer.get_all_vms_info()
+            # 断言
+            self.assertEqual(len(all_vms), 2)
+            self.assertIn(self.mock_vm_uuid, all_vms)
+            # 日志字符串匹配业务代码实际输出（单引号包裹）
+            mock_log_info.assert_any_call(f"共找到 2 台虚拟机：['{vm1_name}', '{vm2_name}']")
+            mock_conn.close.assert_called_once()
+
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_save_to_json_specify_path(self, mock_log_info):
+        """测试save_to_json：指定文件路径场景"""
+        mock_data = {self.mock_vm_uuid: {"name": self.mock_vm_name, "status": "运行中"}}
+        test_file = "test_vm_fs_info.json"
+        with patch("builtins.open", mock_open()) as mock_file, \
+             patch("gather.get_vm_fs_info.json.dump") as mock_json_dump:
+            res_path = self.analyzer.save_to_json(mock_data, test_file)
+            self.assertEqual(res_path, test_file)
+            mock_file.assert_called_once_with(test_file, "w", encoding="utf-8")
+            mock_json_dump.assert_called_once_with(mock_data, mock_file(), indent=2, ensure_ascii=False)
+            mock_log_info.assert_called_with(f"所有虚拟机文件系统信息已保存到文件：{test_file}")
+
+    @patch.object(vm_fs_info, "LOG_INFO")
+    def test_save_to_json_default_path(self, mock_log_info):
+        """测试save_to_json：使用默认时间戳文件路径场景"""
+        mock_data = {self.mock_vm_uuid: {"name": self.mock_vm_name, "status": "运行中"}}
+        with patch("builtins.open", mock_open()) as mock_default_file, \
+             patch("gather.get_vm_fs_info.json.dump"):
+            res_path = self.analyzer.save_to_json(mock_data)
+            self.assertIn("vm_fs_info_all_", res_path)
+            mock_default_file.assert_called_once_with(res_path, "w", encoding="utf-8")
+            mock_log_info.assert_called_with(f"所有虚拟机文件系统信息已保存到文件：{res_path}")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
