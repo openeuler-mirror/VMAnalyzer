@@ -95,5 +95,13 @@ class TestVMQemuAgentStatus(unittest.TestCase):
         self.assertIn("QGA连通性检测失败", result["error"])
         self.assertFalse(result["agent_online"])
 
+    @patch("gather.get_vm_qemu_agent_status.execute_cmd")
+    def test_qemu_agent_invalid_json(self, mock_cmd):
+        """返回非 JSON"""
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": "not json"
+        }
+
 if __name__ == "__main__":
     unittest.main()
