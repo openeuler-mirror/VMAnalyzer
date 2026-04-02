@@ -109,7 +109,15 @@ if __name__ == "__main__":
     results = []
     for vm in vms:
         vm_result_json = get_vm_network_vnic_type(vm)
-        vm_result = json.loads(vm_result_json)
+        try:
+            vm_result = json.loads(vm_result_json)
+        except json.JSONDecodeError:
+            vm_result = {
+                "vm_name": vm,
+                "nics": [],
+                "success": False,
+                "error": "生成JSON结果失败"
+            }
         results.append(vm_result)
 
     # 输出所有虚机的结果（JSON数组）
