@@ -92,5 +92,99 @@ class TestExtractAffinity(unittest.TestCase):
         result = get_vm_vcpus_pin.extract_affinity_from_output(output, 0)
         self.assertEqual(result, "")
 
+# get_single_vm_vcpupin
+class TestGetSingleVMVcpupin(unittest.TestCase):
+    def setUp(self):
+        self.vm_name = "testvm"
+        self.mock_dom = MagicMock()
+        self.mock_dom.UUIDString.return_value = "uuid123"
+        self.mock_dom.state.return_value = (1, 0)
+        self.mock_dom.XMLDesc.return_value = "<domain></domain>"
+        self.mock_conn = MagicMock()
+        self.mock_conn.lookupByName.return_value = self.mock_dom
+
+    @patch("gather.get_vm_vcpus_pin.subprocess.run")
+    @patch("gather.get_vm_vcpus_pin.libxml2.parseDoc")
+    def test_success(self, mock_parseDoc, mock_run):
+        # mock virsh
+        mock_result = MagicMock()
+        mock_result.stdout = "CPU Affinity: 0-3"
+        mock_run.return_value = mock_result
+        # mock xml
+        mock_doc = MagicMock()
+        mock_ctx = MagicMock()
+        vcpu_node = MagicMock()
+        vcpu_node.content = "2"
+        topology_node = MagicMock()
+        topology_node.prop.side_effect = lambda x: {
+            "sockets": "1",
+            "cores": "2",
+            "threads": "1"
+        }.get(x)
+        mock_ctx.xpathEval.side_effect = [
+            [vcpu_node],
+            [topology_node]
+        ]
+        mock_doc.xpathNewContext.return_value = mock_ctx
+        mock_parseDoc.return_value = mock_doc
+        result = get_vm_vcpus_pin.get_single_vm_vcpupin(
+            self.vm_name,
+            self.mock_conn
+        )
+        self.assertIn("uuid123", result)
+        self.assertEqual(
+            result["uuid123"]["vcpu_total"],
+            2
+        )
+
+    @patch("gather.get_vm_vcpus_pin.subprocess.run")
+    @patch("gather.get_vm_vcpus_pin.libxml2.parseDoc")
+    def test_subprocess_error(self, mock_parseDoc, mock_run):
+        mock_run.side_effect = subprocess.CalledProcessError(
+            1,
+            "virsh",
+            stderr="error"
+        )
+        mock_doc = MagicMock()
+        mock_ctx = MagicMock()
+        vcpu_node = MagicMock()
+        vcpu_node.content = "1"
+        mock_ctx.xpathEval.side_effect = [
+            [vcpu_node],
+            []
+        ]
+        mock_doc.xpathNewContext.return_value = mock_ctx
+        mock_parseDoc.return_value = mock_doc
+        result = get_vm_vcpus_pin.get_single_vm_vcpupin(
+            self.vm_name,
+            self.mock_conn
+        )
+        vm = result["uuid123"]
+        self.assertEqual(vm["vcpu_total"], 1)
+
+    @patch("gather.get_vm_vcpus_pin.subprocess.run")
+    @patch("gather.get_vm_vcpus_pin.libxml2.parseDoc")
+    def test_timeout(self, mock_parseDoc, mock_run):
+        mock_run.side_effect = subprocess.TimeoutExpired(
+            "virsh",
+            10
+        )
+        mock_doc = MagicMock()
+        mock_ctx = MagicMock()
+        vcpu_node = MagicMock()
+        vcpu_node.content = "1"
+        mock_ctx.xpathEval.side_effect = [
+            [vcpu_node],
+            []
+        ]
+        mock_doc.xpathNewContext.return_value = mock_ctx
+        mock_parseDoc.return_value = mock_doc
+        result = get_vm_vcpus_pin.get_single_vm_vcpupin(
+            self.vm_name,
+            self.mock_conn
+        )
+        vm = result["uuid123"]
+        self.assertEqual(vm["vcpu_total"], 1)
+
 if __name__ == "__main__":
     unittest.main()
