@@ -181,5 +181,15 @@ Current: no
         snap = result["snapshots"][0]
         self.assertEqual(snap["disk_size_mb"], 0)
 
+    @patch("gather.get_vm_snapshot_info.execute_cmd")
+    def test_no_snapshot(self, mock_cmd):
+        """没有 snapshot"""
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": """Name
+----------------
+"""
+        }
+
 if __name__ == "__main__":
     unittest.main()
