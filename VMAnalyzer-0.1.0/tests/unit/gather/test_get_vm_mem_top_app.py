@@ -397,5 +397,46 @@ class TestGetVMMemTopApp(unittest.TestCase):
             # 断言start_polling被调用
             mock_collector_cls.return_value.start_polling.assert_called_once()
 
+    def test_start_polling(self):
+        """测试start_polling：验证轮询逻辑和用户终止处理"""
+        # patch 采集和保存方法，避免真实执行；patch time.sleep，避免等待
+        with patch.object(self.collector, "collect_all_vms_data") as mock_collect, \
+                patch.object(self.collector, "save_collect_data") as mock_save, \
+                patch("time.sleep") as mock_sleep, \
+                patch.object(logger, "info") as mock_log_info:
+            # 模拟轮询1次后用户按Ctrl+C终止（KeyboardInterrupt）
+            mock_sleep.side_effect = KeyboardInterrupt()
+            try:
+                self.collector.start_polling()
+            except KeyboardInterrupt:
+                pass
+
+            # 断言采集和保存被调用
+            mock_collect.assert_called_once()
+            mock_save.assert_called_once()
+            # 断言sleep被调用
+            mock_sleep.assert_called_once_with(self.poll_interval)
+            # 拼接所有日志，断言子串存在（忽略换行/空格等格式）
+            all_logs = "".join([call[0][0] for call in mock_log_info.call_args_list])
+            # 断言用户终止日志被打印
+            self.assertIn("用户终止采集，程序退出", all_logs)
+
+        # 测试轮询异常处理
+        with patch.object(self.collector, "collect_all_vms_data") as mock_collect, \
+                patch.object(self.collector, "save_collect_data") as mock_save, \
+                patch("time.sleep"), \
+                patch.object(logger, "error") as mock_log_err:
+            # 模拟采集时抛出具体子类异常
+            mock_collect.side_effect = RuntimeError("poll error")
+            try:
+                self.collector.start_polling()
+            except RuntimeError:
+                pass
+
+            # 断言异常日志被打印
+            mock_log_err.assert_called_with("轮询采集异常：poll error")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
