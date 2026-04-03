@@ -15,3 +15,9 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 from gather import getccxdesign
+
+class TestGetCCXDesign(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
