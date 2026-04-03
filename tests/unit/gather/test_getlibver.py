@@ -99,5 +99,8 @@ class TestGetLibVer(unittest.TestCase):
         self.assertIn("vda", output)
         self.assertIn("None", output)
 
+    def test_get_essd_serial_domain_none(self):
+        mock_conn = MagicMock()
+
 if __name__ == "__main__":
     unittest.main()
