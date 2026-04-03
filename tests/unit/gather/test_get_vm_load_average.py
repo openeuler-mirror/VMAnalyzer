@@ -138,5 +138,21 @@ class TestVMCollector(unittest.TestCase):
         self.assertEqual(result["name"], "vm1")
         self.assertIn("get_load_average", result)
 
+    # =========================
+    # collect_all_vms
+    # =========================
+    @patch.object(get_vm_load_average.VMCollector, "collect_single_vm_data")
+    @patch.object(get_vm_load_average.VMCollector, "get_all_vm_names")
+    def test_collect_all_vms_success(
+        self,
+        mock_get_names,
+        mock_collect
+    ):
+        mock_get_names.return_value = ["vm1", "vm2"]
+        mock_collect.side_effect = [
+            {"name": "vm1"},
+            {"name": "vm2"}
+        ]
+
 if __name__ == "__main__":
     unittest.main()
