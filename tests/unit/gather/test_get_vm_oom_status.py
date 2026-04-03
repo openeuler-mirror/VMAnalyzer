@@ -151,6 +151,15 @@ class TestVMOOMCollector(unittest.TestCase):
             {"name": "vm1"},
             {"name": "vm2"}
         ]
+        self.collector.collect_all_vms()
+        self.assertEqual(
+            self.collector.all_vms_data["vm_count"],
+            2
+        )
+        self.assertEqual(
+            self.collector.all_vms_data["running_vm_count"],
+            2
+        )
 
 if __name__ == "__main__":
     unittest.main()
