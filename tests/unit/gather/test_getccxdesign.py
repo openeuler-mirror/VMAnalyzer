@@ -17,7 +17,13 @@ from unittest.mock import patch, MagicMock
 from gather import getccxdesign
 
 class TestGetCCXDesign(unittest.TestCase):
-    pass
+        # =========================
+    # createConnection
+    # =========================
+    @patch("gather.getccxdesign.libvirt.openReadOnly")
+    def test_create_connection_success(self, mock_open):
+        mock_conn = MagicMock()
+        mock_open.return_value = mock_conn
 
 if __name__ == "__main__":
     unittest.main()
