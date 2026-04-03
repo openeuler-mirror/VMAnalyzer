@@ -16,3 +16,9 @@ from unittest.mock import patch, MagicMock
 import subprocess
 
 from gather import get_vm_cpu_cache_topology
+
+class TestGetVmCpuCacheTopology(unittest.TestCase):
+    pass
+
+if __name__ == "__main__":
+    unittest.main()
