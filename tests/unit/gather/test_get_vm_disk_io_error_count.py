@@ -19,7 +19,16 @@ import json
 from gather import get_vm_disk_io_error_count
 
 class TestGetVmDiskIoErrorCount(unittest.TestCase):
-    pass
+    # =========================
+    # execute_cmd
+    # =========================
+    @patch("gather.get_vm_disk_io_error_count.subprocess.run")
+    def test_execute_cmd_success(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="ok\n",
+            stderr=""
+        )
 
 
 if __name__ == "__main__":
