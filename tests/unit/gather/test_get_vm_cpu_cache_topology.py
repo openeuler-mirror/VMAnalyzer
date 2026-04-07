@@ -40,6 +40,11 @@ class TestGetVmCpuCacheTopology(unittest.TestCase):
             stdout="",
             stderr="error"
         )
+        result = get_vm_cpu_cache_topology.run_virsh_cmd(
+            "virsh dumpxml vm1"
+        )
+        self.assertIsNone(result)
+
 
 if __name__ == "__main__":
     unittest.main()
