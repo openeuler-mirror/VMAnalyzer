@@ -102,6 +102,11 @@ class TestVMQemuAgentStatus(unittest.TestCase):
             "code": 0,
             "stdout": "not json"
         }
+        result_json = get_vm_qemu_agent_status.get_vm_qemu_agent_status("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        self.assertFalse(result["agent_online"])
+        self.assertEqual(result["error"], "QGA返回结果解析失败")
 
 if __name__ == "__main__":
     unittest.main()
