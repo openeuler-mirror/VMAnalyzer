@@ -29,6 +29,7 @@ class TestVMOOMCollector(unittest.TestCase):
     # =========================
     @patch("gather.get_vm_oom_status.subprocess.run")
     def test_run_virsh_cmd_success(self, mock_run):
+        """测试命令执行成功"""
         mock_run.return_value = MagicMock(
             stdout="ok\n",
             stderr="",
@@ -39,6 +40,7 @@ class TestVMOOMCollector(unittest.TestCase):
 
     @patch("gather.get_vm_oom_status.subprocess.run")
     def test_run_virsh_cmd_called_process_error(self, mock_run):
+        """测试命令执行失败"""
         from subprocess import CalledProcessError
         mock_run.side_effect = CalledProcessError(
             returncode=1,
@@ -50,6 +52,7 @@ class TestVMOOMCollector(unittest.TestCase):
 
     @patch("gather.get_vm_oom_status.subprocess.run")
     def test_run_virsh_cmd_timeout(self, mock_run):
+        """测试命令超时"""
         from subprocess import TimeoutExpired
         mock_run.side_effect = TimeoutExpired(
             cmd="virsh list",
@@ -78,6 +81,7 @@ class TestVMOOMCollector(unittest.TestCase):
     # =========================
     @patch.object(get_vm_oom_status.VMCollector, "run_virsh_cmd")
     def test_call_qga_interface_success(self, mock_run):
+        """测试 QGA 接口成功"""
         mock_run.return_value = json.dumps({
             "return": {
                 "oom-kill": False
@@ -92,6 +96,7 @@ class TestVMOOMCollector(unittest.TestCase):
 
     @patch.object(get_vm_oom_status.VMCollector, "run_virsh_cmd")
     def test_call_qga_interface_failed(self, mock_run):
+        """测试接口返回 error"""
         mock_run.return_value = json.dumps({
             "error": {
                 "message": "not supported"
@@ -105,6 +110,7 @@ class TestVMOOMCollector(unittest.TestCase):
 
     @patch.object(get_vm_oom_status.VMCollector, "run_virsh_cmd")
     def test_call_qga_interface_parse_error(self, mock_run):
+        """测试 JSON 解析失败"""
         mock_run.return_value = "invalid json"
         result = self.collector.call_qga_interface(
             "vm1",
@@ -114,6 +120,7 @@ class TestVMOOMCollector(unittest.TestCase):
 
     @patch.object(get_vm_oom_status.VMCollector, "run_virsh_cmd")
     def test_call_qga_interface_no_output(self, mock_run):
+        """测试无返回"""
         mock_run.return_value = None
         result = self.collector.call_qga_interface(
             "vm1",
@@ -146,6 +153,7 @@ class TestVMOOMCollector(unittest.TestCase):
         mock_get_names,
         mock_collect
     ):
+        """测试采集多个虚机"""
         mock_get_names.return_value = ["vm1", "vm2"]
         mock_collect.side_effect = [
             {"name": "vm1"},
@@ -163,6 +171,7 @@ class TestVMOOMCollector(unittest.TestCase):
 
     @patch.object(get_vm_oom_status.VMCollector, "get_all_vm_names")
     def test_collect_all_vms_no_vm(self, mock_get_names):
+        """测试没有虚机"""
         mock_get_names.return_value = []
         self.collector.collect_all_vms()
         self.assertEqual(
@@ -180,6 +189,7 @@ class TestVMOOMCollector(unittest.TestCase):
         mock_dump,
         mock_file
     ):
+        """测试保存文件成功"""
         self.collector.save_data()
         mock_file.assert_called()
         mock_dump.assert_called()
