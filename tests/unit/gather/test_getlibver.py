@@ -94,6 +94,10 @@ class TestGetLibVer(unittest.TestCase):
         """
         mock_dom.XMLDesc.return_value = xml_data
         mock_conn.lookupByName.return_value = mock_dom
+        getlibver.getESSDSerial("vm1", mock_conn)
+        output = mock_stdout.getvalue()
+        self.assertIn("vda", output)
+        self.assertIn("None", output)
 
 if __name__ == "__main__":
     unittest.main()
