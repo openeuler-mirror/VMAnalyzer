@@ -33,5 +33,13 @@ class TestGetVmCpuCacheTopology(unittest.TestCase):
         )
         self.assertEqual(result, "xml data")
 
+    @patch("gather.get_vm_cpu_cache_topology.subprocess.run")
+    def test_run_virsh_cmd_fail(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=1,
+            stdout="",
+            stderr="error"
+        )
+
 if __name__ == "__main__":
     unittest.main()
