@@ -101,6 +101,8 @@ class TestGetLibVer(unittest.TestCase):
 
     def test_get_essd_serial_domain_none(self):
         mock_conn = MagicMock()
+        with self.assertRaises(SystemExit):
+            getlibver.getESSDSerial(None, mock_conn)
 
 if __name__ == "__main__":
     unittest.main()
