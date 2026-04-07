@@ -28,6 +28,9 @@ class TestGetCCXDesign(unittest.TestCase):
         self.assertEqual(result, mock_conn)
         mock_open.assert_called_once_with("qemu:///system")
 
+    @patch("gather.getccxdesign.libvirt.openReadOnly")
+    def test_create_connection_fail(self, mock_open):
+        mock_open.return_value = None
 
 if __name__ == "__main__":
     unittest.main()
