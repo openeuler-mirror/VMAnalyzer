@@ -170,5 +170,19 @@ class TestVMOOMCollector(unittest.TestCase):
             0
         )
 
+    # =========================
+    # save_data
+    # =========================
+    @patch("gather.get_vm_oom_status.open", new_callable=mock_open)
+    @patch("gather.get_vm_oom_status.json.dump")
+    def test_save_data_success(
+        self,
+        mock_dump,
+        mock_file
+    ):
+        self.collector.save_data()
+        mock_file.assert_called()
+        mock_dump.assert_called()
+
 if __name__ == "__main__":
     unittest.main()
