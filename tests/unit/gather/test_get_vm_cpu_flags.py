@@ -18,7 +18,16 @@ import subprocess
 from gather import get_vm_cpu_cache_topology
 
 class TestGetVmCpuFlags(unittest.TestCase):
-    pass
+    # =========================
+    # run_virsh_cmd
+    # =========================
+    @patch("gather.get_vm_cpu_flags.subprocess.run")
+    def test_run_virsh_cmd_success(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="ok",
+            stderr=""
+        )
 
 
 if __name__ == "__main__":
