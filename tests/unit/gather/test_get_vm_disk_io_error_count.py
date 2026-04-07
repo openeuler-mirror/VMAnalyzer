@@ -29,7 +29,19 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
             stdout="ok\n",
             stderr=""
         )
+        result = ( 
+            get_vm_disk_io_error_count
+            .execute_cmd(["cmd"])
+        )
+        self.assertEqual(result["code"], 0)
+        self.assertEqual(result["stdout"], "ok")
 
+    @patch("gather.get_vm_disk_io_error_count.subprocess.run")
+    def test_execute_cmd_timeout(self, mock_run):
+        mock_run.side_effect = subprocess.TimeoutExpired(
+            cmd="cmd",
+            timeout=30
+        )
 
 if __name__ == "__main__":
     unittest.main()
