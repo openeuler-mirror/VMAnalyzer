@@ -164,6 +164,11 @@ class TestVMOOMCollector(unittest.TestCase):
     @patch.object(get_vm_oom_status.VMCollector, "get_all_vm_names")
     def test_collect_all_vms_no_vm(self, mock_get_names):
         mock_get_names.return_value = []
+        self.collector.collect_all_vms()
+        self.assertEqual(
+            self.collector.all_vms_data["vm_count"],
+            0
+        )
 
 if __name__ == "__main__":
     unittest.main()
