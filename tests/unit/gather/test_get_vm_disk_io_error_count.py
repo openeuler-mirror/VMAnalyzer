@@ -29,7 +29,12 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
             stdout="ok\n",
             stderr=""
         )
-
+        result = ( 
+            get_vm_disk_io_error_count
+            .execute_cmd(["cmd"])
+        )
+        self.assertEqual(result["code"], 0)
+        self.assertEqual(result["stdout"], "ok")
 
 if __name__ == "__main__":
     unittest.main()
