@@ -31,6 +31,13 @@ class TestGetVmCpuFlags(unittest.TestCase):
         result = get_vm_cpu_flags.run_virsh_cmd("cmd")
         self.assertEqual(result, "ok")
 
+    @patch("gather.get_vm_cpu_flags.subprocess.run")
+    def test_run_virsh_cmd_fail(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=1,
+            stdout="",
+            stderr="error"
+        )
 
 if __name__ == "__main__":
     unittest.main()
