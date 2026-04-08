@@ -40,6 +40,17 @@ class TestGetVmCpuCacheTopology(unittest.TestCase):
             stdout="",
             stderr="error"
         )
+        result = get_vm_cpu_cache_topology.run_virsh_cmd(
+            "virsh dumpxml vm1"
+        )
+        self.assertIsNone(result)
+
+    @patch("gather.get_vm_cpu_cache_topology.subprocess.run")
+    def test_run_virsh_cmd_timeout(self, mock_run):
+        mock_run.side_effect = subprocess.TimeoutExpired(
+            cmd="virsh",
+            timeout=30
+        )
 
 if __name__ == "__main__":
     unittest.main()
