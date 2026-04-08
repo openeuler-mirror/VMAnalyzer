@@ -60,3 +60,75 @@ class TestVMCollector(unittest.TestCase):
         )
         result = self.collector.run_virsh_cmd("virsh list")
         self.assertIsNone(result)
+
+    # =========================
+    # get_all_vm_names
+    # =========================
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_get_all_vm_names_success(self, mock_run):
+        """测试获取虚机列表成功"""
+        mock_run.return_value = "vm1 vm2 vm3"
+        result = self.collector.get_all_vm_names()
+        self.assertEqual(result, ["vm1", "vm2", "vm3"])
+
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_get_all_vm_names_empty(self, mock_run):
+        """测试没有虚机"""
+        mock_run.return_value = None
+        result = self.collector.get_all_vm_names()
+        self.assertEqual(result, [])
+
+    # =========================
+    # call_qga_interface
+    # =========================
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_success(self, mock_run):
+        """测试 QGA 接口成功"""
+        mock_run.return_value = json.dumps({
+            "return": {
+                "load1": 0.1,
+                "load5": 0.2,
+                "load15": 0.3
+            }
+        })
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-load-average"
+        )
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["data"]["load1"], 0.1)
+
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_failed(self, mock_run):
+        """测试接口返回 error"""
+        mock_run.return_value = json.dumps({
+            "error": {
+                "message": "not supported"
+            }
+        })
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-load-average"
+        )
+        self.assertEqual(result["status"], "failed")
+
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_parse_error(self, mock_run):
+        """测试 JSON 解析失败"""
+        mock_run.return_value = "invalid json"
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-load-average"
+        )
+        self.assertEqual(result["status"], "parse_error")
+
+    @patch.object(get_vm_load_average.VMCollector, "run_virsh_cmd")
+    def test_call_qga_interface_no_output(self, mock_run):
+        """测试无返回"""
+        mock_run.return_value = None
+        result = self.collector.call_qga_interface(
+            "vm1",
+            "guest-get-load-average"
+        )
+
+        self.assertEqual(result["status"], "failed")
