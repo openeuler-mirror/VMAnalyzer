@@ -19,7 +19,17 @@ import json
 from gather import get_vm_network_drops
 
 class TestGetVMNetworkDrops(unittest.TestCase):
-    pass
+        # =========================
+    # execute_cmd
+    # =========================
+    @patch("gather.get_vm_network_drops.subprocess.run")
+    def test_execute_cmd_success(self, mock_run):
+        """测试 execute_cmd 成功执行"""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = "ok\n"
+        mock_proc.stderr = ""
+        mock_run.return_value = mock_proc
 
 if __name__ == "__main__":
     unittest.main()
