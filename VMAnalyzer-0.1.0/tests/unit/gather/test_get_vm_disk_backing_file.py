@@ -75,3 +75,87 @@ file       disk       vda        /path/disk.qcow2
         }
         result = get_vm_disk_backing_file.get_vm_list()
         self.assertEqual(result, ["vm1", "vm2"])
+
+    # =========================
+    # get_vm_disk_backing_file
+    # =========================
+    @patch("gather.get_vm_disk_backing_file.os.path.exists")
+    @patch("gather.get_vm_disk_backing_file.execute_cmd")
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_get_backing_file_success(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": json.dumps({
+                "backing-filename": "/base.qcow2",
+                "format": "qcow2",
+                "read-only": True
+            })
+        }
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        disk = result["disks"][0]
+        self.assertEqual(disk["backing_file"], "/base.qcow2")
+        self.assertEqual(disk["format"], "qcow2")
+        self.assertTrue(disk["read_only"])
+
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_no_disks(self, mock_disk_list):
+        mock_disk_list.return_value = []
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn("未获取到虚机磁盘列表", result["error"])
+
+    @patch("gather.get_vm_disk_backing_file.os.path.exists")
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_disk_path_not_exist(self, mock_disk_list, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/not_exist.qcow2"}
+        ]
+        mock_exists.return_value = False
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        disk = result["disks"][0]
+        self.assertEqual(disk["backing_file"], "")
+        self.assertEqual(disk["format"], "")
+
+    @patch("gather.get_vm_disk_backing_file.os.path.exists")
+    @patch("gather.get_vm_disk_backing_file.execute_cmd")
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_qemu_img_fail(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 1,
+            "stderr": "qemu-img error",
+            "stdout": ""
+        }
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        self.assertIn("qemu-img执行失败", result["disks"][0]["img_error"])
+
+    @patch("gather.get_vm_disk_backing_file.os.path.exists")
+    @patch("gather.get_vm_disk_backing_file.execute_cmd")
+    @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
+    def test_json_parse_error(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": "invalid json"
+        }
+        result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
+        result = json.loads(result_json)
+        self.assertIn("JSON解析失败", result["disks"][0]["img_error"])
+
+if __name__ == "__main__":
+    unittest.main()
