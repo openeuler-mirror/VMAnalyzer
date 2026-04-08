@@ -48,3 +48,36 @@ def get_vm_list() -> list:
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
+
+def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
+    """
+    获取虚机磁盘IOPS统计
+    :param vm_name: 虚机名称
+    :return: 磁盘IOPS统计信息
+    """
+    result = {
+        "vm_name": vm_name,
+        "disk_stats": [],
+        "timestamp": None
+    }
+    try:
+        # 获取虚机块设备统计信息
+        cmd_result = execute_cmd(["virsh", "domblkstat", vm_name, "--human"])
+        if cmd_result["code"] != 0:
+            result["error"] = cmd_result["stderr"]
+            return result
+        # 解析块设备统计
+        for line in cmd_result["stdout"].split("\n"):
+            if "rd_req" in line or "wr_req" in line:
+                parts = line.split()
+                if len(parts) >= 2:
+                    result["disk_stats"].append({
+                        "metric": parts[0],
+                        "value": parts[1]
+                    })
+        # 获取当前时间戳
+        from datetime import datetime
+        result["timestamp"] = datetime.now().isoformat()
+    except Exception as e:
+        result["error"] = str(e)
+    return result
