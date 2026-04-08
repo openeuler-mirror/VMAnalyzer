@@ -4,6 +4,7 @@ import json
 
 def main():
     vm_data_list = []
+    conn = None
     try:
         conn = libvirt.open()
         if conn is None:
