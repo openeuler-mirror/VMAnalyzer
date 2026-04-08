@@ -19,7 +19,17 @@ import json
 from gather import get_vm_disk_iops
 
 class TestGetVMDiskIOPS(unittest.TestCase):
-    pass
+    # =========================
+    # execute_cmd
+    # =========================
+    @patch("gather.get_vm_disk_iops.subprocess.run")
+    def test_execute_cmd_success(self, mock_run):
+        """测试 execute_cmd 成功"""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = "ok\n"
+        mock_proc.stderr = ""
+        mock_run.return_value = mock_proc
 
 if __name__ == "__main__":
     unittest.main()
