@@ -132,3 +132,53 @@ class TestVMCollector(unittest.TestCase):
         )
 
         self.assertEqual(result["status"], "failed")
+
+    # =========================
+    # collect_single_vm_data
+    # =========================
+    @patch.object(get_vm_load_average.VMCollector, "call_qga_interface")
+    def test_collect_single_vm_data(self, mock_call):
+        mock_call.return_value = {
+            "status": "success",
+            "data": {"load1": 0.1},
+            "error": ""
+        }
+        result = self.collector.collect_single_vm_data("vm1")
+        self.assertEqual(result["name"], "vm1")
+        self.assertIn("get_load_average", result)
+
+    # =========================
+    # collect_all_vms
+    # =========================
+    @patch.object(get_vm_load_average.VMCollector, "collect_single_vm_data")
+    @patch.object(get_vm_load_average.VMCollector, "get_all_vm_names")
+    def test_collect_all_vms_success(
+        self,
+        mock_get_names,
+        mock_collect
+    ):
+        """测试采集多个虚机"""
+        mock_get_names.return_value = ["vm1", "vm2"]
+        mock_collect.side_effect = [
+            {"name": "vm1"},
+            {"name": "vm2"}
+        ]
+        self.collector.collect_all_vms()
+        self.assertEqual(
+            self.collector.all_vms_data["vm_count"],
+            2
+        )
+        self.assertEqual(
+            self.collector.all_vms_data["running_vm_count"],
+            2
+        )
+
+    @patch.object(get_vm_load_average.VMCollector, "get_all_vm_names")
+    def test_collect_all_vms_no_vm(self, mock_get_names):
+        """测试没有虚机"""
+        mock_get_names.return_value = []
+        self.collector.collect_all_vms()
+        self.assertEqual(
+            self.collector.all_vms_data["vm_count"],
+            0
+        )
