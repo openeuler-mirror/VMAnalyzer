@@ -81,3 +81,17 @@ def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
     except Exception as e:
         result["error"] = str(e)
     return result
+
+def main():
+    """主函数：收集所有VM的磁盘IOPS信息"""
+    vm_list = get_vm_list()
+    results = []
+    
+    for vm_name in vm_list:
+        vm_stats = get_vm_disk_iops(vm_name)
+        results.append(vm_stats)
+    
+    print(json.dumps(results, ensure_ascii=False, indent=2))
+
+if __name__ == "__main__":
+    main()
