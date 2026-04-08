@@ -31,6 +31,14 @@ class TestGetCCXDesign(unittest.TestCase):
     @patch("gather.getccxdesign.libvirt.openReadOnly")
     def test_create_connection_fail(self, mock_open):
         mock_open.return_value = None
+        result = getccxdesign.createConnection("qemu:///system")
+        self.assertIsNone(result)
+
+    # =========================
+    # closeConnection
+    # =========================
+    def test_close_connection_success(self):
+        mock_conn = MagicMock()
 
 if __name__ == "__main__":
     unittest.main()
