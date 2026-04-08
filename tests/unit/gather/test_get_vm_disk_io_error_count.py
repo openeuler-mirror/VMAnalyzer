@@ -49,5 +49,9 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
         self.assertEqual(result["code"], -1)
         self.assertIn("超时", result["stderr"])
 
+    @patch("gather.get_vm_disk_io_error_count.subprocess.run")
+    def test_execute_cmd_exception(self, mock_run):
+        mock_run.side_effect = Exception("boom")
+
 if __name__ == "__main__":
     unittest.main()
