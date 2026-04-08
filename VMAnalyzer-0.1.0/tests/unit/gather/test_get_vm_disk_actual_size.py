@@ -77,3 +77,66 @@ file       disk       vda        /path/disk.qcow2
         }
         result = get_vm_disk_actual_size.get_vm_list()
         self.assertEqual(result, ["vm1", "vm2"])
+
+    # =========================
+    # get_vm_disk_actual_size
+    # =========================
+    @patch("gather.get_vm_disk_actual_size.os.path.exists")
+    @patch("gather.get_vm_disk_actual_size.execute_cmd")
+    @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
+    def test_get_disk_size_success(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": json.dumps({
+                "actual-size": 100,
+                "virtual-size": 200
+            })
+        }
+        result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        self.assertEqual(result["disks"][0]["actual_size"], 100)
+        self.assertEqual(result["disks"][0]["virtual_size"], 200)
+        self.assertEqual(result["disks"][0]["usage_rate"], 0.5)
+
+    @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
+    def test_get_disk_size_no_disks(self, mock_disk_list):
+        mock_disk_list.return_value = []
+        result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
+        result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn("未获取到虚机磁盘列表", result["error"])
+
+    @patch("gather.get_vm_disk_actual_size.os.path.exists")
+    @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
+    def test_get_disk_path_not_exist(self, mock_disk_list, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/not_exist.qcow2"}
+        ]
+        mock_exists.return_value = False
+        result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
+        result = json.loads(result_json)
+        self.assertEqual(result["disks"][0]["error"], "磁盘source路径为空")
+
+    @patch("gather.get_vm_disk_actual_size.os.path.exists")
+    @patch("gather.get_vm_disk_actual_size.execute_cmd")
+    @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
+    def test_get_disk_json_parse_error(self, mock_disk_list, mock_cmd, mock_exists):
+        mock_disk_list.return_value = [
+            {"target": "vda", "source": "/disk.qcow2"}
+        ]
+        mock_exists.return_value = True
+        mock_cmd.return_value = {
+            "code": 0,
+            "stdout": "invalid json"
+        }
+        result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
+        result = json.loads(result_json)
+        self.assertIn("JSON解析失败", result["disks"][0]["error"])
+
+if __name__ == "__main__":
+    unittest.main()
