@@ -124,3 +124,18 @@ def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
 
     result["success"] = True
     return json.dumps(result, ensure_ascii=False, indent=2)
+
+if __name__ == "__main__":
+    import sys
+    vms = get_vm_list()
+    if not vms:
+        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
+        sys.exit(1)
+
+    results = []
+    for vm in vms:
+        vm_result = get_vm_disk_actual_size(vm)
+        results.append(vm_result)
+
+    # 输出所有虚机的结果（JSON数组）
+    print(json.dumps(results, ensure_ascii=False, indent=2))
