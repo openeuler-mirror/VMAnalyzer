@@ -52,3 +52,27 @@ def get_vm_list() -> list:
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
+
+"""采集虚机磁盘后端镜像信"""
+def get_vm_disk_list(vm_name: str) -> list:
+    """获取虚机磁盘列表"""
+    disks = []
+    cmd = ["virsh", "domblklist", vm_name, "--details"]
+    cmd_result = execute_cmd(cmd)
+    if cmd_result["code"] != 0:
+        return disks
+    # 解析domblklist输出（跳过表头）
+    lines = cmd_result["stdout"].split("\n")[2:]
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("---"):
+            continue
+        parts = re.split(r"\s+", line, maxsplit=3)
+        if len(parts) >= 4:
+            disks.append({
+                "type": parts[0],
+                "device": parts[1],
+                "target": parts[2],
+                "source": parts[3].strip()
+            })
+    return disks
