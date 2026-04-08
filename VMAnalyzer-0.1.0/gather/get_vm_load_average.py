@@ -136,3 +136,13 @@ class VMCollector:
             LOG_INFO(f"采集数据已保存到：{file_path}")
         except Exception as e:
             LOG_ERROR(f"保存数据失败：{str(e)}")
+
+def main():
+    LOG_INFO("===== 开始进行虚拟机数据采集 =====")
+    collector = VMCollector()
+    collector.collect_all_vms()
+    collector.save_data()
+    LOG_INFO("===== 数据采集与保存完成 =====")
+
+if __name__ == "__main__":
+    main()
