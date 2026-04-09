@@ -5,6 +5,7 @@ import json
 import subprocess
 from lxml import etree
 from typing import Optional, Dict, Any
+import sys
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """
@@ -68,7 +69,6 @@ def get_vm_qemu_agent_version(vm_name: str) -> str:
 
 
 if __name__ == "__main__":
-    import sys
     vms = get_vm_list()
     if not vms:
          print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
