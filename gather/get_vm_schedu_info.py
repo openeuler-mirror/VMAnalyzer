@@ -59,9 +59,13 @@ def main():
             
             vm_data_list.append(vm_data)
         
-        with open("vm_scheduler_info.json", "w", encoding="utf-8") as f:
-            json.dump(vm_data_list, f, ensure_ascii=False, indent=2)
-        print(f"数据已成功写入 vm_scheduler_info.json，共处理 {len(vm_data_list)} 台虚拟机")
+        try:
+            with open("vm_scheduler_info.json", "w", encoding="utf-8") as f:
+                json.dump(vm_data_list, f, ensure_ascii=False, indent=2)
+            print(f"数据已成功写入 vm_scheduler_info.json，共处理 {len(vm_data_list)} 台虚拟机")
+        except IOError as e:
+            print(f"写入文件失败：{str(e)}")
+
             
     except libvirt.libvirtError as e:
         print(f"libvirt 错误：{e}")
