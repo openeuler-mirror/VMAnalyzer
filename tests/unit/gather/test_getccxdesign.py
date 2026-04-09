@@ -39,6 +39,9 @@ class TestGetCCXDesign(unittest.TestCase):
     # =========================
     def test_close_connection_success(self):
         mock_conn = MagicMock()
+        getccxdesign.closeConnection(mock_conn)
+        mock_conn.close.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
