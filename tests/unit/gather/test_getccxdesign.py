@@ -17,7 +17,8 @@ from unittest.mock import patch, MagicMock
 from gather import getccxdesign
 
 class TestGetCCXDesign(unittest.TestCase):
-        # =========================
+
+    # =========================
     # createConnection
     # =========================
     @patch("gather.getccxdesign.libvirt.openReadOnly")
@@ -45,6 +46,8 @@ class TestGetCCXDesign(unittest.TestCase):
     def test_close_connection_exception(self):
         mock_conn = MagicMock()
         mock_conn.close.side_effect = Exception("close failed")
+        with self.assertRaises(SystemExit):
+            getccxdesign.closeConnection(mock_conn)
 
 if __name__ == "__main__":
     unittest.main()
