@@ -52,6 +52,12 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
     @patch("gather.get_vm_disk_io_error_count.subprocess.run")
     def test_execute_cmd_exception(self, mock_run):
         mock_run.side_effect = Exception("boom")
+        result = (
+            get_vm_disk_io_error_count
+            .execute_cmd(["cmd"])
+        )
+        self.assertEqual(result["code"], -1)
+        self.assertIn("异常", result["stderr"])
 
 if __name__ == "__main__":
     unittest.main()
