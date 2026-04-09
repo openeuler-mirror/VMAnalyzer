@@ -3,7 +3,6 @@
 """采集QEMU Guest Agent状态"""
 import json
 import subprocess
-import json
 from lxml import etree
 from typing import Optional, Dict, Any
 
