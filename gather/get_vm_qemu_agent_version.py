@@ -81,4 +81,8 @@ if __name__ == "__main__":
         results.append(vm_result)
 
     # 输出所有虚机的结果（JSON数组）
-    print(json.dumps(results, ensure_ascii=False, indent=2))
+    try:
+        print(json.dumps(results, ensure_ascii=False, indent=2))
+     except Exception as e:
+        print(json.dumps({"error": f"结果序列化失败: {str(e)}"}, ensure_ascii=False, indent=2))
+        sys.exit(1)
