@@ -19,8 +19,12 @@ def main():
         
         inactive_dom_names = conn.listDefinedDomains()
         for dom_name in inactive_dom_names:
-            dom = conn.lookupByName(dom_name)
-            all_doms.append(dom)
+            try:
+                dom = conn.lookupByName(dom_name)
+                all_doms.append(dom)
+            except libvirt.libvirtError as e:
+                print(f"跳过无效的虚拟机名称 {dom_name}：{e}")
+                continue
         
         for domain in all_doms:
             vm_name = domain.name()
