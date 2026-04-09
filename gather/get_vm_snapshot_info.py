@@ -68,6 +68,9 @@ def get_vm_snapshot_info(vm_name: str) -> str:
         if len(parts) >= 1:
             snap_names.append(parts[0])
 
+    if not snap_names:
+        result["error"] = "该虚机无快照"
+
     # 2. 遍历快照获取详细信息
     for snap_name in snap_names:
         snap_info_cmd = ["virsh", "snapshot-info", vm_name, snap_name]
