@@ -38,6 +38,9 @@ class TestGetVmCpuFlags(unittest.TestCase):
             stdout="",
             stderr="error"
         )
+        result = get_vm_cpu_flags.run_virsh_cmd("cmd")
+        self.assertIsNone(result)
+
 
 if __name__ == "__main__":
     unittest.main()
