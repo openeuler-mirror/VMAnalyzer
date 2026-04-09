@@ -30,6 +30,11 @@ class TestGetVMNetworkDrops(unittest.TestCase):
         mock_proc.stdout = "ok\n"
         mock_proc.stderr = ""
         mock_run.return_value = mock_proc
+        result = get_vm_network_drops.execute_cmd(["ls"])
+        self.assertEqual(result["code"], 0)
+        self.assertEqual(result["stdout"], "ok")
+        self.assertEqual(result["stderr"], "")
+
 
 if __name__ == "__main__":
     unittest.main()
