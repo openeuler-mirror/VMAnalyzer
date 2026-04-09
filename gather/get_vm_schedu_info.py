@@ -26,8 +26,11 @@ def main():
             vm_name = domain.name()
             vm_data = {"name": vm_name}
             
-            sched_type = domain.schedulerType()
-            vm_data["scheduler_type"] = sched_type
+            try:
+                sched_type = domain.schedulerType()
+                vm_data["scheduler_type"] = sched_type
+            except libvirt.libvirtError as e:
+                vm_data["scheduler_type"] = f"获取失败：{str(e)}"
             
             sched_params = domain.schedulerParameters()
             vm_data["scheduler_params"] = {param: value for param, value in sched_params.items()}
