@@ -35,5 +35,13 @@ class TestGetVMState(unittest.TestCase):
         self.assertEqual(result["stdout"], "running")
         self.assertEqual(result["stderr"], "")
 
+    @patch("gather.get_vm_state.subprocess.run")
+    def test_execute_cmd_timeout(self, mock_run):
+        """测试 execute_cmd 超时"""
+        mock_run.side_effect = subprocess.TimeoutExpired(
+            cmd=["ls"],
+            timeout=30
+        )
+
 if __name__ == "__main__":
     unittest.main()
