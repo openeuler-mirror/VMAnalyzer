@@ -79,7 +79,8 @@ def get_vm_snapshot_info(vm_name: str) -> str:
             "name": snap_name,
             "state": "",
             "disk_size_mb": 0,
-            "is_current": False
+            "is_current": False,
+            "disk_size_error": ""
         }
 
         # 解析快照信息
