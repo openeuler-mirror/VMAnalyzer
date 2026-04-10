@@ -102,6 +102,11 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
             "stdout": "",
             "stderr": "error"
         }
+        result = (
+            get_vm_disk_io_error_count
+            .get_vm_disk_list("vm1")
+        )
+        self.assertEqual(result, [])
 
 if __name__ == "__main__":
     unittest.main()
