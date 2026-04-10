@@ -46,5 +46,10 @@ class TestGetVMState(unittest.TestCase):
         self.assertEqual(result["code"], -1)
         self.assertIn("命令执行超时", result["stderr"])
 
+    @patch("gather.get_vm_state.subprocess.run")
+    def test_execute_cmd_exception(self, mock_run):
+        """测试 execute_cmd 异常"""
+        mock_run.side_effect = Exception("run error")
+
 if __name__ == "__main__":
     unittest.main()
