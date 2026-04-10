@@ -133,6 +133,8 @@ class TestGetVmCpuCacheTopology(unittest.TestCase):
             "0",
             result["numa"]
         )
+    def test_parse_cpu_cache_from_xml_invalid(self):
+        xml = "<domain><cpu>"
 
 if __name__ == "__main__":
     unittest.main()
