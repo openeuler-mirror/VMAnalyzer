@@ -132,5 +132,18 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
             ["vm1", "vm2"]
         )
 
+    @patch(
+        "gather.get_vm_disk_io_error_count.execute_cmd"
+    )
+    def test_get_vm_list_fail(
+        self,
+        mock_exec
+    ):
+        mock_exec.return_value = {
+            "code": 1,
+            "stdout": "",
+            "stderr": "error"
+        }
+
 if __name__ == "__main__":
     unittest.main()
