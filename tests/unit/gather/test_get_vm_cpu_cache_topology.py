@@ -80,5 +80,39 @@ class TestGetVmCpuCacheTopology(unittest.TestCase):
             "virsh dumpxml vm1"
         )
 
+    # =========================
+    # parse_cpu_cache_from_xml
+    # =========================
+    def test_parse_cpu_cache_from_xml_success(self):
+        xml = """
+        <domain>
+          <cpu>
+            <model>Intel Xeon</model>
+
+            <topology sockets="1" cores="2" threads="2"/>
+
+            <cache level="1"
+                   size="32"
+                   unit="KiB"
+                   type="data"
+                   associativity="8"/>
+
+            <cache level="2"
+                   size="256"
+                   unit="KiB"
+                   type="unified"
+                   associativity="4"/>
+
+            <numa>
+              <cell id="0"
+                    cpus="0-3"
+                    memory="4096"
+                    unit="MiB"/>
+            </numa>
+
+          </cpu>
+        </domain>
+        """
+
 if __name__ == "__main__":
     unittest.main()
