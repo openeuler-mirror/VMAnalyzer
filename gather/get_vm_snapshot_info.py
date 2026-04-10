@@ -111,8 +111,16 @@ def get_vm_snapshot_info(vm_name: str) -> str:
                         img_json = json.loads(img_result["stdout"])
                         size = img_json.get("virtual-size", 0)
                         snap_info["disk_size_mb"] = round(size / (1024 * 1024), 2)
-                    except json.JSONDecodeError:
-                        pass
+                    except json.JSONDecodeError as e:
+                        snap_info["disk_size_error"] = f"解析qemu-img输出失败: {str(e)}"
+                else:
+                    # 记录qemu-img执行失败的原因
+                    snap_info["disk_size_error"] = f"qemu-img执行失败: {img_result['stderr']}"
+
+            else:
+                snap_info["disk_size_error"] = "未在快照XML中找到磁盘路径"
+        else:
+            snap_info["disk_size_error"] = f"获取快照XML失败: {snap_disk_result['stderr']}"
 
         result["snapshots"].append(snap_info)
 
