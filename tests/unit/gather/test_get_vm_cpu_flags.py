@@ -53,6 +53,8 @@ class TestGetVmCpuFlags(unittest.TestCase):
     @patch("gather.get_vm_cpu_flags.subprocess.run")
     def test_run_virsh_cmd_exception(self, mock_run):
         mock_run.side_effect = Exception("boom")
+        result = get_vm_cpu_flags.run_virsh_cmd("cmd")
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
