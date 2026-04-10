@@ -128,9 +128,19 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        vm_result_json = get_vm_snapshot_info(vm)
-        vm_result = json.loads(vm_result_json)
-        results.append(vm_result)
+        try:
+            vm_result_json = get_vm_snapshot_info(vm)
+            vm_result = json.loads(vm_result_json)
+            results.append(vm_result)
+        except Exception as e:
+            # 记录单个虚机处理失败的异常
+            error_result = {
+                "vm_name": vm,
+                "snapshots": [],
+                "success": False,
+                "error": f"处理该虚机时发生未捕获异常: {str(e)}"
+            }
+            results.append(error_result)
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))
