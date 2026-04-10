@@ -68,5 +68,14 @@ class TestGetVMState(unittest.TestCase):
         result = get_vm_state.get_vm_list()
         self.assertEqual(result, ["vm1", "vm2"])
 
+    @patch("gather.get_vm_state.execute_cmd")
+    def test_get_vm_list_failed(self, mock_exec):
+        """测试获取虚机列表失败"""
+        mock_exec.return_value = {
+            "code": 1,
+            "stdout": "",
+            "stderr": "error"
+        }
+
 if __name__ == "__main__":
     unittest.main()
