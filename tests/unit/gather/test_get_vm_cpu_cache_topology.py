@@ -113,6 +113,26 @@ class TestGetVmCpuCacheTopology(unittest.TestCase):
           </cpu>
         </domain>
         """
+        result = (
+            get_vm_cpu_cache_topology
+            .parse_cpu_cache_from_xml(xml)
+        )
+        self.assertEqual(
+            result["cpu_model"],
+            "Intel Xeon"
+        )
+        self.assertEqual(
+            result["topology"]["cores"],
+            2
+        )
+        self.assertIn(
+            "L1",
+            result["cache"]
+        )
+        self.assertIn(
+            "0",
+            result["numa"]
+        )
 
 if __name__ == "__main__":
     unittest.main()
