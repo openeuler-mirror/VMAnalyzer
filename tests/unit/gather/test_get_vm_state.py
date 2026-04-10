@@ -65,6 +65,8 @@ class TestGetVMState(unittest.TestCase):
             "stdout": "vm1\nvm2\n",
             "stderr": ""
         }
+        result = get_vm_state.get_vm_list()
+        self.assertEqual(result, ["vm1", "vm2"])
 
 if __name__ == "__main__":
     unittest.main()
