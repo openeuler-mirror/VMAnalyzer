@@ -97,6 +97,8 @@ if __name__ == "__main__":
         vm_result_json = get_vm_state(vm)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
+        if not vm_result["success"] or vm_result["error"]:
+            print(f"警告：虚机[{vm}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))
