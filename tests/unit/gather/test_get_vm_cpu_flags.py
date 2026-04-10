@@ -56,5 +56,13 @@ class TestGetVmCpuFlags(unittest.TestCase):
         result = get_vm_cpu_flags.run_virsh_cmd("cmd")
         self.assertIsNone(result)
 
+    # =========================
+    # get_domain_uuid
+    # =========================
+    @patch("gather.get_vm_cpu_flags.run_virsh_cmd")
+    def test_get_domain_uuid_success(self, mock_run):
+        mock_run.return_value = "uuid-123"
+
+
 if __name__ == "__main__":
     unittest.main()
