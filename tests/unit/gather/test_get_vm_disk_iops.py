@@ -42,6 +42,9 @@ class TestGetVMDiskIOPS(unittest.TestCase):
             cmd=["ls"],
             timeout=30
         )
+        result = get_vm_disk_iops.execute_cmd(["ls"])
+        self.assertEqual(result["code"], -1)
+        self.assertIn("命令执行超时", result["stderr"])
 
 if __name__ == "__main__":
     unittest.main()
