@@ -3,6 +3,7 @@
 """采集虚机Libvirt生命周期状态"""
 import json
 import subprocess
+import sys
 from lxml import etree
 from typing import Optional, Dict, Any
 
@@ -85,8 +86,6 @@ def get_vm_state(vm_name: str) -> str:
 
 
 if __name__ == "__main__":
-    import sys
-
     vms = get_vm_list()
     if not vms:
          print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
