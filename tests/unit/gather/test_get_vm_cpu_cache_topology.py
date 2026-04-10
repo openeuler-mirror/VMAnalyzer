@@ -72,6 +72,13 @@ class TestGetVmCpuCacheTopology(unittest.TestCase):
     )
     def test_get_domain_xml(self, mock_run):
         mock_run.return_value = "<xml/>"
+        result = get_vm_cpu_cache_topology.get_domain_xml(
+            "vm1"
+        )
+        self.assertEqual(result, "<xml/>")
+        mock_run.assert_called_once_with(
+            "virsh dumpxml vm1"
+        )
 
 if __name__ == "__main__":
     unittest.main()
