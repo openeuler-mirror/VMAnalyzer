@@ -50,6 +50,10 @@ class TestGetVMState(unittest.TestCase):
     def test_execute_cmd_exception(self, mock_run):
         """测试 execute_cmd 异常"""
         mock_run.side_effect = Exception("run error")
+            result = get_vm_state.execute_cmd(["ls"])
+        self.assertEqual(result["code"], -1)
+        self.assertIn("命令执行异常", result["stderr"])
+
 
 if __name__ == "__main__":
     unittest.main()
