@@ -54,5 +54,17 @@ class TestGetVMDiskIOPS(unittest.TestCase):
         self.assertEqual(result["code"], -1)
         self.assertIn("命令执行异常", result["stderr"])
 
+    # =========================
+    # get_vm_list
+    # =========================
+    @patch("gather.get_vm_disk_iops.execute_cmd")
+    def test_get_vm_list_success(self, mock_exec):
+        """测试获取虚机列表成功"""
+        mock_exec.return_value = {
+            "code": 0,
+            "stdout": "vm1\nvm2\n",
+            "stderr": ""
+        }
+
 if __name__ == "__main__":
     unittest.main()
