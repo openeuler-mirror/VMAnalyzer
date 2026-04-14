@@ -16,7 +16,7 @@ usage() {
 
 if [ $# -eq 0 ]; then
     usage
-    exit -1
+    exit 1
 fi
 
 while getopts 'd:h:e:*' OPT; do
@@ -33,7 +33,7 @@ while getopts 'd:h:e:*' OPT; do
             ;;
         *)
             usage
-            exit -1
+            exit 1
         ;;
     esac
 done
