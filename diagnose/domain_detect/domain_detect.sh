@@ -1,4 +1,5 @@
 #!/bin/sh
+set -euo pipefail
 
 TOOLS_ROOT=$(cd $(dirname $0); pwd)
 domain_detect_dir=/var/log/vmanalyzer/
