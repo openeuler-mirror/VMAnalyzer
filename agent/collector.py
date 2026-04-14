@@ -17,6 +17,21 @@ import libvirt
 import libxml2
 import os
 
+def retry(func):
+    def wrapper(*args, **kwargs):
+        retries = 3
+        for i in range(retries):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                vm_name = args[1].name() if len(args) > 1 else "unknown"
+                if i < retries - 1:
+                    logging.warning(f"[RETRY {i+1}/3] VM {vm_name} 执行 {func.__name__} 失败，重试中...")
+                    time.sleep(1)
+                else:
+                    logging.error(f"[FAILED] VM {vm_name} 执行 {func.__name__} 重试3次失败")
+                    return None
+    return wrapper
 
 class VMStatsCollector:
     """
@@ -33,6 +48,7 @@ class VMStatsCollector:
         self.__stats_storage = stats_storage
         self.__label = label
 
+    @retry
     def _send_qga_command(self, dom, cmd_dict):
         try:
             cmd_json = json.dumps(cmd_dict)
@@ -43,6 +59,7 @@ class VMStatsCollector:
             logger.error(f"VM {dom.name()}: QGA命令失败 [{cmd_type}]，错误: {e}")
             return None
 
+    @retry
     def _exec_guest_command(self, dom, shell_cmd):
 
         exec_cmd = {
