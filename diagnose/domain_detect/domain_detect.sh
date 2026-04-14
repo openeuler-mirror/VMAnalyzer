@@ -45,6 +45,7 @@ mk_log_dir() {
 }
 
 check_project() {
+    sudo truncate -s 0 "$datafile"
     sudo echo -e "{\"domain_detect\": {" > $datafile
 
     if [[ $edition == "basic" ]];then
