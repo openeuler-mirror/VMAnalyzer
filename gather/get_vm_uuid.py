@@ -118,10 +118,21 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
-        vm_result_json = get_vm_uuid(vm)
-        vm_result = json.loads(vm_result_json)
-        results.append(vm_result)
+        try:
+            # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
+            vm_result_json = get_vm_uuid(vm)
+            vm_result = json.loads(vm_result_json)
+            results.append(vm_result)
+        except Exception as e:
+            # 新增：捕获单个虚机处理的异常，避免中断整体流程
+            error_result = {
+                "vm_name": vm,
+                "uuid": "",
+                "uuid_valid": False,
+                "success": False,
+                "error": f"处理虚机时发生未预期异常: {str(e)}"
+            }
+            results.append(error_result)
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))
