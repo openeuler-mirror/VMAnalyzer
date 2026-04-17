@@ -20,6 +20,11 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         "stdout": "",
         "stderr": ""
     }
+
+    if not cmd:
+        result["stderr"] = "执行命令为空，无法执行"
+        return result
+
     try:
         proc = subprocess.run(
             cmd,
