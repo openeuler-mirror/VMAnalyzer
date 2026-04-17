@@ -19,7 +19,8 @@ import json
 from gather import get_vm_network_drops
 
 class TestGetVMNetworkDrops(unittest.TestCase):
-        # =========================
+
+    # =========================
     # execute_cmd
     # =========================
     @patch("gather.get_vm_network_drops.subprocess.run")
@@ -64,7 +65,7 @@ class TestGetVMNetworkDrops(unittest.TestCase):
             "code": 0,
             "stdout": "vm1\nvm2\n",
             "stderr": ""
-            }
+        }
         result = get_vm_network_drops.get_vm_list()
         self.assertEqual(result, ["vm1", "vm2"])
 
@@ -76,6 +77,91 @@ class TestGetVMNetworkDrops(unittest.TestCase):
             "stdout": "",
             "stderr": "error"
         }
+        result = get_vm_network_drops.get_vm_list()
+        self.assertEqual(result, [])
+
+    # =========================
+    # get_vm_network_drops
+    # =========================
+    @patch("gather.get_vm_network_drops.execute_cmd")
+    def test_get_vm_network_drops_success(self, mock_exec):
+        """测试正常解析网络丢包和错误统计"""
+        mock_exec.return_value = {
+            "code": 0,
+            "stdout": (
+                "vnet0 rx_drop 10\n"
+                "vnet0 rx_errs 2\n"
+                "vnet0 tx_packets 100\n"
+                "vnet1 tx_drop 5\n"
+                "vnet1 tx_errs 1\n"
+            ),
+            "stderr": ""
+        }
+        result = get_vm_network_drops.get_vm_network_drops("vm1")
+        self.assertEqual(result["vm_name"], "vm1")
+        self.assertEqual(len(result["interfaces"]), 2)
+        self.assertEqual(
+            result["interfaces"][0]["interface"],
+            "vnet0"
+        )
+        stats = result["interfaces"][0]["stats"]
+        self.assertEqual(stats["rx_drop"], "10")
+        self.assertEqual(stats["rx_errs"], "2")
+        self.assertIsNotNone(result["timestamp"])
+
+    @patch("gather.get_vm_network_drops.execute_cmd")
+    def test_get_vm_network_drops_command_failed(self, mock_exec):
+        """测试 domifstat 执行失败"""
+        mock_exec.return_value = {
+            "code": 1,
+            "stdout": "",
+            "stderr": "virsh error"
+        }
+        result = get_vm_network_drops.get_vm_network_drops("vm1")
+        self.assertEqual(
+            result["error"],
+            "virsh error"
+        )
+
+    @patch("gather.get_vm_network_drops.execute_cmd")
+    def test_get_vm_network_drops_no_drop_metrics(self, mock_exec):
+        """测试没有 drop/err 指标"""
+        mock_exec.return_value = {
+            "code": 0,
+            "stdout": (
+                "vnet0 rx_packets 100\n"
+                "vnet0 tx_packets 200\n"
+            ),
+            "stderr": ""
+        }
+        result = get_vm_network_drops.get_vm_network_drops("vm1")
+        self.assertEqual(len(result["interfaces"]), 1)
+        stats = result["interfaces"][0]["stats"]
+        self.assertEqual(stats, {})
+
+    @patch("gather.get_vm_network_drops.execute_cmd")
+    def test_get_vm_network_drops_exception(self, mock_exec):
+        """测试异常处理"""
+        mock_exec.side_effect = Exception("unexpected error")
+        result = get_vm_network_drops.get_vm_network_drops("vm1")
+        self.assertIn("error", result)
+
+    # =========================
+    # main
+    # =========================
+    @patch("gather.get_vm_network_drops.get_vm_network_drops")
+    @patch("gather.get_vm_network_drops.get_vm_list")
+    @patch("builtins.print")
+    def test_main(self, mock_print, mock_vm_list, mock_get_stats):
+        """测试 main 函数"""
+        mock_vm_list.return_value = ["vm1"]
+        mock_get_stats.return_value = {
+            "vm_name": "vm1",
+            "interfaces": [],
+            "timestamp": "2024-01-01T00:00:00"
+        }
+        get_vm_network_drops.main()
+        mock_print.assert_called()
 
 if __name__ == "__main__":
     unittest.main()
