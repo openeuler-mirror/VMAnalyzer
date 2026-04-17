@@ -80,7 +80,11 @@ def get_vm_state(vm_name: str) -> str:
 
     if state_raw in state_mapping:
         result["state_code"], result["state_desc"] = state_mapping[state_raw]
-    result["success"] = True
+        result["success"] = True
+     else:
+        result["error"] = f"未识别的虚机状态: {state_raw}"
+        result["success"] = True
+
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 
