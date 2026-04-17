@@ -7,6 +7,10 @@ import sys
 
 LOCAL_NAME = "qemu:///system"
 def createConnection(serverName):
+    if not serverName:
+        print("错误：serverName 不能为空")
+        sys.exit(1)
+
     if not libvirt:
         sys.exit(1)
 
