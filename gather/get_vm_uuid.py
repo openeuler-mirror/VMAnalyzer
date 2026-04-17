@@ -7,6 +7,7 @@ from lxml import etree
 from typing import Optional, Dict, Any
 import os
 import re
+import sys
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """
@@ -104,7 +105,6 @@ def get_vm_uuid(vm_name: str) -> str:
 
 
 if __name__ == "__main__":
-    import sys
 
     vms = get_vm_list()
     if not vms:
