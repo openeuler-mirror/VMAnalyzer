@@ -19,6 +19,7 @@ import json
 from gather import get_vm_disk_io_error_count
 
 class TestGetVmDiskIoErrorCount(unittest.TestCase):
+
     # =========================
     # execute_cmd
     # =========================
@@ -144,6 +145,148 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
             "stdout": "",
             "stderr": "error"
         }
+        result = (
+            get_vm_disk_io_error_count
+            .get_vm_list()
+        )
+        self.assertEqual(result, [])
+
+    # =========================
+    # get_vm_disk_io_error_count
+    # =========================
+    @patch(
+        "gather.get_vm_disk_io_error_count.execute_cmd"
+    )
+    @patch(
+        "gather.get_vm_disk_io_error_count.get_vm_disk_list"
+    )
+    def test_get_vm_disk_io_error_count_success(
+        self,
+        mock_get_disks,
+        mock_exec
+    ):
+        mock_get_disks.return_value = [
+            {"target": "vda"},
+            {"target": "vdb"}
+        ]
+        blk_stdout = (
+            "Read errors: 1\n"
+            "Write errors: 2\n"
+            "Flush errors: 3\n"
+        )
+        mock_exec.return_value = {
+            "code": 0,
+            "stdout": blk_stdout,
+            "stderr": ""
+        }
+        result_json = (
+            get_vm_disk_io_error_count
+            .get_vm_disk_io_error_count("vm1")
+        )
+        result = json.loads(result_json)
+        self.assertTrue(result["success"])
+        self.assertEqual(
+            result["disks"][0]["read_errors"],
+            1
+        )
+        self.assertEqual(
+            result["disks"][0]["write_errors"],
+            2
+        )
+        self.assertEqual(
+            result["disks"][0]["flush_errors"],
+            3
+        )
+
+    @patch(
+        "gather.get_vm_disk_io_error_count.get_vm_disk_list"
+    )
+    def test_get_vm_disk_io_error_count_no_disks(
+        self,
+        mock_get_disks
+    ):
+        mock_get_disks.return_value = []
+        result_json = (
+            get_vm_disk_io_error_count
+            .get_vm_disk_io_error_count("vm1")
+        )
+        result = json.loads(result_json)
+        self.assertFalse(result["success"])
+        self.assertIn(
+            "未获取到虚机磁盘列表",
+            result["error"]
+        )
+
+    @patch(
+        "gather.get_vm_disk_io_error_count.execute_cmd"
+    )
+    @patch(
+        "gather.get_vm_disk_io_error_count.get_vm_disk_list"
+    )
+    def test_get_vm_disk_io_error_count_domblkerror_fail(
+        self,
+        mock_get_disks,
+        mock_exec
+    ):
+        mock_get_disks.return_value = [
+            {"target": "vda"}
+        ]
+        mock_exec.return_value = {
+            "code": 1,
+            "stdout": "",
+            "stderr": "permission denied"
+        }
+        result_json = (
+            get_vm_disk_io_error_count
+            .get_vm_disk_io_error_count("vm1")
+        )
+        result = json.loads(result_json)
+        self.assertIn(
+            "domblkerror命令执行失败",
+            result["disks"][0]["blk_error"]
+        )
+
+    @patch(
+        "gather.get_vm_disk_io_error_count.execute_cmd"
+    )
+    @patch(
+        "gather.get_vm_disk_io_error_count.get_vm_disk_list"
+    )
+    def test_get_vm_disk_io_error_count_parse_error(
+        self,
+        mock_get_disks,
+        mock_exec
+    ):
+        mock_get_disks.return_value = [
+            {"target": "vda"}
+        ]
+        blk_stdout = (
+            "Read errors: abc\n"
+            "Write errors: xyz\n"
+            "Flush errors: ???\n"
+        )
+        mock_exec.return_value = {
+            "code": 0,
+            "stdout": blk_stdout,
+            "stderr": ""
+        }
+        result_json = (
+            get_vm_disk_io_error_count
+            .get_vm_disk_io_error_count("vm1")
+        )
+        result = json.loads(result_json)
+        self.assertEqual(
+            result["disks"][0]["read_errors"],
+            0
+        )
+        self.assertEqual(
+            result["disks"][0]["write_errors"],
+            0
+        )
+        self.assertEqual(
+            result["disks"][0]["flush_errors"],
+            0
+        )
 
 if __name__ == "__main__":
     unittest.main()
