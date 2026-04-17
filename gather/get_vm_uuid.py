@@ -41,6 +41,7 @@ def get_vm_list() -> list:
     """获取宿主机所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
+        print(f"获取虚机列表失败: {cmd_result['stderr']}", file=sys.stderr)
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
