@@ -8,6 +8,7 @@ import sys
 LOCAL_NAME = "qemu:///system"
 def createConnection(serverName):
     if not libvirt:
+        print("错误：未找到libvirt库")
         sys.exit(1)
 
     conn = libvirt.openReadOnly(serverName)
