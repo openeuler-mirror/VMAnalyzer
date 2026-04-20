@@ -3,7 +3,6 @@
 """判断虚机是否崩溃"""
 import subprocess
 import json
-from lxml import etree
 from typing import Optional, Dict, Any
 import os
 import re
