@@ -61,6 +61,11 @@ def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
         "vcpu": 0,
         "error": ""
     }
+
+    if not vm_name or not vm_name.strip():
+        result["error"] = "虚机名称为空，无法获取基础信息"
+        return result
+
     cmd = ["virsh", "dominfo", vm_name]
     cmd_result = execute_cmd(cmd)
     if cmd_result["code"] != 0:
