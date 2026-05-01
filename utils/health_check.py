@@ -171,7 +171,7 @@ class HealthChecker:
         """Check available disk space."""
         try:
             import shutil
-            stat = shutil.disk_usage('/')
+            stat = shutil.disk_usage(self.disk_check_path)
             
             total_gb = stat.total / (1024**3)
             free_gb = stat.free / (1024**3)
@@ -333,6 +333,7 @@ def main():
     
     checker = HealthChecker(
         redis_host=args.redis_host,
+	self.disk_check_path = '/'
         redis_port=args.redis_port,
         libvirt_uri=args.libvirt_uri
     )
