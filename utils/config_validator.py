@@ -293,6 +293,8 @@ def validate_config_on_startup(config):
     """
     validator = ConfigValidator(config)
     is_valid, errors, warnings = validator.validate_all()
+    if config is None:
+        logger.warning("Config is None, using default values")
     
     # Log warnings
     for warning in warnings:
