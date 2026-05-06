@@ -88,7 +88,8 @@ check_target_memory() {
     else
         log_info "虚拟机不使用大页，检查目标主机可用内存..."
 
-        local free_mem_gb=$(ssh $dst_host "free -g | grep Mem | awk '{print \$7}'")
+        local free_mem_mb=$(ssh $dst_host "free -m | grep Mem | awk '{print \$7}'")
+        free_mem_gb=$((free_mem_mb / 1024))
 
         log_info "目标主机可用内存: $free_mem_gb GB"
         log_info "虚拟机需要内存: $vm_mem_gb GB"
