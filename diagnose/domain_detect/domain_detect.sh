@@ -38,6 +38,12 @@ while getopts 'd:h:e:*' OPT; do
     esac
 done
 
+if [ -z "$domain" ]; then
+    echo "Error: -d (domain) is required"
+    usage
+    exit 1
+fi
+
 mk_log_dir() {
     if [ ! -d "$domain_detect_dir" ];then
         mkdir -p $domain_detect_dir
