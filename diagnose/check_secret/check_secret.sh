@@ -26,7 +26,7 @@ check_precondition() {
 # 日志目录创建
 mk_log_dir() {
     if [ ! -d "$virt_dir" ]; then
-        mkdir -p $virt_dir
+        mkdir -m 700 -p "$virt_dir"
     fi
 }
 
