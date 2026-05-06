@@ -158,8 +158,8 @@ main() {
     check_precondition
     mk_log_dir
     echo "####################################################################################" > $check_log
-    time=$(date +"%Y-%m-%d %H:%M:%S")
-    echo "$time" >> $check_log
+    current_time=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "$current_time" >> $check_log
 
     # 执行检查
     check_secret_permissions
