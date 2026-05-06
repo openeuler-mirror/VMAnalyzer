@@ -7,6 +7,22 @@
 # 日志
 virt_dir=/var/log/vmanalyzer/
 
+check_precondition() {
+    # 检查是否为root用户
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "Error: This script must be run as root!" >&2
+        exit 1
+    fi
+    # 检查核心命令是否存在
+    local required_cmds=("virsh" "stat" "awk" "sed" "grep")
+    for cmd in "${required_cmds[@]}"; do
+        if ! command -v "$cmd" &> /dev/null; then
+            echo "Error: Command '$cmd' is not installed!" >&2
+            exit 1
+        fi
+    done
+}
+
 # 日志目录创建
 mk_log_dir() {
     if [ ! -d "$virt_dir" ]; then
@@ -136,6 +152,7 @@ check_secret_uniqueness() {
 
 # 主函数
 main() {
+    check_precondition
     mk_log_dir
     echo "####################################################################################" > $check_log
     time=$(date +"%Y-%m-%d %H:%M:%S")
