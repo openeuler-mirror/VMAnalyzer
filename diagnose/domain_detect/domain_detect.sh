@@ -20,7 +20,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-while getopts 'd:h:e:*' OPT; do
+while getopts 'd:h:e:' OPT; do
     case $OPT in
         "h")
             usage
