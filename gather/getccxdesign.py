@@ -25,8 +25,11 @@ def closeConnection(conn):
 if __name__ == '__main__':
 
     conn = createConnection(LOCAL_NAME)
-    ccx = conn.virHostGetCCXDesign()
-    print("ccx design:")
-    print(ccx)
+    try:
+        ccx = conn.virHostGetCCXDesign()
+        print("ccx design:")
+        print(ccx)
+    except libvirt.libvirtError as e:
+        print(f'获取CCX Design失败：{e}')
 
     closeConnection(conn)
