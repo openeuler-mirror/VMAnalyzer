@@ -207,6 +207,9 @@ class HealthChecker:
             mem_available = 0
             
             for line in meminfo.split('\n'):
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
                 if line.startswith('MemTotal:'):
                     mem_total = int(line.split()[1]) * 1024
                 elif line.startswith('MemAvailable:'):
