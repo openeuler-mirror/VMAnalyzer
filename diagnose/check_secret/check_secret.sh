@@ -33,17 +33,20 @@ mk_log_dir() {
 # 日志输出
 info() {
     # 打印正常信息
-    echo "{\"status\": \"info\", \"log\": \"$1\"}" >> $check_log
+    local msg=$(echo "$1" | sed 's/"/\\"/g')  # 转义双引号
+    echo "{\"status\": \"info\", \"log\": \"$msg\"}" >> $check_log
 }
 
 error() {
     # 打印出错信息
-    echo "{\"status\": \"error\", \"log\": \"$1\"}" >> $check_log
+     local msg=$(echo "$1" | sed 's/"/\\"/g')
+    echo "{\"status\": \"error\", \"log\": \"$msg\"}" >> $check_log
 }
 
 warn() {
     # 打印警告信息
-    echo "{\"status\": \"warning\", \"log\": \"$1\"}" >> $check_log
+     local msg=$(echo "$1" | sed 's/"/\\"/g')
+    echo "{\"status\": \"warning\", \"log\": \"$msg\"}" >> $check_log
 }
 
 # 配置文件
