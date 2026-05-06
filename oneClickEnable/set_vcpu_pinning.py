@@ -55,7 +55,12 @@ class VcpuPinningOptimizer:
 
     def _run(self, cmd: List[str], timeout: int = 15) -> Optional[str]:
         try:
-            r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+            # 重试1次，应对临时连接失败
+            for attempt in range(2):
+                r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+                if r.returncode == 0:
+                    return r.stdout.strip()
+                LOG_WARN("命令重试 %d: %s", attempt+1, " ".join(cmd))
             if r.returncode == 0:
                 return r.stdout.strip()
             LOG_ERROR("命令失败 %s: %s", " ".join(cmd), r.stderr.strip())
