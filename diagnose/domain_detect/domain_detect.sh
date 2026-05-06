@@ -88,3 +88,5 @@ mk_log_dir
 
 check_project
 
+echo "Domain detect completed, result saved to $datafile"
+exit 0
