@@ -41,6 +41,7 @@ done
 mk_log_dir() {
     if [ ! -d "$domain_detect_dir" ];then
         mkdir -p $domain_detect_dir
+	chmod 755 "$domain_detect_dir"
     fi
 }
 
