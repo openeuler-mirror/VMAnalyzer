@@ -207,7 +207,7 @@ class ConfigValidator:
         
         if not config_found:
             self.warnings.append({
-                'type': ValidationWarning.INFO,
+                'type': ValidationError.INFO,
                 'field': 'config.file',
                 'message': 'No readable config file found, using defaults'
             })
