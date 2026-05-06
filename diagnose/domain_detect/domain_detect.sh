@@ -28,9 +28,17 @@ while getopts 'd:h:e:' OPT; do
             ;;
         "e")
             edition=$OPTARG
+            if [ -z "$edition" ]; then
+                echo "Error: -e edition cannot be empty"
+                exit 1
+            fi
             ;;
         "d")
             domain=$OPTARG
+            if [ -z "$domain" ]; then
+                echo "Error: -d domain cannot be empty"
+                exit 1
+            fi
             ;;
         *)
             usage
