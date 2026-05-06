@@ -287,7 +287,7 @@ class TimeSeriesAggregator:
     def _calculate_bucket_stats(self, values):
         """Calculate stats for a bucket."""
         if not values:
-            return {'count': 0}
+            return {'count': 0, 'min': 0, 'max': 0, 'avg': 0}
         
         return {
             'count': len(values),
