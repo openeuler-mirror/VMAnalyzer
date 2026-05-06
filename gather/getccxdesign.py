@@ -12,6 +12,7 @@ def createConnection(serverName):
         sys.exit(1)
 
     if not libvirt:
+        print("错误：未找到libvirt库")
         sys.exit(1)
 
     conn = libvirt.openReadOnly(serverName)
