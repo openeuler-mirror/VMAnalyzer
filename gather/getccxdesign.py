@@ -18,7 +18,8 @@ def createConnection(serverName):
 
 def closeConnection(conn):
     try:
-        conn.close()
+        if conn:
+            conn.close()
     except:
         sys.exit(1)
 
