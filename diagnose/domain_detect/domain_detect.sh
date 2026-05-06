@@ -6,6 +6,7 @@ datafile=${domain_detect_dir}domain_detect.json
 check_arry_basic=(domain_state interface_link blk_error)
 check_arry_premium=(domain_state disk_status interface_link blk_error)
 check_arry=()
+edition="basic"
 
 usage() {
     echo "domain_detect: auto detect domain availability"
