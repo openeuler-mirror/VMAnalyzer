@@ -116,7 +116,7 @@ check_secret_uniqueness() {
                   | sed 's/<description>//;s/<\/description>//')
 	if [ -z "$VM_NAME" ]; then
             error "No VM name found in secret XML for UUID $SECRET_UUID."
-            #continue
+            continue
         else 
             info "Secret UUID $SECRET_UUID is configured for VM: $VM_NAME"
         fi
