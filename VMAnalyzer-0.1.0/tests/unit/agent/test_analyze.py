@@ -40,13 +40,13 @@ class VMStatsAnalyze(unittest.TestCase):
         self.test_time = 60
         self.cpu_util = 0.2
         test_stats = copy.deepcopy(self.base_stats)
-        vm_factroy = vm.VMFactory()
+        vm_factory = vm.VMFactory()
         vm_info = {
             'uuid': test_stats['uuid'],
             'name': test_stats['name'],
             'cpu_util': self.cpu_util
         }
-        vm_factroy.add_vm(self.test_id, vm_info)
+        vm_factory.add_vm(self.test_id, vm_info)
         # Generate simulated VM stats in 60 seconds
         self.stats_list = []
         i = 0
