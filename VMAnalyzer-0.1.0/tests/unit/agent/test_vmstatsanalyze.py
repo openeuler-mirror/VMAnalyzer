@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # _*_coding: utf-8 _*_
 
 # Copyright (c) 2023. China Mobile (SuZhou) Software Technology Co.,Ltd.
@@ -13,7 +13,7 @@
 # See the Mulan PSL v2 for more details.
 
 
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # _*_coding: utf-8 _*_
 
 import unittest
