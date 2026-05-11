@@ -111,6 +111,17 @@ class TestRepeatedTimer(unittest.TestCase):
         self.test_done.clear()
         self.call_count = 0
 
+    def test_stop_when_not_running(self):
+        """验证停止未运行的定时器无副作用"""
+        interval = 0.1
+        rt = RepeatedTimer(interval, self.test_function)
+        # 先停止定时器
+        rt.stop()
+        # 再次停止不应抛出异常
+        rt.stop()
+        # 验证状态仍然是停止的
+        self.assertEqual(rt.is_running, False)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
