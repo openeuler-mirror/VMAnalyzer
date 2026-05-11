@@ -79,5 +79,15 @@ class VMStatsAnalyze(unittest.TestCase):
         result = vm_analyze.analyze_stats(9999, self.stats_list)
         self.assertIsNone(result)
 
+    def test_analyze_insufficient_stats(self):
+        """测试统计数据不足时是否返回None"""
+        vm_factory = vm.VMFactory()
+        label = 'cpuUsage'
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
+        # 只有一个统计数据点，不足以进行分析
+        single_stats = [copy.deepcopy(self.base_stats)]
+        result = vm_analyze.analyze_stats(self.test_id, single_stats)
+        self.assertIsNone(result)
+
 if __name__ == '__main__':
     unittest.main()
