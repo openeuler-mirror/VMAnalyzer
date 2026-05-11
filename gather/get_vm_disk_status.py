@@ -85,6 +85,7 @@ class VMCollector:
 
     def call_qga_interface(self, vm_name: str, interface: str) -> Dict:
         vm_state = self.get_vm_state(vm_name)
+        json_param = f'{{"execute":"{interface}"}}'
         if vm_state != "running":
             return {
                 "status": "failed",
