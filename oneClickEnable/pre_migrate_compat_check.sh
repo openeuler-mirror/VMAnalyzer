@@ -74,7 +74,11 @@ check_target_memory() {
 	# The -1 is used to achieve ceiling division in Bash integer arithmetic, ensuring that the 
 	# number of hugepages allocated is sufficient to cover the entire memory requirement and 
 	# preventing VM startup failures due to insufficient pages.
-        local required_hugepages=$(( (vm_mem_gb * 1024 + hugepage_size_mb - 1) / hugepage_size_mb ))
+        if [ "$hugepage_size_mb" -eq 0 ]; then
+            log_error "解析大页大小异常，不可为0"
+            return 1
+        fi
+	local required_hugepages=$(( (vm_mem_gb * 1024 + hugepage_size_mb - 1) / hugepage_size_mb ))
 
         log_info "虚拟机需要大页数: $required_hugepages"
 
