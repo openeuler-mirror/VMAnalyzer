@@ -109,6 +109,9 @@ main() {
     check_command scp
     check_command bc
 
+    # 退出/中断自动清理临时文件
+    trap 'rm -f /tmp/dst_domcapabilities.xml; exit 0' EXIT SIGINT SIGTERM
+
     if [ $# -ne 3 ]; then
         echo "用法: $0 <源主机> <目标主机> <虚拟机名称>"
         echo "示例: $0 source-host dest-host vm1"
