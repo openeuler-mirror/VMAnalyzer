@@ -135,8 +135,8 @@ check_secret_permissions() {
         fi
 
         # 检查文件权限
-        PERMISSIONS=$(stat -c "%A" "$SECRET_XML")
-        if [ "$PERMISSIONS" != "-rw-------" ]; then
+        PERMISSIONS=$(stat -c "%a" "$SECRET_XML")
+        if [ "$PERMISSIONS" != "600" ]; then
             error "Secret XML file for UUID $SECRET_UUID has incorrect permissions (expected 600)."
         fi
 
