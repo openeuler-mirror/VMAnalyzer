@@ -68,7 +68,7 @@ def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
             return result
         # 解析块设备统计
         for line in cmd_result["stdout"].split("\n"):
-            if "rd_req" in line or "wr_req" in line:
+            if "rd_req" in line or "wr_req" in line or "rd_bytes" in line or "wr_bytes" in line:
                 parts = line.split()
                 if len(parts) >= 2:
                     result["disk_stats"].append({
