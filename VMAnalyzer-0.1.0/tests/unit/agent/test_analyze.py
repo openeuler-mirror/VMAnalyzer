@@ -65,7 +65,7 @@ class VMStatsAnalyze(unittest.TestCase):
         vm_analyzers = vm_analyze.analyze_stats(self.test_id, self.stats_list)
         for analyzers_info in vm_analyzers:
             self.assertAlmostEqual(
-                 analyzers_info[vm_uuid]['Current_cpu_utilization'],
+                 analyzers_info[self.base_stats['name']]['Current_cpu_utilization'],
                  self.cpu_util, places=5)
         self.assertAlmostEqual(vm_factory.get_vm_analyzers(self.test_id),
                                self.cpu_util, places=5)
