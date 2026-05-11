@@ -62,5 +62,17 @@ class TestVMFactory(unittest.TestCase):
         self.assertEqual(vm_factory.get_vm_analyzers(self.test_id),
                          self.test_score)
 
+    def test_add_existing_vm(self):
+        """测试添加已存在的VM时是否正确处理"""
+        vm_factory = vm.VMFactory()
+        vm_factory.add_vm(self.test_id, self.test_vm)
+        # 第二次添加相同ID的VM，应该不修改现有数据
+        new_vm = {'uuid': 'different-uuid', 'name': 'different-name'}
+        vm_factory.add_vm(self.test_id, new_vm)
+        # 验证仍然是第一次添加的数据
+        self.assertEqual(vm_factory.get_vm(self.test_id)['uuid'],
+                         self.test_vm['uuid'])
+        vm_factory.del_vm(self.test_id)
+
 if __name__ == '__main__':
     unittest.main()
