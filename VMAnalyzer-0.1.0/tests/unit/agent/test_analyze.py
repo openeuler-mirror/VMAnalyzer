@@ -70,5 +70,14 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertAlmostEqual(vm_factory.get_vm_analyzers(self.test_id),
                                self.cpu_util, places=5)
 
+    def test_analyze_nonexistent_vm(self):
+        """测试分析不存在的VM时是否返回None"""
+        vm_factory = vm.VMFactory()
+        label = 'cpuUsage'
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
+        # 分析不存在的VM ID
+        result = vm_analyze.analyze_stats(9999, self.stats_list)
+        self.assertIsNone(result)
+
 if __name__ == '__main__':
     unittest.main()
