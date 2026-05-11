@@ -62,7 +62,7 @@ def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
     }
     try:
         # 获取虚机块设备统计信息
-        cmd_result = execute_cmd(["virsh", "domblkstat", vm_name, "--human"])
+        cmd_result = execute_cmd(["virsh", "domblkstat", vm_name])
         if cmd_result["code"] != 0:
             result["error"] = cmd_result["stderr"]
             return result
