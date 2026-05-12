@@ -67,8 +67,8 @@ check_vm_snapshot() {
         fi
 
         # 检查快照是否异常
-        if echo "$SNAP_LIST" | grep -i -E "error|invalid|broken|locked|fault" >/dev/null 2>&1; then
-            error "VM $VM_NAME has abnormal/broken snapshot chain."
+	if echo "$SNAP_LIST" | grep -i -E "error|invalid|broken|locked|fault|no snapshot" >/dev/null 2>&1; then
+                error "VM $VM_NAME has abnormal/broken snapshot chain."
         fi
     done
 
