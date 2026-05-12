@@ -73,7 +73,12 @@ def get_vm_crash_status(vm_name: str) -> str:
         result["crash_reason"] = "Libvirt标记为崩溃状态"
 
     # 2. 检查QEMU日志（/var/log/libvirt/qemu/<vm-name>.log）
-    log_path = f"/var/log/libvirt/qemu/{vm_name}.log"
+    # 验证路径合法性
+    log_dir = "/var/log/libvirt/qemu"
+    log_path = os.path.join(log_dir, f"{vm_name}.log")
+    # 确保路径在预期目录内
+    if not log_path.startswith(log_dir):
+        raise ValueError("Invalid log path")
     if os.path.exists(log_path):
         try:
             # 读取最后100行日志
