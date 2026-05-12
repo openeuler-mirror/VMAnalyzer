@@ -74,5 +74,11 @@ class TestVMFactory(unittest.TestCase):
                          self.test_vm['uuid'])
         vm_factory.del_vm(self.test_id)
 
+    def test_get_nonexistent_vm(self):
+        """测试获取不存在的VM时是否返回空字典"""
+        vm_factory = vm.VMFactory()
+        result = vm_factory.get_vm(9999)  # 不存在的ID
+        self.assertEqual(result, {})
+
 if __name__ == '__main__':
     unittest.main()
