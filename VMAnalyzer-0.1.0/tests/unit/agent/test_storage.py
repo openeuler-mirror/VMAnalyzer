@@ -84,5 +84,12 @@ class TestVMStatsRedisStorage(unittest.TestCase):
         vm_storage.sr.zremrangebyscore(self.test_vm['uuid'],
                                        self.start_time, self.end_time)
 
+    def test_get_nonexistent_vm_stats(self):
+        label = 'cpuUsage'
+        vm_storage = storage.VMStatsRedisStorage(self.vm_factory, label)
+        result = vm_storage.get_stats_info(99999, self.start_time,
+                                           self.end_time)
+        self.assertEqual(result, {})
+
 if __name__ == '__main__':
     unittest.main()
