@@ -11,6 +11,15 @@ RED="\e[1;31m"
 NICLISTS=""
 RLNICS=""
 
+# Check required commands
+need_cmd() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Error: command $1 not found" >&2
+        exit 1
+    fi
+}
+need_cmd numactl virsh grep awk cat
+
 get_timestamp() {
     date +"%Y-%m-%d %H:%M:%S"
 }
