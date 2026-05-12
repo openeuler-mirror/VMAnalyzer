@@ -72,6 +72,14 @@ check_vm_snapshot() {
         fi
     done
 
+    # 检查快照关联磁盘文件是否存在
+    virsh snapshot-dumpxml "$VM_NAME" "$snap" 2>/dev/null | \
+        grep -oP '<source file=\x27\K[^\x27]+' | \
+        while IFS= read -r d; do
+            [ -z "$d" ] && continue
+            [ ! -e "$d" ] && error "VM $VM_NAME snapshot $snap missing disk file: $d"
+        done
+
     info "VM snapshot check completed."
 }
 
