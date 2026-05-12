@@ -582,7 +582,7 @@ usage() {
         echo "         -d <string>, If -f is used to set domain, set the domain name,id or uuid"
 }
 
-while getopts 'd:f:h:*' OPT; do
+while getopts 'd:f:h' OPT; do
         case $OPT in
                 "h")
                         usage
@@ -594,7 +594,7 @@ while getopts 'd:f:h:*' OPT; do
                 "d")
                         domain=$OPTARG
                         ;;
-                *)
+               \?)
                         usage
                         exit -1
                 ;;
