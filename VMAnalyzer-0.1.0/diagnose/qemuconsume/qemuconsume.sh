@@ -164,7 +164,7 @@ mk_log_dir() {
 	return 0
 }
 
-while getopts 't:d:h' OPT; do
+while getopts 'ht:d:' OPT; do
 	case $OPT in
 		"h")
 			usage
