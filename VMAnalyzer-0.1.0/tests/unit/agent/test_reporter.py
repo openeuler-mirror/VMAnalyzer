@@ -52,5 +52,19 @@ class TestVMAnalyzersReporter(unittest.TestCase):
         self.assertEqual(mock_analyzer.called, True)
         self.assertEqual(mock_output.called, True)
 
+    def test_stop_report(self):
+        vm_factory = vm.VMFactory()
+        vm_storage = mock.MagicMock()
+        vm_analyzer = mock.MagicMock()
+        vm_viewer = mock.MagicMock()
+        vm_factory.add_vm(self.test_id, self.test_vm)
+        interval = 1
+        vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage,
+                                                   vm_viewer, vm_analyzer,
+                                                   interval)
+        vm_reporter.start_report()
+        vm_reporter.stop_report()
+        self.assertFalse(vm_reporter.is_running)
+
 if __name__ == '__main__':
     unittest.main()
