@@ -56,6 +56,12 @@ else
     exit -1
 fi
 
+script_path="$TOOLS_BIN/$file_name"
+if [ ! -f "$script_path" ]; then
+    echo "Error: $script_path not found"
+    exit 1
+fi
+
 if [ $flag == "domain" ];then
     sudo sh $TOOLS_BIN/$file_name -f $flag -d $domain
 else
