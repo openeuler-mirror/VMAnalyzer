@@ -89,5 +89,25 @@ class VMStatsAnalyze(unittest.TestCase):
         result = vm_analyze.analyze_stats(self.test_id, single_stats)
         self.assertIsNone(result)
 
+    def test_analyze_network_traffic(self):
+        """测试网络流量分析"""
+        vm_factory = vm.VMFactory()
+        label = 'networkTraffic'
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
+        
+        network_stats = []
+        for i in range(5):
+            net_stat = {
+                'uuid': self.base_stats['uuid'],
+                'name': self.base_stats['name'],
+                'interfaceAddresses': {'eth0': '00:11:22:33:44:55'},
+                'networkTraffic': {'eth0': {'rx_bytes': 1000 * (i + 1), 'tx_bytes': 500 * (i + 1)}},
+                'timestamp': self.base_stats['timestamp'] + i
+            }
+            network_stats.append(net_stat)
+        
+        result = vm_analyze.analyze_stats(self.test_id, network_stats)
+        self.assertIsNotNone(result)
+
 if __name__ == '__main__':
     unittest.main()
