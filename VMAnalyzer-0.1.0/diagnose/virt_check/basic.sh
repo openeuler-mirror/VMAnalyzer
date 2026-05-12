@@ -553,7 +553,7 @@ Dom(){
 sudo virsh domstate $1
 if [ $? -ne 0 ]; then
     sudo echo "vm can not find: $1" > $hostfile
-    exit -1
+    exit 1
 fi
 sudo echo "{\"DOM_VCPU\":[" > $hostfile
 check_dom_vcpu $1 
@@ -596,7 +596,7 @@ while getopts 'd:f:h:*' OPT; do
                         ;;
                 *)
                         usage
-                        exit -1
+                        exit 1
                 ;;
         esac
 done
