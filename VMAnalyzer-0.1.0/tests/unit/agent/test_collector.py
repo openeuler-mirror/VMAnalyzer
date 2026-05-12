@@ -45,5 +45,21 @@ class TestVMStatsCollector(unittest.TestCase):
         self.assertTrue(mock_lookup.called)
         self.assertTrue(mock_save.called)
 
+    @mock.patch.object(libvirt.virConnect, 'lookupByUUIDString')
+    def test_record_memory_stats(self, mock_lookup):
+        vm_factory = vm.VMFactory()
+        vm_info = {
+            'uuid': '6717da86-fc51-474d-92fe-a76380c27c62',
+            'name': 'instance-000003f9'
+        }
+        label = 'memoryUsage'
+        vm_factory.add_vm(0, vm_info)
+        vm_storage = mock.MagicMock()
+        mock_save = vm_storage.save_stats_info
+        vm_collector = collector.VMStatsCollector(vm_factory, vm_storage, label)
+        vm_collector.record_stats()
+        self.assertTrue(mock_lookup.called)
+        self.assertTrue(mock_save.called)
+
 if __name__ == '__main__':
     unittest.main()
