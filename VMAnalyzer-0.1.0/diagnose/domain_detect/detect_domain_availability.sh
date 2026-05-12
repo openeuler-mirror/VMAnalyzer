@@ -82,7 +82,7 @@ domain_interface_link_func() {
     interface=`sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}'`
     interface_num=`sudo echo $interface |awk -F " " '{print NF}'`
     if [[ $interface_num -gt 0 ]];then
-        sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}' |grep -w "^-"
+        sudo virsh domiflist $1 |awk -F " " 'NR>=3 {print $1}' |grep -qE '^-($| )'
         if [[ $? == 0 ]];then
             warn "云主机的interface显示为-，无法判断网卡连接状态，请检查SDN版本"
         else
