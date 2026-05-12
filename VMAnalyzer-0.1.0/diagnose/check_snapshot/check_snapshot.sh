@@ -33,6 +33,7 @@ check_log=${virt_dir}vm_snapshot_check-$(date "+%Y-%m-%d-%H-%M-%S").log
 # 快照数量阈值
 SNAPSHOT_WARN_THRESHOLD=3
 
+SNAPSHOT_EXPIRE_DAYS=7
 # 检查所有虚拟机快照
 check_vm_snapshot() {
     info "Checking VM snapshot redundancy and chain anomaly..."
@@ -70,6 +71,17 @@ check_vm_snapshot() {
         if echo "$SNAP_LIST" | grep -i -E "error|invalid|broken|locked|fault" >/dev/null 2>&1; then
             error "VM $VM_NAME has abnormal/broken snapshot chain."
         fi
+
+        # 检查快照是否过期
+        snap_time=$(virsh snapshot-dumpxml "$VM_NAME" "$snap" 2>/dev/null | grep -oP '<creationTime>\K.*(?=<\/creationTime>)')
+        if [ -n "$snap_time" ]; then
+            current_time=$(date +%s)
+            expire_seconds=$((SNAPSHOT_EXPIRE_DAYS*86400))
+            if [ $((current_time - snap_time)) -gt $expire_seconds ]; then
+                warn "VM $VM_NAME snapshot $snap is older than $SNAPSHOT_EXPIRE_DAYS days, please clean up"
+            fi
+        fi
+
     done
 
     info "VM snapshot check completed."
