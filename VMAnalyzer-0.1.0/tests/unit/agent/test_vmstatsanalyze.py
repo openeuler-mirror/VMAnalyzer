@@ -210,6 +210,30 @@ class TestVMStatsAnalyze(unittest.TestCase):
 
         print('Cleaning up test environment...')
 
+    @patch('logging.warning')
+    def test_memory_usage_analysis(self, mock_warning):
+        """
+        测试内存使用率分析功能。
+        此测试验证 analyze_stats 方法是否能够正确分析内存使用率。
+        """
+        memory_analyze = VMStatsAnalyze(self.vm_factory, 'memoryUsage')
+
+        vm_stats_info = [
+            {'uuid': self.test_vm_uuid, 'totalMemory': 8192, 'usedMemory': 4096,
+             'timestamp': self.test_vm_info['timestamp']},
+            {'uuid': self.test_vm_uuid, 'totalMemory': 8192, 'usedMemory': 5000,
+             'timestamp': self.test_vm_info['timestamp'] + 1}
+        ]
+
+        analyzers_list = memory_analyze.analyze_stats(self.test_vm_id, vm_stats_info)
+
+        self.assertIsNotNone(analyzers_list)
+        self.assertEqual(len(analyzers_list), 1)
+        self.assertIn(self.test_vm_uuid, analyzers_list[0])
+
+        analyzer_info = analyzers_list[0][self.test_vm_uuid]
+        self.assertAlmostEqual(analyzer_info['Current_mem_utilization'], 61.11, places=2)
+
 if __name__ == '__main__':
     # 使用较高的详细级别输出测试结果
     unittest.main(verbosity=2)
