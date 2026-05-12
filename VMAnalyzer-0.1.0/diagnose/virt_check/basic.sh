@@ -220,7 +220,7 @@ qemu_ver=`sudo rpm -qa qemu-img | egrep -o $version_regex`
 libvirt_ver=`sudo rpm -qa libvirt | egrep -o $version_regex`
 
 [[ $qemu_ver == "" ]] && qemu_ver="没有安装Qemu"
-[[ $libvirt_ver == "" ]] && libvirt_ver="没有安装Qemu"
+[[ $libvirt_ver == "" ]] && libvirt_ver="没有安装Libver"
 
 log "qemu_version" "Qemu版本:$qemu_ver"
 log "libvirt_version" "Libvirt版本:$libvirt_ver"
