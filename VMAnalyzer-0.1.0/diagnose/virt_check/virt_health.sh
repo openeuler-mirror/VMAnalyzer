@@ -22,7 +22,7 @@ usage() {
 
 if [ $# -eq 0 ]; then
        usage
-       exit -1
+       exit 1
 fi
 
 while getopts 'd:f:e:h:*' OPT; do
@@ -42,7 +42,7 @@ while getopts 'd:f:e:h:*' OPT; do
                         ;;
                 *)
                         usage
-                        exit -1
+                        exit 1
                 ;;
         esac
 done
@@ -53,7 +53,7 @@ elif [[ $edition == "basic" ]];then
     file_name="basic.sh"
 else
     echo "Only basic and premium are supported after the -e argument"
-    exit -1
+    exit 1
 fi
 
 if [ $flag == "domain" ];then
