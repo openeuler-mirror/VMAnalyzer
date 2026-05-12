@@ -52,7 +52,11 @@ check_secret_usage() {
         # 遍历每个虚拟机
         for VM_NAME in $VM_LIST; do
             # 获取虚拟机的 XML 配置
-            VM_XML=$(virsh dumpxml "$VM_NAME")
+            VM_XML=$(virsh dumpxml "$VM_NAME" 2>/dev/null)
+            if [ -z "$VM_XML" ]; then
+                warn "Failed to get xml for VM: $VM_NAME"
+                continue
+            fi
 
             # 检查虚拟机是否使用了该密钥
             if echo "$VM_XML" | grep -q "$SECRET_UUID"; then
