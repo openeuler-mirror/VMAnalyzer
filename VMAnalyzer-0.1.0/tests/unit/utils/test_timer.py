@@ -122,6 +122,24 @@ class TestRepeatedTimer(unittest.TestCase):
         # 验证状态仍然是停止的
         self.assertEqual(rt.is_running, False)
 
+    def test_function_with_arguments(self):
+        """验证定时器可以正确传递参数给函数"""
+        interval = 0.1
+        result_list = []
+
+        def func_with_args(a, b, c=3):
+            result_list.append((a, b, c))
+            if len(result_list) >= 2:
+                self.test_done.set()
+
+        rt = RepeatedTimer(interval, func_with_args, 1, 2, c=4)
+        try:
+            self.test_done.wait(timeout=1.0)
+            # 验证参数正确传递
+            self.assertEqual(result_list[0], (1, 2, 4))
+            self.assertEqual(len(result_list), 2)
+        finally:
+            rt.stop()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
