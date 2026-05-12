@@ -1,0 +1,102 @@
+#!/bin/bash
+# Program:
+# This program is used to check VM snapshot redundancy and snapshot chain anomaly.
+# History:
+# Dinglimin Create the file.
+
+# 日志目录
+virt_dir=/var/log/vmanalyzer/
+
+# 日志目录创建
+mk_log_dir() {
+    if [ ! -d "$virt_dir" ]; then
+        mkdir -p "$virt_dir"
+    fi
+}
+
+# 日志输出
+info() {
+    echo "{\"status\": \"info\", \"log\": \"$1\"}" >> "$check_log"
+}
+
+error() {
+    echo "{\"status\": \"error\", \"log\": \"$1\"}" >> "$check_log"
+}
+
+warn() {
+    echo "{\"status\": \"warning\", \"log\": \"$1\"}" >> "$check_log"
+}
+
+# 日志文件
+check_log=${virt_dir}vm_snapshot_check-$(date "+%Y-%m-%d-%H-%M-%S").log
+
+# 快照数量阈值
+SNAPSHOT_WARN_THRESHOLD=3
+
+# 检查所有虚拟机快照
+check_vm_snapshot() {
+    info "Checking VM snapshot redundancy and chain anomaly..."
+
+    # 获取所有虚拟机
+    VM_LIST=$(virsh list --all --name 2>/dev/null)
+
+    for VM_NAME in $VM_LIST; do
+        [ -z "$VM_NAME" ] && continue
+        info "Checking VM: $VM_NAME"
+
+        # 获取快照列表
+        SNAP_LIST=$(virsh snapshot-list "$VM_NAME" 2>/dev/null)
+        if [ $? -ne 0 ]; then
+            error "Failed to get snapshot list for VM: $VM_NAME"
+            continue
+        fi
+
+        # 统计快照数量
+        SNAP_COUNT=$(echo "$SNAP_LIST" | grep -v "^-" | grep -v "Name" | wc -l)
+        info "VM $VM_NAME snapshot count: $SNAP_COUNT"
+
+        # 快照数量过多告警
+        if [ "$SNAP_COUNT" -gt "$SNAPSHOT_WARN_THRESHOLD" ]; then
+            warn "VM $VM_NAME has too many snapshots ($SNAP_COUNT), risk of chain explosion."
+        fi
+
+        # 空快照
+        if [ "$SNAP_COUNT" -eq 0 ]; then
+            info "VM $VM_NAME has no snapshot."
+            continue
+        fi
+
+        # 检查快照是否异常
+        if echo "$SNAP_LIST" | grep -i -E "error|invalid|broken|locked|fault" >/dev/null 2>&1; then
+            error "VM $VM_NAME has abnormal/broken snapshot chain."
+        fi
+    done
+
+    info "VM snapshot check completed."
+}
+
+# 主函数
+main() {
+    mk_log_dir
+    echo "####################################################################################" > "$check_log"
+    time=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "$time" >> "$check_log"
+
+    # 执行快照检查
+    check_vm_snapshot
+
+    # 错误统计
+    ERROR_COUNT=$(grep -c '"status": "error"' "$check_log")
+    WARN_COUNT=$(grep -c '"status": "warning"' "$check_log")
+
+    if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARN_COUNT" -gt 0 ]; then
+        echo "Check completed with $ERROR_COUNT error(s) and $WARN_COUNT warning(s). Log: $check_log"
+        exit 1
+    else
+        echo "Check completed successfully. No errors found."
+        exit 0
+    fi
+}
+
+# 执行
+main
