@@ -32,6 +32,8 @@ check_log=${virt_dir}vm_snapshot_check-$(date "+%Y-%m-%d-%H-%M-%S").log
 
 # 快照数量阈值
 SNAPSHOT_WARN_THRESHOLD=3
+# 快照链深度阈值
+SNAPSHOT_CHAIN_THRESHOLD=2
 
 # 检查所有虚拟机快照
 check_vm_snapshot() {
@@ -70,6 +72,15 @@ check_vm_snapshot() {
         if echo "$SNAP_LIST" | grep -i -E "error|invalid|broken|locked|fault" >/dev/null 2>&1; then
             error "VM $VM_NAME has abnormal/broken snapshot chain."
         fi
+
+	# 检查快照链深度
+        virsh snapshot-list "$VM_NAME" --name 2>/dev/null | while read -r snap; do
+            [ -z "$snap" ] && continue
+            chain_len=$(virsh snapshot-dumpxml "$VM_NAME" "$snap" 2>/dev/null | grep -E '<parent>' | wc -l)
+            if [ "$chain_len" -gt "$SNAPSHOT_CHAIN_THRESHOLD" ]; then
+                warn "VM $VM_NAME snapshot $snap chain too deep: $chain_len levels"
+            fi
+        done
     done
 
     info "VM snapshot check completed."
