@@ -56,5 +56,21 @@ class VMStatsAnalyze(unittest.TestCase):
             self.assertAlmostEqual(analyzers_info[vm_uuid]['Current_cpu_utilization'], self.cpu_util, places=5)
         self.assertAlmostEqual(vm_factory.getVMAnalyzers(self.test_id), self.cpu_util, places=5)
 
+    def test_analyze_skips_mismatched_uuid_stats(self):
+        vm_factory = vm.VMFactory()
+        vm_info = {
+            'uuid': self.base_stats['uuid'],
+            'name': self.base_stats['name'],
+            'cpu_util': self.cpu_util
+        }
+        vm_factory.addVM(self.test_id, vm_info)
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory)
+
+        bad_stats = copy.deepcopy(self.stats_list[:2])
+        bad_stats[1]['uuid'] = 'different-vm-uuid'
+
+        self.assertEqual(vm_analyze.analyzeStats(self.test_id, bad_stats), [])
+        self.assertEqual(vm_factory.getVMAnalyzers(self.test_id), 0.0)
+
 if __name__ == "__main__":
         unittest.main()
