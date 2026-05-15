@@ -53,5 +53,27 @@ class TestVMAnalyzersDWView(unittest.TestCase):
             vm_view.output(self.analyzers_list)
             self.assertEqual(mock_dumps.called, True)
 
+    def test_convert_to_percent(self):
+        data = {self.vm_uuid: {'Current_cpu_utilization': 0.25, 'TimeStamp': 1598015379}}
+        result = view.convert_to_percent(data)
+        self.assertEqual(result[self.vm_uuid]['Current_cpu_utilization'], '0.25%')
+
+    def test_convert_to_percent_non_float_unchanged(self):
+        data = {self.vm_uuid: {'Current_cpu_utilization': '0.25%', 'TimeStamp': 1598015379}}
+        result = view.convert_to_percent(data)
+        self.assertEqual(result[self.vm_uuid]['Current_cpu_utilization'], '0.25%')
+
+    def test_convert_to_percent_no_mutation(self):
+        data = {self.vm_uuid: {'Current_cpu_utilization': 0.10, 'TimeStamp': 1598015379}}
+        view.convert_to_percent(data)
+        self.assertIsInstance(data[self.vm_uuid]['Current_cpu_utilization'], float)
+
+    def test_dw_view_output_does_nothing(self):
+        dw_view = view.VMAnalyzersDWView()
+        try:
+            dw_view.output(self.analyzers_list)
+        except Exception as e:
+            self.fail(f'VMAnalyzersDWView.output raised an exception: {e}')
+
 if __name__ == '__main__':
     unittest.main()
