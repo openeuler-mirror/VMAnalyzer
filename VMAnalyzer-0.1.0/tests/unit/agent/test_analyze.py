@@ -182,6 +182,15 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertEqual(result[0][vm_name]['current_state'], 1)
         self.assertEqual(result[0][vm_name]['latest_event'], 'BOOT')
 
+    def test_analyze_wrong_label_returns_empty(self):
+        """测试错误标签时返回空列表"""
+        vm_factory = vm.VMFactory()
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, 'invalidLabel')
+
+        result = vm_analyze.analyze_stats(self.test_id, self.stats_list)
+        self.assertIsNotNone(result)
+        self.assertEqual(result, [])
+
 
 if __name__ == '__main__':
     unittest.main()
