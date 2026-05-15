@@ -91,5 +91,26 @@ class TestVMStatsRedisStorage(unittest.TestCase):
                                            self.end_time)
         self.assertEqual(result, {})
 
+    def test_save_and_get_memory_usage_label(self):
+        """测试memoryUsage标签的存储和读取"""
+        label = 'memoryUsage'
+        vm_storage = storage.VMStatsRedisStorage(self.vm_factory, label)
+        mem_stats = {
+            'uuid': self.test_vm['uuid'],
+            'name': self.test_vm['name'],
+            'totalMemory': 8192.0,
+            'usedMemory': 4096.0,
+            'timestamp': self.start_time + 1
+        }
+        vm_storage.save_stats_info({self.test_id: mem_stats})
+        result = vm_storage.get_stats_info(self.test_id,
+                                           self.start_time, self.end_time)
+        self.assertEqual(len(result), 1)
+        self.assertAlmostEqual(result[0]['totalMemory'], 8192.0)
+        self.assertAlmostEqual(result[0]['usedMemory'], 4096.0)
+        vm_storage.sr.zremrangebyscore(self.test_vm['uuid'],
+                                       self.start_time, self.end_time)
+
+
 if __name__ == '__main__':
     unittest.main()
