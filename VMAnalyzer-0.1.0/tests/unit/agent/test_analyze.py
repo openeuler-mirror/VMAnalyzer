@@ -71,26 +71,21 @@ class VMStatsAnalyze(unittest.TestCase):
                                self.cpu_util, places=5)
 
     def test_analyze_nonexistent_vm(self):
-        """测试分析不存在的VM时是否返回None"""
         vm_factory = vm.VMFactory()
         label = 'cpuUsage'
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
-        # 分析不存在的VM ID
         result = vm_analyze.analyze_stats(9999, self.stats_list)
         self.assertIsNone(result)
 
     def test_analyze_insufficient_stats(self):
-        """测试统计数据不足时是否返回None"""
         vm_factory = vm.VMFactory()
         label = 'cpuUsage'
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
-        # 只有一个统计数据点，不足以进行分析
         single_stats = [copy.deepcopy(self.base_stats)]
         result = vm_analyze.analyze_stats(self.test_id, single_stats)
         self.assertIsNone(result)
 
     def test_analyze_network_traffic(self):
-        """测试网络流量分析"""
         vm_factory = vm.VMFactory()
         label = 'networkTraffic'
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
@@ -110,7 +105,6 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertIsNotNone(result)
 
     def test_analyze_memory_usage_correct_value(self):
-        """测试内存使用率计算正确性"""
         vm_factory = vm.VMFactory()
         label = 'memoryUsage'
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
@@ -135,7 +129,6 @@ class VMStatsAnalyze(unittest.TestCase):
             vm_factory.get_vm_analyzers(self.test_id), 50.0, places=2)
 
     def test_analyze_blkio_label(self):
-        """测试磁盘IO数据分析"""
         vm_factory = vm.VMFactory()
         label = 'blkio'
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
@@ -159,7 +152,6 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertIn('blkI/O', result[0][vm_name])
 
     def test_analyze_log_vm_label(self):
-        """测试虚机日志状态分析"""
         vm_factory = vm.VMFactory()
         label = 'log_vm'
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
@@ -183,13 +175,27 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertEqual(result[0][vm_name]['latest_event'], 'BOOT')
 
     def test_analyze_wrong_label_returns_empty(self):
-        """测试错误标签时返回空列表"""
         vm_factory = vm.VMFactory()
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, 'invalidLabel')
 
         result = vm_analyze.analyze_stats(self.test_id, self.stats_list)
         self.assertIsNotNone(result)
         self.assertEqual(result, [])
+
+    def test_analyze_wrong_timestamp_skipped(self):
+        vm_factory = vm.VMFactory()
+        label = 'cpuUsage'
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
+
+        bad_stats = [
+            copy.deepcopy(self.base_stats),
+            {**copy.deepcopy(self.base_stats),
+             'timestamp': self.base_stats['timestamp'] - 1,
+             'cputime': self.base_stats['cputime'] + 1000000},
+        ]
+        result = vm_analyze.analyze_stats(self.test_id, bad_stats)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result), 0)
 
 
 if __name__ == '__main__':
