@@ -38,5 +38,22 @@ class TestVMStatsCollector(unittest.TestCase):
         self.assertTrue(mock_lookup.called)
         self.assertTrue(mock_save.called)
 
+    @mock.patch.object(libvirt.virConnect, 'lookupByUUIDString')
+    def test_recordStats_lookup_failure_does_not_raise(self, mock_lookup):
+        mock_lookup.side_effect = RuntimeError("lookup failed")
+        vm_factory = vm.VMFactory()
+        vm_info = {
+            'uuid': "6717da86-fc51-474d-92fe-a76380c27c62",
+            'name': "instance-000003f9"
+        }
+        vm_factory.addVM(1, vm_info)
+        vm_storage = mock.MagicMock()
+        vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
+
+        vm_collector.recordStats()
+
+        self.assertTrue(mock_lookup.called)
+        vm_storage.saveStatsInfo.assert_called_once_with({})
+
 if __name__ == "__main__":
         unittest.main()
