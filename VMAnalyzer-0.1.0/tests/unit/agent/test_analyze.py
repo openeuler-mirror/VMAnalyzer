@@ -134,6 +134,30 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertAlmostEqual(
             vm_factory.get_vm_analyzers(self.test_id), 50.0, places=2)
 
+    def test_analyze_blkio_label(self):
+        """测试磁盘IO数据分析"""
+        vm_factory = vm.VMFactory()
+        label = 'blkio'
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
+
+        blkio_stats = []
+        for i in range(3):
+            blkio_stats.append({
+                'uuid': self.base_stats['uuid'],
+                'name': self.base_stats['name'],
+                'blkStatus': {'vda': {'capacity': 10737418240, 'allocation': 1073741824, 'physical': 1073741824}},
+                'blkI/O': {'vda': {'read_bytes': 1024 * i, 'write_bytes': 512 * i,
+                                   'read_requests': i, 'write_requests': i, 'errors': 0}},
+                'timestamp': self.base_stats['timestamp'] + i
+            })
+
+        result = vm_analyze.analyze_stats(self.test_id, blkio_stats)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result), 2)
+        vm_name = self.base_stats['name']
+        self.assertIn('blkStatus', result[0][vm_name])
+        self.assertIn('blkI/O', result[0][vm_name])
+
 
 if __name__ == '__main__':
     unittest.main()
