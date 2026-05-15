@@ -61,5 +61,12 @@ class TestVMStatsCollector(unittest.TestCase):
         self.assertTrue(mock_lookup.called)
         self.assertTrue(mock_save.called)
 
+    def test_record_stats_no_vm_factory(self):
+        """测试vm_factory为None时record_stats直接返回"""
+        vm_storage = mock.MagicMock()
+        vm_collector = collector.VMStatsCollector(None, vm_storage, 'cpuUsage')
+        vm_collector.record_stats()
+        self.assertFalse(vm_storage.save_stats_info.called)
+
 if __name__ == '__main__':
     unittest.main()
