@@ -35,7 +35,9 @@ class VMStatsAnalyze(object):
         last_cpu_util = 0.0
 
         for i in range(len(vmStatsInfo) - 1):
-            assert vmStatsInfo[i]['uuid'] == vmStatsInfo[i+1]['uuid']
+            if vmStatsInfo[i]['uuid'] != vmStatsInfo[i+1]['uuid']:
+                logging.warning("We got mismatched UUID stats of VM: %s", vm_info['name'])
+                continue
             vcpu_count = vmStatsInfo[i]['vcpus']
             logging.debug('VM %s: previous cputime: %ld, latter cputime: %ld, '
                           'previous timestamp: %d, latter timestamp: %d',
