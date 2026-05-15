@@ -92,7 +92,6 @@ class TestVMStatsRedisStorage(unittest.TestCase):
         self.assertEqual(result, {})
 
     def test_save_and_get_memory_usage_label(self):
-        """测试memoryUsage标签的存储和读取"""
         label = 'memoryUsage'
         vm_storage = storage.VMStatsRedisStorage(self.vm_factory, label)
         mem_stats = {
@@ -111,6 +110,24 @@ class TestVMStatsRedisStorage(unittest.TestCase):
         vm_storage.sr.zremrangebyscore(self.test_vm['uuid'],
                                        self.start_time, self.end_time)
 
+    def test_save_and_get_network_traffic_label(self):
+        label = 'networkTraffic'
+        vm_storage = storage.VMStatsRedisStorage(self.vm_factory, label)
+        net_stats = {
+            'uuid': self.test_vm['uuid'],
+            'name': self.test_vm['name'],
+            'interfaceAddresses': {'eth0': 'fa:16:3e:00:00:01'},
+            'networkTraffic': {'eth0': {'rx_bytes': 1024, 'tx_bytes': 512}},
+            'timestamp': self.start_time + 1
+        }
+        vm_storage.save_stats_info({self.test_id: net_stats})
+        result = vm_storage.get_stats_info(self.test_id,
+                                           self.start_time, self.end_time)
+        self.assertEqual(len(result), 1)
+        self.assertIn('eth0', result[0]['interfaceAddresses'])
+        self.assertEqual(result[0]['networkTraffic']['eth0']['rx_bytes'], 1024)
+        vm_storage.sr.zremrangebyscore(self.test_vm['uuid'],
+                                       self.start_time, self.end_time)
 
 if __name__ == '__main__':
     unittest.main()
