@@ -197,6 +197,34 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(len(result), 0)
 
+    def test_analyze_network_traffic_correct_structure(self):
+        vm_factory = vm.VMFactory()
+        label = 'networkTraffic'
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
+
+        network_stats = []
+        for i in range(2):
+            network_stats.append({
+                'uuid': self.base_stats['uuid'],
+                'name': self.base_stats['name'],
+                'interfaceAddresses': {'eth0': 'fa:16:3e:00:00:01'},
+                'networkTraffic': {'eth0': {
+                    'rx_bytes': 2000 * i, 'rx_packets': 10 * i,
+                    'rx_errs': 0, 'rx_drop': 0,
+                    'tx_bytes': 1000 * i, 'tx_packets': 5 * i,
+                    'tx_errs': 0, 'tx_drop': 0
+                }},
+                'timestamp': self.base_stats['timestamp'] + i
+            })
+
+        result = vm_analyze.analyze_stats(self.test_id, network_stats)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result), 1)
+        vm_name = self.base_stats['name']
+        entry = result[0][vm_name]
+        self.assertIn('interfaceAddresses', entry)
+        self.assertIn('networkTraffic', entry)
+        self.assertIn('TimeStamp', entry)
 
 if __name__ == '__main__':
     unittest.main()
