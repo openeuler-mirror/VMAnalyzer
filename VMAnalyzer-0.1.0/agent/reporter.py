@@ -33,6 +33,7 @@ class VMAnalyzersReporter():
         self.__analyzers_viewer = analyzers_viewer
         self.__stats_analyzer = stats_analyzer
         self.__interval = interval
+        self.is_running = False
 
     def start_report(self):
         vm_factory = self.__vm_factory
@@ -40,6 +41,7 @@ class VMAnalyzersReporter():
 
         if vm_factory is None:
             return
+        self.is_running = True
         end_time = time.time()
         start_time = end_time - config.VM_ANALYZERS_CONFIG['duration'] * interval
         for vm_id in list(vm_factory.vms.keys()):
@@ -47,5 +49,8 @@ class VMAnalyzersReporter():
                                                           start_time, end_time)
             vm_analyzers = self.__stats_analyzer.analyze_stats(vm_id, vm_stats)
             self.__analyzers_viewer.output(vm_analyzers)
+
+    def stop_report(self):
+        self.is_running = False
 
 
