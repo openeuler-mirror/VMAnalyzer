@@ -47,6 +47,9 @@ class VMStatsAnalyze(object):
             if delta_timestamp <= 0:
                 logging.warning("We got wrong timestamp of VM: %s", vm_info['name'])
                 continue
+            if vcpu_count <= 0:
+                logging.warning("We got invalid vcpu count of VM: %s", vm_info['name'])
+                continue
 
             cpu_util = delta_cputime * 100.0 / (delta_timestamp * vcpu_count * 1e9)
             
