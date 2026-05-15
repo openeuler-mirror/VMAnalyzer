@@ -63,25 +63,20 @@ class TestVMFactory(unittest.TestCase):
                          self.test_score)
 
     def test_add_existing_vm(self):
-        """测试添加已存在的VM时是否正确处理"""
         vm_factory = vm.VMFactory()
         vm_factory.add_vm(self.test_id, self.test_vm)
-        # 第二次添加相同ID的VM，应该不修改现有数据
         new_vm = {'uuid': 'different-uuid', 'name': 'different-name'}
         vm_factory.add_vm(self.test_id, new_vm)
-        # 验证仍然是第一次添加的数据
         self.assertEqual(vm_factory.get_vm(self.test_id)['uuid'],
                          self.test_vm['uuid'])
         vm_factory.del_vm(self.test_id)
 
     def test_get_nonexistent_vm(self):
-        """测试获取不存在的VM时是否返回空字典"""
         vm_factory = vm.VMFactory()
-        result = vm_factory.get_vm(9999)  # 不存在的ID
+        result = vm_factory.get_vm(9999)
         self.assertEqual(result, {})
 
     def test_del_nonexistent_vm(self):
-        """测试删除不存在的VM时不抛异常"""
         vm_factory = vm.VMFactory()
         try:
             vm_factory.del_vm(9999)
@@ -89,11 +84,16 @@ class TestVMFactory(unittest.TestCase):
             self.fail(f'del_vm raised an unexpected exception: {e}')
 
     def test_get_vm_analyzers_nonexistent(self):
-        """测试获取不存在VM的analyzers时返回None"""
         vm_factory = vm.VMFactory()
         result = vm_factory.get_vm_analyzers(9999)
         self.assertIsNone(result)
 
+    def test_set_vm_analyzers_nonexistent(self):
+        vm_factory = vm.VMFactory()
+        try:
+            vm_factory.set_vm_analyzers(9999, 42)
+        except Exception as e:
+            self.fail(f'set_vm_analyzers raised an unexpected exception: {e}')
 
 if __name__ == '__main__':
     unittest.main()
