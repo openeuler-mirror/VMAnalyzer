@@ -57,7 +57,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                 }
                 pipe.zadd(vmStats['uuid'], {json.dumps(data_dict): vmStats['timestamp']})
             except Exception as err:
-                logging.warning('Unable to save stats of %s: %s', vmStats['name'], err.message)
+                logging.warning('Unable to save stats of %s: %s', vmStats['name'], err)
         pipe.execute()
 
     def getStatsInfo(self, vmID, startTimestamp, endTimestamp):
@@ -74,7 +74,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                                                      endTimestamp,
                                                      withscores=True))
         except Exception as err:
-            logging.warning('Unable to get stats of %s: %s', vm_info['name'], err.message)
+            logging.warning('Unable to get stats of %s: %s', vm_info['name'], err)
 
         vm_stats = []
         for data in data_list:
