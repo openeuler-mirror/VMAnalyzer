@@ -80,6 +80,8 @@ class VMStatsAnalyze(object):
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
+            if not analyzers_list:
+                return analyzers_list
             # store VM analyzers in DB
             vm_factory.set_vm_analyzers(vm_id, round(cpu_util, 4))
 
@@ -99,6 +101,8 @@ class VMStatsAnalyze(object):
                     'TimeStamp': vm_stats_info[i + 1]['timestamp']
                 }
                 analyzers_list.append({vm_info['name']: analyzers_info})
+            if not analyzers_list:
+                return analyzers_list
             # store VM analyzers in DB
             vm_factory.set_vm_analyzers(vm_id, round(mem_util, 4))
 
