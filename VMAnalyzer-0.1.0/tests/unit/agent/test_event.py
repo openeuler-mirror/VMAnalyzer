@@ -55,6 +55,20 @@ class TestVMEventLoopNative(unittest.TestCase):
                               const.VM_DOMAIN_EVENT_CRASHED, 0, None)
         self.assertNotIn(test_id, vm_factory.vms)
 
+    def test_conn_close_callback_sets_run_false(self):
+        ev = event.VMEventLoopNative("qemu:///system")
+        mock_conn = mock.MagicMock()
+        mock_conn.getURI.return_value = "qemu:///system"
+
+        event.run = True
+        ev.conn_close_callback(mock_conn, 0, None)
+        self.assertFalse(event.run)
+        event.run = True  # restore
+
+    def test_get_uri(self):
+        uri = "qemu:///system"
+        ev = event.VMEventLoopNative(uri)
+        self.assertEqual(ev.get_uri(), uri)
 
 if __name__ == "__main__":
     unittest.main()
