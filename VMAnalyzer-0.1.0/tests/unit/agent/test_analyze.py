@@ -94,7 +94,7 @@ class VMStatsAnalyze(unittest.TestCase):
         vm_factory = vm.VMFactory()
         label = 'networkTraffic'
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
-        
+
         network_stats = []
         for i in range(5):
             net_stat = {
@@ -105,9 +105,35 @@ class VMStatsAnalyze(unittest.TestCase):
                 'timestamp': self.base_stats['timestamp'] + i
             }
             network_stats.append(net_stat)
-        
+
         result = vm_analyze.analyze_stats(self.test_id, network_stats)
         self.assertIsNotNone(result)
+
+    def test_analyze_memory_usage_correct_value(self):
+        """测试内存使用率计算正确性"""
+        vm_factory = vm.VMFactory()
+        label = 'memoryUsage'
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
+
+        mem_stats = []
+        for i in range(3):
+            mem_stats.append({
+                'uuid': self.base_stats['uuid'],
+                'name': self.base_stats['name'],
+                'totalMemory': 8192,
+                'usedMemory': 4096,
+                'timestamp': self.base_stats['timestamp'] + i
+            })
+
+        result = vm_analyze.analyze_stats(self.test_id, mem_stats)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result), 2)
+        vm_name = self.base_stats['name']
+        self.assertAlmostEqual(
+            result[0][vm_name]['Current_mem_utilization'], 50.0, places=2)
+        self.assertAlmostEqual(
+            vm_factory.get_vm_analyzers(self.test_id), 50.0, places=2)
+
 
 if __name__ == '__main__':
     unittest.main()
