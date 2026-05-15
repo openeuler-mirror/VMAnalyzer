@@ -80,5 +80,20 @@ class TestVMFactory(unittest.TestCase):
         result = vm_factory.get_vm(9999)  # 不存在的ID
         self.assertEqual(result, {})
 
+    def test_del_nonexistent_vm(self):
+        """测试删除不存在的VM时不抛异常"""
+        vm_factory = vm.VMFactory()
+        try:
+            vm_factory.del_vm(9999)
+        except Exception as e:
+            self.fail(f'del_vm raised an unexpected exception: {e}')
+
+    def test_get_vm_analyzers_nonexistent(self):
+        """测试获取不存在VM的analyzers时返回None"""
+        vm_factory = vm.VMFactory()
+        result = vm_factory.get_vm_analyzers(9999)
+        self.assertIsNone(result)
+
+
 if __name__ == '__main__':
     unittest.main()
