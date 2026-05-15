@@ -35,5 +35,26 @@ class TestVMEventLoopNative(unittest.TestCase):
             ev.start()
             self.assertTrue(mock_register.called)
 
+    def test_dom_event_callback_crashed_removes_vm(self):
+        from agent import vm as vm_module
+        from utils import constants as const
+        ev = event.VMEventLoopNative("qemu:///system")
+
+        mock_conn = mock.MagicMock()
+        mock_dom = mock.MagicMock()
+        test_id = 7001
+        mock_dom.ID.return_value = test_id
+        mock_dom.UUIDString.return_value = 'aaaa-bbbb-cccc'
+        mock_dom.name.return_value = 'test-crash-vm'
+
+        vm_factory = vm_module.VMFactory()
+        vm_factory.add_vm(test_id, {'uuid': 'aaaa-bbbb-cccc', 'name': 'test-crash-vm'})
+        self.assertIn(test_id, vm_factory.vms)
+
+        ev.dom_event_callback(mock_conn, mock_dom,
+                              const.VM_DOMAIN_EVENT_CRASHED, 0, None)
+        self.assertNotIn(test_id, vm_factory.vms)
+
+
 if __name__ == "__main__":
     unittest.main()
