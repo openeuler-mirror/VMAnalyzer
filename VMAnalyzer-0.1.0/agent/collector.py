@@ -11,9 +11,11 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
+import json
 import logging
 import time
 import libvirt
+import libvirt_qemu
 import libxml2
 import os
 
@@ -231,23 +233,15 @@ class VMStatsCollector:
 
             elif label == 'vcpus_info':
                 result = dom.vcpus()
-                if result is None:
-                    logging.error("get vcpus info failed")
+                if result is None or not result or len(result) != 2:
+                    logging.error("get vcpus info failed or invalid result")
                     stats_info[vm_id] = {
                         'uuid': vm['uuid'],
                         'name': vm['name'],
                         'vcpuinfo':'null',
                         'timestamp': int(timestamp)
                     }
-
-                if not result or len(result) != 2:
-                    logging.error("unvalid result")
-                    stats_info[vm_id] = {
-                        'uuid': vm['uuid'],
-                        'name': vm['name'],
-                        'vcpuinfo':'null',
-                        'timestamp': int(timestamp)
-                    }
+                    continue
 
                 vcpu_info_list, cpumap_list = result
                 parsed_configs = []
