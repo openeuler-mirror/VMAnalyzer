@@ -39,6 +39,9 @@ class VMStatsAnalyze(object):
                 logging.warning("We got mismatched UUID stats of VM: %s", vm_info['name'])
                 continue
             vcpu_count = vmStatsInfo[i]['vcpus']
+            if vcpu_count <= 0:
+                logging.warning("We got invalid vcpu count of VM: %s", vm_info['name'])
+                continue
             logging.debug('VM %s: previous cputime: %ld, latter cputime: %ld, '
                           'previous timestamp: %d, latter timestamp: %d',
                           vm_info['name'], vmStatsInfo[i]['cputime'], vmStatsInfo[i+1]['cputime'],
