@@ -158,6 +158,30 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertIn('blkStatus', result[0][vm_name])
         self.assertIn('blkI/O', result[0][vm_name])
 
+    def test_analyze_log_vm_label(self):
+        """测试虚机日志状态分析"""
+        vm_factory = vm.VMFactory()
+        label = 'log_vm'
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, label)
+
+        log_stats = []
+        for i in range(3):
+            log_stats.append({
+                'uuid': self.base_stats['uuid'],
+                'name': self.base_stats['name'],
+                'current_state': 1,
+                'latest_event': 'BOOT',
+                'state_log': 'log_state:running line:10 state_line:BOOT',
+                'timestamp': self.base_stats['timestamp'] + i
+            })
+
+        result = vm_analyze.analyze_stats(self.test_id, log_stats)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result), 2)
+        vm_name = self.base_stats['name']
+        self.assertEqual(result[0][vm_name]['current_state'], 1)
+        self.assertEqual(result[0][vm_name]['latest_event'], 'BOOT')
+
 
 if __name__ == '__main__':
     unittest.main()
