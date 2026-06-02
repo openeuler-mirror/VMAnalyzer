@@ -134,6 +134,38 @@ check_secret_uniqueness() {
     info "Secret uniqueness check completed."
 }
 
+# 清理未使用的僵尸秘钥
+clean_zombie_secrets() {
+    info "Start cleaning zombie secrets (not used by any VM)..."
+	 
+    SECRET_UUIDS=$(virsh secret-list 2>/dev/null | awk '{print $1}' | grep -E '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$')
+ 	 
+    for SECRET_UUID in $SECRET_UUIDS; do
+        IS_USED=false
+ 	 
+ 	virsh list --all --name 2>/dev/null | while read -r VM_NAME; do
+ 	             [ -z "$VM_NAME" ] && continue
+ 	             VM_XML=$(virsh dumpxml "$VM_NAME" 2>/dev/null)
+ 	    if echo "$VM_XML" | grep -q "$SECRET_UUID"; then
+ 	        IS_USED=true
+ 	    fi
+ 	done
+ 	 
+ 	if [ "$IS_USED" = false ]; then
+ 	    warn "Found zombie secret: $SECRET_UUID, preparing to undefine..."
+ 	             
+ 	    virsh secret-undefine "$SECRET_UUID" 2>/dev/null
+ 	    if [ $? -eq 0 ]; then
+ 	                 info "Successfully cleaned zombie secret: $SECRET_UUID"
+ 	    else
+ 	                 error "Failed to clean zombie secret: $SECRET_UUID"
+ 	    fi
+ 	 fi
+ 	done
+ 	 
+ 	info "Zombie secret clean completed."
+}
+
 # 主函数
 main() {
     mk_log_dir
