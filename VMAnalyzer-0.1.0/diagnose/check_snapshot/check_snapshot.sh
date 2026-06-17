@@ -74,33 +74,35 @@ check_vm_snapshot() {
                 error "VM $VM_NAME has abnormal/broken snapshot chain."
         fi
 
-        # 检查快照是否过期
-        snap_time=$(virsh snapshot-dumpxml "$VM_NAME" "$snap" 2>/dev/null | grep -oP '<creationTime>\K.*(?=<\/creationTime>)')
-        if [ -n "$snap_time" ]; then
-            current_time=$(date +%s)
-            expire_seconds=$((SNAPSHOT_EXPIRE_DAYS*86400))
-            if [ $((current_time - snap_time)) -gt $expire_seconds ]; then
-                warn "VM $VM_NAME snapshot $snap is older than $SNAPSHOT_EXPIRE_DAYS days, please clean up"
-            fi
-        fi
-
-	# 检查快照链深度
-        virsh snapshot-list "$VM_NAME" --name 2>/dev/null | while read -r snap; do
+        # 检查快照链深度、过期时间及磁盘文件
+        while read -r snap; do
             [ -z "$snap" ] && continue
-            chain_len=$(virsh snapshot-dumpxml "$VM_NAME" "$snap" 2>/dev/null | grep -E '<parent>' | wc -l)
+
+            # 链深度检查（调用函数，见补丁2）
+            chain_len=$(get_chain_depth "$VM_NAME" "$snap")
             if [ "$chain_len" -gt "$SNAPSHOT_CHAIN_THRESHOLD" ]; then
                 warn "VM $VM_NAME snapshot $snap chain too deep: $chain_len levels"
             fi
-        done
-    done
 
-    # 检查快照关联磁盘文件是否存在
-    virsh snapshot-dumpxml "$VM_NAME" "$snap" 2>/dev/null | \
-        grep -oP '<source file=\x27\K[^\x27]+' | \
-        while IFS= read -r d; do
-            [ -z "$d" ] && continue
-            [ ! -e "$d" ] && error "VM $VM_NAME snapshot $snap missing disk file: $d"
-        done
+            # 过期检查
+            snap_time=$(virsh snapshot-dumpxml "$VM_NAME" "$snap" 2>/dev/null | grep -oP '<creationTime>\K.*(?=</creationTime>)')
+            if [ -n "$snap_time" ]; then
+                current_time=$(date +%s)
+                expire_seconds=$((SNAPSHOT_EXPIRE_DAYS*86400))
+                if [ $((current_time - snap_time)) -gt $expire_seconds ]; then
+                    warn "VM $VM_NAME snapshot $snap is older than $SNAPSHOT_EXPIRE_DAYS days, please clean up"
+                fi
+            fi
+
+            # 磁盘文件存在性检查
+            virsh snapshot-dumpxml "$VM_NAME" "$snap" 2>/dev/null | \
+                grep -oP '<source file=\x27\K[^\x27]+' | \
+                while IFS= read -r d; do
+                    [ -z "$d" ] && continue
+                    [ ! -e "$d" ] && error "VM $VM_NAME snapshot $snap missing disk file: $d"
+                done
+        done < <(virsh snapshot-list "$VM_NAME" --name 2>/dev/null)
+    done
 
     info "VM snapshot check completed."
 }
