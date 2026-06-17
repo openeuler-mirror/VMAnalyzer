@@ -69,6 +69,18 @@ check_vm_snapshot() {
             continue
         fi
 
+        get_chain_depth() {
+            local vm=$1
+            local snap=$2
+            local depth=0
+            while [ -n "$snap" ]; do
+                snap=$(virsh snapshot-dumpxml "$vm" "$snap" 2>/dev/null | \
+                       grep -oP '(?<=<parent>)[^<]+' | head -1)
+                [ -n "$snap" ] && ((depth++))
+            done
+            echo $depth
+        }
+
         # 检查快照是否异常
 	if echo "$SNAP_LIST" | grep -i -E "error|invalid|broken|locked|fault|no snapshot" >/dev/null 2>&1; then
                 error "VM $VM_NAME has abnormal/broken snapshot chain."
