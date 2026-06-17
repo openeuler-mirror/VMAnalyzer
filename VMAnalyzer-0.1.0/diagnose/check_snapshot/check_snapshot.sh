@@ -45,7 +45,8 @@ check_vm_snapshot() {
 
     for VM_NAME in $VM_LIST; do
         [ -z "$VM_NAME" ] && continue
-        info "Checking VM: $VM_NAME"
+	state=$(virsh domstate "$VM_NAME" 2>/dev/null | head -1)
+        info "Checking VM: $VM_NAME (state: $state)"
 
         # 获取快照列表
         SNAP_LIST=$(virsh snapshot-list "$VM_NAME" 2>/dev/null)
