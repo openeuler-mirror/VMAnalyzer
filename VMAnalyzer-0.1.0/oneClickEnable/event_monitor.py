@@ -89,12 +89,17 @@ def main():
     open(RAW_LOG_FILE, 'w').close()
     virsh_cmd = ["stdbuf", "-oL", "-eL", "virsh", "event", "--all", "--loop", "--timestamp"]
     global virsh_process
-    virsh_process = subprocess.Popen(
-        virsh_cmd,
-        stdout=open(RAW_LOG_FILE, 'a'),
-        stderr=subprocess.STDOUT,
-        universal_newlines=True
-    )
+    try:
+        virsh_process = subprocess.Popen(
+            virsh_cmd,
+            stdout=open(RAW_LOG_FILE, 'a'),
+            stderr=subprocess.STDOUT,
+            universal_newlines=True
+        )
+    except Exception as e:
+        logger.error(f"启动 virsh event 失败：{e}")
+        sys.exit(1)
+
     logger.info(f"virsh event 命令已启动，PID: {virsh_process.pid}")
     logger.info(f"原始日志文件: {RAW_LOG_FILE}")
     logger.info(f"分析日志文件: {LOG_FILE}")
