@@ -1,4 +1,4 @@
-#!/bin/bash
+check_source_to_target_network#!/bin/bash
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -29,7 +29,12 @@ check_source_to_target_network() {
     local dst_host=$2
     
     log_info "检查源主机 $src_host 与目标主机 $dst_host 网络连通性..."
-    
+
+    if ! ssh -o ConnectTimeout=10 $src_host "exit" &>/dev/null; then
+        log_error "无法通过 SSH 连接到源主机 $src_host"
+        return 2
+    fi
+
     local result=$(ssh $src_host "ping -c 3 -W 5 $dst_host &> /dev/null; echo \$?")
     
     if [ "$result" -eq 0 ]; then
