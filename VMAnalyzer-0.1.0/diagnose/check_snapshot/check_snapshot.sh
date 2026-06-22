@@ -16,15 +16,18 @@ mk_log_dir() {
 
 # 日志输出
 info() {
-    echo "{\"status\": \"info\", \"log\": \"$1\"}" >> "$check_log"
+    local ts=$(date "+%Y-%m-%d %H:%M:%S")
+    echo "{\"timestamp\":\"$ts\", \"status\": \"info\", \"log\": \"$1\"}" >> "$check_log"
 }
 
 error() {
-    echo "{\"status\": \"error\", \"log\": \"$1\"}" >> "$check_log"
+    local ts=$(date "+%Y-%m-%d %H:%M:%S")
+    echo "{\"timestamp\":\"$ts\", \"status\": \"error\", \"log\": \"$1\"}" >> "$check_log"
 }
 
 warn() {
-    echo "{\"status\": \"warning\", \"log\": \"$1\"}" >> "$check_log"
+    local ts=$(date "+%Y-%m-%d %H:%M:%S")
+    echo "{\"timestamp\":\"$ts\", \"status\": \"warning\", \"log\": \"$1\"}" >> "$check_log"
 }
 
 # 日志文件
