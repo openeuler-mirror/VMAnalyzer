@@ -6,6 +6,7 @@ import subprocess
 import logging
 import signal
 import atexit
+import fcntl
 
 LOG_FILE = "/var/log/virsh_events.log"
 RAW_LOG_FILE = "/var/log/virsh_events_raw.log"
@@ -39,17 +40,15 @@ EXCEPTION_EVENTS = [
 ]
 
 def check_running():
-    if os.path.exists(PID_FILE):
-        with open(PID_FILE, 'r') as f:
-            pid = f.read().strip()
-        try:
-            os.kill(int(pid), 0)
-            logger.error(f"脚本已在运行，PID: {pid}")
-            print(f"脚本已在运行，PID: {pid}")
-            sys.exit(1)
-        except OSError:
-            logger.warning("发现旧的PID文件，已删除")
-            os.remove(PID_FILE)
+    global pid_fp
+    pid_fp = open(PID_FILE, 'w')
+    try:
+        fcntl.flock(pid_fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except IOError:
+        logger.error("另一个实例已在运行")
+        sys.exit(1)
+    pid_fp.write(str(os.getpid()))
+    pid_fp.flush()
 
 def signal_handler(sig, frame):
     cleanup()
