@@ -18,6 +18,7 @@ import subprocess
 from gather import get_vm_cpu_cache_topology
 
 class TestGetVmCpuCacheTopology(unittest.TestCase):
+
     # =========================
     # run_virsh_cmd
     # =========================
@@ -133,8 +134,74 @@ class TestGetVmCpuCacheTopology(unittest.TestCase):
             "0",
             result["numa"]
         )
+
     def test_parse_cpu_cache_from_xml_invalid(self):
         xml = "<domain><cpu>"
+        result = (
+            get_vm_cpu_cache_topology
+            .parse_cpu_cache_from_xml(xml)
+        )
+        self.assertEqual(
+            result["cpu_model"],
+            ""
+        )
+        self.assertEqual(
+            result["cache"],
+            {}
+        )
+
+    # =========================
+    # get_vm_cpu_cache_topology
+    # =========================
+    @patch(
+        "gather.get_vm_cpu_cache_topology.time.time"
+    )
+    @patch(
+        "gather.get_vm_cpu_cache_topology.parse_cpu_cache_from_xml"
+    )
+    @patch(
+        "gather.get_vm_cpu_cache_topology.get_domain_xml"
+    )
+    def test_get_vm_cpu_cache_topology_success(
+        self,
+        mock_get_xml,
+        mock_parse,
+        mock_time
+    ):
+        mock_get_xml.return_value = "<xml/>"
+        mock_parse.return_value = {
+            "cpu_model": "Intel"
+        }
+        mock_time.return_value = 123456
+        result = (
+            get_vm_cpu_cache_topology
+            .get_vm_cpu_cache_topology("vm1")
+        )
+        self.assertEqual(
+            result["vm_name"],
+            "vm1"
+        )
+        self.assertEqual(
+            result["timestamp"],
+            123456
+        )
+
+    @patch(
+        "gather.get_vm_cpu_cache_topology.get_domain_xml"
+    )
+    def test_get_vm_cpu_cache_topology_no_xml(
+        self,
+        mock_get_xml
+    ):
+        mock_get_xml.return_value = None
+        result = (
+            get_vm_cpu_cache_topology
+            .get_vm_cpu_cache_topology("vm1")
+        )
+        self.assertEqual(
+            result,
+            {}
+        )
 
 if __name__ == "__main__":
     unittest.main()

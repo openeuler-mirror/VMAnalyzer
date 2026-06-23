@@ -207,7 +207,7 @@ class ConfigValidator:
         
         if not config_found:
             self.warnings.append({
-                'type': ValidationWarning.INFO,
+                'type': ValidationError.INFO,
                 'field': 'config.file',
                 'message': 'No readable config file found, using defaults'
             })
@@ -293,6 +293,8 @@ def validate_config_on_startup(config):
     """
     validator = ConfigValidator(config)
     is_valid, errors, warnings = validator.validate_all()
+    if config is None:
+        logger.warning("Config is None, using default values")
     
     # Log warnings
     for warning in warnings:

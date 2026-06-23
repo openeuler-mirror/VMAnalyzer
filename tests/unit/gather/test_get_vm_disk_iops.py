@@ -19,6 +19,7 @@ import json
 from gather import get_vm_disk_iops
 
 class TestGetVMDiskIOPS(unittest.TestCase):
+
     # =========================
     # execute_cmd
     # =========================
@@ -76,6 +77,106 @@ class TestGetVMDiskIOPS(unittest.TestCase):
             "stdout": "",
             "stderr": "error"
         }
+        result = get_vm_disk_iops.get_vm_list()
+        self.assertEqual(result, [])
+
+    # =========================
+    # get_vm_disk_iops
+    # =========================
+    @patch("gather.get_vm_disk_iops.execute_cmd")
+    def test_get_vm_disk_iops_success(self, mock_exec):
+        """测试正常解析 rd_req / wr_req"""
+        mock_exec.return_value = {
+            "code": 0,
+            "stdout": (
+                "vda rd_req 100\n"
+                "vda wr_req 200\n"
+                "vda rd_bytes 1024\n"
+            ),
+            "stderr": ""
+        }
+        result = get_vm_disk_iops.get_vm_disk_iops("vm1")
+        self.assertEqual(result["vm_name"], "vm1")
+        self.assertEqual(
+            len(result["disk_stats"]),
+            2
+        )
+        metrics = [
+            stat["metric"]
+            for stat in result["disk_stats"]
+        ]
+        self.assertIn("vda", metrics[0])
+        self.assertIsNotNone(result["timestamp"])
+
+    @patch("gather.get_vm_disk_iops.execute_cmd")
+    def test_get_vm_disk_iops_command_failed(self, mock_exec):
+        """测试 domblkstat 执行失败"""
+        mock_exec.return_value = {
+            "code": 1,
+            "stdout": "",
+            "stderr": "virsh error"
+        }
+        result = get_vm_disk_iops.get_vm_disk_iops("vm1")
+        self.assertEqual(
+            result["error"],
+            "virsh error"
+        )
+
+    @patch("gather.get_vm_disk_iops.execute_cmd")
+    def test_get_vm_disk_iops_no_metrics(self, mock_exec):
+        """测试没有 rd_req / wr_req"""
+        mock_exec.return_value = {
+            "code": 0,
+            "stdout": (
+                "vda rd_bytes 1024\n"
+                "vda wr_bytes 2048\n"
+            ),
+            "stderr": ""
+        }
+        result = get_vm_disk_iops.get_vm_disk_iops("vm1")
+        self.assertEqual(
+            result["disk_stats"],
+            []
+        )
+        self.assertIsNotNone(
+            result["timestamp"]
+        )
+
+    @patch("gather.get_vm_disk_iops.execute_cmd")
+    def test_get_vm_disk_iops_exception(self, mock_exec):
+        """测试异常处理"""
+        mock_exec.side_effect = Exception(
+            "unexpected error"
+        )
+        result = get_vm_disk_iops.get_vm_disk_iops("vm1")
+        self.assertIn(
+            "error",
+            result
+        )
+
+    # =========================
+    # main
+    # =========================
+    @patch("gather.get_vm_disk_iops.get_vm_disk_iops")
+    @patch("gather.get_vm_disk_iops.get_vm_list")
+    @patch("builtins.print")
+    def test_main(
+        self,
+        mock_print,
+        mock_vm_list,
+        mock_get_stats
+    ):
+        """测试 main 函数"""
+        mock_vm_list.return_value = [
+            "vm1"
+        ]
+        mock_get_stats.return_value = {
+            "vm_name": "vm1",
+            "disk_stats": [],
+            "timestamp": "2024-01-01T00:00:00"
+        }
+        get_vm_disk_iops.main()
+        mock_print.assert_called()
 
 if __name__ == "__main__":
     unittest.main()

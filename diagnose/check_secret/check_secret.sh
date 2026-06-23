@@ -7,27 +7,46 @@
 # 日志
 virt_dir=/var/log/vmanalyzer/
 
+check_precondition() {
+    # 检查是否为root用户
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "Error: This script must be run as root!" >&2
+        exit 1
+    fi
+    # 检查核心命令是否存在
+    local required_cmds=("virsh" "stat" "awk" "sed" "grep")
+    for cmd in "${required_cmds[@]}"; do
+        if ! command -v "$cmd" &> /dev/null; then
+            echo "Error: Command '$cmd' is not installed!" >&2
+            exit 1
+        fi
+    done
+}
+
 # 日志目录创建
 mk_log_dir() {
     if [ ! -d "$virt_dir" ]; then
-        mkdir -p $virt_dir
+        mkdir -m 700 -p "$virt_dir"
     fi
 }
 
 # 日志输出
 info() {
     # 打印正常信息
-    echo "{\"status\": \"info\", \"log\": \"$1\"}" >> $check_log
+    local msg=$(echo "$1" | sed 's/"/\\"/g')  # 转义双引号
+    echo "{\"status\": \"info\", \"log\": \"$msg\"}" >> $check_log
 }
 
 error() {
     # 打印出错信息
-    echo "{\"status\": \"error\", \"log\": \"$1\"}" >> $check_log
+     local msg=$(echo "$1" | sed 's/"/\\"/g')
+    echo "{\"status\": \"error\", \"log\": \"$msg\"}" >> $check_log
 }
 
 warn() {
     # 打印警告信息
-    echo "{\"status\": \"warning\", \"log\": \"$1\"}" >> $check_log
+     local msg=$(echo "$1" | sed 's/"/\\"/g')
+    echo "{\"status\": \"warning\", \"log\": \"$msg\"}" >> $check_log
 }
 
 # 配置文件
@@ -116,7 +135,7 @@ check_secret_uniqueness() {
                   | sed 's/<description>//;s/<\/description>//')
 	if [ -z "$VM_NAME" ]; then
             error "No VM name found in secret XML for UUID $SECRET_UUID."
-            #continue
+            continue
         else 
             info "Secret UUID $SECRET_UUID is configured for VM: $VM_NAME"
         fi
@@ -134,12 +153,45 @@ check_secret_uniqueness() {
     info "Secret uniqueness check completed."
 }
 
+# 清理未使用的僵尸秘钥
+clean_zombie_secrets() {
+    info "Start cleaning zombie secrets (not used by any VM)..."
+	 
+    SECRET_UUIDS=$(virsh secret-list 2>/dev/null | awk '{print $1}' | grep -E '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$')
+ 	 
+    for SECRET_UUID in $SECRET_UUIDS; do
+        IS_USED=false
+ 	 
+ 	virsh list --all --name 2>/dev/null | while read -r VM_NAME; do
+ 	             [ -z "$VM_NAME" ] && continue
+ 	             VM_XML=$(virsh dumpxml "$VM_NAME" 2>/dev/null)
+ 	    if echo "$VM_XML" | grep -q "$SECRET_UUID"; then
+ 	        IS_USED=true
+ 	    fi
+ 	done
+ 	 
+ 	if [ "$IS_USED" = false ]; then
+ 	    warn "Found zombie secret: $SECRET_UUID, preparing to undefine..."
+ 	             
+ 	    virsh secret-undefine "$SECRET_UUID" 2>/dev/null
+ 	    if [ $? -eq 0 ]; then
+ 	                 info "Successfully cleaned zombie secret: $SECRET_UUID"
+ 	    else
+ 	                 error "Failed to clean zombie secret: $SECRET_UUID"
+ 	    fi
+ 	 fi
+ 	done
+ 	 
+ 	info "Zombie secret clean completed."
+}
+
 # 主函数
 main() {
+    check_precondition
     mk_log_dir
     echo "####################################################################################" > $check_log
-    time=$(date +"%Y-%m-%d %H:%M:%S")
-    echo "$time" >> $check_log
+    current_time=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "$current_time" >> $check_log
 
     # 执行检查
     check_secret_permissions

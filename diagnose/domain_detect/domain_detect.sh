@@ -1,4 +1,5 @@
 #!/bin/sh
+set -euo pipefail
 
 TOOLS_ROOT=$(cd $(dirname $0); pwd)
 domain_detect_dir=/var/log/vmanalyzer/
@@ -6,6 +7,7 @@ datafile=${domain_detect_dir}domain_detect.json
 check_arry_basic=(domain_state interface_link blk_error)
 check_arry_premium=(domain_state disk_status interface_link blk_error)
 check_arry=()
+edition="basic"
 
 usage() {
     echo "domain_detect: auto detect domain availability"
@@ -16,10 +18,10 @@ usage() {
 
 if [ $# -eq 0 ]; then
     usage
-    exit -1
+    exit 1
 fi
 
-while getopts 'd:h:e:*' OPT; do
+while getopts 'd:h:e:' OPT; do
     case $OPT in
         "h")
             usage
@@ -27,24 +29,40 @@ while getopts 'd:h:e:*' OPT; do
             ;;
         "e")
             edition=$OPTARG
+            if [ -z "$edition" ]; then
+                echo "Error: -e edition cannot be empty"
+                exit 1
+            fi
             ;;
         "d")
             domain=$OPTARG
+            if [ -z "$domain" ]; then
+                echo "Error: -d domain cannot be empty"
+                exit 1
+            fi
             ;;
         *)
             usage
-            exit -1
+            exit 1
         ;;
     esac
 done
 
+if [ -z "$domain" ]; then
+    echo "Error: -d (domain) is required"
+    usage
+    exit 1
+fi
+
 mk_log_dir() {
     if [ ! -d "$domain_detect_dir" ];then
         mkdir -p $domain_detect_dir
+	chmod 755 "$domain_detect_dir"
     fi
 }
 
 check_project() {
+    sudo truncate -s 0 "$datafile"
     sudo echo -e "{\"domain_detect\": {" > $datafile
 
     if [[ $edition == "basic" ]];then
@@ -70,3 +88,5 @@ mk_log_dir
 
 check_project
 
+echo "Domain detect completed, result saved to $datafile"
+exit 0

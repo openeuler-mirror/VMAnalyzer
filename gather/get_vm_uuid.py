@@ -3,10 +3,10 @@
 """判断虚机是否崩溃"""
 import subprocess
 import json
-from lxml import etree
 from typing import Optional, Dict, Any
 import os
 import re
+import sys
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """
@@ -20,6 +20,11 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         "stdout": "",
         "stderr": ""
     }
+
+    if not cmd:
+        result["stderr"] = "执行命令为空，无法执行"
+        return result
+
     try:
         proc = subprocess.run(
             cmd,
@@ -41,6 +46,7 @@ def get_vm_list() -> list:
     """获取宿主机所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
+        print(f"获取虚机列表失败: {cmd_result['stderr']}", file=sys.stderr)
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
@@ -55,6 +61,11 @@ def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
         "vcpu": 0,
         "error": ""
     }
+
+    if not vm_name or not vm_name.strip():
+        result["error"] = "虚机名称为空，无法获取基础信息"
+        return result
+
     cmd = ["virsh", "dominfo", vm_name]
     cmd_result = execute_cmd(cmd)
     if cmd_result["code"] != 0:
@@ -104,7 +115,6 @@ def get_vm_uuid(vm_name: str) -> str:
 
 
 if __name__ == "__main__":
-    import sys
 
     vms = get_vm_list()
     if not vms:
@@ -113,10 +123,21 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
-        vm_result_json = get_vm_uuid(vm)
-        vm_result = json.loads(vm_result_json)
-        results.append(vm_result)
+        try:
+            # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
+            vm_result_json = get_vm_uuid(vm)
+            vm_result = json.loads(vm_result_json)
+            results.append(vm_result)
+        except Exception as e:
+            # 新增：捕获单个虚机处理的异常，避免中断整体流程
+            error_result = {
+                "vm_name": vm,
+                "uuid": "",
+                "uuid_valid": False,
+                "success": False,
+                "error": f"处理虚机时发生未预期异常: {str(e)}"
+            }
+            results.append(error_result)
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))

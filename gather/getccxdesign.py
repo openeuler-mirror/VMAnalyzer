@@ -7,7 +7,12 @@ import sys
 
 LOCAL_NAME = "qemu:///system"
 def createConnection(serverName):
+    if not serverName:
+        print("错误：serverName 不能为空")
+        sys.exit(1)
+
     if not libvirt:
+        print("错误：未找到libvirt库")
         sys.exit(1)
 
     conn = libvirt.openReadOnly(serverName)
@@ -18,15 +23,19 @@ def createConnection(serverName):
 
 def closeConnection(conn):
     try:
-        conn.close()
+        if conn:
+            conn.close()
     except:
         sys.exit(1)
 
 if __name__ == '__main__':
 
     conn = createConnection(LOCAL_NAME)
-    ccx = conn.virHostGetCCXDesign()
-    print("ccx design:")
-    print(ccx)
+    try:
+        ccx = conn.virHostGetCCXDesign()
+        print("ccx design:")
+        print(ccx)
+    except libvirt.libvirtError as e:
+        print(f'获取CCX Design失败：{e}')
 
     closeConnection(conn)

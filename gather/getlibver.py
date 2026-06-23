@@ -34,7 +34,12 @@ def getESSDSerial(domain, conn):
   if domain == None:
     print 'Domain Name Is Empty'
     sys.exit(1)
-  dom = conn.lookupByName(domain)
+  try:
+      dom = conn.lookupByName(domain)
+  except libvirt.libvirtError as e:
+    print(f'Failed to lookup domain {domain}: {e}')
+    sys.exit(1)
+
   tree = etree.fromstring(dom.XMLDesc(0))
   for disk_info in tree.findall('devices/disk'):
     device = disk_info.find('target').get('dev')

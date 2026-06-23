@@ -77,7 +77,12 @@ class MetricsAggregator:
         vms = self.storage.get_all_vm_uuids()
         
         for vm_uuid in vms:
-            agg = self.aggregate_by_vm(vm_uuid, metric_name, time_range_minutes)
+            try:
+                agg = self.aggregate_by_vm(vm_uuid, metric_name, time_range_minutes)
+            except Exception as e:
+                logger.warning("Failed to process VM %s: %s", vm_uuid, str(e))
+                continue
+
             if agg:
                 vm_name = self.storage.get_vm_name(vm_uuid)
                 results[vm_uuid] = {
@@ -287,7 +292,7 @@ class TimeSeriesAggregator:
     def _calculate_bucket_stats(self, values):
         """Calculate stats for a bucket."""
         if not values:
-            return {'count': 0}
+            return {'count': 0, 'min': 0, 'max': 0, 'avg': 0}
         
         return {
             'count': len(values),

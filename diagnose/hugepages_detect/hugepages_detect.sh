@@ -20,6 +20,11 @@ need_cmd() {
 }
 need_cmd numactl virsh grep awk cat
 
+get_timestamp() 
+{
+    date +"%Y-%m-%d %H:%M:%S"
+}
+
 function warn_info()
 {
     echo -e "${YELLOW_BLINK} Notice:${NORMAL} ${RED}$1 ${NORMAL}" >> $LOG_PATH
@@ -27,13 +32,13 @@ function warn_info()
 
 function err_info()
 {
-    time=`date +"%Y-%m-%d %H:%M:%S"`
+    time=$(get_timestamp)
     echo -e "$time ${YELLOW_BLINK} Error:${NORMAL} ${RED}$1 ${NORMAL}" >> $LOG_PATH
 }
 
 function log()
 {
-    time=`date +"%Y-%m-%d %H:%M:%S"`
+    time=$(get_timestamp)
     echo -e "\e[1m $time $1 \e[0;39m" >> $LOG_PATH
     echo ""
 }

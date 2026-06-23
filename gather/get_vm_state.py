@@ -3,6 +3,7 @@
 """采集虚机Libvirt生命周期状态"""
 import json
 import subprocess
+import sys
 from lxml import etree
 from typing import Optional, Dict, Any
 
@@ -80,13 +81,15 @@ def get_vm_state(vm_name: str) -> str:
 
     if state_raw in state_mapping:
         result["state_code"], result["state_desc"] = state_mapping[state_raw]
-    result["success"] = True
+        result["success"] = True
+     else:
+        result["error"] = f"未识别的虚机状态: {state_raw}"
+        result["success"] = True
+
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":
-    import sys
-
     vms = get_vm_list()
     if not vms:
          print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
@@ -97,6 +100,8 @@ if __name__ == "__main__":
         vm_result_json = get_vm_state(vm)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
+        if not vm_result["success"] or vm_result["error"]:
+            print(f"警告：虚机[{vm}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))
