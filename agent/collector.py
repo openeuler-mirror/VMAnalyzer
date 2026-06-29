@@ -16,6 +16,16 @@ import time
 
 
 class VMStatsCollector:
+    """Collects virtual machine statistics from libvirt.
+
+    This class is responsible for periodically gathering performance
+    statistics (e.g., CPU time) for all active VMs and storing them
+    via the provided storage backend.
+
+    Attributes:
+        __vmFactory: The VMFactory instance used to access VMs.
+        __statsStorage: The storage backend for saving statistics.
+    """
     def __init__(self, vmFactory, statsStorage):
         self.__vmFactory = vmFactory
         self.__statsStorage = statsStorage
