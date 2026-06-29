@@ -20,6 +20,12 @@ import logging
 from utils import wrapper
 
 class VM:
+    """Represents a virtual machine instance.
+
+    Attributes:
+        __uuid (str): The UUID of the VM.
+        __name (str): The name of the VM.
+    """
     def __init__(self, uuid):
         self.__uuid = uuid
         self.__name = ""
@@ -35,6 +41,15 @@ class VM:
 
 @wrapper.singleton
 class VMFactory:
+    """Factory and registry for managing VM instances.
+
+    This class maintains a registry of all known VMs and provides
+    a connection to the libvirt hypervisor.
+
+    Attributes:
+        __vms (dict): A dictionary mapping VM IDs to VM info dicts.
+        __vc: The libvirt connection object.
+    """
     def __init__(self, uri="qemu:///system"):
         self.__vms = {}
         self.__uri = uri
