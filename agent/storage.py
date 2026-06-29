@@ -39,6 +39,10 @@ class VMStatsRedisStorage(VMStatsStorage):
         self.__sr = redis.StrictRedis(connection_pool=self.__pool)
         self.__vmFactory = vmFactory
 
+    def __del__(self):
+        if hasattr(self, '_VMStatsRedisStorage__pool'):
+            self.__pool.disconnect()
+
     @property
     def sr(self):
         return self.__sr
