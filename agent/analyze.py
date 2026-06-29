@@ -23,11 +23,11 @@ class VMStatsAnalyze(object):
 
         vm_factory = self.__vmFactory
         if vmID not in vm_factory.vms:
-            return
+            return []
         vm_info = vm_factory.getVM(vmID)
         if len(vmStatsInfo) < 2:
             logging.warning("There are too less stats of VM: %s", vm_info['name'])
-            return
+            return []
 
         analyzers_list = []
         logging.debug('Length of VM stats: %d', len(vmStatsInfo))
