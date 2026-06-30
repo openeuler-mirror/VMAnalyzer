@@ -336,7 +336,6 @@ def main():
     
     checker = HealthChecker(
         redis_host=args.redis_host,
-	self.disk_check_path = '/'
         redis_port=args.redis_port,
         libvirt_uri=args.libvirt_uri
     )
