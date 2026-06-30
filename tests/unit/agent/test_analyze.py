@@ -72,5 +72,25 @@ class VMStatsAnalyze(unittest.TestCase):
         self.assertEqual(vm_analyze.analyzeStats(self.test_id, bad_stats), [])
         self.assertEqual(vm_factory.getVMAnalyzers(self.test_id), 0.0)
 
+    def test_trend_rising(self):
+        #Test that CPU utilization trend is marked as 'rising' when increase > 10%.
+        vm_factory = vm.VMFactory()
+        vm_uuid = 'trend-test-uuid'
+        vm_info = {'uuid': vm_uuid, 'name': 'trend-vm', 'cpu_util': 0.0, 'vcpu_count': 1}
+        test_id = 999
+        vm_factory.addVM(test_id, vm_info)
+
+        analyzer = analyze.VMStatsAnalyze(vm_factory)
+
+        stats = [
+            {'uuid': vm_uuid, 'timestamp': 1000, 'cputime': 0, 'vcpus': 1},
+            {'uuid': vm_uuid, 'timestamp': 1001, 'cputime': int(0.2 * 1e9), 'vcpus': 1},
+            {'uuid': vm_uuid, 'timestamp': 1002, 'cputime': int(0.35 * 1e9), 'vcpus': 1}
+        ]
+        result = analyzer.analyzeStats(test_id, stats)
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0][vm_uuid]['trend'], 'rising')
+
 if __name__ == "__main__":
         unittest.main()
