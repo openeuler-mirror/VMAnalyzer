@@ -16,7 +16,7 @@ def createConnection(serverName):
         sys.exit(1)
 
     conn = libvirt.openReadOnly(serverName)
-    if conn == None:
+    if conn is None:
         print('Failed to connect to QEMU/KVM')
     else:
         return conn
