@@ -66,7 +66,7 @@ class VMStatsRedisStorage(VMStatsStorage):
 
     def getStatsInfo(self, vmID, startTimestamp, endTimestamp):
         # VM has been shutdown or destroyed???
-        if vmID not in list(self.__vmFactory.vms.keys()):
+        if vmID not in self.__vmFactory.vms:
             return {}
 
         vm_info = self.__vmFactory.getVM(vmID)
