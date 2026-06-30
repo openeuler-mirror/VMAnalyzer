@@ -13,7 +13,7 @@
 #######################################################################################
 
 import unittest
-import mock
+from unittest import mock
 from agent import reporter
 from agent import vm
 

@@ -25,7 +25,7 @@ import os
 import tempfile
 import unittest
 
-import mock
+from unittest import mock
 
 from agent import storage
 from agent import view
