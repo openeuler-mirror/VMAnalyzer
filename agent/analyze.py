@@ -59,7 +59,8 @@ class VMStatsAnalyze(object):
 
             analyzers_info = {
                 'Current_cpu_utilization': round(cpu_util, 4),
-                'TimeStamp': vmStatsInfo[i + 1]['timestamp']
+                'TimeStamp': vmStatsInfo[i + 1]['timestamp'],
+                'name': vm_info['name']
             }
                         trend = "stable"
             if len(analyzers_list) > 0:
