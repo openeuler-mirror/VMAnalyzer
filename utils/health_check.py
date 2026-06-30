@@ -281,9 +281,9 @@ def print_health_report(results):
     print("="*60)
     
     status_icon = {
-        'healthy': '✓',
-        'degraded': '⚠',
-        'unhealthy': '✗'
+        'healthy': '[OK]',
+        'degraded': '[WARN]',
+        'unhealthy': '[FAIL]'
     }
     
     overall = results['overall_status']
