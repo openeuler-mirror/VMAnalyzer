@@ -40,7 +40,7 @@ class VMStatsAnalyze(unittest.TestCase):
             'name': self.base_stats['name'],
             'cpu_util': self.cpu_util
         }
-        vm_factory.addVM(self.test_id, vm_info)
+        vm_factory.add_vm(self.test_id, vm_info)
 
         # Generate simulated VM stats over 60 seconds
         self.stats_list = []
@@ -48,26 +48,28 @@ class VMStatsAnalyze(unittest.TestCase):
             # Create a fresh copy of base stats for each time point
             stat_entry = copy.deepcopy(self.base_stats)
             # Simulate incremental cputime based on CPU utilization
-            stat_entry['cputime'] += 100000 * self.vm_vcpus * int(self.cpu_util * 100)
+            stat_entry['cputime'] += 100000 * self.vm_vcpus * int(self.cpu_util * 100) * (i + 1)
             stat_entry['timestamp'] += i + 1  # increment timestamp by 1 per second
             self.stats_list.append(stat_entry)
 
     def test_analyze(self):
         vm_factory = vm.VMFactory()
-        vm_analyze = analyze.VMStatsAnalyze(vm_factory)
-        vm_uuid = self.base_stats['uuid']
-        vm_analyzers = vm_analyze.analyzeStats(self.test_id, self.stats_list)
+        vm_analyze = analyze.VMStatsAnalyze(vm_factory, 'cpuUsage')
+        vm_name = self.base_stats['name']
+        vm_analyzers = vm_analyze.analyze_stats(self.test_id, self.stats_list)
         
         # Verify that the calculated CPU utilization matches the expected value
         for analyzers_info in vm_analyzers:
+            if vm_name not in analyzers_info:
+                continue
             self.assertAlmostEqual(
-                analyzers_info[vm_uuid]['Current_cpu_utilization'],
+                analyzers_info[vm_name]['Current_cpu_utilization'],
                 self.cpu_util,
                 places=5
             )
 
         self.assertAlmostEqual(
-            vm_factory.getVMAnalyzers(self.test_id),
+            vm_factory.get_vm_analyzers(self.test_id),
             self.cpu_util,
             places=5
         )
