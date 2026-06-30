@@ -12,6 +12,7 @@
 # See the Mulan PSL v2 for more details.
 #######################################################################################
 import time
+import logging
 from utils import config
 
 
@@ -30,7 +31,13 @@ class VMAnalyzersReporter():
         start_time = end_time - config.VM_ANALYZERS_CONFIG['duration']
         for vm_id in list(vm_factory.vms.keys()):
             vm_stats = self.__statsStorage.getStatsInfo(vm_id, start_time, end_time)
+            if not vm_stats or len(vm_stats) < 2:
+                logging.debug("Insufficient stats data for VM %d, skipping", vm_id)
+                continue
             vm_analyzers = self.__statsAnalyzer.analyzeStats(vm_id, vm_stats)
+            if vm_analyzers is None:
+                logging.debug("No analyzers generated for VM %d", vm_id)
+                continue
             self.__analyzersViews.output(vm_analyzers)
 
 

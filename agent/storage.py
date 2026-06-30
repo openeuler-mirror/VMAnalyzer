@@ -39,6 +39,10 @@ class VMStatsRedisStorage(VMStatsStorage):
         self.__sr = redis.StrictRedis(connection_pool=self.__pool)
         self.__vmFactory = vmFactory
 
+    def __del__(self):
+        if hasattr(self, '_VMStatsRedisStorage__pool'):
+            self.__pool.disconnect()
+
     @property
     def sr(self):
         return self.__sr
@@ -62,7 +66,7 @@ class VMStatsRedisStorage(VMStatsStorage):
 
     def getStatsInfo(self, vmID, startTimestamp, endTimestamp):
         # VM has been shutdown or destroyed???
-        if vmID not in list(self.__vmFactory.vms.keys()):
+        if vmID not in self.__vmFactory.vms:
             return {}
 
         vm_info = self.__vmFactory.getVM(vmID)

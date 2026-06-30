@@ -40,7 +40,7 @@ def main():
         opts, args = getopt.getopt(sys.argv[1:], "hdt:i:", ["help", "debug", "timeout=", "interval="])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print ('Got a eror and exit, error is %s' % str(err))
+        print ('Got a error and exit, error is %s' % str(err))
         usage()
         sys.exit(2)
 

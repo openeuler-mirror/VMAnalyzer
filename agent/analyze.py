@@ -23,11 +23,11 @@ class VMStatsAnalyze(object):
 
         vm_factory = self.__vmFactory
         if vmID not in vm_factory.vms:
-            return
+            return []
         vm_info = vm_factory.getVM(vmID)
         if len(vmStatsInfo) < 2:
             logging.warning("There are too less stats of VM: %s", vm_info['name'])
-            return
+            return []
 
         analyzers_list = []
         logging.debug('Length of VM stats: %d', len(vmStatsInfo))
@@ -51,7 +51,7 @@ class VMStatsAnalyze(object):
                 continue
 
             cpu_util = delta_cputime * 100.0 / (delta_timestamp * vcpu_count * 1e9)
-            
+
             last_cpu_util = cpu_util
 
             logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
@@ -62,6 +62,15 @@ class VMStatsAnalyze(object):
                 'TimeStamp': vmStatsInfo[i + 1]['timestamp'],
                 'name': vm_info['name']
             }
+                        trend = "stable"
+            if len(analyzers_list) > 0:
+                prev_util = analyzers_list[-1].get('cpu_util', cpu_util)
+                if cpu_util > prev_util * 1.1:
+                    trend = "rising"
+                elif cpu_util < prev_util * 0.9:
+                    trend = "falling"
+            analyzers_info['trend'] = trend
+
             analyzers_list.append({vm_info['uuid']: analyzers_info})
 
         vm_factory.setVMAnalyzers(vmID, round(last_cpu_util, 4))

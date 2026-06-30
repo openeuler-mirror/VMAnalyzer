@@ -46,6 +46,8 @@ def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
     # Iterate over dict values directly; no need to wrap in list() in Python 3
     for v in new_util.values():
+        if not isinstance(v, dict):
+            continue
         if 'Current_cpu_utilization' in v:
             if isinstance(v['Current_cpu_utilization'], float):
                 v['Current_cpu_utilization'] = '{:.2f%}'.format(v['Current_cpu_utilization'])
@@ -61,6 +63,13 @@ class VMAnalyzersView(object):
 
 class VMAnalyzersConsoleView(VMAnalyzersView):
     def output(self, vmAnalyzersInfo):
+        for analyzers_info in vmAnalyzersInfo:
+        if analyzers_info:
+            try:
+                print(json.dumps(convert_to_percent(analyzers_info)))
+            except Exception:
+                logging.exception("Failed to output analyzers info: %s")
+<<<<<<< yolo-12
         # Print table header
         print("{:<20} {:<15} {:<10}".format("VM Name", "CPU Util", "Trend"))
         print("-" * 50)
@@ -79,7 +88,5 @@ class VMAnalyzersConsoleView(VMAnalyzersView):
             color_padded = pad_ansi_string(color_str, 15) if color_str != "N/A" else color_str.ljust(15)
             trend_padded = trend.ljust(10)
             print(name_padded + color_padded + trend_padded)
-
-        # Optional: keep JSON output for scripting? Uncomment if needed.
-        # for analyzers_info in vmAnalyzersInfo:
-        #     print(json.dumps(convert_to_percent(analyzers_info)))
+            
+>>>>>>> master
