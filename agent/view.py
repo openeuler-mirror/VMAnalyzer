@@ -24,6 +24,8 @@ def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
     # Iterate over dict values directly; no need to wrap in list() in Python 3
     for v in new_util.values():
+        if not isinstance(v, dict):
+            continue
         if 'Current_cpu_utilization' in v:
             if isinstance(v['Current_cpu_utilization'], float):
                 v['Current_cpu_utilization'] = '{:.2%}'.format(v['Current_cpu_utilization'])
@@ -40,4 +42,8 @@ class VMAnalyzersView(object):
 class VMAnalyzersConsoleView(VMAnalyzersView):
     def output(self, vmAnalyzersInfo):
         for analyzers_info in vmAnalyzersInfo:
-            print(json.dumps(convert_to_percent(analyzers_info)))
+            if analyzers_info:
+                try:
+                    print(json.dumps(convert_to_percent(analyzers_info)))
+                except Exception:
+                    logging.exception("Failed to output analyzers info: %s")
