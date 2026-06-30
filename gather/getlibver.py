@@ -12,27 +12,27 @@ SERVER_NAME = "qemu+ssh://root@192.168.203.132/system"
 LOCAL_NAME = "qemu:///system"
 def createConnection(serverName):
   if not libvirt:
-    print 'python-libvirt module is missing'
+    print('python-libvirt module is missing')
     sys.exit(1)
 #  conn = libvirt.openReadOnly("qemu+ssh://root@192.168.203.132/system")
   conn = libvirt.openReadOnly(serverName)
   if conn == None:
-    print 'Failed to connect to QEMU/KVM'
+    print('Failed to connect to QEMU/KVM')
   else:
-    print '------------Connected to QEMU/KVM---------------'
+    print('------------Connected to QEMU/KVM---------------')
     return conn
   
 def closeConnection(conn):
   try:
-    print '----------Disconnect from QEMU/KVM--------------'
+    print('----------Disconnect from QEMU/KVM--------------')
     conn.close()
   except:
-    print 'Failed to close connection'
+    print('Failed to close connection')
     sys.exit(1)
 
 def getESSDSerial(domain, conn):
   if domain == None:
-    print 'Domain Name Is Empty'
+    print('Domain Name Is Empty')
     sys.exit(1)
   try:
       dom = conn.lookupByName(domain)
@@ -46,7 +46,7 @@ def getESSDSerial(domain, conn):
     if device and (device.startswith('sd') or device.startswith('vd')):
       serial = disk_info.find('serial')
       volume_uuid = serial.text if serial is not None else None
-      print 'disk: %s / serial : %s ' % (device, volume_uuid)
+      print('disk: %s / serial : %s ' % (device, volume_uuid))
 
 if __name__ == '__main__':
   argc = len(sys.argv) - 1
