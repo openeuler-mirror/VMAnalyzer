@@ -254,7 +254,9 @@ class VMStatsAnalyze(object):
                 'log_vm': ['current_state', 'latest_event', 'state_log']
             }
             for i in range(len(vm_stats_info) - 1):
-                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                if vm_stats_info[i]['uuid'] != vm_stats_info[i+1]['uuid']:
+                    logging.warning('Skipping mismatched VM stats sample for VM: %s', vm_info['name'])
+                    continue
                 analyzers_info = {key: vm_stats_info[i][key] for key in key_map[label]}
                 analyzers_info['TimeStamp'] = vm_stats_info[i + 1]['timestamp']
                 analyzers_list.append({vm_info['name']: analyzers_info})
