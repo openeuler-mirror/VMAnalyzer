@@ -12,7 +12,7 @@
 # See the Mulan PSL v2 for more details.
 #######################################################################################
 import unittest
-import mock
+from unittest import mock
 from agent import collector
 from agent import vm
 import libvirt
@@ -28,21 +28,18 @@ class TestVMStatsCollector(unittest.TestCase):
             'uuid': "6717da86-fc51-474d-92fe-a76380c27c62",
             'name': "instance-000003f9"
         }
-        vm_factory.addVM(0, vm_info)
+        vm_factory.add_vm(0, vm_info)
 
         # Createe a mock storage backend
         vm_storage = mock.MagicMock()
 
         # Initialize collector and trigger stats recording
-        vm_collector = collector.VMStatsCollector(vm_factory, vm_storage)
-        vm_collector.recordStats()
+        vm_collector = collector.VMStatsCollector(vm_factory, vm_storage, 'cpuUsage')
+        vm_collector.record_stats()
 
         # Verify that libvirt lookup and storage save were called
         mock_lookup.assert_called()          # Prefer assert_called() over .called
-        # Verify that libvirt lookup and storage save were called
-        mock_lookup.assert_called()          # Prefer assert_called() over .called
-        mock_lookup.assert_called()          # Prefer assert_called() over .called
-        vm_storage.saveStatsInfo.assert_called()
+        vm_storage.save_stats_info.assert_called()
 
 if __name__ == "__main__":
     unittest.main()
