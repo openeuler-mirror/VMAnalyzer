@@ -245,7 +245,7 @@ class HealthChecker:
         import os
         
         checks = {
-            'is_root': os.geteuid() == 0,
+            'is_root': hasattr(os, 'geteuid') and os.geteuid() == 0,
             'can_access_libvirt': False
         }
         
