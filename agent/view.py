@@ -69,7 +69,7 @@ class VMAnalyzersConsoleView(VMAnalyzersView):
                 print(json.dumps(convert_to_percent(analyzers_info)))
             except Exception:
                 logging.exception("Failed to output analyzers info: %s")
-<<<<<<< yolo-12
+
         # Print table header
         print("{:<20} {:<15} {:<10}".format("VM Name", "CPU Util", "Trend"))
         print("-" * 50)
@@ -88,5 +88,4 @@ class VMAnalyzersConsoleView(VMAnalyzersView):
             color_padded = pad_ansi_string(color_str, 15) if color_str != "N/A" else color_str.ljust(15)
             trend_padded = trend.ljust(10)
             print(name_padded + color_padded + trend_padded)
-            
->>>>>>> master
+
