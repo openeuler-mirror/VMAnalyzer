@@ -85,7 +85,7 @@ class VMMemTopNCollector:
             if "return" not in resp:
                 logger.error(f"VM {vm_name} QGA返回格式异常：{output}")
                 return None
-             if not isinstance(resp["return"], list):
+            if not isinstance(resp["return"], list):
                 logger.error(f"VM {vm_name} QGA返回return非列表类型：{type(resp['return'])}，数据：{output}")
                 return None
             return resp["return"]
