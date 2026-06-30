@@ -13,7 +13,7 @@
 #######################################################################################
 
 import unittest
-import mock
+from unittest import mock
 from agent import reporter
 from agent import vm
 
@@ -28,19 +28,19 @@ class TestVMAnalyzersReporter(unittest.TestCase):
 
     def test_startReport(self):
         vm_factory = vm.VMFactory()
-        vm_factory.addVM(self.test_id, self.test_vm)
+        vm_factory.add_vm(self.test_id, self.test_vm)
 
         # Create mock dependencies
         vm_storage = mock.MagicMock()
         vm_analyzer = mock.MagicMock()
         vm_viewer = mock.MagicMock()
 
-        vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer)
-        vm_reporter.startReport()
+        vm_reporter = reporter.VMAnalyzersReporter(vm_factory, vm_storage, vm_viewer, vm_analyzer, 1)
+        vm_reporter.start_report()
 
         # Verify that essential methods were invoked during reporting
-        vm_storage.getStatsInfo.assert_called()
-        vm_analyzer.analyzeStats.assert_called()
+        vm_storage.get_stats_info.assert_called()
+        vm_analyzer.analyze_stats.assert_called()
         vm_viewer.output.assert_called()
 
 
