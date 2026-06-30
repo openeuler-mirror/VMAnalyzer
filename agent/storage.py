@@ -286,7 +286,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                 }
 
             else:
-                logging.error('wrong label!')
+                logging.error('wrong label: %s', label)
 
             vm_stats.append(stats_dict)
         return vm_stats
