@@ -27,7 +27,7 @@ class TestVMStatsRedisStorage(unittest.TestCase):
         }
         self.test_id = 168
         vm_factory = vm.VMFactory()
-        vm_factory.addVM(self.test_id, self.test_vm)
+        vm_factory.add_vm(self.test_id, self.test_vm)
         self.vm_factory = vm_factory
         self.base_stats = {
             'uuid': self.test_vm['uuid'],
@@ -48,18 +48,18 @@ class TestVMStatsRedisStorage(unittest.TestCase):
             self.stats_list.append(copy.deepcopy(test_stats))
         self.end_time = test_stats['timestamp']
 
-    def test_saveStatsInfo(self):
-        vm_storage = storage.VMStatsRedisStorage(self.vm_factory)
+    def test_save_stats_info(self):
+        vm_storage = storage.VMStatsRedisStorage(self.vm_factory, 'cpuUsage')
         for stats in self.stats_list:
-            vm_storage.saveStatsInfo({self.test_id: stats})
+            vm_storage.save_stats_info({self.test_id: stats})
         self.assertEqual(vm_storage.sr.zcount(self.test_vm['uuid'], self.start_time, self.end_time), self.test_time)
         vm_storage.sr.zremrangebyscore(self.test_vm['uuid'], self.start_time, self.end_time)
 
-    def test_getStatsInfo(self):
-        vm_storage = storage.VMStatsRedisStorage(self.vm_factory)
+    def test_get_stats_info(self):
+        vm_storage = storage.VMStatsRedisStorage(self.vm_factory, 'cpuUsage')
         for vm_stats in self.stats_list:
-            vm_storage.saveStatsInfo({self.test_id: vm_stats})
-        vm_stats = vm_storage.getStatsInfo(self.test_id, self.start_time, self.end_time)
+            vm_storage.save_stats_info({self.test_id: vm_stats})
+        vm_stats = vm_storage.get_stats_info(self.test_id, self.start_time, self.end_time)
         self.assertEqual(len(vm_stats), self.test_time)
         # Use zip to iterate over expected and actual stats in parallel — avoids manual indexing.
         for expected, actual in zip(self.stats_list, vm_stats):
