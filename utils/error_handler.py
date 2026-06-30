@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""错误处理工具"""
+"""閿欒澶勭悊宸ュ叿"""
 import logging
 class ErrorHandler:
     def __init__(self):
@@ -32,5 +32,5 @@ def report_error(error_type, error_message, context=None):
     
     try:
         requests.post(ERROR_REPORTING_ENDPOINT, json=payload, timeout=2)
-    except:
+    except Exception:
         pass  # Silent failure for error reporting
