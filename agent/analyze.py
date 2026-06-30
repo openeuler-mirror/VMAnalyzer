@@ -47,7 +47,9 @@ class VMStatsAnalyze(object):
         if label == 'cpuUsage':
             cpu_utils = []
             for i in range(len(vm_stats_info) - 1):
-                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                if vm_stats_info[i]['uuid'] != vm_stats_info[i+1]['uuid']:
+                    logging.warning('Skipping mismatched VM stats sample for VM: %s', vm_info['name'])
+                    continue
                 # User can adjust the number of vcpus???
                 vcpu_count = vm_stats_info[i]['vcpus']
                 logging.debug('VM %s: previous cputime: %ld, '
