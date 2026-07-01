@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import subprocess
 import json
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import re
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
