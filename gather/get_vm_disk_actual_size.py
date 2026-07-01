@@ -3,7 +3,7 @@
 import subprocess
 import json
 from lxml import etree
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import os
 import re
 
