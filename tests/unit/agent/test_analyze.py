@@ -16,7 +16,6 @@ import unittest
 import copy
 from agent import analyze
 from agent import vm
-from utils import config
 
 
 class VMStatsAnalyze(unittest.TestCase):
