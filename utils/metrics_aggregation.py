@@ -19,7 +19,7 @@ including statistical calculations like min, max, avg, percentiles.
 """
 import statistics
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
