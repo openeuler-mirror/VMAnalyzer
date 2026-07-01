@@ -5,7 +5,6 @@ import json
 import sys
 from lxml import etree
 from typing import Optional, Dict, Any
-import os
 import re
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
