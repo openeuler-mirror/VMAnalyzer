@@ -4,7 +4,7 @@
 import json
 import subprocess
 from lxml import etree
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """
