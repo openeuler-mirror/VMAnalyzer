@@ -9,7 +9,6 @@ import subprocess
 import json
 import logging
 import argparse
-import os
 import time
 from typing import Dict, List, Optional
 
