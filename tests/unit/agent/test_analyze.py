@@ -11,7 +11,6 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 #######################################################################################
-import random
 import unittest
 import copy
 from agent import analyze
