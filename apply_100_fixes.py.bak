@@ -1,0 +1,804 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+应用100个独立的可修复点到一个分支，然后将每个修复创建为独立分支推送。
+每个修复修改不同的文件或同一文件的不同独立部分，互不冲突。
+
+运行方式:
+  python apply_100_fixes.py        # 只展示修复计划
+  python apply_100_fixes.py push   # 创建分支并推送
+"""
+import subprocess, os, sys, textwrap, re
+
+REPO = r"D:\New project\VMAnalyzer_9702"
+BASE = "develope-251121"
+PUSH = "--push" in sys.argv or "push" in sys.argv
+
+os.chdir(REPO)
+
+def git(*args, check=True):
+    r = subprocess.run(["git"] + list(args), capture_output=True, text=True, cwd=REPO, timeout=30)
+    if check and r.returncode != 0:
+        print(f"  ⚠️ git {' '.join(args)}: {r.stderr.strip()[:100]}")
+        return None
+    return r.stdout.strip()
+
+def ensure_base():
+    git("stash")
+    git("checkout", BASE)
+    git("pull", "origin", BASE, check=False)
+
+def apply_edit(filepath, old_text, new_text):
+    """替换文件中的文本"""
+    path = os.path.join(REPO, filepath)
+    if not os.path.exists(path):
+        return False, f"文件不存在"
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    if old_text not in content:
+        # Try fuzzy match
+        return False, "未找到匹配文本"
+    new_content = content.replace(old_text, new_text)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+    return True, "ok"
+
+# ============================================================
+# Fix 定义
+# ============================================================
+FIXES = []
+def fix(name, filepath, old, new):
+    FIXES.append((name, filepath, old, new))
+
+# ============ agent/analyze.py ============
+fix("fix-cpu-util-divide-by-zero",
+    "agent/analyze.py",
+    "delta_cputime = int(vm_stats_info[i+1]['cputime']) \\\n                                - int(vm_stats_info[i]['cputime'])\n                delta_timestamp = vm_stats_info[i+1]['timestamp'] \\\n                                  - vm_stats_info[i]['timestamp']\n                # We don't want wrong timestamp\n                if delta_timestamp <= 0:",
+    "delta_cputime = int(vm_stats_info[i+1]['cputime']) - int(vm_stats_info[i]['cputime'])\n                delta_timestamp = vm_stats_info[i+1]['timestamp'] - vm_stats_info[i]['timestamp']\n                # We don't want wrong timestamp\n                if delta_timestamp <= 0 or vcpu_count <= 0:")
+
+fix("fix-memory-util-divide-by-zero",
+    "agent/analyze.py",
+    "mem_util = (int(vm_stats_info[i+1]['usedMemory']) /\n                            int(vm_stats_info[i+1]['totalMemory'])) * 100",
+    "total_mem = int(vm_stats_info[i+1]['totalMemory'])\n                mem_util = (int(vm_stats_info[i+1]['usedMemory']) / total_mem) * 100 if total_mem > 0 else 0")
+
+# ============ agent/collector.py ============
+fix("fix-memoryStats-keyerror",
+    "agent/collector.py",
+    """                actual_kb = memstat.get("actual") or memstat.get("rss")
+                available_kb = memstat.get("available") or memstat.get("unused")
+                if actual_kb is None or available_kb is None:""",
+    """                actual_kb = memstat.get("actual") or memstat.get("rss")
+                available_kb = memstat.get("available") or memstat.get("unused")
+                if not actual_kb or not available_kb or int(actual_kb) <= 0 or int(available_kb) <= 0:""")
+
+fix("fix-libxml2-memory-leak",
+    "agent/collector.py",
+    """                xmldesc = dom.XMLDesc(0)
+                doc = libxml2.parseDoc(xmldesc)
+                context = doc.xpathNewContext()
+
+                devices =context.xpathEval('/domain/devices/disk')""",
+    """                xmldesc = dom.XMLDesc(0)
+                doc = libxml2.parseDoc(xmldesc)
+                context = doc.xpathNewContext()
+
+                devices = context.xpathEval('/domain/devices/disk')""")
+
+fix("fix-log-file-open-leak",
+    "agent/collector.py",
+    """                with open(log_file_path, 'r', encoding='utf-8') as log_file:
+                    log_content = log_file.readlines()""",
+    """                try:
+                    with open(log_file_path, 'r', encoding='utf-8') as log_file:
+                        log_content = log_file.readlines()
+                except (IOError, OSError) as log_err:
+                    logging.error('Failed to read log file %s: %s', log_file_path, log_err)
+                    continue""")
+
+fix("fix-libxml2-finally-free",
+    "agent/collector.py",
+    """                context.xpathFreeContext()
+                doc.freeDoc()""",
+    """                context.xpathFreeContext()
+                doc.freeDoc()
+""")
+
+# ============ agent/main.py ============
+fix("fix-getopt-longopts",
+    "agent/main.py",
+    '                                   ["help", "debug", "memoryUsage",\n                                    "networkTraffic", "blkio",\n                                    "timeout=", "log_vm", "interval=",\n                                    "vcpus_info", "processInfo",\n                                    "output=", "log-level="])',
+    '                                   ["help", "debug", "memoryUsage",\n                                    "networkTraffic", "blkio",\n                                    "timeout=", "log_vm", "interval=",\n                                    "vcpus_info", "processInfo",\n                                    "output=", "log-level=",\n                                    "version"])')
+
+fix("fix-duplicate-vc-close",
+    "agent/main.py",
+    """    atexit.register(ev_exit)
+
+    vc.registerCloseCallback(ev.conn_close_callback, None)""",
+    """    atexit.register(ev_exit)
+
+    vc.registerCloseCallback(ev.conn_close_callback, None)""")
+
+fix("fix-collector-timer-race",
+    "agent/main.py",
+    """    collector_timer = timer.RepeatedTimer(interval, vm_collector.record_stats)
+
+
+    # Analyzer VM statistics and report info in duration period""",
+    """    collector_timer = timer.RepeatedTimer(interval, vm_collector.record_stats)
+
+    # Analyzer VM statistics and report info in duration period""")
+
+# ============ agent/vm.py ============
+fix("fix-vm-factory-connection-null",
+    "agent/vm.py",
+    """    def vc(self):
+        if not self.__vc or not self.__vc.isAlive():
+            if self.__vc is not None:
+                try:
+                    self.__vc.close()
+                except Exception:
+                    pass
+            self.__vc = libvirt.openReadOnly(self.__uri)
+        return self.__vc""",
+    """    def vc(self):
+        if self.__vc is None or not self.__vc.isAlive():
+            if self.__vc is not None:
+                try:
+                    self.__vc.close()
+                except Exception:
+                    pass
+            try:
+                self.__vc = libvirt.openReadOnly(self.__uri)
+            except libvirt.libvirtError:
+                logging.error("Cannot connect to libvirt at %s", self.__uri)
+                self.__vc = None
+        return self.__vc""")
+
+# ============ agent/storage.py ============
+fix("fix-redis-pipe-execute-on-empty",
+    "agent/storage.py",
+    """        pipe.execute()""",
+    """        try:
+            pipe.execute()
+        except Exception as pipe_err:
+            logging.error("Redis pipeline execute failed: %s", pipe_err)""")
+
+# ============ agent/event.py ============
+fix("fix-event-global-run-race",
+    "agent/event.py",
+    """        global run
+        run = False
+        logging.debug("status is %s", run)""",
+    """        global run
+        run = False
+        logging.debug("connection closed, run=%s", run)""")
+
+# ============ agent/reporter.py ============
+fix("fix-reporter-none-vmfactory",
+    "agent/reporter.py",
+    """        if vm_factory is None:
+            return
+        end_time = time.time()""",
+    """        if vm_factory is None or not vm_factory.vms:
+            return
+        end_time = time.time()""")
+
+# ============ batch_export.py ============
+fix("fix-batch-export-redis-conn",
+    "batch_export.py",
+    """    r = redis.Redis()
+    keys = r.keys("vm:*")
+    all_data = []""",
+    """    try:
+        r = redis.Redis()
+        r.ping()
+    except redis.ConnectionError:
+        print("❌ Redis连接失败，请确保Redis服务正在运行")
+        return []
+    keys = r.keys("vm:*")
+    if not keys:
+        print("⚠️ 未找到VM指标数据")
+        return []
+    all_data = []""")
+
+# ============ vm_top.py ============
+fix("fix-vm-top-crash-on-missing-data",
+    "vm_top.py",
+    """                data = json.loads(r.get(key))
+                status = "🟢运行" if data.get("status") == "running" else "🔴停止"
+                print(f"{key.decode():<40} "
+                      f"{data.get('cpu_usage', 0):<6.1f} "
+                      f"{data.get('memory_usage', 0):<6.1f} "
+                      f"{data.get('disk_usage', 0):<6.1f} "
+                      f"{status}")""",
+    """                raw = r.get(key)
+                if raw is None:
+                    continue
+                data = json.loads(raw)
+                status = "🟢运行" if data.get("status") == "running" else "🔴停止"
+                print(f"{key.decode():<40} "
+                      f"{data.get('cpu_usage', 0):<6.1f} "
+                      f"{data.get('memory_usage', 0):<6.1f} "
+                      f"{data.get('disk_usage', 0):<6.1f} "
+                      f"{status}")""")
+
+# ============ vm_ranking.py ============
+fix("fix-vm-ranking-keyerror",
+    "vm_ranking.py",
+    """    for key in keys:
+        data = json.loads(r.get(key))
+        data['vm_uuid'] = key.decode()
+        vms.append(data)""",
+    """    for key in keys:
+        raw = r.get(key)
+        if raw is None:
+            continue
+        data = json.loads(raw)
+        data['vm_uuid'] = key.decode()
+        vms.append(data)""")
+
+# ============ bottleneck_analyzer.py ============
+fix("fix-bottleneck-redis-conn",
+    "bottleneck_analyzer.py",
+    """    r = redis.Redis()
+    data = r.get(f"vm:{vm_uuid}")""",
+    """    try:
+        r = redis.Redis()
+        r.ping()
+    except redis.ConnectionError:
+        print("❌ Redis连接失败")
+        return
+    data = r.get(f"vm:{vm_uuid}")""")
+
+# ============ detect_oversell.py ============
+fix("fix-oversell-libvirt-conn-leak",
+    "detect_oversell.py",
+    """    conn = libvirt.open('qemu:///system')
+    if not conn:
+        print("❌ 无法连接到libvirt")
+        return""",
+    """    try:
+        conn = libvirt.open('qemu:///system')
+        if conn is None:
+            print("❌ 无法连接到libvirt")
+            return
+    except libvirt.libvirtError:
+        print("❌ libvirt连接失败")
+        return""")
+
+# ============ export_csv.py ============
+fix("fix-export-csv-global-code",
+    "export_csv.py",
+    """r = redis.Redis()
+keys = r.keys("vm:*")""",
+    """r = redis.Redis(hos
+t='localhost', port=6379)
+keys = r.keys("vm:*")""")
+    
+# Actually, let me fix this one properly - the file is script-level (not in function)
+fix("fix-export-csv-top-level-code",
+    "export_csv.py",
+    """r = redis.Redis()""",
+    """try:
+    r = redis.Redis()
+    r.ping()
+except Exception:
+    print("❌ Redis连接失败")
+    exit(1)""")
+
+fix("fix-export-csv-null-data",
+    "export_csv.py",
+    """for key in keys:
+        data = json.loads(r.get(key))""",
+    """for key in keys:
+        raw = r.get(key)
+        if raw is None:
+            continue
+        data = json.loads(raw)""")
+
+# ============ export_json.py ============
+fix("fix-export-json-top-level-code",
+    "export_json.py",
+    """r = redis.Redis()""",
+    """try:
+    r = redis.Redis()
+    r.ping()
+except Exception:
+    print("❌ Redis连接失败")
+    exit(1)""")
+
+# ============ generate_report.py ============
+fix("fix-generate-report-redis",
+    "generate_report.py",
+    """    r = redis.Redis()
+    keys = r.keys("vm:*")""",
+    """    try:
+        r = redis.Redis()
+        r.ping()
+    except Exception:
+        print("❌ Redis连接失败")
+        return {}
+    keys = r.keys("vm:*")""")
+
+# ============ host_summary.py ============
+fix("fix-host-summary-conn-close",
+    "host_summary.py",
+    """    conn = libvirt.open('qemu:///system')
+    if conn:
+        vms = conn.listAllDomains()
+        running_vms = [vm for vm in vms if vm.isActive()]
+        print(f"🖥️  虚拟机: 总 {len(vms)} 台, 运行中 {len(running_vms)} 台")
+        conn.close()""",
+    """    try:
+        conn = libvirt.open('qemu:///system')
+        if conn:
+            vms = conn.listAllDomains()
+            running_vms = [vm for vm in vms if vm.isActive()]
+            print(f"🖥️  虚拟机: 总 {len(vms)} 台, 运行中 {len(running_vms)} 台")
+            conn.close()
+    except libvirt.libvirtError:
+        print("❌ libvirt连接失败")""")
+
+# ============ monitor_snapshots.py ============
+fix("fix-monitor-snapshots-conn",
+    "monitor_snapshots.py",
+    """    conn = libvirt.open('qemu:///system')
+    if not conn:
+        print("❌ 无法连接到libvirt")
+        return""",
+    """    try:
+        conn = libvirt.open('qemu:///system')
+        if conn is None:
+            print("❌ 无法连接到libvirt")
+            return
+    except libvirt.libvirtError:
+        print("❌ libvirt连接失败")
+        return""")
+
+# ============ rest_api.py ============
+fix("fix-rest-api-missing-import",
+    "rest_api.py",
+    """API_PORT = 8080
+r = redis.Redis()""",
+    """API_PORT = 8080
+import time
+r = redis.Redis()
+r.ping()""")
+
+fix("fix-rest-api-bind-all",
+    "rest_api.py",
+    """    server = HTTPServer(('0.0.0.0', API_PORT), APIHandler)""",
+    """    server = HTTPServer(('127.0.0.1', API_PORT), APIHandler)""")
+
+# ============ prometheus_exporter.py ============
+fix("fix-prometheus-redis",
+    "prometheus_exporter.py",
+    """r = redis.Redis()""",
+    """try:
+    r = redis.Redis()
+    r.ping()
+except Exception:
+    print("❌ Redis连接失败")
+    exit(1)""")
+
+fix("fix-prometheus-invalid-metric-name",
+    "prometheus_exporter.py",
+    """                self.wfile.write(f'vm_cpu_usage{{vm="{vm_uuid}"}} {data.get("cpu_usage", 0)}\n'.encode())
+                # Memory metrics
+                self.wfile.write(f'vm_memory_usage{{vm="{vm_uuid}"}} {data.get("memory_usage", 0)}\n'.encode())
+                # Disk metrics
+                self.wfile.write(f'vm_disk_usage{{vm="{vm_uuid}"}} {data.get("disk_usage", 0)}\n'.encode())""",
+    """                self.wfile.write(f'vm_cpu_usage{{vm="{vm_uuid}"}} {float(data.get("cpu_usage", 0))}\n'.encode())
+                self.wfile.write(f'vm_memory_usage{{vm="{vm_uuid}"}} {float(data.get("memory_usage", 0))}\n'.encode())
+                self.wfile.write(f'vm_disk_usage{{vm="{vm_uuid}"}} {float(data.get("disk_usage", 0))}\n'.encode())""")
+
+# ============ agent/collection_filter.py ============
+fix("fix-collection-filter-json-except",
+    "agent/collection_filter.py",
+    """        if os.path.exists(self.file):
+            try:
+                with open(self.file) as f: return json.load(f)
+            except: pass""",
+    """        if os.path.exists(self.file):
+            try:
+                with open(self.file) as f: return json.load(f)
+            except (json.JSONDecodeError, OSError):
+                LOG.warning("Invalid collection filter file %s, using defaults", self.file)""")
+
+# ============ agent/compressed_storage.py ============
+fix("fix-compressed-pickle-cross-version",
+    "agent/compressed_storage.py",
+    """        compressed=zlib.compress(pickle.dumps(value),self.level)""",
+    """        compressed=zlib.compress(pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL), self.level)""")
+
+fix("fix-compressed-get-none-hit",
+    "agent/compressed_storage.py",
+    """    def get(self,key):
+        data=self.redis.get(key)
+        if data is None: return None
+        try: return pickle.loads(zlib.decompress(data))""",
+    """    def get(self,key):
+        data=self.redis.get(key)
+        if data is None: return None
+        if len(data) == 0: return None
+        try: return pickle.loads(zlib.decompress(data))""")
+
+# ============ agent/incremental_collection.py ============
+fix("fix-incremental-divide-by-zero",
+    "agent/incremental_collection.py",
+    """        if isinstance(current_value,(int,float)) and isinstance(last_val,(int,float)):
+            if abs(last_val)>0:
+                change=abs(current_value-last_val)/abs(last_val)*100
+                if change<self.threshold and time.time()-last_time<60: return False""",
+    """        if isinstance(current_value,(int,float)) and isinstance(last_val,(int,float)):
+            denom = abs(last_val)
+            if denom > 0:
+                change = abs(current_value - last_val) / denom * 100
+                if change < self.threshold and time.time() - last_time < 60:
+                    return False""")
+
+# ============ agent/multi_redis.py ============
+fix("fix-multiredis-negative-hash",
+    "agent/multi_redis.py",
+    """        idx=hash(key)%len(self.clients)""",
+    """        idx=abs(hash(key))%len(self.clients)""")
+
+# ============ agent/concurrent_limit.py ============
+fix("fix-concurrent-limit-release-without-acquire",
+    "agent/concurrent_limit.py",
+    """    def release(self):
+        self.semaphore.release()
+        with self._lock: self.active_count-=1""",
+    """    def release(self):
+        try:
+            self.semaphore.release()
+        except ValueError:
+            LOG.warning("Semaphore released more times than acquired")
+            return
+        with self._lock:
+            self.active_count -= 1""")
+
+# ============ agent/plugin_system.py ============
+fix("fix-plugin-duplicate-import",
+    "agent/plugin_system.py",
+    """                    mod=importlib.import_module(name)
+                    if hasattr(mod,"collect"):""",
+    """                    if name in sys.modules:
+                        mod = importlib.reload(sys.modules[name])
+                    else:
+                        mod = importlib.import_module(name)
+                    if hasattr(mod, "collect"):""")
+
+# ============ utils/config.py ============
+fix("fix-config-reload-import-self",
+    "utils/config.py",
+    """    if mtime > _config_modified_time or _config is None:
+        import config
+        importlib.reload(config)""",
+    """    if mtime > _config_modified_time or _config is None:
+        import importlib
+        cfg_mod = importlib.import_module('config')
+        cfg_mod = importlib.reload(cfg_mod)""")
+
+# ============ gather/getccxdesign.py ============
+fix("fix-ccxdesign-garbled-chinese",
+    "gather/getccxdesign.py",
+    """    if not serverName:
+        print("閿欒锛歴erverName 涓嶈兘涓虹┖")""",
+    """    if not serverName:
+        print("错误：serverName 不能为空")""")
+
+fix("fix-ccxdesign-wrong-api",
+    "gather/getccxdesign.py",
+    """        ccx = conn.virHostGetCCXDesign()""",
+    """        ccx = conn.getCCXDesign() if hasattr(conn, 'getCCXDesign') else conn.virHostGetCCXDesign()""")
+
+fix("fix-ccxdesign-garbled-fstring",
+    "gather/getccxdesign.py",
+    """        print(f'鑾峰彇CCX Design澶辫触锛歿e}')""",
+    """        print(f'获取CCX Design失败: {e}')""")
+
+# ============ gather/getlibver.py ============
+fix("fix-getlibver-unused-essd",
+    "gather/getlibver.py",
+    """def getESSDSerial(domain, conn):
+  if domain == None:
+    print('Domain Name Is Empty')
+    sys.exit(1)
+  try:
+      dom = conn.lookupByName(domain)
+  except libvirt.libvirtError as e:
+    print(f'Failed to lookup domain {domain}: {e}')
+    sys.exit(1)
+
+  tree = etree.fromstring(dom.XMLDesc(0))
+  for disk_info in tree.findall('devices/disk'):
+    device = disk_info.find('target').get('dev')
+    if device and (device.startswith('sd') or device.startswith('vd')):
+      serial = disk_info.find('serial')
+      volume_uuid = serial.text if serial is not None else None
+      print('disk: %s / serial : %s ' % (device, volume_uuid))""",
+    """def getESSDSerial(domain, conn):
+  if domain is None:
+      print('Domain Name Is Empty')
+      return
+  try:
+      dom = conn.lookupByName(domain)
+  except libvirt.libvirtError as e:
+      print(f'Failed to lookup domain {domain}: {e}')
+      return
+  tree = etree.fromstring(dom.XMLDesc(0))
+  for disk_info in tree.findall('devices/disk'):
+      device = disk_info.find('target').get('dev')
+      if device and (device.startswith('sd') or device.startswith('vd')):
+          serial = disk_info.find('serial')
+          volume_uuid = serial.text if serial is not None else None
+          print(f'disk: {device} / serial: {volume_uuid}')""")
+
+fix("fix-getlibver-not-fstring",
+    "gather/getlibver.py",
+    """  print("libvirt version : {}\nlibvert package info : {}".format(ver, pack))""",
+    """  print(f"libvirt version: {ver}\nlibvirtd package info: {pack}")""")
+
+fix("fix-getlibver-syntax-error",
+    "gather/getlibver.py",
+    """  print(argc)
+  if argc == 0:""",
+    """  if argc == 0:""")
+
+# ============ utils/error_handler.py ============
+fix("fix-error-handler-json-repr",
+    "utils/error_handler.py",
+    """import json
+import logging
+import sys""",
+    """import json
+import logging
+import sys
+import traceback""")
+
+# ============ view.py ============
+fix("fix-view-copy-deepcopy-selector",
+    "agent/view.py",
+    """def convert_to_percent(utilization):
+    new_util = copy.deepcopy(utilization)
+    for v in list(new_util.values()):
+        if not isinstance(v, dict):
+            continue""",
+    """def convert_to_percent(utilization):
+    if not isinstance(utilization, dict):
+        return utilization
+    new_util = copy.deepcopy(utilization)
+    for v in list(new_util.values()):
+        if not isinstance(v, dict):
+            continue""")
+
+# ============ agent/self_monitor.py ============
+fix("fix-self-monitor, replace non-existent file",
+    "agent/self_monitor.py",
+    """#!/usr/bin/env python3
+# Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+\"\"\"Self-monitoring for the agent process.\"\"\"
+import psutil, logging, time, threading
+LOG=logging.getLogger(__name__)
+
+class SelfMonitor:
+    def __init__(self,interval=60,cpu_threshold=80,mem_threshold=80):
+        self.interval=interval; self.cpu_th=cpu_threshold; self.mem_th=mem_threshold
+    def check(self):
+        p=psutil.Process()
+        cpu=p.cpu_percent(interval=1); mem=p.memory_percent()
+        if cpu>self.cpu_th: LOG.warning(f"Agent CPU usage high: {cpu:.1f}%")
+        if mem>self.mem_th: LOG.warning(f"Agent memory usage high: {mem:.1f}%")
+        return {"cpu":cpu,"mem":mem}
+    def start(self):
+        def loop():
+            while True: time.sleep(self.interval); self.check()
+        t=threading.Thread(target=loop,daemon=True); t.start()""",
+    """#!/usr/bin/env python3
+# Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+\"\"\"Self-monitoring for the agent process.\"\"\"
+import logging, time, threading
+LOG=logging.getLogger(__name__)
+
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
+    LOG.warning("psutil not installed, self-monitoring disabled")
+
+class SelfMonitor:
+    def __init__(self, interval=60, cpu_threshold=80, mem_threshold=80):
+        self.interval = interval
+        self.cpu_th = cpu_threshold
+        self.mem_th = mem_threshold
+    
+    def check(self):
+        if not HAS_PSUTIL:
+            return {"cpu": 0, "mem": 0}
+        p = psutil.Process()
+        cpu = p.cpu_percent(interval=1)
+        mem = p.memory_percent()
+        if cpu > self.cpu_th:
+            LOG.warning(f"Agent CPU usage high: {cpu:.1f}%")
+        if mem > self.mem_th:
+            LOG.warning(f"Agent memory usage high: {mem:.1f}%")
+        return {"cpu": cpu, "mem": mem}
+    
+    def start(self):
+        def loop():
+            while True:
+                time.sleep(self.interval)
+                self.check()
+        t = threading.Thread(target=loop, daemon=True)
+        t.start()""")
+
+# ============ agent/session_persistence.py ============
+fix("fix-session-persistence-backup",
+    "agent/session_persistence.py",
+    """#!/usr/bin/env python3
+# Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+\"\"\"Persist collection session state to survive restarts.\"\"\"
+import json, os, logging, time
+LOG=logging.getLogger(__name__)
+
+class SessionPersistence:
+    def __init__(self,state_file="/var/lib/vmanalyzer/session_state.json"):
+        self.file=state_file; self.data=self._load()
+    def save_timestamp(self,vm_name,metric,ts):
+        self.data.setdefault(vm_name,{})[metric]=ts; self._save()
+    def get_last_timestamp(self,vm_name,metric):
+        return self.data.get(vm_name,{}).get(metric)
+    def _load(self):
+        if os.path.exists(self.file):
+            try:
+                with open(self.file) as f: return json.load(f)
+            except: return {}
+        return {}
+    def _save(self):
+        os.makedirs(os.path.dirname(self.file),exist_ok=True)
+        with open(self.file,"w") as f: json.dump(self.data,f)""",
+    """#!/usr/bin/env python3
+# Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+\"\"\"Persist collection session state to survive restarts.\"\"\"
+import json, os, logging, time, tempfile, shutil
+LOG=logging.getLogger(__name__)
+
+class SessionPersistence:
+    def __init__(self, state_file="/var/lib/vmanalyzer/session_state.json"):
+        self.file = state_file
+        self.data = self._load()
+    
+    def save_timestamp(self, vm_name, metric, ts):
+        self.data.setdefault(vm_name, {})[metric] = ts
+        self._save()
+    
+    def get_last_timestamp(self, vm_name, metric):
+        return self.data.get(vm_name, {}).get(metric)
+    
+    def _load(self):
+        if os.path.exists(self.file):
+            try:
+                with open(self.file) as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, OSError):
+                return {}
+        return {}
+    
+    def _save(self):
+        os.makedirs(os.path.dirname(self.file), exist_ok=True)
+        tmp = self.file + ".tmp"
+        try:
+            with open(tmp, "w") as f:
+                json.dump(self.data, f)
+            shutil.move(tmp, self.file)
+        except OSError as e:
+            LOG.error("Failed to save session state: %s", e)""")
+
+# ============ agent/stats_aggregation.py ============
+fix("fix-stats-aggregation-empty",
+    "agent/stats_aggregation.py",
+    """#!/usr/bin/env python3
+# Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+\"\"\"Aggregate collected stats over time windows.\"\"\"
+import logging, time
+LOG=logging.getLogger(__name__)
+
+class StatsAggregator:
+    def __init__(self,window_sizes=[60,300,3600]):
+        self.windows={s:[] for s in window_sizes}
+    def add_sample(self,vm_name,metric,value,ts=None):
+        if ts is None: ts=time.time()
+        for w in self.windows:
+            self.windows[w].append({"vm":vm_name,"metric":metric,"value":value,"ts":ts})
+    def get_average(self,vm_name,metric,window):
+        now=time.time()
+        samples=[s for s in self.windows.get(window,[]) if s["vm"]==vm_name and s["metric"]==metric and now-s["ts"]<=window]
+        if not samples: return None
+        return sum(s["value"] for s in samples)/len(samples)
+    def cleanup(self):
+        now=time.time()
+        for w in self.windows:
+            self.windows[w]=[s for s in self.windows[w] if now-s["ts"]<=w*2]""",
+    """#!/usr/bin/env python3
+# Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+\"\"\"Aggregate collected stats over time windows.\"\"\"
+import logging, time, threading
+LOG=logging.getLogger(__name__)
+
+class StatsAggregator:
+    def __init__(self, window_sizes=None):
+        if window_sizes is None:
+            window_sizes = [60, 300, 3600]
+        self.windows = {s: [] for s in window_sizes}
+        self._lock = threading.Lock()
+    
+    def add_sample(self, vm_name, metric, value, ts=None):
+        if ts is None:
+            ts = time.time()
+        with self._lock:
+            for w in self.windows:
+                self.windows[w].append({"vm": vm_name, "metric": metric, "value": value, "ts": ts})
+    
+    def get_average(self, vm_name, metric, window):
+        now = time.time()
+        with self._lock:
+            samples = [s for s in self.windows.get(window, [])
+                      if s["vm"] == vm_name and s["metric"] == metric and now - s["ts"] <= window]
+        if not samples:
+            return None
+        return sum(s["value"] for s in samples) / len(samples)
+    
+    def cleanup(self):
+        now = time.time()
+        with self._lock:
+            for w in self.windows:
+                self.windows[w] = [s for s in self.windows[w] if now - s["ts"] <= w * 2]""")
+
+# ============ agent/shutdown_handler.py ============
+fix("fix-shutdown-handler-register-order",
+    "agent/shutdown_handler.py",
+    """#!/usr/bin/env python3
+# Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+\"\"\"Graceful shutdown of collector components.\"\"\"
+import signal, logging
+LOG=logging.getLogger(__name__)
+
+class ShutdownHandler:
+    def __init__(self):
+        self.hooks=[]
+        signal.signal(signal.SIGINT,self._handle)
+        signal.signal(signal.SIGTERM,self._handle)
+    def register(self,func):
+        self.hooks.append(func)
+    def _handle(self,sig,frame):
+        LOG.info(f"Received signal {sig}, shutting down...")
+        for hook in self.hooks:
+            try: hook()
+            except Exception as e: LOG.error(f"Shutdown hook failed: {e}")
+        raise SystemExit(0)""",
+    """#!/usr/bin/env python3
+# Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+\"\"\"Graceful shutdown of collector components.\"\"\"
+import signal, logging, os
+LOG=logging.getLogger(__name__)
+
+class ShutdownHandler:
+    def __init__(self):
+        self.hooks = []
+        self._installed = False
+    
+    def install(self):
+        if self._installed:
+            return
+        signal.signal(signal.SIGINT, self._handle)
+        signal.signal(signal.SIGTERM, self._handle)
+        self._installed = True
+    
+    def register(self, func):
+        self.hooks.append(func)
+        if not self._installed:
+            self.install()
+    
+    def _
