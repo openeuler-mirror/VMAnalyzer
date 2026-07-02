@@ -12,7 +12,7 @@
 # See the Mulan PSL v2 for more details.
 #######################################################################################
 import unittest
-import mock
+from unittest import mock
 from agent import event
 import libvirt
 
