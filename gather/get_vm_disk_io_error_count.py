@@ -4,6 +4,7 @@ import subprocess
 import json
 from typing import Dict, Any
 import re
+import logging
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """
