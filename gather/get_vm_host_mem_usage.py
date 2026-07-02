@@ -4,7 +4,7 @@ import subprocess
 import json
 import psutil
 from lxml import etree
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import os
 import re
 import sys

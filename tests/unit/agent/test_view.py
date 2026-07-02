@@ -13,7 +13,7 @@
 #######################################################################################
 import unittest
 import copy
-import mock
+from unittest import mock
 import json
 from agent import view
 

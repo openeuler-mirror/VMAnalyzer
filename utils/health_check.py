@@ -44,11 +44,12 @@ class HealthChecker:
     Health checker for VMAnalyzer components.
     """
     
-    def __init__(self, redis_host='localhost', redis_port=6379, 
-                 libvirt_uri='qemu:///system'):
+    def __init__(self, redis_host='localhost', redis_port=6379,
+                 libvirt_uri='qemu:///system', disk_check_path='/'):
         self.redis_host = redis_host
         self.redis_port = redis_port
         self.libvirt_uri = libvirt_uri
+        self.disk_check_path = disk_check_path
         self.checks = []
     
     def check_all(self):
@@ -281,9 +282,9 @@ def print_health_report(results):
     print("="*60)
     
     status_icon = {
-        'healthy': '✓',
-        'degraded': '⚠',
-        'unhealthy': '✗'
+        'healthy': '[OK]',
+        'degraded': '[WARN]',
+        'unhealthy': '[FAIL]'
     }
     
     overall = results['overall_status']
@@ -336,7 +337,6 @@ def main():
     
     checker = HealthChecker(
         redis_host=args.redis_host,
-	self.disk_check_path = '/'
         redis_port=args.redis_port,
         libvirt_uri=args.libvirt_uri
     )

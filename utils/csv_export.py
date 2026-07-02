@@ -20,7 +20,6 @@ making it easy to analyze data in spreadsheet applications.
 import csv
 import json
 import os
-import time
 from datetime import datetime
 import logging
 

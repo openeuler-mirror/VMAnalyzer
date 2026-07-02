@@ -33,7 +33,6 @@ ALERT_THRESHOLDS = {
 REDIS_RETENTION_SECONDS = 3600  # 1 hour
 import importlib
 import os
-import time
 
 _config_modified_time = 0
 _config = None

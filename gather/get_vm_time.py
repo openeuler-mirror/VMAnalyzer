@@ -5,7 +5,6 @@ import subprocess
 import json
 import logging
 import time
-import argparse
 import os
 from datetime import datetime
 

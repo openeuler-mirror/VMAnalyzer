@@ -63,7 +63,7 @@ class RepeatedTimer(object):
                                           self._run)
             self._timer.start()
             self.is_running = True
-            logging.debug('RepeatedTimer stopped: %s',
+            logging.debug('RepeatedTimer started: %s',
                           getattr(self.function, '__name__', repr(self.function)))
 
 
