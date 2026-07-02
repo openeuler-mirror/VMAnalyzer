@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# coding: utf-8
 """
 Batch export all VM metrics in multiple formats
 """
