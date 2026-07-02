@@ -29,31 +29,31 @@ class TestVMFactory(unittest.TestCase):
         vc = vm_factory.vc
         self.assertTrue(vc.isAlive())
 
-    def test_addVM(self):
+    def test_add_vm(self):
         vm_factory = vm.VMFactory()
-        vm_factory.addVM(self.test_id, self.test_vm)
+        vm_factory.add_vm(self.test_id, self.test_vm)
         # Verify the VM was added to the current factory instance
         self.assertDictEqual(vm_factory.vms[self.test_id], self.test_vm)
         # Cleaan up
-        vm_factory.delVM(self.test_id)
+        vm_factory.del_vm(self.test_id)
 
-    def test_getVM(self):
+    def test_get_vm(self):
         vm_factory = vm.VMFactory()
-        vm_factory.addVM(self.test_id, self.test_vm)
-        self.assertDictEqual(vm_factory.getVM(self.test_id), self.test_vm)
-        vm_factory.delVM(self.test_id)
+        vm_factory.add_vm(self.test_id, self.test_vm)
+        self.assertDictEqual(vm_factory.get_vm(self.test_id), self.test_vm)
+        vm_factory.del_vm(self.test_id)
 
-    def test_delVM(self):
+    def test_del_vm(self):
         vm_factory = vm.VMFactory()
-        vm_factory.addVM(self.test_id, self.test_vm)
-        vm_factory.delVM(self.test_id)
+        vm_factory.add_vm(self.test_id, self.test_vm)
+        vm_factory.del_vm(self.test_id)
         self.assertEqual(vm_factory.vms, {})
 
     def test_setAnalyzersVM(self):
         vm_factory = vm.VMFactory()
-        vm_factory.addVM(self.test_id, self.test_vm)
-        vm_factory.setVMAnalyzers(self.test_id, self.test_score)
-        self.assertEqual(vm_factory.getVMAnalyzers(self.test_id), self.test_score)
+        vm_factory.add_vm(self.test_id, self.test_vm)
+        vm_factory.set_vm_analyzers(self.test_id, self.test_score)
+        self.assertEqual(vm_factory.get_vm_analyzers(self.test_id), self.test_score)
 
 
 if __name__ == "__main__":

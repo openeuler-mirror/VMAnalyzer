@@ -85,7 +85,7 @@ def get_vm_libvirt_domain_xml(vm_name: str, full: bool = True) -> str:
             return json.dumps(result, ensure_ascii=False, indent=2)
 
         # 只保留核心节点（vcpu/memory/disk/interface）
-        trt:
+        try:
             core_nodes = ["vcpu", "memory", "disk", "interface", "os", "cpu"]
             core_xml = etree.Element("domain")
             for node in core_nodes:

@@ -153,7 +153,7 @@ class VMStatsAnalyze(object):
                 traffic_rate = {}
                 prev_traffic = vm_stats_info[i]['networkTraffic']
                 curr_traffic = vm_stats_info[i+1]['networkTraffic']
-                    if (isinstance(prev_traffic, dict)
+                if (isinstance(prev_traffic, dict)
                         and isinstance(curr_traffic, dict)):
                     for iface, prev in prev_traffic.items():
                         if iface in curr_traffic:
