@@ -4,7 +4,6 @@ import subprocess
 import json
 import psutil
 from typing import Optional, Dict, Any
-import os
 import re
 import sys
 
