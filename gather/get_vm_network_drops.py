@@ -4,7 +4,7 @@
 import subprocess
 import json
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """执行系统命令，返回标准化结果"""
