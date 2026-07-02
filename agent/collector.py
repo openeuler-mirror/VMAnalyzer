@@ -211,7 +211,7 @@ class VMStatsCollector:
                 doc = libxml2.parseDoc(xmldesc)
                 context = doc.xpathNewContext()
 
-                devices =context.xpathEval('/domain/devices/disk')
+                devices = context.xpathEval('/domain/devices/disk')
 
                 status_dic = {}
                 io_dic = {}
