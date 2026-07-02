@@ -187,7 +187,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     logging.warning('Unable to save stats of %s: %s', vm_stats['name'], err.args)
 
         else:
-            logging.error('error label!')
+            logging.error('error label: %s', label)
 
         pipe.execute()
 
