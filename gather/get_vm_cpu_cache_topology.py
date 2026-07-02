@@ -10,7 +10,7 @@ import json
 import logging
 import argparse
 import time
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 logging.basicConfig(
     level=logging.INFO,
