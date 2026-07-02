@@ -112,8 +112,8 @@ class VMStatsAnalyze(object):
 
                 # Calculate Memory utilization from the newer (i+1) sample so
                 # that the value and the timestamp are consistent.
-                mem_util = (int(vm_stats_info[i+1]['usedMemory']) /
-                            int(vm_stats_info[i+1]['totalMemory'])) * 100
+                total_mem = int(vm_stats_info[i+1]['totalMemory'])
+                mem_util = (int(vm_stats_info[i+1]['usedMemory']) / total_mem) * 100 if total_mem > 0 else 0
 
                 logging.debug('VM %s: memory utilization: %.2f%%',
                               vm_info['name'], mem_util)
