@@ -260,7 +260,7 @@ class VMStatsAnalyze(object):
                 analyzers_list.append({vm_info['name']: analyzers_info})
 
         else:
-            logging.error('wrong label!')
+            logging.error('wrong label: %s', label)
 
         return analyzers_list
 
