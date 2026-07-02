@@ -54,7 +54,8 @@ def main():
                                     "networkTraffic", "blkio",
                                     "timeout=", "log_vm", "interval=",
                                     "vcpus_info", "processInfo",
-                                    "output=", "log-level="])
+                                    "output=", "log-level=",
+                                    "version"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
