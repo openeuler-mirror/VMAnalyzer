@@ -31,8 +31,7 @@ setup(
     ],
     install_requires=[
         'redis',
-        'mock',
-        'python3-libvirt'
+        'mock'
     ],
     entry_points={
         'console_scripts': [
