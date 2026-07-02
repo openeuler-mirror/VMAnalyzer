@@ -41,7 +41,10 @@ class APIHandler(BaseHTTPRequestHandler):
         else:
             response = {"error": "Endpoint not found"}
         
-        self.wfile.write(json.dumps(response, indent=2).encode())
+        try:
+            self.wfile.write(json.dumps(response, indent=2).encode())
+        except Exception:
+            pass
 
 def main():
     server = HTTPServer(('0.0.0.0', API_PORT), APIHandler)
