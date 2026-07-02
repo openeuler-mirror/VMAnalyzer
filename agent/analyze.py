@@ -145,7 +145,9 @@ class VMStatsAnalyze(object):
         elif label == 'networkTraffic':
 
             for i in range(len(vm_stats_info) - 1):
-                assert vm_stats_info[i]['uuid'] == vm_stats_info[i+1]['uuid']
+                if vm_stats_info[i]['uuid'] != vm_stats_info[i+1]['uuid']:
+                    logging.warning('Skipping mismatched VM stats sample for VM: %s', vm_info['name'])
+                    continue
                 delta_timestamp = (vm_stats_info[i+1]['timestamp']
                                    - vm_stats_info[i]['timestamp'])
         
