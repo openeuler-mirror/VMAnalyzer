@@ -12,7 +12,10 @@ keys = r.keys("vm:*")
 export_data = []
 
 for key in keys:
-    data = json.loads(r.get(key))
+    raw = r.get(key)
+    if raw is None:
+        continue
+    data = json.loads(raw)
     export_data.append({
         "vm_uuid": key.decode(),
         "metrics": data,
