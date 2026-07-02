@@ -3,7 +3,7 @@
 """判断虚机是否崩溃"""
 import subprocess
 import json
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import os
 import re
 
