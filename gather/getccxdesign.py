@@ -8,11 +8,11 @@ import sys
 LOCAL_NAME = "qemu:///system"
 def createConnection(serverName):
     if not serverName:
-        print("错误：serverName 不能为空")
+        print("閿欒锛歴erverName 涓嶈兘涓虹┖")
         sys.exit(1)
 
     if not libvirt:
-        print("错误：未找到libvirt库")
+        print("閿欒锛氭湭鎵惧埌libvirt搴?)
         sys.exit(1)
 
     conn = libvirt.openReadOnly(serverName)
@@ -25,7 +25,7 @@ def closeConnection(conn):
     try:
         if conn:
             conn.close()
-    except:
+    except Exception:
         sys.exit(1)
 
 if __name__ == '__main__':
@@ -36,6 +36,6 @@ if __name__ == '__main__':
         print("ccx design:")
         print(ccx)
     except libvirt.libvirtError as e:
-        print(f'获取CCX Design失败：{e}')
+        print(f'鑾峰彇CCX Design澶辫触锛歿e}')
 
     closeConnection(conn)
