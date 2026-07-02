@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Adjust collection interval based on system load."""
-import psutil, time, logging
+try:
+    import psutil
+except ImportError:
+    psutil = None
+import time, logging
 LOG=logging.getLogger(__name__)
 
 class DynamicIntervalAdjuster:
