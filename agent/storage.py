@@ -228,7 +228,7 @@ class VMStatsRedisStorage(VMStatsStorage):
                     'name': data_dict['name'],
                     'vcpus': data_dict['vcpus'],
                     'cputime': data_dict['cputime'],
-                    'timestamp': int(data_dict['timestamp'])
+                    'timestamp': int(data_dict.get('timestamp', 0))
                 }
 
             elif label == 'memoryUsage':
