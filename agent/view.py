@@ -18,6 +18,7 @@ import copy
 import logging
 import os
 
+
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
     for v in list(new_util.values()):
