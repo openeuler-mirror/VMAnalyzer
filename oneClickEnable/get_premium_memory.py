@@ -1,3 +1,4 @@
+# coding: utf-8
 import libvirt
 import libvirt_qemu
 import json
