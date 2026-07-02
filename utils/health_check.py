@@ -201,6 +201,12 @@ class HealthChecker:
     def check_memory(self):
         """Check system memory."""
         try:
+            import os
+            if not os.path.exists('/proc/meminfo'):
+                return {
+                    'status': 'degraded',
+                    'warning': '/proc/meminfo is not available on this platform'
+                }
             with open('/proc/meminfo', 'r') as f:
                 meminfo = f.read()
             
