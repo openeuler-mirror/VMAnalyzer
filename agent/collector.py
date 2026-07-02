@@ -132,7 +132,7 @@ class VMStatsCollector:
                     'timestamp': int(timestamp)
                 }
                 logging.debug(
-                    'recordStats: Name %s, UUID %s, '
+                    'record_stats: Name %s, UUID %s, '
                     'vcpus %d, cputime %d, timestamp: %d',
                     vm['name'], vm['uuid'], dom_info[3],
                     dom_info[4], timestamp)
