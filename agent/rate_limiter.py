@@ -7,7 +7,7 @@ LOG=logging.getLogger(__name__)
 class QGARateLimiter:
     """Limit QGA command rate per VM or globally."""
     def __init__(self,max_per_second=5):
-        self.rate=max_per_second; self.window=1.0/max_per_second if max_per_second>0 else 0
+        self.rate=max_per_second; self.window = 1.0 / max_per_second if max_per_second > 0 else 0
         self._last={}; self._lock=threading.Lock()
 
     def acquire(self,vm_name):
