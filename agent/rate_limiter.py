@@ -24,4 +24,7 @@ class QGARateLimiter:
     def check(self,vm_name):
         with self._lock:
             now=time.time()
-            return now-self._last.get(vm_name,0)>=self.window
+            last=self._last.get(vm_name)
+            if last is None:
+                return True
+            return now-last>=self.window
