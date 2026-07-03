@@ -17,7 +17,7 @@ def get_vm_ranking(sort_by="cpu_usage", limit=10):
         data['vm_uuid'] = key.decode()
         vms.append(data)
     
-    # 排序
+    # Sort entries.
     vms.sort(key=lambda x: x.get(sort_by, 0), reverse=True)
     
     print("=" * 80)
