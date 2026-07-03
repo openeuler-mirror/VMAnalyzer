@@ -24,6 +24,7 @@ class AlertManager:
         return self.alert_history[-count:]
 class AlertManager:
     def __init__(self):
+        self._recent = {}
         self.alerts = []
     def add_alert(self, level, message, source):
         self.alerts.append({"level": level, "message": message, "source": source})
