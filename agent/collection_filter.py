@@ -9,7 +9,9 @@ class CollectionFilter:
     def __init__(self,config_file="/etc/vmanalyzer/collection_filter.json"):
         self.file=config_file; self.rules=self._load()
 
-    def should_collect(self,vm_name):
+    def should_collect(self, vm_name):
+        if not vm_name:
+            return False
         bl=self.rules.get("blacklist",[])
         wl=self.rules.get("whitelist",[])
         if wl and not any(re.match(p,vm_name) for p in wl):
