@@ -12,7 +12,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 
-"""get_vm_vcpu_sched_info.py — 收集每个虚拟机的 vCPU 调度参数。
+"""get_vm_vcpu_sched_info.py — 收集每个VM的 vCPU 调度参数。
 
 使用的 virsh 命令：
   virsh schedinfo <vm>   — 返回调度器类型及各项配额参数
@@ -74,7 +74,7 @@ class VMVcpuSchedInfoCollector:
         return [n for n in (output or "").split() if n]
 
     def parse_schedinfo(self, vm_name: str) -> Dict:
-        """解析 virsh schedinfo 输出，将数值字段自动转为 int。"""
+        """Parse virsh schedinfo 输出，将数值字段自动转为 int。"""
         output = self._run_virsh(["schedinfo", vm_name])
         info: Dict = {}
         if not output:
