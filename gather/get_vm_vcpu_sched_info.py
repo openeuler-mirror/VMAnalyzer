@@ -54,7 +54,7 @@ class VMVcpuSchedInfoCollector:
             "vms": {},
         }
 
-    # ── 工具方法 ─────────────────────────────────────────────────────────────
+    # 工具方法
 
     def _run_virsh(self, args: List[str]) -> Optional[str]:
         cmd = ["virsh"] + args
@@ -67,7 +67,7 @@ class VMVcpuSchedInfoCollector:
             LOG_ERROR("virsh %s 异常: %s", " ".join(args), e)
         return None
 
-# ── 采集逻辑 ─────────────────────────────────────────────────────────────
+# 采集逻辑
 
     def get_all_vm_names(self) -> List[str]:
         output = self._run_virsh(["list", "--all", "--name"])
@@ -95,7 +95,7 @@ class VMVcpuSchedInfoCollector:
         for vm_name in vm_names:
             LOG_INFO("收集 VM 调度信息: %s", vm_name)
             sched = self.parse_schedinfo(vm_name)
-            # 附加可读性说明：quota=-1 表示不限制
+            # Implementation note.
             if sched.get("vcpu_quota") == -1:
                 sched["vcpu_quota_note"] = "unlimited"
             if sched.get("emulator_quota") == -1:
