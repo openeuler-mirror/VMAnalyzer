@@ -12,6 +12,8 @@ class CacheManager:
         self.cache.clear()
     def set(self, key, value):
         self.cache[key] = (value, time.time())
+    def has_key(self, key):
+        return key in self.cache
     def get(self, key):
         if key in self.cache:
             value, timestamp = self.cache[key]
