@@ -27,7 +27,10 @@ def vm_top():
             
             keys = r.keys("vm:*")
             for key in keys:
-                data = json.loads(r.get(key))
+                raw = r.get(key)
+                if raw is None:
+                    continue
+                data = json.loads(raw)
                 status = "🟢运行" if data.get("status") == "running" else "🔴停止"
                 print(f"{key.decode():<40} "
                       f"{data.get('cpu_usage', 0):<6.1f} "
