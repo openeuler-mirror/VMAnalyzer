@@ -14,11 +14,11 @@ def export_all(formats=['json', 'csv']):
         r = redis.Redis()
         r.ping()
     except redis.ConnectionError:
-        print("❌ Redis连接失败，请确保Redis服务正在运行")
+        print("❌ Redis connection failed; make sure Redis is running")
         return []
     keys = r.keys("vm:*")
     if not keys:
-        print("⚠️ 未找到VM指标数据")
+        print("⚠️ No VM metric data found")
         return []
     all_data = []
     
@@ -32,7 +32,7 @@ def export_all(formats=['json', 'csv']):
     if 'json' in formats:
         with open(f"batch_export_{timestamp}.json", "w") as f:
             json.dump(all_data, f, indent=2)
-        print(f"✅ JSON导出完成: batch_export_{timestamp}.json")
+        print(f"✅ JSON export completed: batch_export_{timestamp}.json")
     
     if 'csv' in formats:
         if all_data and any(data for data in all_data):
@@ -40,7 +40,7 @@ def export_all(formats=['json', 'csv']):
                 writer = csv.DictWriter(f, fieldnames=all_data[0].keys())
                 writer.writeheader()
                 writer.writerows(all_data)
-            print(f"✅ CSV导出完成: batch_export_{timestamp}.csv")
+            print(f"✅ CSV export completed: batch_export_{timestamp}.csv")
     
     return all_data
 
