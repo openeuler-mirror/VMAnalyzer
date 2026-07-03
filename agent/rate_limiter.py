@@ -21,6 +21,13 @@ class QGARateLimiter:
             self._last[vm_name]=time.time()
         return True
 
+    def reset(self,vm_name=None):
+        with self._lock:
+            if vm_name:
+                self._last.pop(vm_name,None)
+            else:
+                self._last.clear()
+
     def check(self,vm_name):
         with self._lock:
             now=time.time()
