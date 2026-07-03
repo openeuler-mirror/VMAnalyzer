@@ -10,11 +10,11 @@ def detect_resource_oversell():
     """Detect CPU and memory oversell ratio"""
     conn = libvirt.open('qemu:///system')
     if not conn:
-        print("❌ 无法连接到libvirt")
+        print("❌ Failed to connect to libvirt")
         return
     
     print("=" * 80)
-    print("📊 资源超卖检测")
+    print("📊 Resource oversubscription check")
     print("=" * 80)
     
     # Host resources
@@ -39,16 +39,16 @@ def detect_resource_oversell():
     cpu_oversell = total_vcpus / host_cpu if host_cpu > 0 else 0
     mem_oversell = total_memory / host_memory if host_memory > 0 else 0
     
-    print(f"🖥️  宿主机资源: {host_cpu} vCPU, {host_memory} GB 内存")
-    print(f"🖥️  已分配资源: {total_vcpus} vCPU, {total_memory} GB 内存")
+    print(f"🖥️  host资源: {host_cpu} vCPU, {host_memory} GB memory")
+    print(f"🖥️  已分配资源: {total_vcpus} vCPU, {total_memory} GB memory")
     print(f"📈 CPU超卖率: {cpu_oversell:.2f}x")
-    print(f"📈 内存超卖率: {mem_oversell:.2f}x")
+    print(f"📈 memory超卖率: {mem_oversell:.2f}x")
     print()
     
     if cpu_oversell > 2.0:
-        print("⚠️  警告: CPU超卖率过高 (> 2.0x)，可能影响性能")
+        print("⚠️  Warning: CPU超卖率过高 (> 2.0x)，可能影响性能")
     if mem_oversell > 1.2:
-        print("⚠️  警告: 内存超卖率过高 (> 1.2x)，存在OOM风险")
+        print("⚠️  Warning: memory超卖率过高 (> 1.2x)，存在OOM风险")
     
     conn.close()
     return cpu_oversell, mem_oversell
