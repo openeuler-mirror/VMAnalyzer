@@ -39,7 +39,7 @@ class VMAnalyzersReporter():
         vm_factory = self.__vm_factory
         interval = self.__interval
 
-        if vm_factory is None:
+        if vm_factory is None or not vm_factory.vms:
             return
         end_time = time.time()
         start_time = end_time - config.VM_ANALYZERS_CONFIG['duration'] * interval
