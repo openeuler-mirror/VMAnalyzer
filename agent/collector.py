@@ -143,7 +143,7 @@ class VMStatsCollector:
                 # "available" is absent on some hypervisor builds.
                 actual_kb = memstat.get("actual") or memstat.get("rss")
                 available_kb = memstat.get("available") or memstat.get("unused")
-                if actual_kb is None or available_kb is None:
+                if not actual_kb or not available_kb or int(actual_kb) <= 0 or int(available_kb) <= 0:
                     logger.warning("VM %s: incomplete memoryStats keys=%s, "
                                    "skipping sample", dom.name(), list(memstat))
                     continue
