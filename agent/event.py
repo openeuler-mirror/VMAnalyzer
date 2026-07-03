@@ -89,7 +89,7 @@ class VMEventLoopNative(VMEventLoop):
                       const.CONNECTION_CLOSE_REASON_STRINGS.get(reason, str(reason)))
         global run
         run = False
-        logging.debug("status is %s", run)
+        logging.debug("connection closed, run=%s", run)
 
 def handle_vm_lifecycle_event(event_type, vm_name):
     """Handle VM lifecycle events and trigger alerts"""
