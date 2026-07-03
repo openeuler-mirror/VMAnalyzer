@@ -11,6 +11,8 @@ def exp_backoff_retry(max_retries=5,base_delay=0.5,max_delay=30):
             for attempt in range(max_retries+1):
                 try:
                     return func(*args,**kwargs)
+                except KeyboardInterrupt:
+                    raise
                 except Exception as e:
                     if attempt==max_retries:
                         LOG.error(f"Failed after {max_retries} retries: {e}")
