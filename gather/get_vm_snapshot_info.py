@@ -24,13 +24,13 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stdout"] = proc.stdout.strip()
         result["stderr"] = proc.stderr.strip()
     except subprocess.TimeoutExpired:
-        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+        result["stderr"] = f"Command timed out（{timeout}s）: {' '.join(cmd)}"
     except Exception as e:
-        result["stderr"] = f"命令执行异常: {str(e)}"
+        result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
 
 def get_vm_list() -> list:
-    """获取宿主机所有虚机名称列表"""
+    """获取host所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
@@ -39,7 +39,7 @@ def get_vm_list() -> list:
 """采集虚机快照列表及详细信息"""
 def get_vm_snapshot_info(vm_name: str) -> str:
     """
-    获取快照名称、创建时间、状态、磁盘大小
+    获取快照名称、创建时间、状态、disk大小
     输出标准化快照信息列表
     """
     result = {
@@ -56,7 +56,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
         result["error"] = snap_list_result["stderr"]
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 解析快照列表（跳过表头）
+    # Parse快照列表（跳过表头）
     lines = snap_list_result["stdout"].split("\n")[2:]
     snap_names = []
     for line in lines:
@@ -85,7 +85,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
             "disk_size_error": ""
         }
 
-        # 解析快照信息
+        # Parse快照信息
         for line in snap_info_result["stdout"].split("\n"):
             line = line.strip()
             if not line or ":" not in line:
@@ -99,7 +99,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
             elif key == "current":
                 snap_info["is_current"] = (value.lower() == "yes")
 
-        # 3. 获取快照磁盘大小（qemu-img）
+        # 3. 获取快照disk大小（qemu-img）
         snap_disk_cmd = ["virsh", "snapshot-dumpxml", vm_name, snap_name]
         snap_disk_result = execute_cmd(snap_disk_cmd)
         if snap_disk_result["code"] == 0:
@@ -115,13 +115,13 @@ def get_vm_snapshot_info(vm_name: str) -> str:
                         size = img_json.get("virtual-size", 0)
                         snap_info["disk_size_mb"] = round(size / (1024 * 1024), 2)
                     except json.JSONDecodeError as e:
-                        snap_info["disk_size_error"] = f"解析qemu-img输出失败: {str(e)}"
+                        snap_info["disk_size_error"] = f"Parseqemu-img输出失败: {str(e)}"
                 else:
                     # 记录qemu-img执行失败的原因
                     snap_info["disk_size_error"] = f"qemu-img执行失败: {img_result['stderr']}"
 
             else:
-                snap_info["disk_size_error"] = "未在快照XML中找到磁盘路径"
+                snap_info["disk_size_error"] = "未在快照XML中找到disk路径"
         else:
             snap_info["disk_size_error"] = f"获取快照XML失败: {snap_disk_result['stderr']}"
 
@@ -133,7 +133,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
 if __name__ == "__main__":
     vms = get_vm_list()
     if not vms:
-        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
+        print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
         sys.exit(1)
 
     results = []
