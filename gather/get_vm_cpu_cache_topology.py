@@ -65,13 +65,13 @@ def parse_cpu_cache_from_xml(xml: str) -> Dict:
     }
     try:
         root = ET.fromstring(xml)
-        # CPU 模型
+        # Implementation note.
         cpu_elem = root.find("cpu")
         if cpu_elem is not None:
             model_elem = cpu_elem.find("model")
             if model_elem is not None:
                 data["cpu_model"] = model_elem.text or ""
-            # 拓扑
+            # Implementation note.
             topo = cpu_elem.find("topology")
             if topo is not None:
                 data["topology"] = {
@@ -79,7 +79,7 @@ def parse_cpu_cache_from_xml(xml: str) -> Dict:
                     "cores": int(topo.get("cores", 0)),
                     "threads": int(topo.get("threads", 0))
                 }
-            # 缓存
+            # Implementation note.
             for cache in cpu_elem.findall("cache"):
                 level = cache.get("level")
                 if level:
