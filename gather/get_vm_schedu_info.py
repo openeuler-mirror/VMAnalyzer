@@ -19,7 +19,7 @@ def main():
                 dom = conn.lookupByID(dom_id)
                 all_doms.append(dom)
             except libvirt.libvirtError as e:
-                print(f"跳过无效的虚拟机ID {dom_id}：{e}")
+                print(f"跳过无效的VMID {dom_id}：{e}")
                 continue
         
         inactive_dom_names = conn.listDefinedDomains()
@@ -28,7 +28,7 @@ def main():
                 dom = conn.lookupByName(dom_name)
                 all_doms.append(dom)
             except libvirt.libvirtError as e:
-                print(f"跳过无效的虚拟机名称 {dom_name}：{e}")
+                print(f"跳过无效的VM名称 {dom_name}：{e}")
                 continue
         
         for domain in all_doms:
@@ -44,7 +44,7 @@ def main():
             sched_params = domain.schedulerParameters()
             vm_data["scheduler_params"] = {param: value for param, value in sched_params.items()}
             
-            print(f"正在处理虚拟机：{vm_name}")
+            print(f"正在处理VM：{vm_name}")
             
             try:
                 job_info = domain.jobInfo()
@@ -74,13 +74,13 @@ def main():
         try:
             with open("vm_scheduler_info.json", "w", encoding="utf-8") as f:
                 json.dump(vm_data_list, f, ensure_ascii=False, indent=2)
-            print(f"数据已成功写入 vm_scheduler_info.json，共处理 {len(vm_data_list)} 台虚拟机")
+            print(f"数据已成功写入 vm_scheduler_info.json，共处理 {len(vm_data_list)} virtual machines")
         except IOError as e:
             print(f"写入文件失败：{str(e)}")
 
             
     except libvirt.libvirtError as e:
-        print(f"libvirt 错误：{e}")
+        print(f"libvirt Error：{e}")
     finally:
         if 'conn' in locals() and conn is not None:
             conn.close()
