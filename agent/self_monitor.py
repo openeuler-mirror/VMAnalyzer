@@ -20,7 +20,7 @@ class SelfMonitor:
             time.sleep(interval)
 
     def start(self,interval=30):
-        self._thread=threading.Thread(target=self._collect,args=(interval,),daemon=True)
+        self._thread=threading.Thread(target=self._collect,args=(interval,),daemon=True,name="self-monitor")
         self._thread.start()
 
     def stop(self):
