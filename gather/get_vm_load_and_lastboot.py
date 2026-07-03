@@ -42,16 +42,16 @@ class VMSysMonitor:
         cmd = f"virsh qemu-agent-command {vm} '{{\"execute\":\"guest-get-lastboot-time\"}}'"
         res = self._run_cmd(cmd)
         if not res:
-            return "閲囬泦澶辫触"
+            return "collection failed"
         try:
             return json.loads(res)["return"]["lastboot"].strip()
         except (KeyError, TypeError, json.JSONDecodeError):
-            return "瑙ｆ瀽澶辫触"
+            return "parse failed"
 
     def get_load_avg(self, vm: str) -> Dict:
         cmd = f"virsh qemu-agent-command {vm} '{{\"execute\":\"guest-get-load-average\"}}'"
         res = self._run_cmd(cmd)
-        load = {"1min": "N/A", "5min": "N/A", "15min": "N/A", "note": "涓嶆敮鎸?閲囬泦澶辫触"}
+        load = {"1min": "N/A", "5min": "N/A", "15min": "N/A", "note": "涓嶆敮鎸?collection failed"}
         if res:
             try:
                 d = json.loads(res)["return"]
@@ -59,10 +59,10 @@ class VMSysMonitor:
                     "1min": d.get("load1-average", "N/A").strip(),
                     "5min": d.get("load5-average", "N/A").strip(),
                     "15min": d.get("load15-average", "N/A").strip(),
-                    "note": "閲囬泦鎴愬姛"
+                    "note": "collection succeeded"
                 }
             except:
-                load["note"] = "瑙ｆ瀽澶辫触"
+                load["note"] = "parse failed"
         return load
 
     def collect(self) -> None:
@@ -74,7 +74,7 @@ class VMSysMonitor:
             self.data["vms"][vm] = {
                 "boot_time": self.get_boot_time(vm),
                 "load_avg": self.get_load_avg(vm),
-                "status": "success" if self.get_boot_time(vm) != "閲囬泦澶辫触" else "fail"
+                "status": "success" if self.get_boot_time(vm) != "collection failed" else "fail"
             }
 
     def save(self) -> None:
@@ -102,7 +102,7 @@ class VMSysMonitor:
                 time.sleep(self.poll)
 
 def main():
-    parser = argparse.ArgumentParser(description="VM绯荤粺鐩戞帶")
+    parser = argparse.ArgumentParser(description="VM system monitoring")
     parser.add_argument("--poll", type=int, default=60, help="杞闂撮殧(绉?")
     parser.add_argument("--out-dir", type=str, default="./vm_sys_data", help="杈撳嚭鐩綍")
     args = parser.parse_args()

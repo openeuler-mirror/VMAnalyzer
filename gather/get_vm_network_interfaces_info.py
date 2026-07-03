@@ -39,8 +39,8 @@ class VMCollector:
     def run_virsh_cmd(self, cmd: str) -> Optional[str]:
         """执行 virsh 命令，兼容复杂引号和 JSON 格式"""
         try:
-            LOG_INFO(f"执行命令：{cmd}")
-            # 启用 shell=True 解析复杂命令，避免 split() 破坏 JSON 结构
+            LOG_INFO(f"Executing command：{cmd}")
+            # 启用 shell=True Parse复杂命令，避免 split() 破坏 JSON 结构
             result = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -53,44 +53,44 @@ class VMCollector:
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
             err_msg = e.stderr.strip()
-            LOG_ERROR(f"命令执行失败：{cmd}，错误：{err_msg}")
+            LOG_ERROR(f"Command failed：{cmd}，Error：{err_msg}")
             return None
         except subprocess.TimeoutExpired:
-            LOG_ERROR(f"命令执行超时：{cmd}（超过 30 秒）")
+            LOG_ERROR(f"Command timed out：{cmd}（超过 30 秒）")
             return None
         except Exception as e:
-            LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
+            LOG_ERROR(f"Command raised an exception：{cmd}，Error：{str(e)}")
             return None
 
     def get_all_vm_names(self) -> List[str]:
-        """获取所有有效虚拟机名称（过滤空行和无效值）"""
+        """获取所有有效VM名称（过滤空行和无效值）"""
         cmd = "virsh list --name | grep -v '^$' | grep -v '^-$'"
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
 
     def call_qga_interface(self, vm_name: str, interface: str) -> Dict:
-        # 关键修复：用双引号包裹 JSON，内部字段用转义双引号（shell 解析无歧义）
+        # 关键修复：用双引号包裹 JSON，内部字段用转义双引号（shell Parse无歧义）
         json_param = f'{{"execute":"{interface}"}}'
         # 外层用单引号包裹 JSON 参数，避免 shell 转义冲突
         cmd = f"virsh qemu-agent-command {vm_name} '{json_param}'"
         output = self.run_virsh_cmd(cmd)
         
         if not output:
-            return {"status": "failed", "data": {}, "error": "命令无返回结果"}
+            return {"status": "failed", "data": {}, "error": "Command returned no output"}
         
         try:
             resp = json.loads(output)
             if "return" in resp:
                 return {"status": "success", "data": resp["return"], "error": ""}
             else:
-                error_msg = resp.get("error", {}).get("message", "接口返回异常")
+                error_msg = resp.get("error", {}).get("message", "API returned an error")
                 return {"status": "failed", "data": {}, "error": error_msg}
         except json.JSONDecodeError as e:
-            LOG_ERROR(f"解析 {interface} 结果失败：{output}，错误：{str(e)}")
+            LOG_ERROR(f"Parse {interface} 结果失败：{output}，Error：{str(e)}")
             return {"status": "parse_error", "data": {}, "error": str(e)}
 
     def collect_single_vm_networkinfo_data(self, vm_name: str) -> Dict:
-        LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
+        LOG_INFO(f"\n===== 开始采集VM：{vm_name} =====")
         
         network_interfaces = self.call_qga_interface(vm_name, "guest-network-get-interfaces")
         vm_data = {
@@ -101,22 +101,22 @@ class VMCollector:
                 "data": network_interfaces["data"]
             },
         }
-        LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
+        LOG_INFO(f"===== VM {vm_name} 采集完成 =====")
         return vm_data
 
     def collect_all_vms(self):
-        """采集所有虚拟机数据"""
+        """采集所有VM数据"""
         vm_names = self.get_all_vm_names()
         if not vm_names:
-            LOG_ERROR("未找到任何虚拟机")
+            LOG_ERROR("No virtual machines found")
             return
         
         self.all_vms_data["vm_count"] = len(vm_names)
-        # 统计运行中的虚拟机数量
+        # 统计running的VM数量
         running_vms = [name for name in vm_names]
         self.all_vms_data["running_vm_count"] = len(running_vms)
         
-        LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机，其中 {len(running_vms)} 台运行中：{running_vms}")
+        LOG_INFO(f"Found {len(vm_names)} virtual machines，including {len(running_vms)} 台running：{running_vms}")
 
         for vm_name in vm_names:
             vm_data = self.collect_single_vm_networkinfo_data(vm_name)
@@ -130,17 +130,17 @@ class VMCollector:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(self.all_vms_data, f, indent=2, ensure_ascii=False)
-            LOG_INFO(f"采集数据已保存到：{file_path}")
+            LOG_INFO(f"Collected data saved to：{file_path}")
         except Exception as e:
-            LOG_ERROR(f"保存数据失败：{str(e)}")
+            LOG_ERROR(f"Failed to save data：{str(e)}")
 
 
 def main():
-    LOG_INFO("===== 开始进行虚拟机数据采集 =====")
+    LOG_INFO("===== Starting VM data collection =====")
     collector = VMCollector()
     collector.collect_all_vms()
     collector.save_data()
-    LOG_INFO("===== 数据采集与保存完成 =====")
+    LOG_INFO("===== Data collection and saving completed =====")
 
 if __name__ == "__main__":
     main()

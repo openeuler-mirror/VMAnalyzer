@@ -36,6 +36,6 @@ if __name__ == '__main__':
         print("ccx design:")
         print(ccx)
     except libvirt.libvirtError as e:
-        print(f'鑾峰彇CCX Design澶辫触锛歿e}')
+        print(f'Failed to get CCX Design: {e}')
 
     closeConnection(conn)

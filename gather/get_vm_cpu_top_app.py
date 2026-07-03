@@ -45,7 +45,7 @@ class VMCPUTopNCollector:
 
     def run_virsh_cmd(self, cmd: str) -> Optional[str]:
         try:
-            LOG_INFO(f"执行命令：{cmd}")
+            LOG_INFO(f"Executing command：{cmd}")
             result = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -59,13 +59,13 @@ class VMCPUTopNCollector:
             return output if output else None
         except subprocess.CalledProcessError as e:
             err_msg = e.stderr.strip()
-            LOG_ERROR(f"命令执行失败：{cmd}，错误：{err_msg}")
+            LOG_ERROR(f"Command failed：{cmd}，Error：{err_msg}")
             return None
         except subprocess.TimeoutExpired:
-            LOG_ERROR(f"命令执行超时：{cmd}（超过30秒）")
+            LOG_ERROR(f"Command timed out：{cmd}（超过30秒）")
             return None
         except Exception as e:
-            LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
+            LOG_ERROR(f"Command raised an exception：{cmd}，Error：{str(e)}")
             return None
 
     def get_running_vm_names(self) -> List[str]:
@@ -78,17 +78,17 @@ class VMCPUTopNCollector:
         output = self.run_virsh_cmd(qga_cmd)
         
         if not output:
-            LOG_ERROR(f"虚拟机 {vm_name} CPU TopN信息采集失败：无返回数据")
+            LOG_ERROR(f"VM {vm_name} CPU TopN信息采集失败：无返回数据")
             return None
         
         try:
             resp = json.loads(output)
             if "return" not in resp:
-                LOG_ERROR(f"虚拟机 {vm_name} QGA接口返回格式异常：{output}")
+                LOG_ERROR(f"VM {vm_name} QGA接口返回格式异常：{output}")
                 return None
             return resp["return"]
         except json.JSONDecodeError as e:
-            LOG_ERROR(f"虚拟机 {vm_name} QGA返回值解析失败：{str(e)}，原始数据：{output}")
+            LOG_ERROR(f"VM {vm_name} QGA返回值Parse失败：{str(e)}，原始数据：{output}")
             return None
 
     def format_process_info(self, process_data: List[Dict]) -> List[Dict]:
@@ -115,12 +115,12 @@ class VMCPUTopNCollector:
         self.collect_data["running_vm_count"] = len(running_vms)
         
         if not running_vms:
-            LOG_INFO("当前无运行中的虚拟机")
+            LOG_INFO("当前无running的VM")
             self.collect_data["vm_list"] = {}
             return
         
         for vm_name in running_vms:
-            LOG_INFO(f"\n===== 开始采集虚拟机 {vm_name} CPU Top{self.top_n} 进程信息 =====")
+            LOG_INFO(f"\n===== 开始采集VM {vm_name} CPU Top{self.top_n} 进程信息 =====")
             raw_data = self.get_vm_cpu_topn_info(vm_name)
             if not raw_data:
                 self.collect_data["vm_list"][vm_name] = {
@@ -135,7 +135,7 @@ class VMCPUTopNCollector:
                 "process_list": formatted_process,
                 "top_n": self.top_n
             }
-            LOG_INFO(f"虚拟机 {vm_name} 采集完成，共获取 {len(formatted_process)} 个进程信息")
+            LOG_INFO(f"VM {vm_name} 采集完成，共获取 {len(formatted_process)} 个进程信息")
 
     def save_data(self):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -145,9 +145,9 @@ class VMCPUTopNCollector:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(self.collect_data, f, indent=2, ensure_ascii=False)
-            LOG_INFO(f"采集数据已保存到：{file_path}")
+            LOG_INFO(f"Collected data saved to：{file_path}")
         except Exception as e:
-            LOG_ERROR(f"保存数据失败：{str(e)}")
+            LOG_ERROR(f"Failed to save data：{str(e)}")
 
     def run_polling(self):
         LOG_INFO(f"===== 启动CPU TopN进程信息轮询采集 =====")
@@ -174,10 +174,10 @@ def main():
     args = parser.parse_args()
     
     if args.top_n < 1:
-        LOG_ERROR(f"参数错误：--top-n 必须≥1，当前值：{args.top_n}")
+        LOG_ERROR(f"参数Error：--top-n 必须≥1，当前值：{args.top_n}")
         raise SystemExit(1)
     if args.poll_interval < 1:
-        LOG_ERROR(f"参数错误：--poll-interval 必须≥1，当前值：{args.poll_interval}")
+        LOG_ERROR(f"参数Error：--poll-interval 必须≥1，当前值：{args.poll_interval}")
         raise SystemExit(1)
 
     collector = VMCPUTopNCollector(

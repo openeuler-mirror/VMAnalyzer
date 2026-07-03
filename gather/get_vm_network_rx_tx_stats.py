@@ -12,7 +12,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     执行系统命令，返回标准化结果
     :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
     :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": 错误内容}
+    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
     """
     result = {
         "code": -1,
@@ -31,9 +31,9 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stdout"] = proc.stdout.strip()
         result["stderr"] = proc.stderr.strip()
     except subprocess.TimeoutExpired:
-        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+        result["stderr"] = f"Command timed out（{timeout}s）: {' '.join(cmd)}"
     except Exception as e:
-        result["stderr"] = f"命令执行异常: {str(e)}"
+        result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
 
 """采集虚机虚拟网卡类型及配置"""
@@ -44,7 +44,7 @@ def get_vm_nic_list(vm_name: str) -> list:
     if cmd_result["code"] != 0:
         return nics
 
-    # 解析domiflist输出（跳过表头）
+    # Parsedomiflist输出（跳过表头）
     lines = cmd_result["stdout"].split("\n")[2:]
     for line in lines:
         line = line.strip()
@@ -63,7 +63,7 @@ def get_vm_nic_list(vm_name: str) -> list:
     return nics
 
 def get_vm_list() -> list:
-    """获取宿主机所有虚机名称列表"""
+    """获取host所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
@@ -110,7 +110,7 @@ def get_vm_network_rx_tx_stats(vm_name: str) -> str:
         ifstat_cmd = ["virsh", "domifstat", vm_name, nic_name]
         ifstat_result = execute_cmd(ifstat_cmd)
         if ifstat_result["code"] == 0:
-            # 解析输出
+            # Parse输出
             for line in ifstat_result["stdout"].split("\n"):
                 line = line.strip()
                 if not line:
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     import sys
     vms = get_vm_list()
     if not vms:
-        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
+        print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
         sys.exit(1)
 
     results = []

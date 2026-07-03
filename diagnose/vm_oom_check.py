@@ -12,19 +12,19 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 
-"""vm_oom_check.py — 检测虚拟机 OOM（内存不足）风险。
+"""vm_oom_check.py — 检测VM OOM（memory不足）风险。
 
 检测策略（双层）：
-  1. 宿主机层：扫描 journalctl -k 和 /var/log/messages 中的
+  1. host层：扫描 journalctl -k 和 /var/log/messages 中的
      OOM killer 日志，过滤出与该 VM 的 QEMU 进程相关的条目。
   2. 客户机层：通过 virsh dommemstat <vm> 读取气球设备统计，
-     计算内存使用率；使用率超过阈值时标记 OOM 风险。
+     计算memory使用率；使用率超过threshold时标记 OOM 风险。
 
 输出字段（每 VM）：
   oom_risk           — bool，是否存在 OOM 风险
-  memory_usage_pct   — float，当前内存使用率 %
+  memory_usage_pct   — float，当前memory使用率 %
   memory_stats_kb    — dict，气球设备原始统计（KB）
-  qemu_pid           — int | null，宿主机上的 QEMU 进程 PID
+  qemu_pid           — int | null，host上的 QEMU 进程 PID
   host_oom_events    — list[str]，最近 10 条主机 OOM 日志行
 """
 
@@ -44,11 +44,11 @@ logging.basicConfig(
 LOG_INFO = logging.info
 LOG_ERROR = logging.error
 
-# 内存使用率超过此阈值（%）时视为 OOM 风险
+# memory使用率超过此threshold（%）时视为 OOM 风险
 OOM_RISK_THRESHOLD = 90.0
 
 class VMOomChecker:
-    """检查所有运行中虚拟机的 OOM 风险。"""
+    """检查所有runningVM的 OOM 风险。"""
 
     def __init__(self, threshold: float = OOM_RISK_THRESHOLD):
         self.threshold = threshold
@@ -68,7 +68,7 @@ class VMOomChecker:
             )
             return r.stdout.strip() if r.returncode == 0 else None
         except Exception as e:
-            LOG_ERROR("命令执行失败 %s: %s", " ".join(cmd), e)
+            LOG_ERROR("Command failed %s: %s", " ".join(cmd), e)
             return None
 
     # ── VM 列表 ──────────────────────────────────────────────────────────────
@@ -77,10 +77,10 @@ class VMOomChecker:
         output = self._run(["virsh", "list", "--state-running", "--name"])
         return [n for n in (output or "").split() if n]
 
-     # ── 客户机内存统计 ────────────────────────────────────────────────────────
+     # ── 客户机memory统计 ────────────────────────────────────────────────────────
 
     def get_vm_mem_stats(self, vm_name: str) -> Dict:
-        """解析 virsh dommemstat，返回原始字段及计算后的使用率。"""
+        """Parse virsh dommemstat，返回原始字段及计算后的使用率。"""
         output = self._run(["virsh", "dommemstat", vm_name])
         stats: Dict = {}
         if not output:
@@ -101,10 +101,10 @@ class VMOomChecker:
             stats["usage_pct"] = round(used / total * 100, 2)
         return stats
 
-    # ── 宿主机 QEMU PID ──────────────────────────────────────────────────────
+    # ── host QEMU PID ──────────────────────────────────────────────────────
 
     def get_qemu_pid(self, vm_name: str) -> Optional[int]:
-        """在宿主机进程表中找到该 VM 对应的 QEMU 进程 PID。"""
+        """在host进程表中找到该 VM 对应的 QEMU 进程 PID。"""
         output = self._run(
             ["bash", "-c",
              f"ps -ef | grep 'qemu.*{vm_name}' | grep -v grep | awk '{{print $2}}'"]
@@ -116,7 +116,7 @@ class VMOomChecker:
                 pass
         return None
 
-# ── 宿主机 OOM 日志扫描 ──────────────────────────────────────────────────
+# ── host OOM 日志扫描 ──────────────────────────────────────────────────
 
     def get_host_oom_events(
         self, vm_name: str, qemu_pid: Optional[int]
@@ -173,7 +173,7 @@ class VMOomChecker:
 
         if oom_risk:
             LOG_INFO(
-                "VM %s: OOM 风险！内存使用率 %.1f%%，主机 OOM 事件 %d 条",
+                "VM %s: OOM 风险！memory使用率 %.1f%%，主机 OOM 事件 %d 条",
                 vm_name, usage_pct, len(oom_events),
             )
 

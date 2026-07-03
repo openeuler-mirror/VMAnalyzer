@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""告警管理系统"""
+"""Alert management system"""
 import logging
 
 class AlertManager:

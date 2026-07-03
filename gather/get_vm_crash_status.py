@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""判断虚机是否崩溃"""
+"""判断虚机是否crashed"""
 import subprocess
 import json
 from typing import Dict, Any
@@ -13,7 +13,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     执行系统命令，返回标准化结果
     :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
     :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": 错误内容}
+    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
     """
     result = {
         "code": -1,
@@ -32,14 +32,14 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stdout"] = proc.stdout.strip()
         result["stderr"] = proc.stderr.strip()
     except subprocess.TimeoutExpired:
-        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+        result["stderr"] = f"Command timed out（{timeout}s）: {' '.join(cmd)}"
     except Exception as e:
-        result["stderr"] = f"命令执行异常: {str(e)}"
+        result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
 
 
 def get_vm_list() -> list:
-    """获取宿主机所有虚机名称列表"""
+    """获取host所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
@@ -48,7 +48,7 @@ def get_vm_list() -> list:
 
 def get_vm_crash_status(vm_name: str) -> str:
     """
-    检测虚机崩溃状态，采集崩溃日志
+    检测虚机crashed状态，采集crashed日志
     :param vm_name: 虚机名称
     :return: JSON格式结果
     """
@@ -70,7 +70,7 @@ def get_vm_crash_status(vm_name: str) -> str:
 
     if state_result["stdout"].lower() == "crashed":
         result["crashed"] = True
-        result["crash_reason"] = "Libvirt标记为崩溃状态"
+        result["crash_reason"] = "Libvirt标记为crashed状态"
 
     # 2. 检查QEMU日志（/var/log/libvirt/qemu/<vm-name>.log）
     log_path = f"/var/log/libvirt/qemu/{vm_name}.log"
@@ -80,7 +80,7 @@ def get_vm_crash_status(vm_name: str) -> str:
             with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
                 lines = f.readlines()[-100:]  # 取最后100行
 
-            # 匹配崩溃关键字
+            # 匹配crashed关键字
             crash_patterns = [
                 r"kernel panic",
                 r"qemu: fatal error",
@@ -95,11 +95,11 @@ def get_vm_crash_status(vm_name: str) -> str:
                     crash_lines.append(line.strip())
                     result["crashed"] = True
 
-            # 提取崩溃日志片段
+            # 提取crashed日志片段
             if crash_lines:
-                result["crash_log_snippet"] = "\n".join(crash_lines[-10:])  # 最后10行崩溃日志
+                result["crash_log_snippet"] = "\n".join(crash_lines[-10:])  # 最后10行crashed日志
                 if not result["crash_reason"]:
-                    result["crash_reason"] = "日志中检测到崩溃关键字"
+                    result["crash_reason"] = "日志中检测到crashed关键字"
 
         except Exception as e:
             result["error"] = f"读取日志失败: {str(e)}"
@@ -127,12 +127,12 @@ if __name__ == "__main__":
     import sys
     vms = get_vm_list()
     if not vms:
-        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
+        print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
         sys.exit(1)
 
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
+        # 调用已有的获取XML函数，它返回JSON字符串，我们需要Parse为字典
         vm_result_json = get_vm_crash_status(vm)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)

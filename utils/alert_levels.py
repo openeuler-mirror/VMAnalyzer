@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""告警级别常量"""
+"""Alert level constants"""
 
 CRITICAL = "critical"
 WARNING = "warning"

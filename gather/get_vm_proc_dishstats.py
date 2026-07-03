@@ -36,7 +36,7 @@ class MockVMFactory:
                         'name': dom.name()
                     }
         except Exception as e:
-            logger.error(f"获取虚拟机列表失败: {e}")
+            logger.error(f"获取VM列表失败: {e}")
         return vms
 
 
@@ -48,7 +48,7 @@ class MockStatsStorage:
     def save_stats_info(self, stats_info):
         try:
             if not stats_info:
-                logger.warning("无可用的虚拟机磁盘统计数据，将创建空文件")
+                logger.warning("无可用的VMdisk统计数据，将创建空文件")
 
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             filename = os.path.join(self.output_dir, f'diskstats_info_{timestamp}.json')
@@ -72,7 +72,7 @@ class VMDiskStatsCollector:
             return json.loads(result) if result else None
         except Exception as e:
             cmd_type = cmd_dict.get('execute', 'unknown')
-            logger.error(f"VM {dom.name()}: QGA命令失败 [{cmd_type}]，错误: {e}")
+            logger.error(f"VM {dom.name()}: QGA命令失败 [{cmd_type}]，Error: {e}")
             return None
 
     def record_stats(self):
@@ -81,7 +81,7 @@ class VMDiskStatsCollector:
         stats_storage = self.__stats_storage
 
         if vm_factory is None:
-            logger.error("VMFactory未初始化")
+            logger.error("VMFactoryuninitialized")
             return
 
         vc = vm_factory.vc
@@ -131,7 +131,7 @@ def main():
         collector.record_stats()
 
         conn.close()
-        logger.info("虚拟机磁盘统计信息收集完成")
+        logger.info("VMdisk统计信息收集完成")
 
     except Exception as e:
         logger.error(f"主函数执行失败: {e}")

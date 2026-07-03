@@ -15,7 +15,7 @@
 """set_vcpu_pinning.py — 一键 NUMA 感知 vCPU 绑核。
 
 工作流程：
-  1. 用 virsh nodecpumap  获取宿主机各 NUMA 节点对应的物理 CPU 列表。
+  1. 用 virsh nodecpumap  获取host各 NUMA 节点对应的物理 CPU 列表。
   2. 用 virsh numatune <vm> 查询 VM 绑定的 NUMA 节点集合（nodeset）。
      若未绑定，则使用全部物理 CPU。
   3. 按 Round-Robin 策略，将每个 vCPU 依次绑定到目标 CPU 列表中的一个
@@ -23,11 +23,11 @@
   4. 通过 virsh vcpupin <vm> <vcpu> <pcpu> --live 实时生效，
      同时用 --config 写入持久化配置（如果 VM 处于关机状态则仅 --config）。
 
-用法：
-  # 绑核单台 VM（运行中）
+Usage：
+  # 绑核单台 VM（running）
   python3 set_vcpu_pinning.py instance-000003f9
 
-  # 绑核所有运行中 VM
+  # 绑核所有running VM
   python3 set_vcpu_pinning.py
 """
 
@@ -49,7 +49,7 @@ LOG_WARN = logging.warning
 
 
 class VcpuPinningOptimizer:
-    """按 NUMA 拓扑自动为 VM 完成 vCPU 绑核。"""
+    """Pin VM vCPUs according to NUMA topology."""
 
     # ── 工具方法 ─────────────────────────────────────────────────────────────
 
@@ -69,7 +69,7 @@ class VcpuPinningOptimizer:
         return None
 
     def get_host_numa_cpus(self) -> Dict[int, List[int]]:
-        """解析 virsh nodecpumap，返回 {node_id: [cpu_list]}。"""
+        """Parse virsh nodecpumap，返回 {node_id: [cpu_list]}。"""
         output = self._run(["virsh", "nodecpumap"])
         topology: Dict[int, List[int]] = {}
         if not output:
@@ -84,7 +84,7 @@ class VcpuPinningOptimizer:
     # ── VM NUMA 绑定信息 ────────────────────────────────────────────────────
 
     def get_vm_nodeset(self, vm_name: str) -> Optional[List[int]]:
-        """从 virsh numatune 解析 VM 绑定的 NUMA 节点编号列表。
+        """从 virsh numatune Parse VM 绑定的 NUMA 节点编号列表。
         返回 None 表示未绑定（使用全部节点）。
         """
         output = self._run(["virsh", "numatune", vm_name])
@@ -108,7 +108,7 @@ class VcpuPinningOptimizer:
         # ── VM vCPU 数量 ────────────────────────────────────────────────────────
 
     def get_vcpu_count(self, vm_name: str) -> int:
-        """返回 VM 当前活跃的 vCPU 数量。"""
+        """Return the active vCPU count for the VM."""
         output = self._run(["virsh", "vcpucount", vm_name, "--active", "--live"])
         if not output:
             output = self._run(["virsh", "vcpucount", vm_name, "--active",
@@ -125,7 +125,7 @@ class VcpuPinningOptimizer:
         node_cpus: Dict[int, List[int]],
         nodeset: Optional[List[int]],
     ) -> List[int]:
-        """根据 nodeset 返回可用的物理 CPU 列表（无绑定时返回全部）。"""
+        """Return available physical CPUs from the nodeset; return all CPUs when unbound."""
         if not nodeset:
             all_cpus: List[int] = []
             for cpus in node_cpus.values():
@@ -149,7 +149,7 @@ class VcpuPinningOptimizer:
         cpulist: List[int],
         running: bool,
     ) -> List[Dict]:
-        """Round-Robin 绑核；运行中时追加 --live，同时写持久化配置。"""
+        """Round-Robin 绑核；running时追加 --live，同时写持久化配置。"""
         results: List[Dict] = []
         if not cpulist:
             LOG_WARN("VM %s: 可用 CPU 列表为空，跳过绑核", vm_name)
@@ -191,7 +191,7 @@ class VcpuPinningOptimizer:
         running = self._is_vm_running(vm_name)
 
         LOG_INFO(
-            "VM %s: %d vCPU, NUMA 节点 %s, 目标 pCPU %s, 运行中=%s",
+            "VM %s: %d vCPU, NUMA 节点 %s, 目标 pCPU %s, running=%s",
             vm_name, vcpu_count, nodeset, cpulist, running,
         )
 
@@ -215,7 +215,7 @@ class VcpuPinningOptimizer:
    # ── 批量处理 ────────────────────────────────────────────────────────────
 
     def pin_all_running_vms(self) -> Dict:
-        """对所有运行中 VM 执行绑核。"""
+        """对所有running VM 执行绑核。"""
         output = self._run(["virsh", "list", "--state-running", "--name"])
         vm_names = [n for n in (output or "").split() if n]
         results: Dict[str, Dict] = {}

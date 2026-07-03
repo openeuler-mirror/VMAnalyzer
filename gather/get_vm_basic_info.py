@@ -26,7 +26,7 @@ class VMDomainMonitor:
 
     def run_virsh_cmd(self, cmd: str) -> Optional[str]:
         try:
-            LOG_INFO(f"执行命令：{cmd}")
+            LOG_INFO(f"Executing command：{cmd}")
             result = subprocess.run(
                 cmd.split(),
                 capture_output=True,
@@ -36,13 +36,13 @@ class VMDomainMonitor:
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
-            LOG_ERROR(f"命令执行失败：{cmd}，错误：{e.stderr.strip()}")
+            LOG_ERROR(f"Command failed：{cmd}，Error：{e.stderr.strip()}")
             return None
         except subprocess.TimeoutExpired:
-            LOG_ERROR(f"命令执行超时：{cmd}（超过30秒）")
+            LOG_ERROR(f"Command timed out：{cmd}（超过30秒）")
             return None
         except Exception as e:
-            LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
+            LOG_ERROR(f"Command raised an exception：{cmd}，Error：{str(e)}")
             return None
 
     def get_all_vm_names(self) -> List[str]:
@@ -119,11 +119,11 @@ class VMDomainMonitor:
                     unit = ""
                     if val_parts:
                         val = val_parts[0]
-                        # 捕获int转换异常，避免崩溃
+                        # 捕获int转换异常，避免crashed
                         try:
                             val = int(val) if val.isdigit() else val
                         except ValueError as e:
-                            LOG_ERROR(f"转换块设备数值失败：{key}={val}，错误：{e}")
+                            LOG_ERROR(f"转换块设备数值失败：{key}={val}，Error：{e}")
                         unit = val_parts[1] if len(val_parts) > 1 else ""
                     info[key] = {
                         "value": int(val_parts[0]) if val_parts[0].isdigit() else val_parts[0],
@@ -206,7 +206,7 @@ class VMDomainMonitor:
                 try:
                     value = int(value) if value.isdigit() else value
                 except ValueError as e:
-                    LOG_ERROR(f"转换内存统计数值失败：{key}={value}，错误：{e}")
+                    LOG_ERROR(f"转换memory统计数值失败：{key}={value}，Error：{e}")
                 memstat[key] = value
         return memstat
 
@@ -223,12 +223,12 @@ class VMDomainMonitor:
                 try:
                     value = int(value) if value.isdigit() else value
                 except ValueError as e:
-                    LOG_ERROR(f"转换综合统计数值失败：{key}={value}，错误：{e}")
+                    LOG_ERROR(f"转换综合统计数值失败：{key}={value}，Error：{e}")
                 domstats[key] = value
         return domstats
 
     def collect_single_vm_data(self, vm_name: str) -> Dict:
-        LOG_INFO(f"\n===== 开始采集虚拟机：{vm_name} =====")
+        LOG_INFO(f"\n===== 开始采集VM：{vm_name} =====")
         vm_state = self.parse_domstate(vm_name)
         is_running = vm_state == "running"
 
@@ -266,16 +266,16 @@ class VMDomainMonitor:
             "memory_statistics": memstat,
             "comprehensive_stats": domstats,
         }
-        LOG_INFO(f"===== 虚拟机 {vm_name} 采集完成 =====")
+        LOG_INFO(f"===== VM {vm_name} 采集完成 =====")
         return vm_data
 
     def collect_all_vms(self):
         vm_names = self.get_all_vm_names()
         if not vm_names:
-            LOG_ERROR("未找到任何虚拟机")
+            LOG_ERROR("No virtual machines found")
             return
         self.all_vms_data["vm_count"] = len(vm_names)
-        LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机：{vm_names}")
+        LOG_INFO(f"Found {len(vm_names)} virtual machines：{vm_names}")
 
         for vm_name in vm_names:
             vm_data = self.collect_single_vm_data(vm_name)
@@ -287,16 +287,16 @@ class VMDomainMonitor:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(self.all_vms_data, f, indent=2, ensure_ascii=False)
-            LOG_INFO(f"\n所有虚拟机监控数据已保存到：{file_path}")
+            LOG_INFO(f"\n所有VM监控数据已保存到：{file_path}")
         except Exception as e:
             LOG_ERROR(f"保存 JSON 文件失败：{str(e)}")
 
 def main():
-    LOG_INFO("===== 开始执行虚拟机监控数据采集 =====")
+    LOG_INFO("===== 开始执行VM监控数据采集 =====")
     monitor = VMDomainMonitor()
     monitor.collect_all_vms()
     monitor.save_to_json()
-    LOG_INFO("===== 数据采集与保存完成 =====")
+    LOG_INFO("===== Data collection and saving completed =====")
 
 if __name__ == "__main__":
     main()

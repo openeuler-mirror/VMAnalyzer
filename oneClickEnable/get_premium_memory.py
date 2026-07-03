@@ -37,10 +37,10 @@ class QgaMemoryStatus:
         try:
             dom = self.conn.lookupByName(vm_name)
             self.domains[vm_name] = dom
-            LOG_INFO(f"成功获取虚拟机 {vm_name} 句柄")
+            LOG_INFO(f"成功获取VM {vm_name} 句柄")
             return dom
         except libvirt.libvirtError as e:
-            LOG_ERROR(f"获取虚拟机 {vm_name} 句柄失败：{str(e)}")
+            LOG_ERROR(f"获取VM {vm_name} 句柄失败：{str(e)}")
             raise
 
     def execute_qga_memory_cmd(self, vm_name: str) -> dict:
@@ -57,7 +57,7 @@ class QgaMemoryStatus:
 
             vm_state = dom.state()[0]
             if vm_state != libvirt.VIR_DOMAIN_RUNNING:
-                raise Exception(f"虚拟机非运行状态（状态码：{vm_state}），QGA 命令无法执行")
+                raise Exception(f"VM非运行状态（状态码：{vm_state}），QGA 命令无法执行")
 
             LOG_INFO(f"执行 QGA 命令：{self.QGA_MEMORY_CMD}")
             start_time = time.time()
@@ -97,7 +97,7 @@ class QgaMemoryStatus:
     def batch_execute(self, vm_names: list) -> list:
         results = []
         for vm_name in vm_names:
-            LOG_INFO(f"\n===== 开始处理虚拟机：{vm_name} =====")
+            LOG_INFO(f"\n===== 开始处理VM：{vm_name} =====")
             result = self.execute_qga_memory_cmd(vm_name)
             results.append(result)
         return results
@@ -105,7 +105,7 @@ class QgaMemoryStatus:
     def close(self):
         if self.conn:
             self.conn.close()
-            LOG_INFO("libvirt 连接已关闭")
+            LOG_INFO("libvirt 连接shutoff")
 
 if __name__ == "__main__":
     qga_memory = QgaMemoryStatus()
@@ -114,15 +114,15 @@ if __name__ == "__main__":
         vm_name = "test-bclinux7.6-qga"
         single_result = qga_memory.execute_qga_memory_cmd(vm_name)
         print("\n" + "="*80)
-        print(f"虚拟机 {vm_name} 内存状态查询结果")
+        print(f"VM {vm_name} memory状态查询结果")
         print("="*80)
         print(f"查询时间：{single_result['collect_time']}")
         mem = single_result["memory_info"]
-        print(f"总内存：{mem['total_mb']} MB")
-        print(f"已用内存：{mem['used_mb']} MB")
-        print(f"空闲内存：{mem['free_mb']} MB")
-        print(f"可用内存：{mem['available_mb']} MB")
-        print(f"内存使用率：{mem['usage_rate']} %")
+        print(f"总memory：{mem['total_mb']} MB")
+        print(f"已用memory：{mem['used_mb']} MB")
+        print(f"空闲memory：{mem['free_mb']} MB")
+        print(f"可用memory：{mem['available_mb']} MB")
+        print(f"memory使用率：{mem['usage_rate']} %")
 
     finally:
         qga_memory.close()

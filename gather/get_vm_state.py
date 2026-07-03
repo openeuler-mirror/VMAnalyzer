@@ -12,7 +12,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     执行系统命令，返回标准化结果
     :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
     :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": 错误内容}
+    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
     """
     result = {
         "code": -1,
@@ -31,13 +31,13 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stdout"] = proc.stdout.strip()
         result["stderr"] = proc.stderr.strip()
     except subprocess.TimeoutExpired:
-        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+        result["stderr"] = f"Command timed out（{timeout}s）: {' '.join(cmd)}"
     except Exception as e:
-        result["stderr"] = f"命令执行异常: {str(e)}"
+        result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
 
 def get_vm_list() -> list:
-    """获取宿主机所有虚机名称列表"""
+    """获取host所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
@@ -47,15 +47,15 @@ def get_vm_state(vm_name: str) -> str:
     """
     获取虚机状态（标准化编码）
     状态映射：
-    running(1)-运行中, paused(2)-暂停, shut off(0)-关机,
-    crashed(-1)-崩溃, migrating(3)-迁移中, unknown(-2)-未知
+    running(1)-running, paused(2)-paused, shut off(0)-关机,
+    crashed(-1)-crashed, migrating(3)-迁移中, unknown(-2)-未知
     :param vm_name: 虚机名称
     :return: JSON格式结果
     """
     result = {
         "vm_name": vm_name,
         "state_code": -2,
-        "state_desc": "未知状态",
+        "state_desc": "unknown state",
         "success": False,
         "error": ""
     }
@@ -70,10 +70,10 @@ def get_vm_state(vm_name: str) -> str:
     # 状态映射
     state_raw = cmd_result["stdout"].lower()
     state_mapping = {
-        "running": (1, "运行中"),
-        "paused": (2, "已暂停"),
+        "running": (1, "running"),
+        "paused": (2, "paused"),
         "shut off": (0, "已关机"),
-        "crashed": (-1, "已崩溃"),
+        "crashed": (-1, "已crashed"),
         "migrating": (3, "迁移中"),
         "suspended": (2, "已挂起"),
         "blocked": (-3, "阻塞中")
@@ -92,7 +92,7 @@ def get_vm_state(vm_name: str) -> str:
 if __name__ == "__main__":
     vms = get_vm_list()
     if not vms:
-         print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
+         print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
          sys.exit(1)
 
     results = []
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
         if not vm_result["success"] or vm_result["error"]:
-            print(f"警告：虚机[{vm}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
+            print(f"Warning：虚机[{vm}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
 
     # 输出所有虚机的结果（JSON数组）
     print(json.dumps(results, ensure_ascii=False, indent=2))

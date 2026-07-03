@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""判断虚机是否崩溃"""
+"""判断虚机是否crashed"""
 import subprocess
 import json
 from typing import Dict, Any
@@ -13,7 +13,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     执行系统命令，返回标准化结果
     :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
     :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": 错误内容}
+    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
     """
     result = {
         "code": -1,
@@ -22,7 +22,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     }
 
     if not cmd:
-        result["stderr"] = "执行命令为空，无法执行"
+        result["stderr"] = "Executing command为空，无法执行"
         return result
 
     try:
@@ -37,16 +37,16 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stdout"] = proc.stdout.strip()
         result["stderr"] = proc.stderr.strip()
     except subprocess.TimeoutExpired:
-        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+        result["stderr"] = f"Command timed out（{timeout}s）: {' '.join(cmd)}"
     except Exception as e:
-        result["stderr"] = f"命令执行异常: {str(e)}"
+        result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
 
 def get_vm_list() -> list:
-    """获取宿主机所有虚机名称列表"""
+    """获取host所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
-        print(f"获取虚机列表失败: {cmd_result['stderr']}", file=sys.stderr)
+        print(f"Failed to get VM list: {cmd_result['stderr']}", file=sys.stderr)
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
@@ -63,7 +63,7 @@ def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
     }
 
     if not vm_name or not vm_name.strip():
-        result["error"] = "虚机名称为空，无法获取基础信息"
+        result["error"] = "VM name is empty; basic information cannot be collected"
         return result
 
     cmd = ["virsh", "dominfo", vm_name]
@@ -72,7 +72,7 @@ def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
         result["error"] = cmd_result["stderr"]
         return result
 
-    # 解析dominfo输出
+    # Parsedominfo输出
     for line in cmd_result["stdout"].split("\n"):
         line = line.strip()
         if not line or ":" not in line:
@@ -118,13 +118,13 @@ if __name__ == "__main__":
 
     vms = get_vm_list()
     if not vms:
-        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
+        print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
         sys.exit(1)
 
     results = []
     for vm in vms:
         try:
-            # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
+            # 调用已有的获取XML函数，它返回JSON字符串，我们需要Parse为字典
             vm_result_json = get_vm_uuid(vm)
             vm_result = json.loads(vm_result_json)
             results.append(vm_result)
@@ -135,7 +135,7 @@ if __name__ == "__main__":
                 "uuid": "",
                 "uuid_valid": False,
                 "success": False,
-                "error": f"处理虚机时发生未预期异常: {str(e)}"
+                "error": f"Unexpected error while processing VM: {str(e)}"
             }
             results.append(error_result)
 
