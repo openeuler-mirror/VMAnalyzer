@@ -259,6 +259,7 @@ class VMStatsCollector:
                 context.xpathFreeContext()
                 doc.freeDoc()
 
+
                 stats_info[vm_id] = {
                     'uuid': vm['uuid'],
                     'name': vm['name'],
