@@ -18,6 +18,7 @@ This module provides functionality to load configuration from JSON files,
 providing an alternative to Python-based configuration.
 """
 import json
+import logging
 import os
 import logging
 
