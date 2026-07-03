@@ -62,12 +62,10 @@ class VMStatsAnalyze(object):
 
                 # Calculate cpu utilization:
                 # %cpu = 100 × cpu_time_diff / (t × nr_cores × 10^9)
-                delta_cputime = int(vm_stats_info[i+1]['cputime']) \
-                                - int(vm_stats_info[i]['cputime'])
-                delta_timestamp = vm_stats_info[i+1]['timestamp'] \
-                                  - vm_stats_info[i]['timestamp']
+                delta_cputime = int(vm_stats_info[i+1]['cputime']) - int(vm_stats_info[i]['cputime'])
+                delta_timestamp = vm_stats_info[i+1]['timestamp'] - vm_stats_info[i]['timestamp']
                 # We don't want wrong timestamp
-                if delta_timestamp <= 0:
+                if delta_timestamp <= 0 or vcpu_count <= 0:
                     logging.warning('We got wrong timestamp of VM: %s',
                                     vm_info['name'])
                     continue
