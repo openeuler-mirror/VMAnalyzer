@@ -80,7 +80,7 @@ if __name__ == "__main__":
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # Output results for all virtual machines as JSON.
     try:
         print(json.dumps(results, ensure_ascii=False, indent=2))
     except Exception as e:
