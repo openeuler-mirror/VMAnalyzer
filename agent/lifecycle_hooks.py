@@ -19,10 +19,12 @@ class LifecycleHooks:
             LOG.info(f"Registered hook: {hook_name}")
 
     def trigger(self,hook_name,**kwargs):
-        if hook_name not in self._hooks: return
+        results=[]
+        if hook_name not in self._hooks: return results
         for cb in self._hooks[hook_name]:
-            try: cb(**kwargs)
+            try: results.append(cb(**kwargs))
             except Exception as e: LOG.error(f"Hook {hook_name} failed: {e}")
+        return results
 
     def get_hook_count(self):
         return {k:len(v) for k,v in self._hooks.items()}
