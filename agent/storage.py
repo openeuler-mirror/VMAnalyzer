@@ -189,7 +189,10 @@ class VMStatsRedisStorage(VMStatsStorage):
         else:
             logging.error('error label: %s', label)
 
-        pipe.execute()
+        try:
+            pipe.execute()
+        except Exception as pipe_err:
+            logging.error("Redis pipeline execute failed: %s", pipe_err)
 
     def get_stats_info(self, vm_id, start_timestamp, end_timestamp):
         # VM has been shutdown or destroyed???
