@@ -6,6 +6,8 @@ class CacheManager:
     def __init__(self, ttl=300):
         self.cache = {}
         self.ttl = ttl
+    def clear(self):
+        self.cache.clear()
     def set(self, key, value):
         self.cache[key] = (value, time.time())
     def get(self, key):
