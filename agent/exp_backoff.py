@@ -16,6 +16,7 @@ def exp_backoff_retry(max_retries=5,base_delay=0.5,max_delay=30):
                         LOG.error(f"Failed after {max_retries} retries: {e}")
                         raise
                     delay=min(base_delay*(2**attempt)+random.uniform(0,0.5),max_delay)
+                    LOG.debug(f"Retry {attempt}: delay={delay:.2f}s")
                     LOG.warning(f"Attempt {attempt+1}/{max_retries} failed, retrying in {delay:.1f}s: {e}")
                     time.sleep(delay)
         return wrapper
