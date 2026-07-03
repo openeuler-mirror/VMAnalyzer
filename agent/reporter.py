@@ -48,7 +48,7 @@ class VMAnalyzersReporter():
                                                           start_time, end_time)
             vm_analyzers = self.__stats_analyzer.analyze_stats(vm_id, vm_stats)
             if vm_analyzers is None:
-                logging.debug('analyze_stats returned None for vm_id=%s, skipping output', vm_id)
+                logging.debug('analyze_stats returned None for vm_id=%%s, skipping output', vm_id)
                 continue
             if not vm_analyzers:
                 continue
