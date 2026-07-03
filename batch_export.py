@@ -35,7 +35,7 @@ def export_all(formats=['json', 'csv']):
         print(f"✅ JSON导出完成: batch_export_{timestamp}.json")
     
     if 'csv' in formats:
-        if all_data:
+        if all_data and any(data for data in all_data):
             with open(f"batch_export_{timestamp}.csv", "w", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=all_data[0].keys())
                 writer.writeheader()
