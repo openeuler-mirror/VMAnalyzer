@@ -10,18 +10,18 @@ def list_vm_snapshots():
     """List all snapshots for all VMs"""
     conn = libvirt.open('qemu:///system')
     if not conn:
-        print("❌ 无法连接到libvirt")
+        print("❌ Failed to connect to libvirt")
         return
     
     print("=" * 80)
-    print(f"📸 虚拟机快照列表 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"📸 VM快照列表 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 80)
     
     domains = conn.listAllDomains()
     for domain in domains:
         snapshots = domain.snapshotListNames()
         if snapshots:
-            print(f"\n🖥️  虚拟机: {domain.name()} ({domain.UUIDString()})")
+            print(f"\n🖥️  VM: {domain.name()} ({domain.UUIDString()})")
             for snap in snapshots:
                 print(f"   • {snap}")
     
