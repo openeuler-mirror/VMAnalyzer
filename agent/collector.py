@@ -378,7 +378,7 @@ class VMStatsCollector:
                 log_file_path = f"/var/log/libvirt/qemu/{vm['name']}.log"
 
                 if not os.path.exists(log_file_path):
-                    logging.error('Log file not found: %s', log_file_path)
+                    logging.error('Log file not found: %%s', log_file_path)
                     continue
 
                 with open(log_file_path, 'r', encoding='utf-8') as log_file:
