@@ -57,13 +57,17 @@ class VMFactory:
 
     @property
     def vc(self):
-        if not self.__vc or not self.__vc.isAlive():
+        if self.__vc is None or not self.__vc.isAlive():
             if self.__vc is not None:
                 try:
                     self.__vc.close()
                 except Exception:
                     pass
-            self.__vc = libvirt.openReadOnly(self.__uri)
+            try:
+                self.__vc = libvirt.openReadOnly(self.__uri)
+            except libvirt.libvirtError:
+                logging.error("Cannot connect to libvirt at %s", self.__uri)
+                self.__vc = None
         return self.__vc
 
     def get_vm(self, vm_id):
