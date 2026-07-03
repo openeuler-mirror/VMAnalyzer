@@ -86,7 +86,7 @@ class VMEventLoopNative(VMEventLoop):
     def conn_close_callback(self, conn, reason, opaque):
         logging.debug("conn_close_callback: %s: %s",
                       conn.getURI(),
-                      const.CONNECTION_CLOSE_REASON_STRINGS[reason])
+                      const.CONNECTION_CLOSE_REASON_STRINGS.get(reason, str(reason)))
         global run
         run = False
         logging.debug("status is %s", run)
