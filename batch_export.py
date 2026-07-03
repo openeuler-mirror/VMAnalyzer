@@ -10,8 +10,16 @@ from datetime import datetime
 
 def export_all(formats=['json', 'csv']):
     """Export all VM metrics in specified formats"""
-    r = redis.Redis()
+    try:
+        r = redis.Redis()
+        r.ping()
+    except redis.ConnectionError:
+        print("❌ Redis连接失败，请确保Redis服务正在运行")
+        return []
     keys = r.keys("vm:*")
+    if not keys:
+        print("⚠️ 未找到VM指标数据")
+        return []
     all_data = []
     
     for key in keys:
