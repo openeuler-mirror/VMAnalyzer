@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Cron-like scheduling for metric collections."""
-import time, sched, threading, logging
+import time
+import logging, sched, threading, logging
 LOG=logging.getLogger(__name__)
 
 class CollectionScheduler:
