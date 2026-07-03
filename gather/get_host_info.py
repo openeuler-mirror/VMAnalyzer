@@ -85,7 +85,7 @@ class HostHypervisorCollector:
                 key, value = line.split(":", 1)
                 key = key.strip().lower().replace(" ", "_")
                 value = value.strip()
-                # 转换数字类型
+                # Implementation note.
                 if key in ["cpu(s)", "cpu_frequency", "numa_node(s)", "memory_size"]:
                     try:
                         value = int(value.split()[0]) if " " in value else int(value)
