@@ -4,6 +4,8 @@
 import time
 class CacheManager:
     def __init__(self, ttl=300):
+        if ttl <= 0:
+            raise ValueError("TTL must be positive")
         self.cache = {}
         self.ttl = ttl
     def set(self, key, value):
