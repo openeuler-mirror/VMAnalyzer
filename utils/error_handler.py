@@ -3,7 +3,7 @@
 """閿欒澶勭悊宸ュ叿"""
 import logging
 class ErrorHandler:
-    def __init__(self):
+    def __init__(self, max_retries=3):
         self.errors = []
     def handle(self, error, context=None):
         self.errors.append({"error": str(error), "context": context})
