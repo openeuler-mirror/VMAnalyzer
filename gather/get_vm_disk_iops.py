@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""采集虚机磁盘IOPS统计信息"""
+"""采集虚机diskIOPS统计信息"""
 import subprocess
 import json
 from typing import Dict, Any
@@ -26,13 +26,13 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stdout"] = proc.stdout.strip()
         result["stderr"] = proc.stderr.strip()
     except subprocess.TimeoutExpired:
-        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+        result["stderr"] = f"Command timed out（{timeout}s）: {' '.join(cmd)}"
     except Exception as e:
-        result["stderr"] = f"命令执行异常: {str(e)}"
+        result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
 
 def get_vm_list() -> list:
-    """获取宿主机所有虚机名称列表"""
+    """获取host所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
@@ -40,9 +40,9 @@ def get_vm_list() -> list:
 
 def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
     """
-    获取虚机磁盘IOPS统计
+    获取虚机diskIOPS统计
     :param vm_name: 虚机名称
-    :return: 磁盘IOPS统计信息
+    :return: diskIOPS统计信息
     """
     result = {
         "vm_name": vm_name,
@@ -57,7 +57,7 @@ def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
             result["error"] = cmd_result["stderr"]
             return result
         
-        # 解析块设备统计
+        # Parse块设备统计
         for line in cmd_result["stdout"].split("\n"):
             if "rd_req" in line or "wr_req" in line:
                 parts = line.split()
@@ -77,7 +77,7 @@ def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
     return result
 
 def main():
-    """主函数：收集所有VM的磁盘IOPS信息"""
+    """主函数：收集所有VM的diskIOPS信息"""
     vm_list = get_vm_list()
     results = []
     
