@@ -12,6 +12,8 @@ class LifecycleHooks:
         self._hooks={h:[] for h in self.HOOKS}
 
     def register(self,hook_name,callback):
+        if not callable(callback):
+            raise TypeError("Callback must be callable")
         if hook_name in self._hooks:
             self._hooks[hook_name].append(callback)
             LOG.info(f"Registered hook: {hook_name}")
