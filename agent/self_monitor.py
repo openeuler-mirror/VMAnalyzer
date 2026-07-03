@@ -24,7 +24,10 @@ class SelfMonitor:
         self._thread.start()
 
     def stop(self):
-        self._stop=True; self._thread and self._thread.join(timeout=5)
+        self._stop=True
+        if self._thread:
+            self._thread.join(timeout=5)
+            self._thread=None
 
     def get_metrics(self):
         return dict(self.metrics)
