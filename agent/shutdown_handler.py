@@ -3,6 +3,7 @@
 """Graceful shutdown handler for the VMAnalyzer agent."""
 import signal, sys, logging, atexit
 LOG=logging.getLogger(__name__)
+SHUTDOWN_TIMEOUT = 30
 
 _cleanup_callbacks=[]
 
