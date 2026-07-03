@@ -10,6 +10,8 @@ class ErrorHandler:
         logging.error(f"Error in {context}: {error}")
     def get_errors(self):
         return self.errors
+    def clear(self):
+        self.errors.clear()
 import requests
 from datetime import datetime
 
