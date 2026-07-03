@@ -100,7 +100,7 @@ class VMMemTopNCollector:
             proc_id = process.get("process-id", "未知").strip()
             proc_info = process.get("process-info", {})
             
-            # 兼容返回值中嵌套process-info的异常格式
+            # Implementation note.
             if "process-info" in proc_info:
                 proc_info = proc_info["process-info"]
 
