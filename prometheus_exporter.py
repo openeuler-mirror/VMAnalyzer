@@ -16,7 +16,10 @@ class MetricsHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'text/plain; version=0.0.4')
             self.end_headers()
             
-            keys = r.keys("vm:*")
+            try:
+                keys = r.keys("vm:*")
+            except Exception:
+                keys = []
             for key in keys:
                 data = json.loads(r.get(key))
                 vm_uuid = key.decode().replace(':', '_')
