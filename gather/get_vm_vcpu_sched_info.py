@@ -12,21 +12,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 
-"""get_vm_vcpu_sched_info.py — 收集每个VM的 vCPU 调度参数。
-
-使用的 virsh 命令：
-  virsh schedinfo <vm>   — 返回调度器类型及各项配额参数
-
-典型输出字段：
-  Scheduler      : posix / fifo
-  cpu_shares     : 1024          (CFS 权重)
-  vcpu_period    : 100000        (μs，CFS 时间窗口)
-  vcpu_quota     : -1            (-1 = 不限制)
-  emulator_period: 100000
-  emulator_quota : -1
-  global_period  : 100000
-  global_quota   : -1
-"""
+"""Documentation for this component."""
 
 import json
 import logging
@@ -45,7 +31,7 @@ LOG_ERROR = logging.error
 
 
 class VMVcpuSchedInfoCollector:
-    """采集所有 VM 的 vCPU 调度参数，输出 JSON 报告。"""
+    """Documentation for this component."""
 
     def __init__(self):
         self.result: Dict = {
@@ -62,9 +48,9 @@ class VMVcpuSchedInfoCollector:
             r = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
             if r.returncode == 0:
                 return r.stdout.strip()
-            LOG_ERROR("virsh %s 失败: %s", " ".join(args), r.stderr.strip())
+            LOG_ERROR("Operation message", " ".join(args), r.stderr.strip())
         except Exception as e:
-            LOG_ERROR("virsh %s 异常: %s", " ".join(args), e)
+            LOG_ERROR("Operation message", " ".join(args), e)
         return None
 
 # 采集逻辑
@@ -74,7 +60,7 @@ class VMVcpuSchedInfoCollector:
         return [n for n in (output or "").split() if n]
 
     def parse_schedinfo(self, vm_name: str) -> Dict:
-        """Parse virsh schedinfo 输出，将数值字段自动转为 int。"""
+        """Documentation for this component."""
         output = self._run_virsh(["schedinfo", vm_name])
         info: Dict = {}
         if not output:
@@ -93,7 +79,7 @@ class VMVcpuSchedInfoCollector:
     def collect_all_vms(self) -> Dict:
         vm_names = self.get_all_vm_names()
         for vm_name in vm_names:
-            LOG_INFO("收集 VM 调度信息: %s", vm_name)
+            LOG_INFO("Operation message", vm_name)
             sched = self.parse_schedinfo(vm_name)
             # Implementation note.
             if sched.get("vcpu_quota") == -1:
@@ -110,7 +96,7 @@ class VMVcpuSchedInfoCollector:
         os.makedirs(os.path.dirname(os.path.abspath(filepath)), exist_ok=True)
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(self.result, f, indent=2, ensure_ascii=False)
-        LOG_INFO("vCPU 调度信息已保存到 %s", filepath)
+        LOG_INFO("Operation message", filepath)
 
 
 if __name__ == "__main__":
