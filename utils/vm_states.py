@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""VM状态常量定义"""
+"""Documentation for this component."""
 VM_STATE_RUNNING = "running"
 VM_STATE_PAUSED = "paused"
 VM_STATE_SHUTDOWN = "shut off"
