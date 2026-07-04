@@ -39,7 +39,7 @@ def get_vm_nic_list(vm_name: str) -> list:
     if cmd_result["code"] != 0:
         return nics
 
-    # Parsedomiflist输出（跳过表头）
+    # English comment for this block.
     lines = cmd_result["stdout"].split("\n")[2:]
     for line in lines:
         line = line.strip()
@@ -77,13 +77,13 @@ def get_vm_network_rx_tx_stats(vm_name: str) -> str:
         result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 1. 获取网卡列表
+    # English comment for this block.
     nics = get_vm_nic_list(vm_name)
     if not nics:
         result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 2. 遍历网卡获取统计
+    # English comment for this block.
     for nic in nics:
         nic_name = nic["interface"]
         if not nic_name:
@@ -101,11 +101,11 @@ def get_vm_network_rx_tx_stats(vm_name: str) -> str:
             "tx_dropped": 0
         }
 
-        # 执行virsh domifstat
+        # English comment for this block.
         ifstat_cmd = ["virsh", "domifstat", vm_name, nic_name]
         ifstat_result = execute_cmd(ifstat_cmd)
         if ifstat_result["code"] == 0:
-            # Parse输出
+            # English comment for this block.
             for line in ifstat_result["stdout"].split("\n"):
                 line = line.strip()
                 if not line:
@@ -139,5 +139,5 @@ if __name__ == "__main__":
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
