@@ -43,18 +43,15 @@ def get_vm_pid(vm_name: str) -> str:
     return ""
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
-"""采集虚机占用hostmemory（RSS/VSZ）"""
+"""Documentation for this component."""
 def get_vm_host_mem_usage(vm_name: str) -> str:
-    """
-    获取虚机进程占用的物理memory（RSS）和虚拟memory（VSZ）
-    单位：MB
-    """
+    """Documentation for this component."""
     result = {
         "vm_name": vm_name,
         "pid": "",
@@ -68,7 +65,7 @@ def get_vm_host_mem_usage(vm_name: str) -> str:
     # 1. 获取PID
     pid_str = get_vm_pid(vm_name)
     if not pid_str or not pid_str.isdigit():
-        result["error"] = "未找到虚机对应的QEMU进程"
+        result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
     result["pid"] = pid_str
     pid = int(pid_str)
@@ -85,7 +82,7 @@ def get_vm_host_mem_usage(vm_name: str) -> str:
         result["mem_percent"] = round(result["rss_mb"] / total_mem * 100, 2)
         result["success"] = True
     except psutil.NoSuchProcess:
-        result["error"] = "QEMU进程已退出"
+        result["error"] = "Operation message"
     except Exception as e:
         result["error"] = f"获取memory信息失败: {str(e)}"
 
