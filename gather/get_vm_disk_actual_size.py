@@ -8,12 +8,7 @@ import os
 import re
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
-    """
-    执行系统命令，返回标准化结果
-    :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
-    :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
-    """
+    """Documentation for this component."""
     result = {
         "code": -1,
         "stdout": "",
@@ -37,14 +32,14 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     return result
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
 def get_vm_disk_list(vm_name: str) -> list:
-    """获取虚机disk列表"""
+    """Documentation for this component."""
     disks = []
     cmd = ["virsh", "domblklist", vm_name, "--details"]
     cmd_result = execute_cmd(cmd)
@@ -78,7 +73,7 @@ def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
     # 1. 获取disk列表
     disks = get_vm_disk_list(vm_name)
     if not disks:
-        result["error"] = "未获取到虚机disk列表"
+        result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
     # 2. 遍历disk获取大小
@@ -108,7 +103,7 @@ def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
                 except json.JSONDecodeError as e:
                     disk_info["error"] = f"JSONParse失败: {str(e)}"
         else:
-            disk_info["error"] = "disksource路径为空"
+            disk_info["error"] = "Operation message"
 
         result["disks"].append(disk_info)
 
