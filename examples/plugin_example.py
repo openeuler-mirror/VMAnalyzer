@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""VMAnalyzer插件开发示例"""
+"""Documentation for this component."""
 class CustomCollector:
-    """自定义收集器示例"""
+    """Documentation for this component."""
     def collect(self):
         return {"custom_metric": 42}
 
