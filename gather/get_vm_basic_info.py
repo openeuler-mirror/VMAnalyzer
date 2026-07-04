@@ -292,7 +292,7 @@ class VMDomainMonitor:
             LOG_ERROR(f"保存 JSON 文件失败：{str(e)}")
 
 def main():
-    LOG_INFO("===== 开始执行VM监控数据采集 =====")
+    LOG_INFO("Operation message")
     monitor = VMDomainMonitor()
     monitor.collect_all_vms()
     monitor.save_to_json()
