@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""采集虚机进程数量"""
+"""Documentation for this component."""
 import json
 def main():
     print(json.dumps({"feature": "VM process count collector", "status": "ok"}, ensure_ascii=False))
