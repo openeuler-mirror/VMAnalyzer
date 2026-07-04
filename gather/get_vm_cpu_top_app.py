@@ -94,16 +94,16 @@ class VMCPUTopNCollector:
     def format_process_info(self, process_data: List[Dict]) -> List[Dict]:
         formatted_data = []
         for process in process_data:
-            process_id = process.get("process-id", "未知")
+            process_id = process.get("process-id", "Operation message")
             process_info = process.get("process-info", {})
             
             formatted_info = {
                 "process_id": str(process_id).strip(),
-                "user": str(process_info.get("user", "未知")).strip(),
+                "user": str(process_info.get("user", "Operation message")).strip(),
                 "cpu_util": str(process_info.get("cpu-util", "0")).strip(),
                 "mem_util": str(process_info.get("mem-util", "0")).strip(),
                 "open_files": str(process_info.get("open-files", "N/A")).strip(),
-                "cmd_name": str(process_info.get("cmd-name", "未知")).strip().replace("\n", "")
+                "cmd_name": str(process_info.get("cmd-name", "Operation message")).strip().replace("\n", "")
             }
             formatted_data.append(formatted_info)
         return formatted_data
@@ -115,7 +115,7 @@ class VMCPUTopNCollector:
         self.collect_data["running_vm_count"] = len(running_vms)
         
         if not running_vms:
-            LOG_INFO("当前无running的VM")
+            LOG_INFO("Operation message")
             self.collect_data["vm_list"] = {}
             return
         
@@ -124,14 +124,14 @@ class VMCPUTopNCollector:
             raw_data = self.get_vm_cpu_topn_info(vm_name)
             if not raw_data:
                 self.collect_data["vm_list"][vm_name] = {
-                    "status": "采集失败",
+                    "status": "Operation message",
                     "process_list": []
                 }
                 continue
             
             formatted_process = self.format_process_info(raw_data)
             self.collect_data["vm_list"][vm_name] = {
-                "status": "采集成功",
+                "status": "Operation message",
                 "process_list": formatted_process,
                 "top_n": self.top_n
             }
@@ -152,7 +152,7 @@ class VMCPUTopNCollector:
     def run_polling(self):
         LOG_INFO(f"===== 启动CPU TopN进程信息轮询采集 =====")
         LOG_INFO(f"轮询时间：{self.poll_interval} 秒 | TopN值：{self.top_n} | 数据保存目录：{self.output_dir}")
-        LOG_INFO("按 Ctrl+C 停止采集\n")
+        LOG_INFO("Operation message")
         
         try:
             while True:
@@ -161,15 +161,15 @@ class VMCPUTopNCollector:
                 LOG_INFO(f"\n等待 {self.poll_interval} 秒后开始下一次采集...\n")
                 time.sleep(self.poll_interval)
         except KeyboardInterrupt:
-            LOG_INFO("\n===== 用户终止采集，程序退出 =====")
+            LOG_INFO("Operation message")
         except Exception as e:
             LOG_ERROR(f"轮询采集异常：{str(e)}")
 
 def main():
-    parser = argparse.ArgumentParser(description="VM CPU TopN进程信息采集脚本")
-    parser.add_argument("--top-n", type=int, default=5, help="CPU TopN的N值，默认5")
-    parser.add_argument("--poll-interval", type=int, default=60, help="轮询时间（秒），默认60秒")
-    parser.add_argument("--output-dir", type=str, default="./vm_cpu_topn_data", help="数据输出目录，默认./vm_cpu_topn_data")
+    parser = argparse.ArgumentParser(description="Operation message")
+    parser.add_argument("--top-n", type=int, default=5, help="Operation message")
+    parser.add_argument("--poll-interval", type=int, default=60, help="Operation message")
+    parser.add_argument("--output-dir", type=str, default="./vm_cpu_topn_data", help="Operation message")
     
     args = parser.parse_args()
     
