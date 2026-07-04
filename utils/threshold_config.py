@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""threshold配置模块"""
+"""Documentation for this component."""
 DEFAULT_THRESHOLDS = {
     "cpu_usage": 90.0,
     "memory_usage": 85.0,
