@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""判断虚机是否crashed"""
+"""Documentation for this component."""
 import subprocess
 import json
 from typing import Dict, Any
@@ -9,12 +9,7 @@ import re
 import sys
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
-    """
-    执行系统命令，返回标准化结果
-    :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
-    :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
-    """
+    """Documentation for this component."""
     result = {
         "code": -1,
         "stdout": "",
@@ -22,7 +17,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     }
 
     if not cmd:
-        result["stderr"] = "Executing command为空，无法执行"
+        result["stderr"] = "Operation message"
         return result
 
     try:
@@ -43,7 +38,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     return result
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         print(f"Failed to get VM list: {cmd_result['stderr']}", file=sys.stderr)
@@ -51,7 +46,7 @@ def get_vm_list() -> list:
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
 
-"""采集虚机Libvirt UUID（无XML依赖）"""
+"""Documentation for this component."""
 def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
     result = {
         "vm_name": vm_name,
@@ -91,7 +86,7 @@ def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
     return result
 
 def get_vm_uuid(vm_name: str) -> str:
-    """获取并校验虚机UUID"""
+    """Documentation for this component."""
     result = {
         "vm_name": vm_name,
         "uuid": "",
