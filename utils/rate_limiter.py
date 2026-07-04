@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""速率限制工具"""
+"""Documentation for this component."""
 import time
 class RateLimiter:
     def __init__(self, max_calls, period):
