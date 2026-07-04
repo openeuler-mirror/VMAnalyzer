@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-获取VM CPU 缓存拓扑信息
-输出 L1/L2/L3 大小、NUMA 节点亲和性
-"""
+"""Documentation for this component."""
 
 import subprocess
 import json
@@ -22,7 +19,7 @@ LOG_ERROR = logging.error
 
 
 def run_virsh_cmd(cmd: str) -> Optional[str]:
-    """执行 virsh 命令并返回标准输出"""
+    """Documentation for this component."""
     try:
         LOG_INFO(f"Executing command：{cmd}")
         result = subprocess.run(
@@ -46,16 +43,13 @@ def run_virsh_cmd(cmd: str) -> Optional[str]:
 
 
 def get_domain_xml(vm_name: str) -> Optional[str]:
-    """获取VM XML 配置"""
+    """Documentation for this component."""
     cmd = f"virsh dumpxml {vm_name}"
     return run_virsh_cmd(cmd)
 
 
 def parse_cpu_cache_from_xml(xml: str) -> Dict:
-    """
-    从 XML 中提取 CPU 模型、拓扑、NUMA、缓存信息
-    返回结构化字典
-    """
+    """Documentation for this component."""
     import xml.etree.ElementTree as ET
     data = {
         "cpu_model": "",
@@ -106,7 +100,7 @@ def parse_cpu_cache_from_xml(xml: str) -> Dict:
 
 
 def get_vm_cpu_cache_topology(vm_name: str) -> Dict:
-    """主入口：返回单台 VM 的 CPU 缓存拓扑信息"""
+    """Documentation for this component."""
     xml = get_domain_xml(vm_name)
     if not xml:
         return {}
@@ -117,14 +111,14 @@ def get_vm_cpu_cache_topology(vm_name: str) -> Dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="获取VM CPU 缓存拓扑信息")
-    parser.add_argument("vm_name", help="VM名称")
-    parser.add_argument("-o", "--output", help="可选：输出 JSON 文件路径")
+    parser = argparse.ArgumentParser(description="Operation message")
+    parser.add_argument("vm_name", help="Operation message")
+    parser.add_argument("-o", "--output", help="Operation message")
     args = parser.parse_args()
 
     info = get_vm_cpu_cache_topology(args.vm_name)
     if not info:
-        LOG_ERROR("无法获取信息，请确认VM存在且 virsh 可访问")
+        LOG_ERROR("Operation message")
         return
 
     print(json.dumps(info, indent=2, ensure_ascii=False))
