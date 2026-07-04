@@ -62,7 +62,7 @@ class HostHypervisorCollector:
     def parse_version(self, output):
         
         if not output:
-            LOG_INFO("virsh version输出为空，跳过Parse")
+            LOG_INFO("Operation message")
             return
         lines = output.split("\n")
         for line in lines:
@@ -265,11 +265,11 @@ class HostHypervisorCollector:
             return None
 
 def main():
-    LOG_INFO("===== 开始收集 Host/Hypervisor 信息 =====")
+    LOG_INFO("Operation message")
     collector = HostHypervisorCollector()
     collector.collect_all()
     collector.save_to_json()
-    LOG_INFO("===== 信息收集完成 =====")
+    LOG_INFO("Operation message")
 
 if __name__ == "__main__":
     main()
