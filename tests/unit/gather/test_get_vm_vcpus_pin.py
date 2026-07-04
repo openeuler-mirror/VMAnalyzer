@@ -16,7 +16,7 @@ from unittest.mock import patch, MagicMock
 import subprocess
 from gather import get_vm_vcpus_pin
 
-# affinity解析测试
+# English comment for this block.
 class TestParseAffinityString(unittest.TestCase):
     def test_single_cpu(self):
         self.assertEqual(
@@ -60,7 +60,7 @@ class TestParseAffinityString(unittest.TestCase):
             []
         )
 
-# virsh输出解析测试
+# English comment for this block.
 class TestExtractAffinity(unittest.TestCase):
     def test_affinity_standard(self):
         output = """
