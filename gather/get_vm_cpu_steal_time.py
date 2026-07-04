@@ -5,7 +5,7 @@ import subprocess as sp, json, base64, time as t
 SP=lambda c:sp.run(c,shell=True,capture_output=True,text=True,timeout=30).stdout.strip()
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 for vm in (SP("virsh list --name|grep -v ^$|grep -v ^-$").split()):
-    qga=execute:guest-exec
+    qga='{"execute":"guest-exec","arguments":{"path":"sh","arg":["-c","cat /proc/stat"]}}'
     r=SP(f"virsh qemu-agent-command {vm} {qga} 2>/dev/null")
     st=0
     if r:
