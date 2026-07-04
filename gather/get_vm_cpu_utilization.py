@@ -42,7 +42,7 @@ class VMCollector:
         }
 
     def run_virsh_cmd(self, cmd: str) -> Optional[str]:
-        """执行 virsh 命令，兼容复杂引号和 JSON 格式"""
+        """Documentation for this component."""
         try:
             LOG_INFO(f"Executing command：{cmd}")
             # 启用 shell=True Parse复杂命令，避免 split() 破坏 JSON 结构
@@ -68,13 +68,13 @@ class VMCollector:
             return None
 
     def get_all_vm_names(self) -> List[str]:
-        """获取所有有效VM名称（过滤空行和无效值）"""
+        """Documentation for this component."""
         cmd = "virsh list --name | grep -v '^$' | grep -v '^-$'"
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
 
     def get_vm_state(self, vm_name: str) -> str:
-        """获取VM状态（running/shut off等）"""
+        """Documentation for this component."""
         cmd = f"virsh domstate {vm_name}"
         output = self.run_virsh_cmd(cmd)
         return output.strip() if output else "unknown"
@@ -125,7 +125,7 @@ class VMCollector:
         return vm_data
 
     def collect_all_vms(self):
-        """采集所有VM数据"""
+        """Documentation for this component."""
         vm_names = self.get_all_vm_names()
         if not vm_names:
             LOG_ERROR("No virtual machines found")
@@ -155,18 +155,18 @@ class VMCollector:
             LOG_ERROR(f"Failed to save data：{str(e)}")
 
 def parse_args():
-    """改动8：补充argparse参数Parse，支持命令行配置"""
-    parser = argparse.ArgumentParser(description="采集KVMVMCPU利用率数据")
+    """Documentation for this component."""
+    parser = argparse.ArgumentParser(description="Operation message")
     parser.add_argument(
         "-o", "--output-dir",
         default="./get_vm_cpu_utilization_data",
-        help="数据输出目录（默认：./get_vm_cpu_utilization_data）"
+        help="Operation message"
     )
     parser.add_argument(
         "-t", "--timeout",
         type=int,
         default=30,
-        help="virsh命令超时时间（秒，默认：30）"
+        help="Operation message"
     )
     return parser.parse_args()
 
