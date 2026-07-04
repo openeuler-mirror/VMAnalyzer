@@ -30,18 +30,15 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     return result
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
-"""采集虚机快照列表及详细信息"""
+"""Documentation for this component."""
 def get_vm_snapshot_info(vm_name: str) -> str:
-    """
-    获取快照名称、创建时间、状态、disk大小
-    输出标准化快照信息列表
-    """
+    """Documentation for this component."""
     result = {
         "vm_name": vm_name,
         "snapshots": [],
@@ -68,7 +65,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
             snap_names.append(parts[0])
 
     if not snap_names:
-        result["error"] = "该虚机无快照"
+        result["error"] = "Operation message"
 
     # 2. 遍历快照获取详细信息
     for snap_name in snap_names:
@@ -121,7 +118,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
                     snap_info["disk_size_error"] = f"qemu-img执行失败: {img_result['stderr']}"
 
             else:
-                snap_info["disk_size_error"] = "未在快照XML中找到disk路径"
+                snap_info["disk_size_error"] = "Operation message"
         else:
             snap_info["disk_size_error"] = f"获取快照XML失败: {snap_disk_result['stderr']}"
 
