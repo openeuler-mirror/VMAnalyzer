@@ -161,7 +161,7 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
                     'mask_length_bytes': 0
                 }
             except subprocess.TimeoutExpired:
-                error_msg = "Command timed out（10秒）"
+                error_msg = "Operation message"
                 LOG_ERROR(f"{vm_name} - 获取 vCPU {vcpu_id} 亲和性信息失败：{error_msg}")
                 pin_info = {
                     'vcpu_id': vcpu_id,
@@ -222,21 +222,18 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
     return vm_stats
 
 def get_all_vms_vcpupin() -> dict:
-    """
-    获取所有VM的 vCPU 绑核信息
-    :return: 所有VM的绑核统计字典（key 为VM UUID）
-    """
+    """Documentation for this component."""
     conn = None
     all_vms_stats = {}
     
     try:
-        LOG_INFO("正在连接 libvirt 服务...")
+        LOG_INFO("Operation message")
         conn = libvirt.open("qemu:///system")
         if not conn:
-            LOG_ERROR("连接 libvirt 服务失败！请检查 libvirtd 服务是否启动及权限是否足够")
+            LOG_ERROR("Operation message")
             return all_vms_stats
         
-        LOG_INFO("正在获取所有VM列表...")
+        LOG_INFO("Operation message")
         domains = conn.listAllDomains()
         vm_names = [dom.name() for dom in domains]
         
@@ -255,17 +252,17 @@ def get_all_vms_vcpupin() -> dict:
     finally:
         if conn:
             conn.close()
-            LOG_INFO("libvirt 连接shutoff")
+            LOG_INFO("Operation message")
     
     return all_vms_stats
 
 def main():
     if len(sys.argv) != 1:
         print("Usage: python3 vcpupin_check_all.py")
-        print("示例：python3 vcpupin_check_all.py")
+        print("Operation message")
         sys.exit(1)
     
-    LOG_INFO("===== 开始获取所有VM的 vCPU 绑核信息 =====")
+    LOG_INFO("Operation message")
     all_stats = get_all_vms_vcpupin()
     
     if all_stats:
@@ -275,11 +272,11 @@ def main():
             json.dump(all_stats, f, indent=2, ensure_ascii=False)
         LOG_INFO(f"结果已保存到文件：{filename}")
         
-        print("\n===== 简要统计 =====")
+        print("Operation message")
         for vm_uuid, vm_info in all_stats.items():
             print(f"VM：{vm_info['name']}（{vm_info['status']}）- vCPU总数：{vm_info['vcpu_total']}")
     else:
-        LOG_ERROR("未获取到任何VM的 vCPU 绑核信息")
+        LOG_ERROR("Operation message")
         sys.exit(1)
 
 if __name__ == "__main__":
