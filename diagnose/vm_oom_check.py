@@ -12,21 +12,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 
-"""vm_oom_check.py — 检测VM OOM（memory不足）风险。
-
-检测策略（双层）：
-  1. host层：扫描 journalctl -k 和 /var/log/messages 中的
-     OOM killer 日志，过滤出与该 VM 的 QEMU 进程相关的条目。
-  2. 客户机层：通过 virsh dommemstat <vm> 读取气球设备统计，
-     计算memory使用率；使用率超过threshold时标记 OOM 风险。
-
-输出字段（每 VM）：
-  oom_risk           — bool，是否存在 OOM 风险
-  memory_usage_pct   — float，当前memory使用率 %
-  memory_stats_kb    — dict，气球设备原始统计（KB）
-  qemu_pid           — int | null，host上的 QEMU 进程 PID
-  host_oom_events    — list[str]，最近 10 条主机 OOM 日志行
-"""
+"""Documentation for this component."""
 
 import json
 import logging
@@ -48,7 +34,7 @@ LOG_ERROR = logging.error
 OOM_RISK_THRESHOLD = 90.0
 
 class VMOomChecker:
-    """检查所有runningVM的 OOM 风险。"""
+    """Documentation for this component."""
 
     def __init__(self, threshold: float = OOM_RISK_THRESHOLD):
         self.threshold = threshold
@@ -80,7 +66,7 @@ class VMOomChecker:
      # ── 客户机memory统计 ────────────────────────────────────────────────────────
 
     def get_vm_mem_stats(self, vm_name: str) -> Dict:
-        """Parse virsh dommemstat，返回原始字段及计算后的使用率。"""
+        """Documentation for this component."""
         output = self._run(["virsh", "dommemstat", vm_name])
         stats: Dict = {}
         if not output:
@@ -104,7 +90,7 @@ class VMOomChecker:
     # ── host QEMU PID ──────────────────────────────────────────────────────
 
     def get_qemu_pid(self, vm_name: str) -> Optional[int]:
-        """在host进程表中找到该 VM 对应的 QEMU 进程 PID。"""
+        """Documentation for this component."""
         output = self._run(
             ["bash", "-c",
              f"ps -ef | grep 'qemu.*{vm_name}' | grep -v grep | awk '{{print $2}}'"]
@@ -121,7 +107,7 @@ class VMOomChecker:
     def get_host_oom_events(
         self, vm_name: str, qemu_pid: Optional[int]
     ) -> List[str]:
-        """扫描内核日志，返回最近与该 VM 相关的 OOM kill 日志行（最多 10 条）。"""
+        """Documentation for this component."""
         events: List[str] = []
 
         # 1. journalctl（systemd 系统）
@@ -149,7 +135,7 @@ class VMOomChecker:
                             ):
                                 events.append(line.strip())
             except OSError as e:
-                LOG_ERROR("读取 /var/log/messages 失败: %s", e)
+                LOG_ERROR("Operation message", e)
 
         # 去重并截取最近 10 条
         seen = set()
@@ -173,7 +159,7 @@ class VMOomChecker:
 
         if oom_risk:
             LOG_INFO(
-                "VM %s: OOM 风险！memory使用率 %.1f%%，主机 OOM 事件 %d 条",
+                "Operation message",
                 vm_name, usage_pct, len(oom_events),
             )
 
@@ -190,7 +176,7 @@ class VMOomChecker:
     def check_all_vms(self) -> Dict:
         vm_names = self.get_running_vm_names()
         for vm_name in vm_names:
-            LOG_INFO("检查 VM OOM 风险: %s", vm_name)
+            LOG_INFO("Operation message", vm_name)
             self.result["vms"][vm_name] = self.check_vm(vm_name)
         self.result["vm_count"] = len(vm_names)
         return self.result
@@ -201,7 +187,7 @@ class VMOomChecker:
         os.makedirs(os.path.dirname(os.path.abspath(filepath)), exist_ok=True)
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(self.result, f, indent=2, ensure_ascii=False)
-        LOG_INFO("OOM 检查结果已保存到 %s", filepath)
+        LOG_INFO("Operation message", filepath)
 
 
 if __name__ == "__main__":
