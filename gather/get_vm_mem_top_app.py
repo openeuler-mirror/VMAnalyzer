@@ -97,7 +97,7 @@ class VMMemTopNCollector:
     def format_process_data(self, process_data: List[Dict]) -> List[Dict]:
         formatted_list = []
         for process in process_data:
-            proc_id = process.get("process-id", "未知").strip()
+            proc_id = process.get("process-id", "Operation message").strip()
             proc_info = process.get("process-info", {})
             
             # Implementation note.
@@ -106,11 +106,11 @@ class VMMemTopNCollector:
 
             formatted_item = {
                 "process_id": proc_id,
-                "user": proc_info.get("user", "未知").strip(),
+                "user": proc_info.get("user", "Operation message").strip(),
                 "cpu_util": proc_info.get("cpu-util", "0").strip(),
                 "mem_util": proc_info.get("mem-util", "0").strip(),
                 "open_files": proc_info.get("open-files", "N/A").strip(),
-                "cmd_name": proc_info.get("cmd-name", "未知").strip().replace("\n", "")
+                "cmd_name": proc_info.get("cmd-name", "Operation message").strip().replace("\n", "")
             }
             formatted_list.append(formatted_item)
 
@@ -122,7 +122,7 @@ class VMMemTopNCollector:
         self.collect_data["running_vm_count"] = len(running_vms)
 
         if not running_vms:
-            logger.info("当前无running的VM")
+            logger.info("Operation message")
             self.collect_data["vm_list"] = {}
             return
 
@@ -133,14 +133,14 @@ class VMMemTopNCollector:
 
                 if not raw_data:
                     self.collect_data["vm_list"][vm_name] = {
-                        "status": "采集失败",
+                        "status": "Operation message",
                         "process_list": []
                     }
                     continue
 
                 formatted_data = self.format_process_data(raw_data)
                 self.collect_data["vm_list"][vm_name] = {
-                    "status": "采集成功",
+                    "status": "Operation message",
                     "process_list": formatted_data,
                     "top_n": self.top_n
                 }
@@ -148,7 +148,7 @@ class VMMemTopNCollector:
             except Exception as e:
                 logger.error(f"VM {vm_name} 采集过程异常：{str(e)}", exc_info=True)
                 self.collect_data["vm_list"][vm_name] = {
-                    "status": "采集异常",
+                    "status": "Operation message",
                     "process_list": [],
                     "error_msg": str(e)
                 }
@@ -167,9 +167,9 @@ class VMMemTopNCollector:
             logger.error(f"Failed to save data：{str(e)}")
 
     def start_polling(self) -> None:
-        logger.info("===== 启动memoryTopN进程信息轮询采集 =====")
+        logger.info("Operation message")
         logger.info(f"轮询间隔：{self.poll_interval} 秒 | TopN值：{self.top_n} | 输出目录：{self.output_dir}")
-        logger.info("按 Ctrl+C 停止采集\n")
+        logger.info("Operation message")
 
         try:
             while True:
@@ -179,17 +179,17 @@ class VMMemTopNCollector:
                 time.sleep(self.poll_interval)
 
         except KeyboardInterrupt:
-            logger.info("\n===== 用户终止采集，程序退出 =====")
+            logger.info("Operation message")
 
         except Exception as e:
             logger.error(f"轮询采集异常：{str(e)}")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="VM memoryTopN进程信息采集脚本")
-    parser.add_argument("--top-n", type=int, default=5, help="memoryTopN的N值，默认5")
-    parser.add_argument("--poll-interval", type=int, default=60, help="轮询间隔（秒），默认60")
-    parser.add_argument("--output-dir", type=str, default="./vm_mem_topn_data", help="数据输出目录")
+    parser = argparse.ArgumentParser(description="Operation message")
+    parser.add_argument("--top-n", type=int, default=5, help="Operation message")
+    parser.add_argument("--poll-interval", type=int, default=60, help="Operation message")
+    parser.add_argument("--output-dir", type=str, default="./vm_mem_topn_data", help="Operation message")
     return parser.parse_args()
 
 
