@@ -2,7 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Analyze performance trends over time."""
 import statistics
-import logging, time, logging
+import logging, time
 LOG=logging.getLogger(__name__)
 
 class TrendAnalyzer:
