@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""日志配置模块"""
+"""Documentation for this component."""
 LOGGING_CONFIG = {
     "version": 1,
     "formatters": {
