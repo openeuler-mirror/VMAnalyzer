@@ -67,7 +67,7 @@ def get_vm_basic_info(vm_name: str) -> Dict[str, Any]:
         result["error"] = cmd_result["stderr"]
         return result
 
-    # Parsedominfo输出
+    # English comment for this block.
     for line in cmd_result["stdout"].split("\n"):
         line = line.strip()
         if not line or ":" not in line:
@@ -100,7 +100,7 @@ def get_vm_uuid(vm_name: str) -> str:
         result["error"] = basic_info["error"]
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 提取并校验UUID
+    # English comment for this block.
     uuid = basic_info["uuid"]
     uuid_pattern = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
     result["uuid"] = uuid
@@ -119,12 +119,12 @@ if __name__ == "__main__":
     results = []
     for vm in vms:
         try:
-            # 调用已有的获取XML函数，它返回JSON字符串，我们需要Parse为字典
+            # English comment for this block.
             vm_result_json = get_vm_uuid(vm)
             vm_result = json.loads(vm_result_json)
             results.append(vm_result)
         except Exception as e:
-            # 新增：捕获单个虚机处理的异常，避免中断整体流程
+            # English comment for this block.
             error_result = {
                 "vm_name": vm,
                 "uuid": "",
@@ -134,5 +134,5 @@ if __name__ == "__main__":
             }
             results.append(error_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
