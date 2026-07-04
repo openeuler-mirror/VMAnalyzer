@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""JSON格式日志工具"""
+"""Documentation for this component."""
 
 def get_json_formatter():
     """Get a JSON log formatter"""
