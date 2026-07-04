@@ -53,7 +53,7 @@ def get_domain_uuid(vm_name: str) -> Optional[str]:
 
 def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
     """Documentation for this component."""
-    # 构造 guest-exec 命令读取 /proc/cpuinfo
+    # English comment for this block.
     qga_cmd = {
         "execute": "guest-exec",
         "arguments": {
@@ -69,14 +69,14 @@ def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
         return None
 
     try:
-        # Parse guest-exec 返回的 JSON
+        # English comment for this block.
         resp = json.loads(output)
         pid = resp.get("return", {}).get("pid")
         if not pid:
             LOG_ERROR("Operation message")
             return None
 
-        # 等待进程结束并获取输出
+        # English comment for this block.
         time.sleep(0.5)
         status_cmd = {
             "execute": "guest-exec-status",
@@ -99,10 +99,10 @@ def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
             LOG_ERROR("Operation message")
             return None
 
-        # base64 解码输出
+        # English comment for this block.
         import base64
         cpuinfo_line = base64.b64decode(out_data).decode("utf-8").strip()
-        # 提取 flags 字段
+        # English comment for this block.
         parts = cpuinfo_line.split(":", 1)
         if len(parts) != 2:
             LOG_ERROR("Operation message")
