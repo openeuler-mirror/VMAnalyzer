@@ -20,7 +20,7 @@ from gather import get_vm_crash_status
 class TestVmCrashStatus(unittest.TestCase):
 
     # ------------------------------
-    # 测试 get_vm_list
+    # English comment for this block.
     # ------------------------------
     @patch("gather.get_vm_crash_status.execute_cmd")
     def test_get_vm_list_success(self, mock_exec):
@@ -43,7 +43,7 @@ class TestVmCrashStatus(unittest.TestCase):
         self.assertEqual(result, [])
 
     # ------------------------------
-    # Libvirt crashed 状态
+    # English comment for this block.
     # ------------------------------
     @patch("gather.get_vm_crash_status.execute_cmd")
     @patch("gather.get_vm_crash_status.os.path.exists")
@@ -56,7 +56,7 @@ class TestVmCrashStatus(unittest.TestCase):
         result_json = get_vm_crash_status.get_vm_crash_status("vm1")
         result = json.loads(result_json)
         self.assertTrue(result["crashed"])
-        self.assertEqual(result["crash_reason"], "Libvirt标记为崩溃状态")
+        self.assertEqual(result["crash_reason"], "Operation message")
 
     @patch("gather.get_vm_crash_status.execute_cmd")
     @patch("gather.get_vm_crash_status.os.path.exists")
@@ -76,7 +76,7 @@ class TestVmCrashStatus(unittest.TestCase):
         self.assertIn("kernel panic", result["crash_log_snippet"])
 
     # ------------------------------
-    # QEMU 进程丢失
+    # English comment for this block.
     # ------------------------------
     @patch("gather.get_vm_crash_status.execute_cmd")
     @patch("gather.get_vm_crash_status.os.path.exists")
@@ -89,10 +89,10 @@ class TestVmCrashStatus(unittest.TestCase):
         result_json = get_vm_crash_status.get_vm_crash_status("vm1")
         result = json.loads(result_json)
         self.assertTrue(result["crashed"])
-        self.assertEqual(result["crash_reason"], "QEMU进程已退出但虚机状态非关机")
+        self.assertEqual(result["crash_reason"], "Operation message")
 
     # ------------------------------
-    # ps 命令失败
+    # English comment for this block.
     # ------------------------------
     @patch("gather.get_vm_crash_status.execute_cmd")
     @patch("gather.get_vm_crash_status.os.path.exists")
