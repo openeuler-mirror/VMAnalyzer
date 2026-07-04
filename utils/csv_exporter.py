@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""CSV数据导出工具"""
+"""Documentation for this component."""
 import csv
 import logging
 import io
