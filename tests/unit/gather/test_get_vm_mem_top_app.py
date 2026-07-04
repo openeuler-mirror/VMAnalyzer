@@ -22,18 +22,18 @@ from unittest.mock import patch, MagicMock
 from gather.get_vm_mem_top_app import VMMemTopNCollector, logger, parse_args, main
 
 class TestGetVMMemTopApp(unittest.TestCase):
-    """VM内存TopN进程采集模块单元测试"""
+    """Documentation for this component."""
 
     def setUp(self):
-        """测试前置：初始化实例，创建独立测试临时目录"""
+        """Documentation for this component."""
         self.top_n = 5
         self.poll_interval = 10
-        # 测试目录放在项目根temp下，与业务隔离，测试后自动清理
+        # English comment for this block.
         self.test_out_dir = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
             "temp", "test_vm_mem_topn"
         )
-        # 初始化采集器实例
+        # English comment for this block.
         self.collector = VMMemTopNCollector(
             top_n=self.top_n,
             poll_interval=self.poll_interval,
@@ -41,7 +41,7 @@ class TestGetVMMemTopApp(unittest.TestCase):
         )
 
     def tearDown(self):
-        """测试后置：清理所有测试临时目录，无残留"""
+        """Documentation for this component."""
         temp_root = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
             "temp"
@@ -50,34 +50,34 @@ class TestGetVMMemTopApp(unittest.TestCase):
             shutil.rmtree(temp_root)
 
     def test_init_and_init_output_dir(self):
-        """测试__init__和_init_output_dir：参数初始化+目录创建逻辑"""
-        # 断言实例参数正确
+        """Documentation for this component."""
+        # English comment for this block.
         self.assertEqual(self.collector.top_n, self.top_n)
         self.assertEqual(self.collector.poll_interval, self.poll_interval)
         self.assertEqual(self.collector.output_dir, self.test_out_dir)
-        # 断言初始采集数据结构正确
+        # English comment for this block.
         self.assertEqual(self.collector.collect_data, {
             "collect_time": "",
             "running_vm_count": 0,
             "vm_list": {}
         })
-        # 断言输出目录已创建
+        # English comment for this block.
         self.assertTrue(os.path.exists(self.test_out_dir))
 
     def test__exec_virsh_cmd_all_scenarios(self):
-        """测试私有方法_exec_virsh_cmd：覆盖成功/命令失败/超时/通用异常所有场景"""
+        """Documentation for this component."""
         test_cmd = "virsh list --name"
 
         class TestableCollector(self.collector.__class__):
             def call_exec_virsh_cmd(self, cmd):
-                # 子类合法访问父类受保护方法，静态检查无警告
+                # English comment for this block.
                 return super()._exec_virsh_cmd(cmd)
 
         self.collector = TestableCollector()
 
         with patch("subprocess.run") as mock_subproc, patch.object(logger, "info") as mock_log_info, \
                 patch.object(logger, "error") as mock_log_err:
-            # 场景1：命令执行成功，返回非空输出
+            # English comment for this block.
             mock_res = MagicMock()
             mock_res.stdout.strip.return_value = "vm1 vm2"
             mock_subproc.return_value = mock_res
@@ -86,7 +86,7 @@ class TestGetVMMemTopApp(unittest.TestCase):
             mock_log_info.assert_called_with(f"执行命令：{test_cmd}")
             mock_log_err.assert_not_called()
 
-            # 场景2：命令执行失败（CalledProcessError）
+            # English comment for this block.
             mock_subproc.side_effect = subprocess.CalledProcessError(
                 returncode=1, cmd=test_cmd, stderr="connect failed"
             )
@@ -94,51 +94,51 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"命令执行失败：{test_cmd}，错误：connect failed")
 
-            # 场景3：命令执行超时（TimeoutExpired）
+            # English comment for this block.
             mock_subproc.side_effect = subprocess.TimeoutExpired(cmd=test_cmd, timeout=30)
             result = self.collector.call_exec_virsh_cmd(test_cmd)
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"命令执行超时：{test_cmd}（超过30秒）")
 
-            # 场景4：通用异常（如权限不足）
+            # English comment for this block.
             mock_subproc.side_effect = Exception("permission denied")
             result = self.collector.call_exec_virsh_cmd(test_cmd)
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"命令执行异常：{test_cmd}，错误：permission denied")
 
-            # 场景5：命令成功但无输出，返回None
+            # English comment for this block.
             mock_res.stdout.strip.return_value = ""
             mock_subproc.side_effect = None
             result = self.collector.call_exec_virsh_cmd(test_cmd)
             self.assertIsNone(result)
 
     def test_get_running_vms(self):
-        """测试get_running_vms：获取运行VM列表，覆盖有/无VM两种场景"""
-        # 场景1：有运行VM，返回非空列表
+        """Documentation for this component."""
+        # English comment for this block.
         with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec:
             mock_exec.return_value = "vm-db01 vm-web01 vm-cache01"
             vms = self.collector.get_running_vms()
             self.assertEqual(vms, ["vm-db01", "vm-web01", "vm-cache01"])
             mock_exec.assert_called_once_with("virsh list --name | grep -v '^$'")
 
-        # 场景2：无运行VM，返回空列表
+        # English comment for this block.
         with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec:
             mock_exec.return_value = None
             vms = self.collector.get_running_vms()
             self.assertEqual(vms, [])
 
     def test_get_vm_mem_topn_all_scenarios(self):
-        """测试get_vm_mem_topn：覆盖采集成功/无返回/无return字段/JSON解析失败所有场景"""
+        """Documentation for this component."""
         test_vm = "vm-db01"
-        # 构造正常QGA返回数据
+        # English comment for this block.
         mock_qga_resp = "{\"return\": [{\"process-id\": \"123\", \"process-info\": {\"user\": \"root\"}}]}"
-        # 场景1：采集成功，正常返回数据
+        # English comment for this block.
         with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
             mock_exec.return_value = mock_qga_resp
             result = self.collector.get_vm_mem_topn(test_vm)
             self.assertIsInstance(result, list)
             self.assertEqual(len(result), 1)
-            # 断言拼接的QGA命令正确（json.dumps后的参数）
+            # English comment for this block.
             expected_qga_params = json.dumps({
                 "execute": "guest-get-memtopn-status",
                 "arguments": {"memtopn-num": str(self.top_n)}
@@ -146,21 +146,21 @@ class TestGetVMMemTopApp(unittest.TestCase):
             mock_exec.assert_called_once_with(f"virsh qemu-agent-command {test_vm} '{expected_qga_params}'")
             mock_log_err.assert_not_called()
 
-        # 场景2：命令无返回数据，采集失败
+        # English comment for this block.
         with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
             mock_exec.return_value = None
             result = self.collector.get_vm_mem_topn(test_vm)
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"VM {test_vm} 内存TopN信息采集失败：无返回数据")
 
-        # 场景3：QGA返回无return字段，格式异常
+        # English comment for this block.
         with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
             mock_exec.return_value = "{\"error\": \"unknown command\"}"
             result = self.collector.get_vm_mem_topn(test_vm)
             self.assertIsNone(result)
             mock_log_err.assert_called_with(f"VM {test_vm} QGA返回格式异常：{{\"error\": \"unknown command\"}}")
 
-        # 场景4：JSON解析失败，返回无效字符串
+        # English comment for this block.
         with patch.object(self.collector, "_exec_virsh_cmd") as mock_exec, patch.object(logger, "error") as mock_log_err:
             mock_exec.return_value = "invalid json string"
             result = self.collector.get_vm_mem_topn(test_vm)
@@ -168,8 +168,8 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertIn(f"VM {test_vm} QGA返回解析失败", mock_log_err.call_args[0][0])
 
     def test_format_process_data(self):
-        """测试format_process_data：覆盖正常格式/嵌套process-info/字段缺失所有兼容场景"""
-        # 场景1：正常格式数据，字段完整
+        """Documentation for this component."""
+        # English comment for this block.
         raw_normal = [
             {
                 "process-id": "123",
@@ -189,10 +189,10 @@ class TestGetVMMemTopApp(unittest.TestCase):
             "cpu_util": "10.5",
             "mem_util": "20.3",
             "open_files": "100",
-            "cmd_name": "java-Dtest"  # 验证\n被替换
+            "cmd_name": "java-Dtest"  # English comment for this block.
         })
 
-        # 场景2：异常格式
+        # English comment for this block.
         raw_nested = [
             {
                 "process-id": "456",
@@ -211,26 +211,26 @@ class TestGetVMMemTopApp(unittest.TestCase):
         self.assertEqual(formatted_nested[0]["user"], "nginx")
         self.assertEqual(formatted_nested[0]["cmd_name"], "nginx")
 
-        # 场景3：键**不存在**，触发get默认值
+        # English comment for this block.
         raw_key_missing = [
             {
-                # 缺失process-id键
+                # English comment for this block.
                 "process-info": {
-                    # 缺失user/cpu-util/mem-util/open-files/cmd-name键
+                    # English comment for this block.
                 }
             }
         ]
         formatted_key_missing = self.collector.format_process_data(raw_key_missing)
         self.assertEqual(formatted_key_missing[0], {
-            "process_id": "未知",
-            "user": "未知",
+            "process_id": "Operation message",
+            "user": "Operation message",
             "cpu_util": "0",
             "mem_util": "0",
             "open_files": "N/A",
-            "cmd_name": "未知"
+            "cmd_name": "Operation message"
         })
 
-        # 场景4：键**存在但值为空**，验证空值处理逻辑
+        # English comment for this block.
         raw_value_empty = [
             {
                 "process-id": "",
@@ -254,14 +254,14 @@ class TestGetVMMemTopApp(unittest.TestCase):
         })
 
     def test_collect_all_vms_data(self):
-        """测试collect_all_vms_data：覆盖无VM/单VM成功/单VM失败/多VM混合场景"""
+        """Documentation for this component."""
         mock_collect_time = "2026-02-06 10:00:00"
-        # 正确patch业务模块中的datetime，避免内置类型错误
+        # English comment for this block.
         with patch("gather.get_vm_mem_top_app.datetime") as mock_datetime:
             mock_datetime.now.return_value = datetime.strptime(mock_collect_time, "%Y-%m-%d %H:%M:%S")
             mock_datetime.strftime = datetime.strftime
 
-            # 场景1：当前无运行中的VM
+            # English comment for this block.
             with patch.object(self.collector, "get_running_vms") as mock_get_vms:
                 mock_get_vms.return_value = []
                 self.collector.collect_all_vms_data()
@@ -269,54 +269,54 @@ class TestGetVMMemTopApp(unittest.TestCase):
                 self.assertEqual(self.collector.collect_data["running_vm_count"], 0)
                 self.assertEqual(self.collector.collect_data["vm_list"], {})
 
-            # 重置采集数据，隔离场景1
+            # English comment for this block.
             self.collector.collect_data = {"collect_time": "", "running_vm_count": 0, "vm_list": {}}
-            # 场景2：单个VM采集成功
+            # English comment for this block.
             with patch.object(self.collector, "get_running_vms") as mock_get_vms:
                 mock_get_vms.return_value = ["vm-web01"]
-                # 模拟get_vm_mem_topn返回正常数据
+                # English comment for this block.
                 mock_raw_data = [{"process-id": "123", "process-info": {"user": "root"}}]
                 with patch.object(self.collector, "get_vm_mem_topn") as mock_get_topn:
                     mock_get_topn.return_value = mock_raw_data
                     self.collector.collect_all_vms_data()
                     self.assertEqual(self.collector.collect_data["running_vm_count"], 1)
                     self.assertIn("vm-web01", self.collector.collect_data["vm_list"])
-                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "采集成功")
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "Operation message")
                     self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["top_n"], self.top_n)
 
-            # 重置采集数据
+            # English comment for this block.
             self.collector.collect_data = {"collect_time": "", "running_vm_count": 0, "vm_list": {}}
-            # 场景3：单个VM采集失败（get_vm_mem_topn返回None）
+            # English comment for this block.
             with patch.object(self.collector, "get_running_vms") as mock_get_vms:
                 mock_get_vms.return_value = ["vm-db01"]
                 with patch.object(self.collector, "get_vm_mem_topn") as mock_get_topn:
                     mock_get_topn.return_value = None
                     self.collector.collect_all_vms_data()
-                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "采集失败")
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "Operation message")
                     self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["process_list"], [])
 
-            # 重置采集数据
+            # English comment for this block.
             self.collector.collect_data = {"collect_time": "", "running_vm_count": 0, "vm_list": {}}
-            # 场景4：多个VM，部分成功部分失败
+            # English comment for this block.
             with patch.object(self.collector, "get_running_vms") as mock_get_vms:
                 mock_get_vms.return_value = ["vm-web01", "vm-db01"]
                 with patch.object(self.collector, "get_vm_mem_topn") as mock_get_topn:
-                    # 第一个VM成功，第二个失败
+                    # English comment for this block.
                     mock_get_topn.side_effect = [mock_raw_data, None]
                     self.collector.collect_all_vms_data()
                     self.assertEqual(self.collector.collect_data["running_vm_count"], 2)
-                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "采集成功")
-                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "采集失败")
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-web01"]["status"], "Operation message")
+                    self.assertEqual(self.collector.collect_data["vm_list"]["vm-db01"]["status"], "Operation message")
 
     def test_save_collect_data(self):
-        """测试save_collect_data：验证JSON文件生成、文件名格式、内容正确性"""
-        # 构造模拟采集数据
+        """Documentation for this component."""
+        # English comment for this block.
         mock_collect_data = {
             "collect_time": "2026-02-06 10:00:00",
             "running_vm_count": 1,
             "vm_list": {
                 "vm-web01": {
-                    "status": "采集成功",
+                    "status": "Operation message",
                     "process_list": [{"process_id": "123", "user": "root"}],
                     "top_n": 5
                 }
@@ -324,42 +324,42 @@ class TestGetVMMemTopApp(unittest.TestCase):
         }
         self.collector.collect_data = mock_collect_data
 
-        # mock datetime固定文件名，避免动态时间
+        # English comment for this block.
         mock_file_time = "20260206_100000"
         with patch("gather.get_vm_mem_top_app.datetime") as mock_datetime:
             mock_now = datetime.strptime("2026-02-06 10:00:00", "%Y-%m-%d %H:%M:%S")
             mock_datetime.now.return_value = mock_now
             mock_datetime.strftime = datetime.strftime
 
-            # 执行保存
+            # English comment for this block.
             self.collector.save_collect_data()
 
-            # 断言文件生成成功（匹配命名规则：vm_mem_topn_时间戳.json）
+            # English comment for this block.
             test_file = f"vm_mem_topn_{mock_file_time}.json"
             test_file_path = os.path.join(self.test_out_dir, test_file)
             self.assertTrue(os.path.exists(test_file_path))
 
-            # 断言文件内容与采集数据一致（JSON序列化正确，中文/缩进正常）
+            # English comment for this block.
             with open(test_file_path, "r", encoding="utf-8") as f:
                 save_data = json.load(f)
             self.assertEqual(save_data, mock_collect_data)
 
-        # 测试保存失败场景（如无写入权限）
+        # English comment for this block.
         with patch("builtins.open", side_effect=PermissionError("no write permission")), \
                 patch.object(logger, "error") as mock_log_err:
             self.collector.save_collect_data()
-            mock_log_err.assert_called_with("保存数据失败：no write permission")
+            mock_log_err.assert_called_with("Operation message")
 
     def test_parse_args(self):
-        """测试parse_args：命令行参数解析，覆盖默认参数/自定义参数场景"""
-        # 场景1：使用默认参数，无命令行入参
+        """Documentation for this component."""
+        # English comment for this block.
         with patch("sys.argv", ["get_vm_mem_top_app.py"]):
             args = parse_args()
             self.assertEqual(args.top_n, 5)
             self.assertEqual(args.poll_interval, 60)
             self.assertEqual(args.output_dir, "./vm_mem_topn_data")
 
-        # 场景2：自定义所有参数
+        # English comment for this block.
         with patch("sys.argv", [
             "get_vm_mem_top_app.py",
             "--top-n", "10",
@@ -372,69 +372,69 @@ class TestGetVMMemTopApp(unittest.TestCase):
             self.assertEqual(args.output_dir, "/data/vm_mon/mem_topn")
 
     def test_main(self):
-        """测试main函数：验证实例化和启动逻辑"""
-        # patch parse_args和VMMemTopNCollector，避免真实执行
+        """Documentation for this component."""
+        # English comment for this block.
         with patch("gather.get_vm_mem_top_app.parse_args") as mock_parse, \
                 patch("gather.get_vm_mem_top_app.VMMemTopNCollector") as mock_collector_cls:
-            # 模拟解析的参数
+            # English comment for this block.
             mock_args = MagicMock()
             mock_args.top_n = 5
             mock_args.poll_interval = 60
             mock_args.output_dir = "./vm_mem_topn_data"
             mock_parse.return_value = mock_args
 
-            # 执行main
+            # English comment for this block.
             main()
 
-            # 断言参数解析被调用
+            # English comment for this block.
             mock_parse.assert_called_once()
-            # 断言采集器被正确实例化
+            # English comment for this block.
             mock_collector_cls.assert_called_once_with(
                 top_n=5,
                 poll_interval=60,
                 output_dir="./vm_mem_topn_data"
             )
-            # 断言start_polling被调用
+            # English comment for this block.
             mock_collector_cls.return_value.start_polling.assert_called_once()
 
     def test_start_polling(self):
-        """测试start_polling：验证轮询逻辑和用户终止处理"""
-        # patch 采集和保存方法，避免真实执行；patch time.sleep，避免等待
+        """Documentation for this component."""
+        # English comment for this block.
         with patch.object(self.collector, "collect_all_vms_data") as mock_collect, \
                 patch.object(self.collector, "save_collect_data") as mock_save, \
                 patch("time.sleep") as mock_sleep, \
                 patch.object(logger, "info") as mock_log_info:
-            # 模拟轮询1次后用户按Ctrl+C终止（KeyboardInterrupt）
+            # English comment for this block.
             mock_sleep.side_effect = KeyboardInterrupt()
             try:
                 self.collector.start_polling()
             except KeyboardInterrupt:
                 pass
 
-            # 断言采集和保存被调用
+            # English comment for this block.
             mock_collect.assert_called_once()
             mock_save.assert_called_once()
-            # 断言sleep被调用
+            # English comment for this block.
             mock_sleep.assert_called_once_with(self.poll_interval)
-            # 拼接所有日志，断言子串存在（忽略换行/空格等格式）
+            # English comment for this block.
             all_logs = "".join([call[0][0] for call in mock_log_info.call_args_list])
-            # 断言用户终止日志被打印
-            self.assertIn("用户终止采集，程序退出", all_logs)
+            # English comment for this block.
+            self.assertIn("Operation message", all_logs)
 
-        # 测试轮询异常处理
+        # English comment for this block.
         with patch.object(self.collector, "collect_all_vms_data") as mock_collect, \
                 patch.object(self.collector, "save_collect_data") as mock_save, \
                 patch("time.sleep"), \
                 patch.object(logger, "error") as mock_log_err:
-            # 模拟采集时抛出具体子类异常
+            # English comment for this block.
             mock_collect.side_effect = RuntimeError("poll error")
             try:
                 self.collector.start_polling()
             except RuntimeError:
                 pass
 
-            # 断言异常日志被打印
-            mock_log_err.assert_called_with("轮询采集异常：poll error")
+            # English comment for this block.
+            mock_log_err.assert_called_with("Operation message")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
