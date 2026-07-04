@@ -33,7 +33,7 @@ def generate_daily_report():
     with open(output_file, "w") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
     
-    print(f"✅ 日报已生成: {output_file}")
+    print(f"✅ Daily report generated: {output_file}")
     return report
 
 if __name__ == "__main__":
