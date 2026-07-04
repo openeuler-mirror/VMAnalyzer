@@ -11,7 +11,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     执行系统命令，返回标准化结果
     :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
     :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": 错误内容}
+    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
     """
     result = {
         "code": -1,
@@ -30,28 +30,28 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stdout"] = proc.stdout.strip()
         result["stderr"] = proc.stderr.strip()
     except subprocess.TimeoutExpired:
-        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+        result["stderr"] = f"Command timed out（{timeout}s）: {' '.join(cmd)}"
     except Exception as e:
-        result["stderr"] = f"命令执行异常: {str(e)}"
+        result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
 
 def get_vm_list() -> list:
-    """获取宿主机所有虚机名称列表"""
+    """获取host所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
-"""采集虚机磁盘后端镜像信"""
+"""采集虚机disk后端镜像信"""
 def get_vm_disk_list(vm_name: str) -> list:
-    """获取虚机磁盘列表"""
+    """获取虚机disk列表"""
     disks = []
     cmd = ["virsh", "domblklist", vm_name, "--details"]
     cmd_result = execute_cmd(cmd)
     if cmd_result["code"] != 0:
         return disks
 
-    # 解析domblklist输出（跳过表头）
+    # Parsedomblklist输出（跳过表头）
     lines = cmd_result["stdout"].split("\n")[2:]
     for line in lines:
         line = line.strip()
@@ -75,13 +75,13 @@ def get_vm_disk_backing_file(vm_name: str) -> str:
         "error": ""
     }
 
-    # 1. 获取磁盘列表
+    # 1. 获取disk列表
     disks = get_vm_disk_list(vm_name)
     if not disks:
-        result["error"] = "未获取到虚机磁盘列表"
+        result["error"] = "未获取到虚机disk列表"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 2. 遍历磁盘获取backing file
+    # 2. 遍历disk获取backing file
     for disk in disks:
         disk_info = {
             "dev": disk["target"],
@@ -103,9 +103,9 @@ def get_vm_disk_backing_file(vm_name: str) -> str:
                     disk_info["format"] = img_json.get("format", "")
                     disk_info["read_only"] = img_json.get("read-only", False)
                 except json.JSONDecodeError as e:
-                    disk_info["img_error"] = f"JSON解析失败: {str(e)}"
+                    disk_info["img_error"] = f"JSONParse失败: {str(e)}"
             else:
-                # 记录qemu-img执行失败的错误信息  # 【改动8】捕获qemu-img执行错误
+                # 记录qemu-img执行失败的Error信息  # 【改动8】捕获qemu-img执行Error
                 disk_info["img_error"] = f"qemu-img执行失败: {img_result['stderr']}"
 
         result["disks"].append(disk_info)
@@ -118,12 +118,12 @@ if __name__ == "__main__":
 
     vms = get_vm_list()
     if not vms:
-        print(json.dumps({"error": "没有找到任何虚机或执行virsh命令失败"}, ensure_ascii=False, indent=2))
+        print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
         sys.exit(1)
 
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要解析为字典
+        # 调用已有的获取XML函数，它返回JSON字符串，我们需要Parse为字典
         vm_result_json = get_vm_disk_backing_file(vm)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
