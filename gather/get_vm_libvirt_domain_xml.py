@@ -55,22 +55,22 @@ def get_vm_libvirt_domain_xml(vm_name: str, full: bool = True) -> str:
         "error": ""
     }
 
-    # 执行virsh dumpxml
+    # English comment for this block.
     cmd = ["virsh", "dumpxml", vm_name]
     cmd_result = execute_cmd(cmd)
     if cmd_result["code"] != 0:
         result["error"] = cmd_result["stderr"]
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 精简XML（可选）
+    # English comment for this block.
     xml_content = cmd_result["stdout"]
     if not full:
         root = parse_xml(xml_content)
-        if root is None:  # Parse失败时记录Error并返回
+        if root is None:  # English comment for this block.
             result["error"] = f"VM {vm_name} 的XMLParse失败"
             return json.dumps(result, ensure_ascii=False, indent=2)
 
-        # 只保留核心节点（vcpu/memory/disk/interface）
+        # English comment for this block.
         try:
             core_nodes = ["vcpu", "memory", "disk", "interface", "os", "cpu"]
             core_xml = etree.Element("domain")
@@ -103,7 +103,7 @@ if __name__ == "__main__":
             vm_result = json.loads(vm_result_json)
             results.append(vm_result)
         except Exception as e:
-            # 记录异常并继续处理下一个VM
+            # English comment for this block.
             results.append({
                 "vm_name": vm,
                 "success": False,
@@ -111,5 +111,5 @@ if __name__ == "__main__":
                 "error": f"处理VM {vm} 时发生未预期异常: {str(e)}"
             })
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
