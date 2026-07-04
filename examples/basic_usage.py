@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""VMAnalyzer基本使用示例"""
+"""Documentation for this component."""
 import sys
 sys.path.insert(0, '..')
 
