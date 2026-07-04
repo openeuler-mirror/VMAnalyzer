@@ -30,7 +30,7 @@ logging.basicConfig(
 LOG_INFO = logging.info
 LOG_ERROR = logging.error
 
-# memory使用率超过此threshold（%）时视为 OOM 风险
+# English comment for this block.
 OOM_RISK_THRESHOLD = 90.0
 
 class VMOomChecker:
@@ -45,7 +45,7 @@ class VMOomChecker:
             "vms": {},
         }
 
-    # ── 工具方法 ─────────────────────────────────────────────────────────────
+    # English comment for this block.
 
     def _run(self, cmd: List[str], timeout: int = 10) -> Optional[str]:
         try:
@@ -57,13 +57,13 @@ class VMOomChecker:
             LOG_ERROR("Command failed %s: %s", " ".join(cmd), e)
             return None
 
-    # ── VM 列表 ──────────────────────────────────────────────────────────────
+    # English comment for this block.
 
     def get_running_vm_names(self) -> List[str]:
         output = self._run(["virsh", "list", "--state-running", "--name"])
         return [n for n in (output or "").split() if n]
 
-     # ── 客户机memory统计 ────────────────────────────────────────────────────────
+     # English comment for this block.
 
     def get_vm_mem_stats(self, vm_name: str) -> Dict:
         """Documentation for this component."""
@@ -78,7 +78,7 @@ class VMOomChecker:
                     stats[parts[0]] = int(parts[1])
                 except ValueError:
                     pass
-        # 计算使用率
+        # English comment for this block.
         total = stats.get("actual", 0)
         available = stats.get("available", 0)
         if total > 0:
@@ -102,7 +102,7 @@ class VMOomChecker:
                 pass
         return None
 
-# ── host OOM 日志扫描 ──────────────────────────────────────────────────
+# English comment for this block.
 
     def get_host_oom_events(
         self, vm_name: str, qemu_pid: Optional[int]
@@ -110,7 +110,7 @@ class VMOomChecker:
         """Documentation for this component."""
         events: List[str] = []
 
-        # 1. journalctl（systemd 系统）
+        # English comment for this block.
         jctl = self._run(
             ["journalctl", "-k", "--no-pager", "-n", "500"], timeout=15
         )
@@ -122,7 +122,7 @@ class VMOomChecker:
                     ):
                         events.append(line.strip())
 
-        # 2. /var/log/messages（非 systemd 或备用）
+        # English comment for this block.
         if os.path.exists("/var/log/messages"):
             try:
                 with open("/var/log/messages", "r", errors="replace") as f:
@@ -137,7 +137,7 @@ class VMOomChecker:
             except OSError as e:
                 LOG_ERROR("Operation message", e)
 
-        # 去重并截取最近 10 条
+        # English comment for this block.
         seen = set()
         unique: List[str] = []
         for e in reversed(events):
@@ -148,7 +148,7 @@ class VMOomChecker:
                 break
         return list(reversed(unique))
 
-        # ── 单 VM 检查 ────────────────────────────────────────────────────────────
+        # English comment for this block.
 
     def check_vm(self, vm_name: str) -> Dict:
         mem_stats = self.get_vm_mem_stats(vm_name)
@@ -171,7 +171,7 @@ class VMOomChecker:
             "host_oom_events": oom_events,
         }
 
-# ── 主流程 ───────────────────────────────────────────────────────────────
+# English comment for this block.
 
     def check_all_vms(self) -> Dict:
         vm_names = self.get_running_vm_names()
