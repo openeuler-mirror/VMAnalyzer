@@ -21,7 +21,7 @@ def get_vm_ranking(sort_by="cpu_usage", limit=10):
     vms.sort(key=lambda x: x.get(sort_by, 0), reverse=True)
     
     print("=" * 80)
-    print(f"🏆 虚拟机资源使用排名 (按 {sort_by} 降序)")
+    print(f"🏆 VM资源使用排名 (按 {sort_by} 降序)")
     print("=" * 80)
     print(f"{'排名':<4} {'VM UUID':<40} {'值':<10} {'单位'}")
     print("-" * 80)
