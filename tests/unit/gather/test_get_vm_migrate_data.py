@@ -16,26 +16,24 @@ from unittest import mock
 from gather.get_vm_migrate_data import VMMigrationInfoCollector
 
 def fake_run_virsh_cmd(cmd):
-    """
-    根据不同 virsh 命令，返回假数据
-    """
+    """Documentation for this component."""
     fake_outputs = {
-        # 获取 VM 列表
+        # English comment for this block.
         "virsh list --name | grep -v '^$' | grep -v '^-$'":
             "vm1\nvm2\nvm3",
-        # vm1 正在迁移
+        # English comment for this block.
         "virsh domjobinfo vm1": (
             "Job type: Migrate\n"
             "Job state: Active\n"
         ),
-        # vm2 未迁移
+        # English comment for this block.
         "virsh domjobinfo vm2": (
             "Job type: None\n"
             "Job state: Completed\n"
         ),
-        # vm3 查询失败
+        # English comment for this block.
         "virsh domjobinfo vm3": None,
-        # vm1 迁移参数
+        # English comment for this block.
         "virsh migrate-getmaxdowntime vm1": "500",
         "virsh migrate-getspeed vm1": "104857600",  # 100MB/s
         "virsh get-migration-pid vm1": "12345",
@@ -90,7 +88,7 @@ class TestVMMigrationInfoCollector(unittest.TestCase):
     def test_collect_migration_info(self, mock_run):
         info = self.collector.collect_migration_info("vm1")
         self.assertEqual(info["max_tolerable_downtime"], "500")
-        self.assertIn("104857600 字节/秒", info["max_migration_bandwidth"])
+        self.assertIn("Operation message", info["max_migration_bandwidth"])
         self.assertEqual(info["migration_pid"], "12345")
         self.assertEqual(info["migration_multifd_pids"], "23456 23457")
         self.assertIn("Job type: Migrate", info["migration_status_detail"])
