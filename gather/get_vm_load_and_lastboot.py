@@ -51,7 +51,7 @@ class VMSysMonitor:
     def get_load_avg(self, vm: str) -> Dict:
         cmd = f"virsh qemu-agent-command {vm} '{{\"execute\":\"guest-get-load-average\"}}'"
         res = self._run_cmd(cmd)
-        load = {"1min": "N/A", "5min": "N/A", "15min": "N/A", "note": "涓嶆敮鎸?collection failed"}
+        load = {"1min": "N/A", "5min": "N/A", "15min": "N/A", "note": "Operation message"}
         if res:
             try:
                 d = json.loads(res)["return"]
@@ -103,8 +103,8 @@ class VMSysMonitor:
 
 def main():
     parser = argparse.ArgumentParser(description="VM system monitoring")
-    parser.add_argument("--poll", type=int, default=60, help="杞闂撮殧(绉?")
-    parser.add_argument("--out-dir", type=str, default="./vm_sys_data", help="杈撳嚭鐩綍")
+    parser.add_argument("--poll", type=int, default=60, help="Operation message")
+    parser.add_argument("--out-dir", type=str, default="./vm_sys_data", help="Operation message")
     args = parser.parse_args()
     VMSysMonitor(args.poll, args.out_dir).run()
 
