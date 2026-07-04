@@ -37,7 +37,7 @@ class TestVMNetworkRxTxStats(unittest.TestCase):
         mock_run.side_effect = TimeoutExpired(cmd="cmd", timeout=30)
         result = get_vm_network_rx_tx_stats.execute_cmd(["cmd"])
         self.assertNotEqual(result["code"], 0)
-        self.assertIn("超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_nic_list
@@ -109,12 +109,12 @@ vnet0 tx_packets 20
         result_json = get_vm_network_rx_tx_stats.get_vm_network_rx_tx_stats("vm1")
         result = json.loads(result_json)
         self.assertFalse(result["success"])
-        self.assertIn("未获取到虚机网卡列表", result["error"])
+        self.assertIn("Operation message", result["error"])
 
     @patch("gather.get_vm_network_rx_tx_stats.execute_cmd")
     @patch("gather.get_vm_network_rx_tx_stats.get_vm_nic_list")
     def test_get_vm_network_stats_partial_invalid(self, mock_nics, mock_cmd):
-        """测试非数字解析容错"""
+        """Documentation for this component."""
         mock_nics.return_value = [
             {"interface": "vnet0"}
         ]
@@ -126,7 +126,7 @@ vnet0 tx_bytes 200
         }
         result_json = get_vm_network_rx_tx_stats.get_vm_network_rx_tx_stats("vm1")
         result = json.loads(result_json)
-        # rx_bytes解析失败 -> 保持默认0
+        # English comment for this block.
         self.assertEqual(result["nics"][0]["rx_bytes"], 0)
         self.assertEqual(result["nics"][0]["tx_bytes"], 200)
 
