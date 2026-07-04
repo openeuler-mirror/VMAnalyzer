@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""采集虚机网络接口包丢弃统计"""
+"""采集虚机network接口包丢弃统计"""
 import subprocess
 import json
 import re
@@ -26,13 +26,13 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
         result["stdout"] = proc.stdout.strip()
         result["stderr"] = proc.stderr.strip()
     except subprocess.TimeoutExpired:
-        result["stderr"] = f"命令执行超时（{timeout}s）: {' '.join(cmd)}"
+        result["stderr"] = f"Command timed out（{timeout}s）: {' '.join(cmd)}"
     except Exception as e:
-        result["stderr"] = f"命令执行异常: {str(e)}"
+        result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
 
 def get_vm_list() -> list:
-    """获取宿主机所有虚机名称列表"""
+    """获取host所有虚机名称列表"""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
@@ -40,9 +40,9 @@ def get_vm_list() -> list:
 
 def get_vm_network_drops(vm_name: str) -> Dict[str, Any]:
     """
-    获取虚机网络接口包丢弃统计
+    获取虚机network接口包丢弃统计
     :param vm_name: 虚机名称
-    :return: 网络丢弃统计信息
+    :return: network丢弃统计信息
     """
     result = {
         "vm_name": vm_name,
@@ -68,7 +68,7 @@ def get_vm_network_drops(vm_name: str) -> Dict[str, Any]:
                 if iface_name not in iface_stats:
                     iface_stats[iface_name] = {}
                 
-                # 关注丢弃和错误相关的指标
+                # 关注丢弃和Error相关的指标
                 if "drop" in metric.lower() or "err" in metric.lower():
                     iface_stats[iface_name][metric] = value
         
