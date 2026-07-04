@@ -43,7 +43,7 @@ class VMAnalyzer:
             dom = conn.lookupByName(vm_name)
             if not dom:
                 LOG_ERROR(f"未找到名称为 {vm_name} 的VM")
-                vm_info["status"] = "未找到"
+                vm_info["status"] = "Operation message"
                 return vm_info
 
             vm_info["uuid"] = dom.UUIDString()
@@ -77,13 +77,13 @@ class VMAnalyzer:
         conn = None
         all_vms_info = {}
         try:
-            LOG_INFO("正在连接 libvirt 服务...")
+            LOG_INFO("Operation message")
             conn = libvirt.open("qemu:///system")
             if not conn:
-                LOG_ERROR("连接 libvirt 服务失败！请检查 libvirtd 服务是否启动及权限是否足够")
+                LOG_ERROR("Operation message")
                 return all_vms_info
 
-            LOG_INFO("正在获取所有VM列表...")
+            LOG_INFO("Operation message")
             try:
                 domains = conn.listAllDomains()
             except libvirt.libvirtError as e:
@@ -105,7 +105,7 @@ class VMAnalyzer:
         finally:
             if conn:
                 conn.close()
-                LOG_INFO("libvirt 连接shutoff")
+                LOG_INFO("Operation message")
         return all_vms_info
 
     def save_to_json(self, all_vms_info: Dict, file_path: str = None):
@@ -123,7 +123,7 @@ class VMAnalyzer:
 def main():
     if len(sys.argv) != 1:
         print("Usage: python3 vm_fs_info_all.py")
-        print("示例：python3 vm_fs_info_all.py")
+        print("Operation message")
         sys.exit(1)
 
     analyzer = VMAnalyzer()
@@ -133,11 +133,11 @@ def main():
         LOG_INFO(f"\n===== 所有VM信息检测完成，共处理 {len(all_vms_info)} virtual machines =====")
         filename = analyzer.save_to_json(all_vms_info)
         
-        print("\n===== 简要统计 =====")
+        print("Operation message")
         for vm_uuid, info in all_vms_info.items():
             print(f"VM：{info['name']}（{info['status']}）- 分区数：{len(info['fs_info'])}")
     else:
-        LOG_ERROR("未获取到任何VM信息")
+        LOG_ERROR("Operation message")
         sys.exit(1)
 
 if __name__ == "__main__":
