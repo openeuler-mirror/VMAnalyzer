@@ -46,9 +46,9 @@ def detect_resource_oversell():
     print()
     
     if cpu_oversell > 2.0:
-        print("⚠️  Warning: CPU超卖率过高 (> 2.0x)，可能影响性能")
+        print("Operation message")
     if mem_oversell > 1.2:
-        print("⚠️  Warning: memory超卖率过高 (> 1.2x)，存在OOM风险")
+        print("Operation message")
     
     conn.close()
     return cpu_oversell, mem_oversell
