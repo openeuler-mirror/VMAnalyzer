@@ -37,7 +37,7 @@ class VMMemTopNCollector:
 
     def _exec_virsh_cmd(self, cmd: str) -> Optional[str]:
         try:
-            logger.info(f"执行命令：{cmd}")
+            logger.info(f"Executing command：{cmd}")
             result = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -52,15 +52,15 @@ class VMMemTopNCollector:
 
         except subprocess.CalledProcessError as e:
             err_msg = e.stderr.strip()
-            logger.error(f"命令执行失败：{cmd}，错误：{err_msg}")
+            logger.error(f"Command failed：{cmd}，Error：{err_msg}")
             return None
 
         except subprocess.TimeoutExpired:
-            logger.error(f"命令执行超时：{cmd}（超过30秒）")
+            logger.error(f"Command timed out：{cmd}（超过30秒）")
             return None
 
         except Exception as e:
-            logger.error(f"命令执行异常：{cmd}，错误：{str(e)}")
+            logger.error(f"Command raised an exception：{cmd}，Error：{str(e)}")
             return None
 
     def get_running_vms(self) -> List[str]:
@@ -77,7 +77,7 @@ class VMMemTopNCollector:
         output = self._exec_virsh_cmd(qga_cmd)
 
         if not output:
-            logger.error(f"VM {vm_name} 内存TopN信息采集失败：无返回数据")
+            logger.error(f"VM {vm_name} memoryTopN信息采集失败：无返回数据")
             return None
 
         try:
@@ -91,7 +91,7 @@ class VMMemTopNCollector:
             return resp["return"]
 
         except json.JSONDecodeError as e:
-            logger.error(f"VM {vm_name} QGA返回解析失败：{str(e)}，原始数据：{output}")
+            logger.error(f"VM {vm_name} QGA返回Parse失败：{str(e)}，原始数据：{output}")
             return None
 
     def format_process_data(self, process_data: List[Dict]) -> List[Dict]:
@@ -122,12 +122,12 @@ class VMMemTopNCollector:
         self.collect_data["running_vm_count"] = len(running_vms)
 
         if not running_vms:
-            logger.info("当前无运行中的虚拟机")
+            logger.info("当前无running的VM")
             self.collect_data["vm_list"] = {}
             return
 
         for vm_name in running_vms:
-            logger.info(f"\n===== 开始采集VM {vm_name} 内存Top{self.top_n} 进程信息 =====")
+            logger.info(f"\n===== 开始采集VM {vm_name} memoryTop{self.top_n} 进程信息 =====")
             try:
                 raw_data = self.get_vm_mem_topn(vm_name)
 
@@ -161,13 +161,13 @@ class VMMemTopNCollector:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(self.collect_data, f, indent=2, ensure_ascii=False)
-            logger.info(f"采集数据已保存到：{file_path}")
+            logger.info(f"Collected data saved to：{file_path}")
 
         except Exception as e:
-            logger.error(f"保存数据失败：{str(e)}")
+            logger.error(f"Failed to save data：{str(e)}")
 
     def start_polling(self) -> None:
-        logger.info("===== 启动内存TopN进程信息轮询采集 =====")
+        logger.info("===== 启动memoryTopN进程信息轮询采集 =====")
         logger.info(f"轮询间隔：{self.poll_interval} 秒 | TopN值：{self.top_n} | 输出目录：{self.output_dir}")
         logger.info("按 Ctrl+C 停止采集\n")
 
@@ -186,8 +186,8 @@ class VMMemTopNCollector:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="VM 内存TopN进程信息采集脚本")
-    parser.add_argument("--top-n", type=int, default=5, help="内存TopN的N值，默认5")
+    parser = argparse.ArgumentParser(description="VM memoryTopN进程信息采集脚本")
+    parser.add_argument("--top-n", type=int, default=5, help="memoryTopN的N值，默认5")
     parser.add_argument("--poll-interval", type=int, default=60, help="轮询间隔（秒），默认60")
     parser.add_argument("--output-dir", type=str, default="./vm_mem_topn_data", help="数据输出目录")
     return parser.parse_args()
