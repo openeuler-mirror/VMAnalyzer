@@ -6,12 +6,7 @@ from lxml import etree
 from typing import Optional, Dict, Any
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
-    """
-    执行系统命令，返回标准化结果
-    :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
-    :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
-    """
+    """Documentation for this component."""
     result = {
         "code": -1,
         "stdout": "",
@@ -36,11 +31,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
 
 
 def parse_xml(xml_str: str) -> Optional[etree._Element]:
-    """
-    ParseXML字符串，返回根节点
-    :param xml_str: XML内容
-    :return: etree根节点 / None
-    """
+    """Documentation for this component."""
     try:
         return etree.fromstring(xml_str.encode("utf-8"))
     except Exception as e:
@@ -49,19 +40,14 @@ def parse_xml(xml_str: str) -> Optional[etree._Element]:
 
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
 def get_vm_libvirt_domain_xml(vm_name: str, full: bool = True) -> str:
-    """
-    获取虚机XML配置
-    :param vm_name: 虚机名称
-    :param full: 是否返回完整XML（False则只返回核心节点）
-    :return: JSON格式结果
-    """
+    """Documentation for this component."""
     result = {
         "vm_name": vm_name,
         "success": False,
