@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""指标收集框架"""
+"""Documentation for this component."""
 class MetricsCollector:
     def __init__(self):
         self.metrics = []
