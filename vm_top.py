@@ -31,7 +31,7 @@ def vm_top():
                 if raw is None:
                     continue
                 data = json.loads(raw)
-                status = "🟢运行" if data.get("status") == "running" else "🔴停止"
+                status = "Operation message" if data.get("status") == "running" else "Operation message"
                 print(f"{key.decode():<40} "
                       f"{data.get('cpu_usage', 0):<6.1f} "
                       f"{data.get('memory_usage', 0):<6.1f} "
@@ -40,7 +40,7 @@ def vm_top():
             
             time.sleep(2)
     except KeyboardInterrupt:
-        print("\n👋 退出监控")
+        print("Operation message")
 
 if __name__ == "__main__":
     vm_top()
