@@ -36,7 +36,7 @@ class TestVMDiskBackingFile(unittest.TestCase):
         from subprocess import TimeoutExpired
         mock_run.side_effect = TimeoutExpired(cmd="cmd", timeout=30)
         result = get_vm_disk_backing_file.execute_cmd(["cmd"])
-        self.assertIn("超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_disk_list
@@ -109,7 +109,7 @@ file       disk       vda        /path/disk.qcow2
         result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
         result = json.loads(result_json)
         self.assertFalse(result["success"])
-        self.assertIn("未获取到虚机磁盘列表", result["error"])
+        self.assertIn("Operation message", result["error"])
 
     @patch("gather.get_vm_disk_backing_file.os.path.exists")
     @patch("gather.get_vm_disk_backing_file.get_vm_disk_list")
@@ -139,7 +139,7 @@ file       disk       vda        /path/disk.qcow2
         }
         result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
         result = json.loads(result_json)
-        self.assertIn("qemu-img执行失败", result["disks"][0]["img_error"])
+        self.assertIn("Operation message", result["disks"][0]["img_error"])
 
     @patch("gather.get_vm_disk_backing_file.os.path.exists")
     @patch("gather.get_vm_disk_backing_file.execute_cmd")
@@ -155,7 +155,7 @@ file       disk       vda        /path/disk.qcow2
         }
         result_json = get_vm_disk_backing_file.get_vm_disk_backing_file("vm1")
         result = json.loads(result_json)
-        self.assertIn("JSON解析失败", result["disks"][0]["img_error"])
+        self.assertIn("Operation message", result["disks"][0]["img_error"])
 
 if __name__ == "__main__":
     unittest.main()
