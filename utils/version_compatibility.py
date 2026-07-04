@@ -9,12 +9,12 @@ class VersionCompatibility:
     @staticmethod
     def get_libvirt_version():
         r=sp.run("libvirtd --version 2>/dev/null||virsh version --short 2>/dev/null",shell=True,capture_output=True,text=True).stdout.strip()
-        nums=re.findall(r\d+,r); return [int(x) for x in nums[:3]] if nums else []
+        nums=re.findall(r"\d+", r); return [int(x) for x in nums[:3]] if nums else []
 
     @staticmethod
     def get_qemu_version():
         r=sp.run("qemu-system-x86_64 --version 2>/dev/null",shell=True,capture_output=True,text=True).stdout.strip()
-        nums=re.findall(r\d+,r); return [int(x) for x in nums[:3]] if nums else []
+        nums=re.findall(r"\d+", r); return [int(x) for x in nums[:3]] if nums else []
 
     @staticmethod
     def check_compatibility():
