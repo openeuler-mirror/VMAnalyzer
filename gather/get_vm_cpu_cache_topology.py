@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-获取虚拟机 CPU 缓存拓扑信息
+获取VM CPU 缓存拓扑信息
 输出 L1/L2/L3 大小、NUMA 节点亲和性
 """
 
@@ -24,7 +24,7 @@ LOG_ERROR = logging.error
 def run_virsh_cmd(cmd: str) -> Optional[str]:
     """执行 virsh 命令并返回标准输出"""
     try:
-        LOG_INFO(f"执行命令：{cmd}")
+        LOG_INFO(f"Executing command：{cmd}")
         result = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
@@ -38,15 +38,15 @@ def run_virsh_cmd(cmd: str) -> Optional[str]:
             return None
         return result.stdout.strip()
     except subprocess.TimeoutExpired:
-        LOG_ERROR("命令执行超时")
+        LOG_ERROR("Command timed out")
         return None
     except Exception as e:
-        LOG_ERROR(f"执行命令异常：{e}")
+        LOG_ERROR(f"Executing command异常：{e}")
         return None
 
 
 def get_domain_xml(vm_name: str) -> Optional[str]:
-    """获取虚拟机 XML 配置"""
+    """获取VM XML 配置"""
     cmd = f"virsh dumpxml {vm_name}"
     return run_virsh_cmd(cmd)
 
@@ -101,7 +101,7 @@ def parse_cpu_cache_from_xml(xml: str) -> Dict:
                             "unit": cell.get("unit", "KiB")
                         }
     except ET.ParseError as e:
-        LOG_ERROR(f"XML 解析失败：{e}")
+        LOG_ERROR(f"XML Parse失败：{e}")
     return data
 
 
@@ -117,14 +117,14 @@ def get_vm_cpu_cache_topology(vm_name: str) -> Dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="获取虚拟机 CPU 缓存拓扑信息")
-    parser.add_argument("vm_name", help="虚拟机名称")
+    parser = argparse.ArgumentParser(description="获取VM CPU 缓存拓扑信息")
+    parser.add_argument("vm_name", help="VM名称")
     parser.add_argument("-o", "--output", help="可选：输出 JSON 文件路径")
     args = parser.parse_args()
 
     info = get_vm_cpu_cache_topology(args.vm_name)
     if not info:
-        LOG_ERROR("无法获取信息，请确认虚拟机存在且 virsh 可访问")
+        LOG_ERROR("无法获取信息，请确认VM存在且 virsh 可访问")
         return
 
     print(json.dumps(info, indent=2, ensure_ascii=False))

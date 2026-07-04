@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-获取虚拟机 vCPU 实际生效的 CPU flags
+获取VM vCPU 实际生效的 CPU flags
 通过 guest-agent 读取 /proc/cpuinfo 中的 flags 行
 """
 
@@ -24,7 +24,7 @@ LOG_ERROR = logging.error
 def run_virsh_cmd(cmd: str) -> Optional[str]:
     """执行 virsh 命令并返回标准输出"""
     try:
-        LOG_INFO(f"执行命令：{cmd}")
+        LOG_INFO(f"Executing command：{cmd}")
         result = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
@@ -38,19 +38,19 @@ def run_virsh_cmd(cmd: str) -> Optional[str]:
             return None
         return result.stdout.strip()
     except subprocess.TimeoutExpired:
-        LOG_ERROR("命令执行超时")
+        LOG_ERROR("Command timed out")
         return None
     except Exception as e:
-        LOG_ERROR(f"执行命令异常：{e}")
+        LOG_ERROR(f"Executing command异常：{e}")
         return None
 
 
 def get_domain_uuid(vm_name: str) -> Optional[str]:
-    """通过 virsh 获取虚拟机 UUID"""
+    """通过 virsh 获取VM UUID"""
     cmd = f"virsh domuuid {vm_name}"
     uuid = run_virsh_cmd(cmd)
     if not uuid:
-        LOG_ERROR(f"无法获取虚拟机 {vm_name} 的 UUID")
+        LOG_ERROR(f"无法获取VM {vm_name} 的 UUID")
     return uuid
 
 
@@ -75,7 +75,7 @@ def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
         return None
 
     try:
-        # 解析 guest-exec 返回的 JSON
+        # Parse guest-exec 返回的 JSON
         resp = json.loads(output)
         pid = resp.get("return", {}).get("pid")
         if not pid:
@@ -111,13 +111,13 @@ def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
         # 提取 flags 字段
         parts = cpuinfo_line.split(":", 1)
         if len(parts) != 2:
-            LOG_ERROR("无法解析 cpuinfo flags 行")
+            LOG_ERROR("无法Parse cpuinfo flags 行")
             return None
         flags_str = parts[1].strip()
         flags = flags_str.split()
         return flags
     except Exception as e:
-        LOG_ERROR(f"解析 guest-agent 返回失败：{e}")
+        LOG_ERROR(f"Parse guest-agent 返回失败：{e}")
         return None
 
 
@@ -139,14 +139,14 @@ def get_vm_cpu_flags(vm_name: str) -> Dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="获取虚拟机 vCPU 实际生效的 CPU flags")
-    parser.add_argument("vm_name", help="虚拟机名称")
+    parser = argparse.ArgumentParser(description="获取VM vCPU 实际生效的 CPU flags")
+    parser.add_argument("vm_name", help="VM名称")
     parser.add_argument("-o", "--output", help="可选：输出 JSON 文件路径")
     args = parser.parse_args()
 
     info = get_vm_cpu_flags(args.vm_name)
     if not info:
-        LOG_ERROR("无法获取信息，请确认虚拟机存在、已运行且 QEMU Guest Agent 可用")
+        LOG_ERROR("无法获取信息，请确认VM存在、已运行且 QEMU Guest Agent 可用")
         return
 
     print(json.dumps(info, indent=2, ensure_ascii=False))

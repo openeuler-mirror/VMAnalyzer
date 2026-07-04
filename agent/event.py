@@ -26,10 +26,10 @@ run = True
 @six.add_metaclass(abc.ABCMeta)
 class VMEventLoop(object):
     """
-    `VMEventLoop` 是一个抽象基类，用于定义虚拟机事件循环的基本接口。
+    `VMEventLoop` 是一个抽象基类，用于定义VM事件循环的基本接口。
 
-    该类主要负责初始化虚拟机连接的 URI，并提供一个抽象方法 `start`，
-    任何继承自 `VMEventLoop` 的具体类都需要实现此方法，以启动相应的虚拟机事件循环。
+    该类主要负责初始化VM连接的 URI，并提供一个抽象方法 `start`，
+    任何继承自 `VMEventLoop` 的具体类都需要实现此方法，以启动相应的VM事件循环。
     """
     def __init__(self, uri):
         self.__uri = uri
@@ -43,7 +43,7 @@ class VMEventLoop(object):
 
 class VMEventLoopNative(VMEventLoop):
     """
-    `VMEventLoopNative` 类继承自 `VMEventLoop`，用于实现基于 `libvirt` 的原生虚拟机事件循环。
+    `VMEventLoopNative` 类继承自 `VMEventLoop`，用于实现基于 `libvirt` 的原生VM事件循环。
 
     该类提供了一个静态方法 `run_loop` 用于持续运行默认的 `libvirt` 事件循环，
     并实现了 `VMEventLoop` 中的抽象方法 `start`，用于注册默认的 `libvirt` 事件处理函数，
@@ -94,12 +94,12 @@ class VMEventLoopNative(VMEventLoop):
 def handle_vm_lifecycle_event(event_type, vm_name):
     """Handle VM lifecycle events and trigger alerts"""
     event_messages = {
-        "start": f"🟢 虚拟机启动: {vm_name}",
-        "stop": f"🔴 虚拟机停止: {vm_name}",
-        "pause": f"🟡 虚拟机暂停: {vm_name}",
-        "resume": f"🟢 虚拟机恢复: {vm_name}",
-        "destroy": f"🔴 虚拟机销毁: {vm_name}",
-        "create": f"🆕 虚拟机创建: {vm_name}"
+        "start": f"🟢 VM启动: {vm_name}",
+        "stop": f"🔴 VM停止: {vm_name}",
+        "pause": f"🟡 VMpaused: {vm_name}",
+        "resume": f"🟢 VM恢复: {vm_name}",
+        "destroy": f"🔴 VM销毁: {vm_name}",
+        "create": f"🆕 VM创建: {vm_name}"
     }
     
     if event_type in event_messages:

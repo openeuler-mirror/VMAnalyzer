@@ -283,5 +283,5 @@ def print_alerts(alerts):
     print("\n⚠️  告警信息:")
     print("=" * 60)
     for alert in alerts:
-        level = "🔴 严重" if alert["level"] == "critical" else "🟡 警告"
-        print(f"{level}: {alert['vm_name']} - {alert['metric']}: {alert['value']}% (阈值: {alert['threshold']}%)")
+        level = "🔴 Critical" if alert["level"] == "critical" else "🟡 Warning"
+        print(f"{level}: {alert['vm_name']} - {alert['metric']}: {alert['value']}% (threshold: {alert['threshold']}%)")

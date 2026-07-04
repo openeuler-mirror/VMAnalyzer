@@ -61,7 +61,7 @@ class VMStatsCollector:
             return json.loads(result) if result else None
         except Exception as e:
             cmd_type = cmd_dict.get('execute', 'unknown')
-            logger.error(f"VM {dom.name()}: QGA命令失败 [{cmd_type}]，错误: {e}")
+            logger.error(f"VM {dom.name()}: QGA命令失败 [{cmd_type}]，Error: {e}")
             return None
 
     @retry
@@ -272,11 +272,11 @@ class VMStatsCollector:
                 try:
                     result = dom.vcpus()
                 except libvirt.libvirtError as e:
-                    logger.error(f"VM {dom.name()}: 获取VCPU信息失败: {e}")
+                    logger.error(f"VM {dom.name()}: Failed to get VCPU information: {e}")
                     result = None
 
                 if not result or len(result) != 2 or not result[0]:
-                    logger.error(f"VM {dom.name()}: VCPU信息不可用或格式无效")
+                    logger.error(f"VM {dom.name()}: VCPU information is unavailable or invalid")
                     stats_info[vm_id] = {
                         'uuid': vm['uuid'],
                         'name': vm['name'],
@@ -289,11 +289,11 @@ class VMStatsCollector:
                 parsed_configs = []
 
                 state_map = {
-                    0: "离线/睡眠",
-                    1: "运行中",
-                    2: "暂停",
-                    3: "崩溃",
-                    4: "未初始化"
+                    0: "offline/sleeping",
+                    1: "running",
+                    2: "paused",
+                    3: "crashed",
+                    4: "uninitialized"
                 }
 
                 for idx, (vcpu_info, cpumap) in enumerate(zip(vcpu_info_list, cpumap_list)):

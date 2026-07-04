@@ -43,7 +43,7 @@ class HostHypervisorCollector:
     def run_virsh_cmd(self, cmd):
        
         try:
-            LOG_INFO(f"执行命令：{cmd}")
+            LOG_INFO(f"Executing command：{cmd}")
             result = subprocess.run(
                 cmd.split(),
                 capture_output=True,
@@ -53,16 +53,16 @@ class HostHypervisorCollector:
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
-            LOG_ERROR(f"命令执行失败：{cmd}，错误：{e.stderr.strip()}")
+            LOG_ERROR(f"Command failed：{cmd}，Error：{e.stderr.strip()}")
             return None
         except Exception as e:
-            LOG_ERROR(f"命令执行异常：{cmd}，错误：{str(e)}")
+            LOG_ERROR(f"Command raised an exception：{cmd}，Error：{str(e)}")
             return None
 
     def parse_version(self, output):
         
         if not output:
-            LOG_INFO("virsh version输出为空，跳过解析")
+            LOG_INFO("virsh version输出为空，跳过Parse")
             return
         lines = output.split("\n")
         for line in lines:
@@ -131,7 +131,7 @@ class HostHypervisorCollector:
                     current_node = line.split()[1].strip()
                     self.result["nodecpustats"][f"node_{current_node}"] = {}
                 except IndexError as e:
-                    LOG_ERROR(f"解析nodecpustats的Node行失败：{line}，错误：{e}")
+                    LOG_ERROR(f"Parsenodecpustats的Node行失败：{line}，Error：{e}")
                     current_node = None
                     continue
             elif ":" in line and current_node is not None:
@@ -193,7 +193,7 @@ class HostHypervisorCollector:
                         "unit": memory.get("unit", "KiB")
                     }
         except ET.ParseError as e:
-            LOG_ERROR(f"解析 capabilities XML 失败：{str(e)}")
+            LOG_ERROR(f"Parse capabilities XML 失败：{str(e)}")
 
     def parse_sysinfo(self, output):
       
@@ -209,7 +209,7 @@ class HostHypervisorCollector:
                     item_text = item.text.strip() if item.text is not None else ""
                     self.result["sysinfo"][section_name][item_name] = item_text
         except ET.ParseError as e:
-            LOG_ERROR(f"解析 sysinfo XML 失败：{str(e)}")
+            LOG_ERROR(f"Parse sysinfo XML 失败：{str(e)}")
 
     def collect_all(self):
        
