@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""采集配置模块"""
+"""Documentation for this component."""
 COLLECTION_CONFIG = {
     "default_interval": 60,
     "cpu_interval": 10,
