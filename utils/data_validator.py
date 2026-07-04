@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""数据验证工具"""
+"""Documentation for this component."""
 
 def validate_metric(value, min_val=0, max_val=100):
     """Validate a metric value is within bounds"""
