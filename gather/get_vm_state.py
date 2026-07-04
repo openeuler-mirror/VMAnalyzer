@@ -60,14 +60,14 @@ def get_vm_state(vm_name: str) -> str:
         "error": ""
     }
 
-    # 执行virsh domstate
+    # Execute the command.
     cmd = ["virsh", "domstate", vm_name]
     cmd_result = execute_cmd(cmd)
     if cmd_result["code"] != 0:
         result["error"] = cmd_result["stderr"]
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 状态映射
+    # Implementation note.
     state_raw = cmd_result["stdout"].lower()
     state_mapping = {
         "running": (1, "running"),
@@ -103,5 +103,5 @@ if __name__ == "__main__":
         if not vm_result["success"] or vm_result["error"]:
             print(f"Warning：虚机[{vm}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
 
-    # 输出所有虚机的结果（JSON数组）
+    # Output results for all virtual machines as JSON.
     print(json.dumps(results, ensure_ascii=False, indent=2))
