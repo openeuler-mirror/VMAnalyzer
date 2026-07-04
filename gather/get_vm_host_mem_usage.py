@@ -55,14 +55,14 @@ def get_vm_host_mem_usage(vm_name: str) -> str:
     result = {
         "vm_name": vm_name,
         "pid": "",
-        "rss_mb": 0.0,  # 物理memory
-        "vsz_mb": 0.0,  # 虚拟memory
-        "mem_percent": 0.0,  # 占host总memory百分比
+        "rss_mb": 0.0,  # English comment for this block.
+        "vsz_mb": 0.0,  # English comment for this block.
+        "mem_percent": 0.0,  # English comment for this block.
         "success": False,
         "error": ""
     }
 
-    # 1. 获取PID
+    # English comment for this block.
     pid_str = get_vm_pid(vm_name)
     if not pid_str or not pid_str.isdigit():
         result["error"] = "Operation message"
@@ -70,14 +70,14 @@ def get_vm_host_mem_usage(vm_name: str) -> str:
     result["pid"] = pid_str
     pid = int(pid_str)
 
-    # 2. 获取memory使用
+    # English comment for this block.
     try:
         proc = psutil.Process(pid)
         mem_info = proc.memory_info()
-        # 转换为MB（1MB=1024*1024字节）
+        # English comment for this block.
         result["rss_mb"] = round(mem_info.rss / (1024 * 1024), 2)
         result["vsz_mb"] = round(mem_info.vms / (1024 * 1024), 2)
-        # 计算占host总memory百分比
+        # English comment for this block.
         total_mem = psutil.virtual_memory().total / (1024 * 1024)
         result["mem_percent"] = round(result["rss_mb"] / total_mem * 100, 2)
         result["success"] = True
@@ -100,5 +100,5 @@ if __name__ == "__main__":
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
