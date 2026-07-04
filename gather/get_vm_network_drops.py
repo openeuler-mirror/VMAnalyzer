@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""采集虚机network接口包丢弃统计"""
+"""Documentation for this component."""
 import subprocess
 import json
 import re
@@ -8,7 +8,7 @@ import logging
 from typing import Dict, Any
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
-    """执行系统命令，返回标准化结果"""
+    """Documentation for this component."""
     result = {
         "code": -1,
         "stdout": "",
@@ -32,18 +32,14 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     return result
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
 def get_vm_network_drops(vm_name: str) -> Dict[str, Any]:
-    """
-    获取虚机network接口包丢弃统计
-    :param vm_name: 虚机名称
-    :return: network丢弃统计信息
-    """
+    """Documentation for this component."""
     result = {
         "vm_name": vm_name,
         "interfaces": [],
@@ -87,7 +83,7 @@ def get_vm_network_drops(vm_name: str) -> Dict[str, Any]:
     return result
 
 def main():
-    """主函数"""
+    """Documentation for this component."""
     vm_list = get_vm_list()
     results = []
     
