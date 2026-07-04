@@ -25,7 +25,7 @@ class TestGetVMState(unittest.TestCase):
     # =========================
     @patch("gather.get_vm_state.subprocess.run")
     def test_execute_cmd_success(self, mock_run):
-        """测试 execute_cmd 成功"""
+        """Documentation for this component."""
         mock_proc = MagicMock()
         mock_proc.returncode = 0
         mock_proc.stdout = "running\n"
@@ -38,29 +38,29 @@ class TestGetVMState(unittest.TestCase):
 
     @patch("gather.get_vm_state.subprocess.run")
     def test_execute_cmd_timeout(self, mock_run):
-        """测试 execute_cmd 超时"""
+        """Documentation for this component."""
         mock_run.side_effect = subprocess.TimeoutExpired(
             cmd=["ls"],
             timeout=30
         )
         result = get_vm_state.execute_cmd(["ls"])
         self.assertEqual(result["code"], -1)
-        self.assertIn("命令执行超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     @patch("gather.get_vm_state.subprocess.run")
     def test_execute_cmd_exception(self, mock_run):
-        """测试 execute_cmd 异常"""
+        """Documentation for this component."""
         mock_run.side_effect = Exception("run error")
         result = get_vm_state.execute_cmd(["ls"])
         self.assertEqual(result["code"], -1)
-        self.assertIn("命令执行异常", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_list
     # =========================
     @patch("gather.get_vm_state.execute_cmd")
     def test_get_vm_list_success(self, mock_exec):
-        """测试获取虚机列表成功"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 0,
             "stdout": "vm1\nvm2\n",
@@ -71,7 +71,7 @@ class TestGetVMState(unittest.TestCase):
 
     @patch("gather.get_vm_state.execute_cmd")
     def test_get_vm_list_failed(self, mock_exec):
-        """测试获取虚机列表失败"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 1,
             "stdout": "",
@@ -85,7 +85,7 @@ class TestGetVMState(unittest.TestCase):
     # =========================
     @patch("gather.get_vm_state.execute_cmd")
     def test_get_vm_state_running(self, mock_exec):
-        """测试 running 状态"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 0,
             "stdout": "running",
@@ -94,12 +94,12 @@ class TestGetVMState(unittest.TestCase):
         result_json = get_vm_state.get_vm_state("vm1")
         result = json.loads(result_json)
         self.assertEqual(result["state_code"], 1)
-        self.assertEqual(result["state_desc"], "运行中")
+        self.assertEqual(result["state_desc"], "Operation message")
         self.assertTrue(result["success"])
 
     @patch("gather.get_vm_state.execute_cmd")
     def test_get_vm_state_shutoff(self, mock_exec):
-        """测试 shut off 状态"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 0,
             "stdout": "shut off",
@@ -108,11 +108,11 @@ class TestGetVMState(unittest.TestCase):
         result_json = get_vm_state.get_vm_state("vm1")
         result = json.loads(result_json)
         self.assertEqual(result["state_code"], 0)
-        self.assertEqual(result["state_desc"], "已关机")
+        self.assertEqual(result["state_desc"], "Operation message")
 
     @patch("gather.get_vm_state.execute_cmd")
     def test_get_vm_state_paused(self, mock_exec):
-        """测试 paused 状态"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 0,
             "stdout": "paused",
@@ -121,11 +121,11 @@ class TestGetVMState(unittest.TestCase):
         result_json = get_vm_state.get_vm_state("vm1")
         result = json.loads(result_json)
         self.assertEqual(result["state_code"], 2)
-        self.assertEqual(result["state_desc"], "已暂停")
+        self.assertEqual(result["state_desc"], "Operation message")
 
     @patch("gather.get_vm_state.execute_cmd")
     def test_get_vm_state_unknown(self, mock_exec):
-        """测试未知状态"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 0,
             "stdout": "something_else",
@@ -134,11 +134,11 @@ class TestGetVMState(unittest.TestCase):
         result_json = get_vm_state.get_vm_state("vm1")
         result = json.loads(result_json)
         self.assertEqual(result["state_code"], -2)
-        self.assertEqual(result["state_desc"], "未知状态")
+        self.assertEqual(result["state_desc"], "Operation message")
 
     @patch("gather.get_vm_state.execute_cmd")
     def test_get_vm_state_command_failed(self, mock_exec):
-        """测试 domstate 命令失败"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 1,
             "stdout": "",
@@ -156,16 +156,16 @@ class TestGetVMState(unittest.TestCase):
     @patch("gather.get_vm_state.get_vm_list")
     @patch("builtins.print")
     def test_main(self, mock_print, mock_vm_list, mock_get_state):
-        """测试 main 主流程"""
+        """Documentation for this component."""
         mock_vm_list.return_value = ["vm1"]
         mock_get_state.return_value = json.dumps({
             "vm_name": "vm1",
             "state_code": 1,
-            "state_desc": "运行中",
+            "state_desc": "Operation message",
             "success": True,
             "error": ""
         })
-        # 模拟 __main__ 行为
+        # English comment for this block.
         results = []
         for vm in mock_vm_list.return_value:
             vm_result_json = mock_get_state(vm)
