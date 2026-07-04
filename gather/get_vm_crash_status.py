@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""判断虚机是否crashed"""
+"""Documentation for this component."""
 import subprocess
 import json
 from typing import Dict, Any
@@ -9,12 +9,7 @@ import re
 
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
-    """
-    执行系统命令，返回标准化结果
-    :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
-    :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
-    """
+    """Documentation for this component."""
     result = {
         "code": -1,
         "stdout": "",
@@ -39,7 +34,7 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
 
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
@@ -47,11 +42,7 @@ def get_vm_list() -> list:
 
 
 def get_vm_crash_status(vm_name: str) -> str:
-    """
-    检测虚机crashed状态，采集crashed日志
-    :param vm_name: 虚机名称
-    :return: JSON格式结果
-    """
+    """Documentation for this component."""
     result = {
         "vm_name": vm_name,
         "crashed": False,
@@ -70,7 +61,7 @@ def get_vm_crash_status(vm_name: str) -> str:
 
     if state_result["stdout"].lower() == "crashed":
         result["crashed"] = True
-        result["crash_reason"] = "Libvirt标记为crashed状态"
+        result["crash_reason"] = "Operation message"
 
     # 2. 检查QEMU日志（/var/log/libvirt/qemu/<vm-name>.log）
     log_path = f"/var/log/libvirt/qemu/{vm_name}.log"
@@ -99,7 +90,7 @@ def get_vm_crash_status(vm_name: str) -> str:
             if crash_lines:
                 result["crash_log_snippet"] = "\n".join(crash_lines[-10:])  # 最后10行crashed日志
                 if not result["crash_reason"]:
-                    result["crash_reason"] = "日志中检测到crashed关键字"
+                    result["crash_reason"] = "Operation message"
 
         except Exception as e:
             result["error"] = f"读取日志失败: {str(e)}"
@@ -117,7 +108,7 @@ def get_vm_crash_status(vm_name: str) -> str:
         # 无QEMU进程但状态非关机
         if result["crashed"] is False and state_result["stdout"].lower() != "shut off":
             result["crashed"] = True
-            result["crash_reason"] = "QEMU进程已退出但虚机状态非关机"
+            result["crash_reason"] = "Operation message"
 
     result["success"] = True
     return json.dumps(result, ensure_ascii=False, indent=2)
