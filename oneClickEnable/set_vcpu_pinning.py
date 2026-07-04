@@ -51,11 +51,11 @@ LOG_WARN = logging.warning
 class VcpuPinningOptimizer:
     """Pin VM vCPUs according to NUMA topology."""
 
-    # ── 工具方法 ─────────────────────────────────────────────────────────────
+    # 工具方法
 
     def _run(self, cmd: List[str], timeout: int = 15) -> Optional[str]:
         try:
-            # 重试1次，应对临时连接失败
+            # Retry transient failures.
             for attempt in range(2):
                 r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
                 if r.returncode == 0:
@@ -81,7 +81,7 @@ class VcpuPinningOptimizer:
                 topology[node_id] = [int(c) for c in m.group(2).split()]
         return topology
 
-    # ── VM NUMA 绑定信息 ────────────────────────────────────────────────────
+    # VM NUMA 绑定信息
 
     def get_vm_nodeset(self, vm_name: str) -> Optional[List[int]]:
         """从 virsh numatune Parse VM 绑定的 NUMA 节点编号列表。
@@ -105,7 +105,7 @@ class VcpuPinningOptimizer:
                 return nodes if nodes else None
         return None
 
-        # ── VM vCPU 数量 ────────────────────────────────────────────────────────
+        # VM vCPU 数量
 
     def get_vcpu_count(self, vm_name: str) -> int:
         """Return the active vCPU count for the VM."""
@@ -118,7 +118,7 @@ class VcpuPinningOptimizer:
         except ValueError:
             return 0
 
-    # ── 目标 CPU 列表构建 ───────────────────────────────────────────────────
+    # 目标 CPU 列表构建
 
     def build_target_cpulist(
         self,
@@ -136,7 +136,7 @@ class VcpuPinningOptimizer:
             cpus.extend(node_cpus.get(node, []))
         return sorted(cpus)
 
-    # ── 执行绑核 ────────────────────────────────────────────────────────────
+    # Execute the command.
 
     def _is_vm_running(self, vm_name: str) -> bool:
         output = self._run(["virsh", "domstate", vm_name])
@@ -180,7 +180,7 @@ class VcpuPinningOptimizer:
             })
         return results
 
- # ── 单 VM 主流程 ────────────────────────────────────────────────────────
+ # 单 VM 主流程
 
     def pin_vm(self, vm_name: str) -> Dict:
         """执行完整绑核流程，返回操作摘要。"""
@@ -212,7 +212,7 @@ class VcpuPinningOptimizer:
             "failed_count": len(pin_results) - success_count,
         }
 
-   # ── 批量处理 ────────────────────────────────────────────────────────────
+   # 批量处理
 
     def pin_all_running_vms(self) -> Dict:
         """对所有running VM 执行绑核。"""
