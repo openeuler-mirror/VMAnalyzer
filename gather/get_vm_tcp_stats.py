@@ -96,7 +96,7 @@ class VMQgaTCPCollector:
             retranssegs = int(tcp_snmp_data.get("retranssegs", 0))
             outsegs = int(tcp_snmp_data.get("outsegs", 0))
             if outsegs == 0:
-                LOG_INFO("TCP 发送总数为 0，重传率设为 0.0")
+                LOG_INFO("Operation message")
                 return 0.0
             retrans_rate = (retranssegs / outsegs) * 100
             return round(retrans_rate, 4)
@@ -178,7 +178,7 @@ class VMQgaTCPCollector:
             LOG_ERROR(f"保存 JSON 文件失败：{str(e)}")
 
 def main():
-    LOG_INFO("===== 开始执行VM QGA TCP 数据采集 =====")
+    LOG_INFO("Operation message")
     collector = VMQgaTCPCollector()
     collector.collect_all_vms()
     collector.save_to_json()
