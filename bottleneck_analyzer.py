@@ -25,29 +25,29 @@ def analyze_bottlenecks(vm_uuid):
     
     # CPU bottleneck
     if metrics.get("cpu_usage", 0) > 90:
-        bottlenecks.append("🔴 CPU瓶颈: CPU使用率超过90%")
+        bottlenecks.append("Operation message")
         if metrics.get("cpu_iowait", 0) > 30:
-            bottlenecks.append("   ↳ 根因: IO等待过高，可能是disk性能问题")
+            bottlenecks.append("Operation message")
         elif metrics.get("context_switches", 0) > 10000:
-            bottlenecks.append("   ↳ 根因: 上下文切换频繁，可能是vCPU过载")
+            bottlenecks.append("Operation message")
     
     # Memory bottleneck
     if metrics.get("memory_usage", 0) > 90:
-        bottlenecks.append("🔴 memory瓶颈: memory使用率超过90%")
+        bottlenecks.append("Operation message")
         if metrics.get("swap_usage", 0) > 50:
-            bottlenecks.append("   ↳ 根因: memory不足，正在使用交换分区")
+            bottlenecks.append("Operation message")
     
     # Disk bottleneck
     if metrics.get("disk_usage", 0) > 90:
-        bottlenecks.append("🔴 disk瓶颈: disk使用率超过90%")
+        bottlenecks.append("Operation message")
     if metrics.get("disk_iops", 0) > 5000:
-        bottlenecks.append("🔴 disk瓶颈: IOPS过高")
+        bottlenecks.append("Operation message")
     
     # Network bottleneck
     if metrics.get("network_usage", 0) > 90:
-        bottlenecks.append("🔴 network瓶颈: network带宽使用率超过90%")
+        bottlenecks.append("Operation message")
     if metrics.get("packet_loss", 0) > 1:
-        bottlenecks.append("🔴 network瓶颈: network丢包率过高")
+        bottlenecks.append("Operation message")
     
     if not bottlenecks:
         print("✅ No obvious performance bottleneck found")
