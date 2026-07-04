@@ -8,7 +8,7 @@ def main():
     try:
         conn = libvirt.open()
         if conn is None:
-            print("无法连接到 libvirt 守护进程！")
+            print("Operation message")
             return
         
         running_doms = conn.listDomainsID()
