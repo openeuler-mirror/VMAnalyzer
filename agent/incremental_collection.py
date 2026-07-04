@@ -2,7 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Collect only changed metrics since last collection."""
 import time
-import logging, logging
+import logging
 LOG=logging.getLogger(__name__)
 
 class IncrementalCollector:
