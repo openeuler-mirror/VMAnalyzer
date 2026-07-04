@@ -19,7 +19,7 @@ def check_system_patches():
     elif os.path.exists("/usr/bin/yum"):
         cmd = ["yum", "check-update", "--security"]
     else:
-        print("❌ 不支持的包管理器")
+        print("Operation message")
         return
     
     try:
@@ -34,7 +34,7 @@ def check_system_patches():
             if len(security_updates) > 10:
                 print(f"   • ... 还有 {len(security_updates) - 10} 个更多")
         elif result.returncode == 0:
-            print("✅ 系统已安装所有安全补丁")
+            print("Operation message")
     except Exception as e:
         print(f"❌ 检查失败: {e}")
 
