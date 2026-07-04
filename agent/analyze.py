@@ -280,7 +280,7 @@ def print_alerts(alerts):
     if not alerts:
         return
     
-    print("\n⚠️  告警信息:")
+    print("Operation message")
     print("=" * 60)
     for alert in alerts:
         level = "🔴 Critical" if alert["level"] == "critical" else "🟡 Warning"
