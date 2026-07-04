@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-获取VM vCPU 实际生效的 CPU flags
-通过 guest-agent 读取 /proc/cpuinfo 中的 flags 行
-"""
+"""Documentation for this component."""
 
 import subprocess
 import json
@@ -22,7 +19,7 @@ LOG_ERROR = logging.error
 
 
 def run_virsh_cmd(cmd: str) -> Optional[str]:
-    """执行 virsh 命令并返回标准输出"""
+    """Documentation for this component."""
     try:
         LOG_INFO(f"Executing command：{cmd}")
         result = subprocess.run(
@@ -46,7 +43,7 @@ def run_virsh_cmd(cmd: str) -> Optional[str]:
 
 
 def get_domain_uuid(vm_name: str) -> Optional[str]:
-    """通过 virsh 获取VM UUID"""
+    """Documentation for this component."""
     cmd = f"virsh domuuid {vm_name}"
     uuid = run_virsh_cmd(cmd)
     if not uuid:
@@ -55,10 +52,7 @@ def get_domain_uuid(vm_name: str) -> Optional[str]:
 
 
 def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
-    """
-    使用 QEMU Guest Agent 读取 /proc/cpuinfo 中的 flags
-    返回 flags 列表
-    """
+    """Documentation for this component."""
     # 构造 guest-exec 命令读取 /proc/cpuinfo
     qga_cmd = {
         "execute": "guest-exec",
@@ -79,7 +73,7 @@ def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
         resp = json.loads(output)
         pid = resp.get("return", {}).get("pid")
         if not pid:
-            LOG_ERROR("guest-exec 未返回 pid")
+            LOG_ERROR("Operation message")
             return None
 
         # 等待进程结束并获取输出
@@ -97,12 +91,12 @@ def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
         status_resp = json.loads(status_output)
         status_ret = status_resp.get("return", {})
         if not status_ret.get("exited"):
-            LOG_ERROR("guest-exec 进程未结束")
+            LOG_ERROR("Operation message")
             return None
 
         out_data = status_ret.get("out-data", "")
         if not out_data:
-            LOG_ERROR("guest-exec 无输出数据")
+            LOG_ERROR("Operation message")
             return None
 
         # base64 解码输出
@@ -111,7 +105,7 @@ def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
         # 提取 flags 字段
         parts = cpuinfo_line.split(":", 1)
         if len(parts) != 2:
-            LOG_ERROR("无法Parse cpuinfo flags 行")
+            LOG_ERROR("Operation message")
             return None
         flags_str = parts[1].strip()
         flags = flags_str.split()
@@ -122,7 +116,7 @@ def get_vm_cpu_flags_via_qga(vm_name: str) -> Optional[List[str]]:
 
 
 def get_vm_cpu_flags(vm_name: str) -> Dict:
-    """主入口：返回单台 VM 的 CPU flags 信息"""
+    """Documentation for this component."""
     uuid = get_domain_uuid(vm_name)
     if not uuid:
         return {}
@@ -139,14 +133,14 @@ def get_vm_cpu_flags(vm_name: str) -> Dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="获取VM vCPU 实际生效的 CPU flags")
-    parser.add_argument("vm_name", help="VM名称")
-    parser.add_argument("-o", "--output", help="可选：输出 JSON 文件路径")
+    parser = argparse.ArgumentParser(description="Operation message")
+    parser.add_argument("vm_name", help="Operation message")
+    parser.add_argument("-o", "--output", help="Operation message")
     args = parser.parse_args()
 
     info = get_vm_cpu_flags(args.vm_name)
     if not info:
-        LOG_ERROR("无法获取信息，请确认VM存在、已运行且 QEMU Guest Agent 可用")
+        LOG_ERROR("Operation message")
         return
 
     print(json.dumps(info, indent=2, ensure_ascii=False))
