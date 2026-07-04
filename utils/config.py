@@ -51,6 +51,6 @@ def reload_config():
         importlib.reload(config)
         _config = config
         _config_modified_time = mtime
-        print("🔄 配置文件已重载")
+        print("Operation message")
     
     return _config
