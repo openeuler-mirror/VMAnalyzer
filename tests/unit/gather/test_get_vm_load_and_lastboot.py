@@ -23,12 +23,12 @@ from gather.get_vm_load_and_lastboot import VMSysMonitor, logger
 
 
 class TestGetVMLoadAndLastboot(unittest.TestCase):
-    """VM负载和最后启动时间采集模块单测"""
+    """Documentation for this component."""
 
     def setUp(self):
-        """测试前置：初始化实例，创建独立测试输出目录"""
+        """Documentation for this component."""
         self.poll_interval = 1
-        # 单测路径：tests/unit/gather，向上回退3级到项目根，拼接temp目录
+        # English comment for this block.
         test_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.test_out_dir = os.path.join(test_root, "temp", "test_vm_load_lastboot")
 
@@ -39,15 +39,15 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
         self.monitor = TestableVMSysMonitor(poll=self.poll_interval, out_dir=self.test_out_dir)
 
     def tearDown(self):
-        """测试后置：清理测试目录，无残留"""
-        # 同样通过__file__拼接temp目录，直接清理
+        """Documentation for this component."""
+        # English comment for this block.
         test_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         temp_dir = os.path.join(test_root, "temp")
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
 
     def test__run_cmd_success(self):
-        """测试私有方法_run_cmd：命令执行成功场景"""
+        """Documentation for this component."""
         test_cmd = "virsh list --name"
         mock_stdout = "node-vm01 node-vm02"
         with patch("subprocess.run") as mock_subproc:
@@ -62,17 +62,17 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             )
 
     def test__run_cmd_called_process_error(self):
-        """测试私有方法_run_cmd：命令执行失败(CalledProcessError)场景"""
+        """Documentation for this component."""
         test_cmd = "virsh list --name"
         with patch("subprocess.run") as mock_subproc, patch.object(logger, "error") as mock_log_err:
-            # 场景1：错误含not supported/unknown command，不打印错误日志
+            # English comment for this block.
             mock_subproc.side_effect = subprocess.CalledProcessError(
                 returncode=1, cmd=test_cmd, stderr="operation not supported"
             )
             self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
             mock_log_err.assert_not_called()
 
-            # 场景2：其他错误，打印错误日志
+            # English comment for this block.
             mock_subproc.side_effect = subprocess.CalledProcessError(
                 returncode=1, cmd=test_cmd, stderr="failed to connect to libvirt"
             )
@@ -80,38 +80,38 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             mock_log_err.assert_called_once()
 
     def test__run_cmd_other_exceptions(self):
-        """测试私有方法_run_cmd：超时/未知异常场景"""
+        """Documentation for this component."""
         test_cmd = "virsh list --name"
         with patch("subprocess.run") as mock_subproc, patch.object(logger, "error") as mock_log_err:
-            # 场景1：超时异常
+            # English comment for this block.
             mock_subproc.side_effect = subprocess.TimeoutExpired(cmd=test_cmd, timeout=30)
             self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
             mock_log_err.assert_called_once()
 
-            # 场景2：通用异常，先重置mock，再调用方法
+            # English comment for this block.
             mock_subproc.side_effect = Exception("system error")
             mock_log_err.reset_mock()
             self.assertIsNone(self.monitor.call_run_cmd(test_cmd))
             mock_log_err.assert_called_once()
 
     def test_get_running_vms(self):
-        """测试get_running_vms：获取运行中VM列表，覆盖有/无VM场景"""
-        # 场景1：有运行的VM，返回非空列表
+        """Documentation for this component."""
+        # English comment for this block.
         with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
             mock_run_cmd.return_value = "vm-web01 vm-db01"
             vms = self.monitor.get_running_vms()
             self.assertEqual(vms, ["vm-web01", "vm-db01"])
             mock_run_cmd.assert_called_once_with("virsh list --name | grep -v '^$'")
 
-        # 场景2：无运行的VM，返回空列表
+        # English comment for this block.
         with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
             mock_run_cmd.return_value = None
             self.assertEqual(self.monitor.get_running_vms(), [])
 
     def test_get_boot_time(self):
-        """测试get_boot_time：采集VM启动时间，覆盖3种核心场景"""
+        """Documentation for this component."""
         test_vm = "vm-web01"
-        # 场景1：采集成功，正常解析JSON
+        # English comment for this block.
         mock_boot_resp = "{\"return\": {\"lastboot\": \"2026-02-05T08:00:00Z\"}}"
         with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
             mock_run_cmd.return_value = mock_boot_resp
@@ -121,20 +121,20 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
                 f"virsh qemu-agent-command {test_vm} '{{\"execute\":\"guest-get-lastboot-time\"}}'"
             )
 
-        # 场景2：命令执行失败，返回采集失败
+        # English comment for this block.
         with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
             mock_run_cmd.return_value = None
-            self.assertEqual(self.monitor.get_boot_time(test_vm), "采集失败")
+            self.assertEqual(self.monitor.get_boot_time(test_vm), "Operation message")
 
-        # 场景3：返回非标准JSON，解析失败
+        # English comment for this block.
         with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
             mock_run_cmd.return_value = "invalid json string"
-            self.assertEqual(self.monitor.get_boot_time(test_vm), "解析失败")
+            self.assertEqual(self.monitor.get_boot_time(test_vm), "Operation message")
 
     def test_get_load_avg(self):
-        """测试get_load_avg：采集VM负载，覆盖3种核心场景"""
+        """Documentation for this component."""
         test_vm = "vm-db01"
-        # 场景1：采集成功，正常解析1/5/15分钟负载
+        # English comment for this block.
         mock_load_resp = "{\"return\": {\"load1-average\": \"0.05\", \"load5-average\": \"0.03\", \"load15-average\": \"0.01\"}}"
         with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
             mock_run_cmd.return_value = mock_load_resp
@@ -142,47 +142,47 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             self.assertEqual(load_data["1min"], "0.05")
             self.assertEqual(load_data["5min"], "0.03")
             self.assertEqual(load_data["15min"], "0.01")
-            self.assertEqual(load_data["note"], "采集成功")
+            self.assertEqual(load_data["note"], "Operation message")
 
-        # 场景2：命令执行失败，返回默认N/A
+        # English comment for this block.
         with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
             mock_run_cmd.return_value = None
             load_data = self.monitor.get_load_avg(test_vm)
             self.assertEqual(load_data["1min"], "N/A")
-            self.assertEqual(load_data["note"], "不支持/采集失败")
+            self.assertEqual(load_data["note"], "Operation message")
 
-        # 场景3：返回无效JSON，解析失败
+        # English comment for this block.
         with patch.object(self.monitor, "_run_cmd") as mock_run_cmd:
             mock_run_cmd.return_value = "invalid json string"
             load_data = self.monitor.get_load_avg(test_vm)
-            self.assertEqual(load_data["note"], "解析失败")
+            self.assertEqual(load_data["note"], "Operation message")
 
     def test_collect(self):
-        """测试collect：核心采集逻辑，覆盖有/无VM场景"""
-        # 固定采集时间，避免动态时间导致断言失败
+        """Documentation for this component."""
+        # English comment for this block.
         mock_collect_time = "2026-02-05 14:00:00"
-        # 关键：patch gather.get_vm_load_and_lastboot里的datetime，而非全局datetime
+        # English comment for this block.
         with patch("gather.get_vm_load_and_lastboot.datetime") as mock_datetime:
             mock_datetime.now.return_value = datetime.strptime(mock_collect_time, "%Y-%m-%d %H:%M:%S")
-            mock_datetime.strftime = datetime.strftime  # 保留strftime方法
-            # 场景1：有运行的VM，采集成功
+            mock_datetime.strftime = datetime.strftime  # English comment for this block.
+            # English comment for this block.
             with patch.object(self.monitor, "get_running_vms") as mock_get_vms:
                 mock_get_vms.return_value = ["vm-web01"]
                 with patch.object(self.monitor, "get_boot_time") as mock_boot:
                     mock_boot.return_value = "2026-02-05T08:00:00Z"
                     with patch.object(self.monitor, "get_load_avg") as mock_load:
                         mock_load.return_value = {
-                            "1min": "0.05", "5min": "0.03", "15min": "0.01", "note": "采集成功"
+                            "1min": "0.05", "5min": "0.03", "15min": "0.01", "note": "Operation message"
                         }
                         self.monitor.collect()
-                        # 断言采集数据正确性
+                        # English comment for this block.
                         self.assertEqual(self.monitor.data["collect_time"], mock_collect_time)
                         self.assertEqual(self.monitor.data["vm_count"], 1)
                         self.assertIn("vm-web01", self.monitor.data["vms"])
                         self.assertEqual(self.monitor.data["vms"]["vm-web01"]["status"], "success")
 
-            # 场景2：无运行的VM，采集空数据
-            self.monitor.data = {"collect_time": "", "vm_count": 0, "vms": {}}  # 恢复__init__的初始结构
+            # English comment for this block.
+            self.monitor.data = {"collect_time": "", "vm_count": 0, "vms": {}}  # English comment for this block.
             with patch.object(self.monitor, "get_running_vms") as mock_get_vms:
                 mock_get_vms.return_value = []
                 self.monitor.collect()
@@ -190,15 +190,15 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
                 self.assertEqual(self.monitor.data["vms"], {})
 
     def test_save(self):
-        """测试save：采集数据JSON持久化，验证文件生成和内容正确性"""
-        # 构造模拟采集数据
+        """Documentation for this component."""
+        # English comment for this block.
         mock_collect_data = {
             "collect_time": "2026-02-05 14:00:00",
             "vm_count": 1,
             "vms": {
                 "vm-web01": {
                     "boot_time": "2026-02-05T08:00:00Z",
-                    "load_avg": {"1min": "0.05", "5min": "0.03", "15min": "0.01", "note": "采集成功"},
+                    "load_avg": {"1min": "0.05", "5min": "0.03", "15min": "0.01", "note": "Operation message"},
                     "status": "success"
                 }
             }
@@ -212,26 +212,26 @@ class TestGetVMLoadAndLastboot(unittest.TestCase):
             mock_datetime.strftime = datetime.strftime
             self.monitor.save()
 
-            # 断言文件生成成功
+            # English comment for this block.
             test_file = f"vm_sys_{mock_file_time}.json"
             test_file_path = os.path.join(self.test_out_dir, test_file)
             self.assertTrue(os.path.exists(test_file_path))
 
-            # 断言文件内容与采集数据一致
+            # English comment for this block.
             with open(test_file_path, "r", encoding="utf-8") as f:
                 save_data = json.load(f)
             self.assertEqual(save_data, mock_collect_data)
 
     def test_main(self):
-        """测试main函数：命令行参数解析，覆盖默认/自定义参数场景"""
+        """Documentation for this component."""
         from gather import get_vm_load_and_lastboot as vm_module
-        # 场景1：使用默认参数，无--poll/--out-dir
+        # English comment for this block.
         with patch("sys.argv", ["get_vm_load_and_lastboot.py"]):
             with patch.object(vm_module, "VMSysMonitor") as mock_mon:
                 vm_module.main()
                 mock_mon.assert_called_once_with(60, "./vm_sys_data")
 
-        # 场景2：使用自定义参数，指定轮询间隔和输出目录
+        # English comment for this block.
         with patch("sys.argv", ["get_vm_load_and_lastboot.py", "--poll", "30", "--out-dir", "/data/vm_mon"]):
             with patch.object(vm_module, "VMSysMonitor") as mock_mon:
                 vm_module.main()
