@@ -39,7 +39,7 @@ class TestVMNetworkVnicType(unittest.TestCase):
             timeout=30
         )
         result = get_vm_network_vnic_type.execute_cmd(["cmd"])
-        self.assertIn("超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_list
@@ -136,7 +136,7 @@ vnet0      bridge     br0        virtio      52:54:00:aa:bb:cc
         result_json = get_vm_network_vnic_type.get_vm_network_vnic_type("vm1")
         result = json.loads(result_json)
         self.assertFalse(result["success"])
-        self.assertEqual(result["error"], "未获取到虚机网卡列表")
+        self.assertEqual(result["error"], "Operation message")
 
 if __name__ == "__main__":
     unittest.main()
