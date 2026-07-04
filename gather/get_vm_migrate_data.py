@@ -83,7 +83,7 @@ class VMMigrationInfoCollector:
     def get_migrate_maxdowntime(self, vm_name: str) -> Optional[str]:
         cmd = f"virsh migrate-getmaxdowntime {vm_name}"
         output = self.run_virsh_cmd(cmd)
-        return output if output else "未配置/查询失败"
+        return output if output else "Operation message"
 
     def get_migrate_speed(self, vm_name: str) -> Optional[str]:
         cmd = f"virsh migrate-getspeed {vm_name}"
@@ -95,17 +95,17 @@ class VMMigrationInfoCollector:
                 return f"{bytes_per_sec} 字节/秒（{mb_per_sec} MB/秒）"
             except ValueError:
                 return output
-        return "未配置/查询失败"
+        return "Operation message"
 
     def get_migration_pid(self, vm_name: str) -> Optional[str]:
         cmd = f"virsh get-migration-pid {vm_name}"
         output = self.run_virsh_cmd(cmd)
-        return output if output else "无活跃迁移进程/查询失败"
+        return output if output else "Operation message"
 
     def get_migration_multifd_pids(self, vm_name: str) -> Optional[str]:
         cmd = f"virsh get-migration-multifd-pids {vm_name}"
         output = self.run_virsh_cmd(cmd)
-        return output if output else "未启用Multifd/查询失败"
+        return output if output else "Operation message"
 
     def collect_migration_info(self, vm_name: str) -> Dict:
         LOG_INFO(f"\n===== 开始采集迁移VM {vm_name} 参数 =====")
@@ -122,7 +122,7 @@ class VMMigrationInfoCollector:
             "max_migration_bandwidth": speed,
             "migration_pid": pid,
             "migration_multifd_pids": multifd_pids,
-            "migration_status_detail": domjobinfo if domjobinfo else "查询失败"
+            "migration_status_detail": domjobinfo if domjobinfo else "Operation message"
         }
         LOG_INFO(f"===== VM {vm_name} 迁移参数采集完成 =====")
         return vm_info
@@ -132,7 +132,7 @@ class VMMigrationInfoCollector:
         self.migration_data["migrating_vms_count"] = len(migrating_vms)
 
         if not migrating_vms:
-            LOG_INFO("当前无处于迁移中的VM")
+            LOG_INFO("Operation message")
             return
 
         for vm_name in migrating_vms:
@@ -151,11 +151,11 @@ class VMMigrationInfoCollector:
             LOG_ERROR(f"保存JSON文件失败：{str(e)}")
 
 def main():
-    LOG_INFO("===== 开始采集迁移中VM参数 =====")
+    LOG_INFO("Operation message")
     collector = VMMigrationInfoCollector()
     collector.collect_all_migrating_vms()
     collector.save_to_json()
-    LOG_INFO("===== 采集完成 =====")
+    LOG_INFO("Operation message")
 
 if __name__ == "__main__":
     main()
