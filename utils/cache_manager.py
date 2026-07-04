@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""简单缓存管理器"""
+"""Documentation for this component."""
 import time
 class CacheManager:
     def __init__(self, ttl=300):
