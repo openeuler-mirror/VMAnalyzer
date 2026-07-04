@@ -37,7 +37,7 @@ class VMCollector:
         }
 
     def run_virsh_cmd(self, cmd: str) -> Optional[str]:
-        """执行 virsh 命令，兼容复杂引号和 JSON 格式"""
+        """Documentation for this component."""
         try:
             LOG_INFO(f"Executing command：{cmd}")
             # 启用 shell=True Parse复杂命令，避免 split() 破坏 JSON 结构
@@ -63,7 +63,7 @@ class VMCollector:
             return None
 
     def get_all_vm_names(self) -> List[str]:
-        """获取所有有效VM名称（过滤空行和无效值）"""
+        """Documentation for this component."""
         cmd = "virsh list --name | grep -v '^$' | grep -v '^-$'"
         output = self.run_virsh_cmd(cmd)
         return output.split() if output else []
@@ -105,7 +105,7 @@ class VMCollector:
         return vm_data
 
     def collect_all_vms(self):
-        """采集所有VM数据"""
+        """Documentation for this component."""
         vm_names = self.get_all_vm_names()
         if not vm_names:
             LOG_ERROR("No virtual machines found")
