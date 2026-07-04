@@ -74,24 +74,24 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
     vm = {"uuid": "", "name": vm_name}
     
     try:
-        LOG_INFO(f"\n===== 开始处理虚拟机：{vm_name} =====")
+        LOG_INFO(f"\n===== 开始处理VM：{vm_name} =====")
         dom = conn.lookupByName(vm_name)
         if not dom:
-            LOG_ERROR(f"未找到名称为 {vm_name} 的虚拟机")
+            LOG_ERROR(f"未找到名称为 {vm_name} 的VM")
             return vm_stats
         
         vm["uuid"] = dom.UUIDString()
         vm_id = vm["uuid"]
         vm_state = dom.state()[0]
         state_map = {
-            libvirt.VIR_DOMAIN_RUNNING: "运行中",
-            libvirt.VIR_DOMAIN_SHUTOFF: "已关闭",
-            libvirt.VIR_DOMAIN_PAUSED: "已暂停"
+            libvirt.VIR_DOMAIN_RUNNING: "running",
+            libvirt.VIR_DOMAIN_SHUTOFF: "shutoff",
+            libvirt.VIR_DOMAIN_PAUSED: "paused"
         }
-        vm_status = state_map.get(vm_state, f"未知状态({vm_state})")
-        LOG_INFO(f"虚拟机信息：名称={vm_name}, UUID={vm_id}, 状态={vm_status}")
+        vm_status = state_map.get(vm_state, f"unknown state({vm_state})")
+        LOG_INFO(f"VM信息：名称={vm_name}, UUID={vm_id}, 状态={vm_status}")
         
-        LOG_INFO(f"正在解析 {vm_name} 的 XML 配置...")
+        LOG_INFO(f"正在Parse {vm_name} 的 XML 配置...")
         xmldesc = dom.XMLDesc(0)
         doc = libxml2.parseDoc(xmldesc)
         context = doc.xpathNewContext()
@@ -145,7 +145,7 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
                 LOG_INFO(f"{vm_name} - vCPU {vcpu_id} 亲和性信息获取成功：绑定物理CPU范围={allowed_physical_cpus}")
             
             except subprocess.CalledProcessError as e:
-                error_msg = f"命令执行失败：{e.stderr.strip()}"
+                error_msg = f"Command failed：{e.stderr.strip()}"
                 LOG_ERROR(f"{vm_name} - 获取 vCPU {vcpu_id} 亲和性信息失败：{error_msg}")
                 pin_info = {
                     'vcpu_id': vcpu_id,
@@ -161,7 +161,7 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
                     'mask_length_bytes': 0
                 }
             except subprocess.TimeoutExpired:
-                error_msg = "命令执行超时（10秒）"
+                error_msg = "Command timed out（10秒）"
                 LOG_ERROR(f"{vm_name} - 获取 vCPU {vcpu_id} 亲和性信息失败：{error_msg}")
                 pin_info = {
                     'vcpu_id': vcpu_id,
@@ -214,7 +214,7 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
         LOG_INFO(f"{vm_name} - XML 资源已释放")
     
     except libvirt.libvirtError as e:
-        LOG_ERROR(f"{vm_name} - 处理虚拟机失败：{str(e)}")
+        LOG_ERROR(f"{vm_name} - 处理VM失败：{str(e)}")
     finally:
         if dom:
             dom = None
@@ -223,8 +223,8 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
 
 def get_all_vms_vcpupin() -> dict:
     """
-    获取所有虚拟机的 vCPU 绑核信息
-    :return: 所有虚拟机的绑核统计字典（key 为虚拟机 UUID）
+    获取所有VM的 vCPU 绑核信息
+    :return: 所有VM的绑核统计字典（key 为VM UUID）
     """
     conn = None
     all_vms_stats = {}
@@ -236,15 +236,15 @@ def get_all_vms_vcpupin() -> dict:
             LOG_ERROR("连接 libvirt 服务失败！请检查 libvirtd 服务是否启动及权限是否足够")
             return all_vms_stats
         
-        LOG_INFO("正在获取所有虚拟机列表...")
+        LOG_INFO("正在获取所有VM列表...")
         domains = conn.listAllDomains()
         vm_names = [dom.name() for dom in domains]
         
         if not vm_names:
-            LOG_INFO("未找到任何虚拟机")
+            LOG_INFO("No virtual machines found")
             return all_vms_stats
         
-        LOG_INFO(f"共找到 {len(vm_names)} 台虚拟机：{vm_names}")
+        LOG_INFO(f"Found {len(vm_names)} virtual machines：{vm_names}")
         
         for vm_name in vm_names:
             single_vm_stats = get_single_vm_vcpupin(vm_name, conn)
@@ -255,7 +255,7 @@ def get_all_vms_vcpupin() -> dict:
     finally:
         if conn:
             conn.close()
-            LOG_INFO("libvirt 连接已关闭")
+            LOG_INFO("libvirt 连接shutoff")
     
     return all_vms_stats
 
@@ -265,11 +265,11 @@ def main():
         print("示例：python3 vcpupin_check_all.py")
         sys.exit(1)
     
-    LOG_INFO("===== 开始获取所有虚拟机的 vCPU 绑核信息 =====")
+    LOG_INFO("===== 开始获取所有VM的 vCPU 绑核信息 =====")
     all_stats = get_all_vms_vcpupin()
     
     if all_stats:
-        LOG_INFO(f"\n===== 所有虚拟机 vCPU 绑核检测完成，共处理 {len(all_stats)} 台虚拟机 =====")
+        LOG_INFO(f"\n===== 所有VM vCPU 绑核检测完成，共处理 {len(all_stats)} virtual machines =====")
         filename = f"vcpupin_stats_all_vms_{int(time.time())}.json"
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(all_stats, f, indent=2, ensure_ascii=False)
@@ -277,9 +277,9 @@ def main():
         
         print("\n===== 简要统计 =====")
         for vm_uuid, vm_info in all_stats.items():
-            print(f"虚拟机：{vm_info['name']}（{vm_info['status']}）- vCPU总数：{vm_info['vcpu_total']}")
+            print(f"VM：{vm_info['name']}（{vm_info['status']}）- vCPU总数：{vm_info['vcpu_total']}")
     else:
-        LOG_ERROR("未获取到任何虚拟机的 vCPU 绑核信息")
+        LOG_ERROR("未获取到任何VM的 vCPU 绑核信息")
         sys.exit(1)
 
 if __name__ == "__main__":
