@@ -12,24 +12,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 
-"""set_vcpu_pinning.py — 一键 NUMA 感知 vCPU 绑核。
-
-工作流程：
-  1. 用 virsh nodecpumap  获取host各 NUMA 节点对应的物理 CPU 列表。
-  2. 用 virsh numatune <vm> 查询 VM 绑定的 NUMA 节点集合（nodeset）。
-     若未绑定，则使用全部物理 CPU。
-  3. 按 Round-Robin 策略，将每个 vCPU 依次绑定到目标 CPU 列表中的一个
-     物理 CPU：vcpu 0 → cpulist[0], vcpu 1 → cpulist[1], ...
-  4. 通过 virsh vcpupin <vm> <vcpu> <pcpu> --live 实时生效，
-     同时用 --config 写入持久化配置（如果 VM 处于关机状态则仅 --config）。
-
-Usage：
-  # 绑核单台 VM（running）
-  python3 set_vcpu_pinning.py instance-000003f9
-
-  # 绑核所有running VM
-  python3 set_vcpu_pinning.py
-"""
+"""Documentation for this component."""
 
 import json
 import logging
@@ -60,16 +43,16 @@ class VcpuPinningOptimizer:
                 r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
                 if r.returncode == 0:
                     return r.stdout.strip()
-                LOG_WARN("命令重试 %d: %s", attempt+1, " ".join(cmd))
+                LOG_WARN("Operation message", attempt+1, " ".join(cmd))
             if r.returncode == 0:
                 return r.stdout.strip()
-            LOG_ERROR("命令失败 %s: %s", " ".join(cmd), r.stderr.strip())
+            LOG_ERROR("Operation message", " ".join(cmd), r.stderr.strip())
         except Exception as e:
-            LOG_ERROR("命令异常 %s: %s", " ".join(cmd), e)
+            LOG_ERROR("Operation message", " ".join(cmd), e)
         return None
 
     def get_host_numa_cpus(self) -> Dict[int, List[int]]:
-        """Parse virsh nodecpumap，返回 {node_id: [cpu_list]}。"""
+        """Documentation for this component."""
         output = self._run(["virsh", "nodecpumap"])
         topology: Dict[int, List[int]] = {}
         if not output:
@@ -84,9 +67,7 @@ class VcpuPinningOptimizer:
     # VM NUMA 绑定信息
 
     def get_vm_nodeset(self, vm_name: str) -> Optional[List[int]]:
-        """从 virsh numatune Parse VM 绑定的 NUMA 节点编号列表。
-        返回 None 表示未绑定（使用全部节点）。
-        """
+        """Documentation for this component."""
         output = self._run(["virsh", "numatune", vm_name])
         if not output:
             return None
@@ -149,10 +130,10 @@ class VcpuPinningOptimizer:
         cpulist: List[int],
         running: bool,
     ) -> List[Dict]:
-        """Round-Robin 绑核；running时追加 --live，同时写持久化配置。"""
+        """Documentation for this component."""
         results: List[Dict] = []
         if not cpulist:
-            LOG_WARN("VM %s: 可用 CPU 列表为空，跳过绑核", vm_name)
+            LOG_WARN("Operation message", vm_name)
             return results
 
         for vcpu in range(vcpu_count):
@@ -170,7 +151,7 @@ class VcpuPinningOptimizer:
             if success:
                 LOG_INFO("VM %s: vCPU %d → pCPU %d", vm_name, vcpu, target_cpu)
             else:
-                LOG_ERROR("VM %s: vCPU %d 绑定 pCPU %d 失败", vm_name, vcpu,
+                LOG_ERROR("Operation message", vm_name, vcpu,
                           target_cpu)
 
             results.append({
@@ -183,7 +164,7 @@ class VcpuPinningOptimizer:
  # 单 VM 主流程
 
     def pin_vm(self, vm_name: str) -> Dict:
-        """执行完整绑核流程，返回操作摘要。"""
+        """Documentation for this component."""
         node_cpus = self.get_host_numa_cpus()
         nodeset = self.get_vm_nodeset(vm_name)
         vcpu_count = self.get_vcpu_count(vm_name)
@@ -191,12 +172,12 @@ class VcpuPinningOptimizer:
         running = self._is_vm_running(vm_name)
 
         LOG_INFO(
-            "VM %s: %d vCPU, NUMA 节点 %s, 目标 pCPU %s, running=%s",
+            "Operation message",
             vm_name, vcpu_count, nodeset, cpulist, running,
         )
 
         if vcpu_count == 0:
-            LOG_WARN("VM %s: 无法获取 vCPU 数量，跳过", vm_name)
+            LOG_WARN("Operation message", vm_name)
             return {"vm_name": vm_name, "error": "vcpu_count=0"}
 
         pin_results = self.pin_vcpus(vm_name, vcpu_count, cpulist, running)
@@ -215,7 +196,7 @@ class VcpuPinningOptimizer:
    # 批量处理
 
     def pin_all_running_vms(self) -> Dict:
-        """对所有running VM 执行绑核。"""
+        """Documentation for this component."""
         output = self._run(["virsh", "list", "--state-running", "--name"])
         vm_names = [n for n in (output or "").split() if n]
         results: Dict[str, Dict] = {}
