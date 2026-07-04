@@ -61,11 +61,11 @@ def check_running():
             print(f"脚本已在运行，PID: {pid}")
             sys.exit(1)
         except OSError:
-            logger.warning("发现旧的PID文件，已删除")
+            logger.warning("Operation message")
             os.remove(PID_FILE)
 
 def cleanup():
-    logger.info("脚本正在退出，清理资源...")
+    logger.info("Operation message")
     if os.path.exists(PID_FILE):
         os.remove(PID_FILE)
     if "virsh_process" in globals() and virsh_process.poll() is None:
@@ -97,7 +97,7 @@ def main():
     check_running()
     with open(PID_FILE, "w") as f:
         f.write(str(os.getpid()))
-    logger.info("启动 virsh 事件监控")
+    logger.info("Operation message")
 
     open(RAW_LOG_FILE, "w").close()
     virsh_cmd = ["stdbuf", "-oL", "-eL", "virsh", "event", "--all", "--loop", "--timestamp"]
@@ -111,12 +111,12 @@ def main():
     logger.info(f"virsh event 命令已启动，PID: {virsh_process.pid}")
     logger.info(f"原始日志文件: {RAW_LOG_FILE}")
     logger.info(f"分析日志文件: {LOG_FILE}")
-    logger.info("开始监控日志文件变化...")
+    logger.info("Operation message")
     last_size = os.path.getsize(RAW_LOG_FILE)
     while True:
         if virsh_process.poll() is not None:
-            logger.error("virsh event 命令已退出，正在重启...")
-            print("virsh event 命令已退出，正在重启...")
+            logger.error("Operation message")
+            print("Operation message")
             virsh_process = subprocess.Popen(
                 virsh_cmd,
                 stdout=open(RAW_LOG_FILE, "a"),
