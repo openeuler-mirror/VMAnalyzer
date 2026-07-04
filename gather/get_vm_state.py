@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""采集虚机Libvirt生命周期状态"""
+"""Documentation for this component."""
 import json
 import subprocess
 import sys
@@ -8,12 +8,7 @@ from lxml import etree
 from typing import Optional, Dict, Any
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
-    """
-    执行系统命令，返回标准化结果
-    :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
-    :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
-    """
+    """Documentation for this component."""
     result = {
         "code": -1,
         "stdout": "",
@@ -37,21 +32,14 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     return result
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
 def get_vm_state(vm_name: str) -> str:
-    """
-    获取虚机状态（标准化编码）
-    状态映射：
-    running(1)-running, paused(2)-paused, shut off(0)-关机,
-    crashed(-1)-crashed, migrating(3)-迁移中, unknown(-2)-未知
-    :param vm_name: 虚机名称
-    :return: JSON格式结果
-    """
+    """Documentation for this component."""
     result = {
         "vm_name": vm_name,
         "state_code": -2,
@@ -72,11 +60,11 @@ def get_vm_state(vm_name: str) -> str:
     state_mapping = {
         "running": (1, "running"),
         "paused": (2, "paused"),
-        "shut off": (0, "已关机"),
-        "crashed": (-1, "已crashed"),
-        "migrating": (3, "迁移中"),
-        "suspended": (2, "已挂起"),
-        "blocked": (-3, "阻塞中")
+        "shut off": (0, "Operation message"),
+        "crashed": (-1, "Operation message"),
+        "migrating": (3, "Operation message"),
+        "suspended": (2, "Operation message"),
+        "blocked": (-3, "Operation message")
     }
 
     if state_raw in state_mapping:
