@@ -21,7 +21,7 @@ class TestVMQgaTCPCollector(unittest.TestCase):
 
     @patch("gather.get_vm_tcp_stats.subprocess.run")
     def test_run_virsh_cmd_success(self, mock_run):
-        """测试 run_virsh_cmd 正常返回"""
+        """Documentation for this component."""
         mock_run.return_value = MagicMock(stdout="output\n", stderr="", returncode=0)
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
         result = collector.run_virsh_cmd("virsh list")
@@ -29,7 +29,7 @@ class TestVMQgaTCPCollector(unittest.TestCase):
 
     @patch("gather.get_vm_tcp_stats.subprocess.run")
     def test_run_virsh_cmd_error(self, mock_run):
-        """测试 run_virsh_cmd 命令出错"""
+        """Documentation for this component."""
         mock_run.side_effect = get_vm_tcp_stats.subprocess.CalledProcessError(
             1, "cmd", stderr="some error"
         )
@@ -80,7 +80,7 @@ class TestVMQgaTCPCollector(unittest.TestCase):
         collector = get_vm_tcp_stats.VMQgaTCPCollector()
         rate = collector.calculate_tcp_retrans_rate({"retranssegs": 5, "outsegs": 100})
         self.assertAlmostEqual(rate, 5.0)
-        # outsegs 为 0
+        # English comment for this block.
         rate = collector.calculate_tcp_retrans_rate({"retranssegs": 1, "outsegs": 0})
         self.assertEqual(rate, 0.0)
 
