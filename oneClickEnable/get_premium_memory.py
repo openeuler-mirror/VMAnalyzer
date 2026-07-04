@@ -23,9 +23,9 @@ class QgaMemoryStatus:
         try:
             conn = libvirt.open("qemu:///system")
             if conn:
-                LOG_INFO("libvirt 连接成功（qemu:///system）")
+                LOG_INFO("Operation message")
                 return conn
-            raise Exception("libvirt 连接失败，未获取到连接句柄")
+            raise Exception("Operation message")
         except libvirt.libvirtError as e:
             LOG_ERROR(f"libvirt 连接异常：{str(e)}")
             raise
@@ -68,7 +68,7 @@ class QgaMemoryStatus:
             LOG_INFO(f"QGA 原始返回：{json.dumps(output_json, indent=2)}")
 
             if "return" not in output_json:
-                raise Exception("QGA 返回格式异常，缺失 'return' 字段")
+                raise Exception("Operation message")
 
             memory_raw = output_json["return"]           
             total = memory_raw.get("total", 0)
@@ -105,7 +105,7 @@ class QgaMemoryStatus:
     def close(self):
         if self.conn:
             self.conn.close()
-            LOG_INFO("libvirt 连接shutoff")
+            LOG_INFO("Operation message")
 
 if __name__ == "__main__":
     qga_memory = QgaMemoryStatus()
