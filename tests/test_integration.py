@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""集成测试"""
+"""Documentation for this component."""
 import unittest
 class TestIntegration(unittest.TestCase):
     def test_full_pipeline(self):
-        """测试完整流程"""
+        """Documentation for this component."""
         self.assertTrue(True)
 if __name__ == "__main__":
     unittest.main()
