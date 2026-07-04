@@ -39,7 +39,7 @@ class TestVMQemuAgentStatus(unittest.TestCase):
             timeout=30
         )
         result = get_vm_qemu_agent_status.execute_cmd(["cmd"])
-        self.assertIn("超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_list
@@ -68,7 +68,7 @@ class TestVMQemuAgentStatus(unittest.TestCase):
     # =========================
     @patch("gather.get_vm_qemu_agent_status.execute_cmd")
     def test_qemu_agent_online(self, mock_cmd):
-        """QGA 正常在线"""
+        """Documentation for this component."""
         mock_cmd.return_value = {
             "code": 0,
             "stdout": json.dumps({
@@ -83,7 +83,7 @@ class TestVMQemuAgentStatus(unittest.TestCase):
 
     @patch("gather.get_vm_qemu_agent_status.execute_cmd")
     def test_qemu_agent_offline(self, mock_cmd):
-        """命令执行失败"""
+        """Documentation for this component."""
         mock_cmd.return_value = {
             "code": 1,
             "stderr": "guest agent not running",
@@ -92,12 +92,12 @@ class TestVMQemuAgentStatus(unittest.TestCase):
         result_json = get_vm_qemu_agent_status.get_vm_qemu_agent_status("vm1")
         result = json.loads(result_json)
         self.assertFalse(result["success"])
-        self.assertIn("QGA连通性检测失败", result["error"])
+        self.assertIn("Operation message", result["error"])
         self.assertFalse(result["agent_online"])
 
     @patch("gather.get_vm_qemu_agent_status.execute_cmd")
     def test_qemu_agent_invalid_json(self, mock_cmd):
-        """返回非 JSON"""
+        """Documentation for this component."""
         mock_cmd.return_value = {
             "code": 0,
             "stdout": "not json"
@@ -106,7 +106,7 @@ class TestVMQemuAgentStatus(unittest.TestCase):
         result = json.loads(result_json)
         self.assertTrue(result["success"])
         self.assertFalse(result["agent_online"])
-        self.assertEqual(result["error"], "QGA返回结果解析失败")
+        self.assertEqual(result["error"], "Operation message")
 
 if __name__ == "__main__":
     unittest.main()
