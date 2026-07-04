@@ -48,7 +48,7 @@ class MockStatsStorage:
     def save_stats_info(self, stats_info):
         try:
             if not stats_info:
-                logger.warning("无可用的VMdisk统计数据，将创建空文件")
+                logger.warning("Operation message")
 
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             filename = os.path.join(self.output_dir, f'diskstats_info_{timestamp}.json')
@@ -121,7 +121,7 @@ def main():
     try:
         conn = libvirt.open('qemu:///system')
         if conn is None:
-            logger.error("无法连接到qemu:///system")
+            logger.error("Operation message")
             return
 
         vm_factory = MockVMFactory(conn)
@@ -131,7 +131,7 @@ def main():
         collector.record_stats()
 
         conn.close()
-        logger.info("VMdisk统计信息收集完成")
+        logger.info("Operation message")
 
     except Exception as e:
         logger.error(f"主函数执行失败: {e}")
