@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # _*_coding: utf-8 _*_
-"""閿欒澶勭悊宸ュ叿"""
+"""Documentation for this component."""
 import logging
 class ErrorHandler:
     def __init__(self, max_retries=3):
