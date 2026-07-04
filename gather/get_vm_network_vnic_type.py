@@ -8,12 +8,7 @@ import os
 import re
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
-    """
-    执行系统命令，返回标准化结果
-    :param cmd: 命令列表（如 ["virsh", "domstate", "vm1"]）
-    :param timeout: 超时时间
-    :return: {"code": 0/非0, "stdout": 输出内容, "stderr": Error内容}
-    """
+    """Documentation for this component."""
     result = {
         "code": -1,
         "stdout": "",
@@ -37,13 +32,13 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     return result
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
-"""采集虚机虚拟网卡类型及配置"""
+"""Documentation for this component."""
 def get_vm_nic_list(vm_name: str) -> list:
     nics = []
     cmd = ["virsh", "domiflist", vm_name]
@@ -79,7 +74,7 @@ def get_vm_network_vnic_type(vm_name: str) -> str:
     # 获取网卡列表
     nics = get_vm_nic_list(vm_name)
     if not nics:
-        result["error"] = "未获取到虚机网卡列表"
+        result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
     # 整理网卡信息
@@ -113,7 +108,7 @@ if __name__ == "__main__":
                 "vm_name": vm,
                 "nics": [],
                 "success": False,
-                "error": "生成JSON结果失败"
+                "error": "Operation message"
             }
         results.append(vm_result)
 
