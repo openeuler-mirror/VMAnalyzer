@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""采集虚机diskIOPS统计信息"""
+"""Documentation for this component."""
 import subprocess
 import json
 from typing import Dict, Any
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
-    """
-    执行系统命令，返回标准化结果
-    """
+    """Documentation for this component."""
     result = {
         "code": -1,
         "stdout": "",
@@ -32,18 +30,14 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     return result
 
 def get_vm_list() -> list:
-    """获取host所有虚机名称列表"""
+    """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
 def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
-    """
-    获取虚机diskIOPS统计
-    :param vm_name: 虚机名称
-    :return: diskIOPS统计信息
-    """
+    """Documentation for this component."""
     result = {
         "vm_name": vm_name,
         "disk_stats": [],
@@ -77,7 +71,7 @@ def get_vm_disk_iops(vm_name: str) -> Dict[str, Any]:
     return result
 
 def main():
-    """主函数：收集所有VM的diskIOPS信息"""
+    """Documentation for this component."""
     vm_list = get_vm_list()
     results = []
     
