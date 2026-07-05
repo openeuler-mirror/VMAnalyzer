@@ -39,7 +39,7 @@ class TestVMSnapshotInfo(unittest.TestCase):
             timeout=30
         )
         result = get_vm_snapshot_info.execute_cmd(["cmd"])
-        self.assertIn("超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_list
@@ -68,7 +68,7 @@ class TestVMSnapshotInfo(unittest.TestCase):
     # =========================
     @patch("gather.get_vm_snapshot_info.execute_cmd")
     def test_snapshot_info_success(self, mock_cmd):
-        """完整成功路径"""
+        """Documentation for this component."""
         mock_cmd.side_effect = [
             # snapshot-list
             {
@@ -111,7 +111,7 @@ Current: yes
 
     @patch("gather.get_vm_snapshot_info.execute_cmd")
     def test_snapshot_list_fail(self, mock_cmd):
-        """snapshot-list 失败"""
+        """Documentation for this component."""
         mock_cmd.return_value = {
             "code": 1,
             "stderr": "snapshot error",
@@ -124,7 +124,7 @@ Current: yes
 
     @patch("gather.get_vm_snapshot_info.execute_cmd")
     def test_snapshot_info_fail(self, mock_cmd):
-        """snapshot-info 失败（应该跳过）"""
+        """Documentation for this component."""
         mock_cmd.side_effect = [
             # snapshot-list
             {
@@ -147,7 +147,7 @@ snap1
 
     @patch("gather.get_vm_snapshot_info.execute_cmd")
     def test_qemu_img_json_error(self, mock_cmd):
-        """qemu-img JSON 解析失败"""
+        """Documentation for this component."""
         mock_cmd.side_effect = [
             # snapshot-list
             {
@@ -183,7 +183,7 @@ Current: no
 
     @patch("gather.get_vm_snapshot_info.execute_cmd")
     def test_no_snapshot(self, mock_cmd):
-        """没有 snapshot"""
+        """Documentation for this component."""
         mock_cmd.return_value = {
             "code": 0,
             "stdout": """Name
