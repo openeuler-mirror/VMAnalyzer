@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
-"""VMAnalyzer API使用示例"""
+"""Documentation for this component."""
 def main():
     print("VMAnalyzer API Usage Example")
     print("============================")
