@@ -34,7 +34,7 @@ LOG_WARN = logging.warning
 class VcpuPinningOptimizer:
     """Pin VM vCPUs according to NUMA topology."""
 
-    # 工具方法
+    # English comment for this block.
 
     def _run(self, cmd: List[str], timeout: int = 15) -> Optional[str]:
         try:
@@ -64,7 +64,7 @@ class VcpuPinningOptimizer:
                 topology[node_id] = [int(c) for c in m.group(2).split()]
         return topology
 
-    # VM NUMA 绑定信息
+    # English comment for this block.
 
     def get_vm_nodeset(self, vm_name: str) -> Optional[List[int]]:
         """Documentation for this component."""
@@ -86,7 +86,7 @@ class VcpuPinningOptimizer:
                 return nodes if nodes else None
         return None
 
-        # VM vCPU 数量
+        # English comment for this block.
 
     def get_vcpu_count(self, vm_name: str) -> int:
         """Return the active vCPU count for the VM."""
@@ -99,7 +99,7 @@ class VcpuPinningOptimizer:
         except ValueError:
             return 0
 
-    # 目标 CPU 列表构建
+    # English comment for this block.
 
     def build_target_cpulist(
         self,
@@ -161,7 +161,7 @@ class VcpuPinningOptimizer:
             })
         return results
 
- # 单 VM 主流程
+ # English comment for this block.
 
     def pin_vm(self, vm_name: str) -> Dict:
         """Documentation for this component."""
@@ -193,7 +193,7 @@ class VcpuPinningOptimizer:
             "failed_count": len(pin_results) - success_count,
         }
 
-   # 批量处理
+   # English comment for this block.
 
     def pin_all_running_vms(self) -> Dict:
         """Documentation for this component."""
