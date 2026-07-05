@@ -20,7 +20,7 @@ from io import StringIO
 from utils.wrapper import singleton
 
 class TestSingletonDecorator(unittest.TestCase):
-    """针对singleton装饰器的单元测试用例"""
+    """Documentation for this component."""
     def setUp(self):
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG) 
@@ -59,8 +59,8 @@ class TestSingletonDecorator(unittest.TestCase):
         self.assertEqual(instance1.age, 20)
 
     def test_singleton_parameter_passing(self):
-        instance = self.TestClass("张三", age=25)
-        self.assertEqual(instance.name, "张三")
+        instance = self.TestClass("Operation message", age=25)
+        self.assertEqual(instance.name, "Operation message")
         self.assertEqual(instance.age, 25)
 
     def test_different_class_singleton_isolated(self):
