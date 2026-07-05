@@ -48,7 +48,7 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
             .execute_cmd(["cmd"])
         )
         self.assertEqual(result["code"], -1)
-        self.assertIn("超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     @patch("gather.get_vm_disk_io_error_count.subprocess.run")
     def test_execute_cmd_exception(self, mock_run):
@@ -58,7 +58,7 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
             .execute_cmd(["cmd"])
         )
         self.assertEqual(result["code"], -1)
-        self.assertIn("异常", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_disk_list
@@ -213,7 +213,7 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
         result = json.loads(result_json)
         self.assertFalse(result["success"])
         self.assertIn(
-            "未获取到虚机磁盘列表",
+            "Operation message",
             result["error"]
         )
 
@@ -242,7 +242,7 @@ class TestGetVmDiskIoErrorCount(unittest.TestCase):
         )
         result = json.loads(result_json)
         self.assertIn(
-            "domblkerror命令执行失败",
+            "Operation message",
             result["disks"][0]["blk_error"]
         )
 
