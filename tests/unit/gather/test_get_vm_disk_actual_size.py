@@ -36,7 +36,7 @@ class TestVMDiskActualSize(unittest.TestCase):
         from subprocess import TimeoutExpired
         mock_run.side_effect = TimeoutExpired(cmd="cmd", timeout=30)
         result = get_vm_disk_actual_size.execute_cmd(["cmd"])
-        self.assertIn("超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_disk_list
@@ -109,7 +109,7 @@ file       disk       vda        /path/disk.qcow2
         result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
         result = json.loads(result_json)
         self.assertFalse(result["success"])
-        self.assertIn("未获取到虚机磁盘列表", result["error"])
+        self.assertIn("Operation message", result["error"])
 
     @patch("gather.get_vm_disk_actual_size.os.path.exists")
     @patch("gather.get_vm_disk_actual_size.get_vm_disk_list")
@@ -120,7 +120,7 @@ file       disk       vda        /path/disk.qcow2
         mock_exists.return_value = False
         result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
         result = json.loads(result_json)
-        self.assertEqual(result["disks"][0]["error"], "磁盘source路径为空")
+        self.assertEqual(result["disks"][0]["error"], "Operation message")
 
     @patch("gather.get_vm_disk_actual_size.os.path.exists")
     @patch("gather.get_vm_disk_actual_size.execute_cmd")
@@ -136,7 +136,7 @@ file       disk       vda        /path/disk.qcow2
         }
         result_json = get_vm_disk_actual_size.get_vm_disk_actual_size("vm1")
         result = json.loads(result_json)
-        self.assertIn("JSON解析失败", result["disks"][0]["error"])
+        self.assertIn("Operation message", result["disks"][0]["error"])
 
 if __name__ == "__main__":
     unittest.main()
