@@ -119,7 +119,7 @@ class VMDomainMonitor:
                     unit = ""
                     if val_parts:
                         val = val_parts[0]
-                        # 捕获int转换异常，避免crashed
+                        # English comment for this block.
                         try:
                             val = int(val) if val.isdigit() else val
                         except ValueError as e:
