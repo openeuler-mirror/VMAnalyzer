@@ -78,7 +78,7 @@ class TestHostHypervisorCollector(unittest.TestCase):
         ):
             collector.collect_all()
         result = collector.result
-        # ===== 断言 =====
+        # English comment for this block.
         self.assertEqual(result["hostname"], "test-host")
         self.assertEqual(result["uri"], "qemu:///system")
         self.assertEqual(result["version"]["compiled_libvirt"], "libvirt 8.0.0")
