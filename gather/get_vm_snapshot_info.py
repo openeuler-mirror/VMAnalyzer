@@ -46,14 +46,14 @@ def get_vm_snapshot_info(vm_name: str) -> str:
         "error": ""
     }
 
-    # 1. 获取快照列表
+    # English comment for this block.
     snap_list_cmd = ["virsh", "snapshot-list", vm_name]
     snap_list_result = execute_cmd(snap_list_cmd)
     if snap_list_result["code"] != 0:
         result["error"] = snap_list_result["stderr"]
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # Parse快照列表（跳过表头）
+    # English comment for this block.
     lines = snap_list_result["stdout"].split("\n")[2:]
     snap_names = []
     for line in lines:
@@ -67,7 +67,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
     if not snap_names:
         result["error"] = "Operation message"
 
-    # 2. 遍历快照获取详细信息
+    # English comment for this block.
     for snap_name in snap_names:
         snap_info_cmd = ["virsh", "snapshot-info", vm_name, snap_name]
         snap_info_result = execute_cmd(snap_info_cmd)
@@ -82,7 +82,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
             "disk_size_error": ""
         }
 
-        # Parse快照信息
+        # English comment for this block.
         for line in snap_info_result["stdout"].split("\n"):
             line = line.strip()
             if not line or ":" not in line:
@@ -96,7 +96,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
             elif key == "current":
                 snap_info["is_current"] = (value.lower() == "yes")
 
-        # 3. 获取快照disk大小（qemu-img）
+        # English comment for this block.
         snap_disk_cmd = ["virsh", "snapshot-dumpxml", vm_name, snap_name]
         snap_disk_result = execute_cmd(snap_disk_cmd)
         if snap_disk_result["code"] == 0:
@@ -114,7 +114,7 @@ def get_vm_snapshot_info(vm_name: str) -> str:
                     except json.JSONDecodeError as e:
                         snap_info["disk_size_error"] = f"Parseqemu-img输出失败: {str(e)}"
                 else:
-                    # 记录qemu-img执行失败的原因
+                    # English comment for this block.
                     snap_info["disk_size_error"] = f"qemu-img执行失败: {img_result['stderr']}"
 
             else:
@@ -140,7 +140,7 @@ if __name__ == "__main__":
             vm_result = json.loads(vm_result_json)
             results.append(vm_result)
         except Exception as e:
-            # 记录单个虚机处理失败的异常
+            # English comment for this block.
             error_result = {
                 "vm_name": vm,
                 "snapshots": [],
@@ -149,5 +149,5 @@ if __name__ == "__main__":
             }
             results.append(error_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
