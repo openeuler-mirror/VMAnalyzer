@@ -46,7 +46,7 @@ def get_vm_disk_list(vm_name: str) -> list:
     if cmd_result["code"] != 0:
         return disks
 
-    # Parsedomblklist输出（跳过表头）
+    # English comment for this block.
     lines = cmd_result["stdout"].split("\n")[2:]
     for line in lines:
         line = line.strip()
@@ -70,13 +70,13 @@ def get_vm_disk_backing_file(vm_name: str) -> str:
         "error": ""
     }
 
-    # 1. 获取disk列表
+    # English comment for this block.
     disks = get_vm_disk_list(vm_name)
     if not disks:
         result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 2. 遍历disk获取backing file
+    # English comment for this block.
     for disk in disks:
         disk_info = {
             "dev": disk["target"],
@@ -87,7 +87,7 @@ def get_vm_disk_backing_file(vm_name: str) -> str:
             "img_error": ""
         }
 
-        # 判断是否只读（通过QEMU命令行）
+        # English comment for this block.
         if disk["source"] and os.path.exists(disk["source"]):
             img_cmd = ["qemu-img", "info", "--output", "json", disk["source"]]
             img_result = execute_cmd(img_cmd)
@@ -100,7 +100,7 @@ def get_vm_disk_backing_file(vm_name: str) -> str:
                 except json.JSONDecodeError as e:
                     disk_info["img_error"] = f"JSONParse失败: {str(e)}"
             else:
-                # 记录qemu-img执行失败的Error信息  # 【改动8】捕获qemu-img执行Error
+                # English comment for this block.
                 disk_info["img_error"] = f"qemu-img执行失败: {img_result['stderr']}"
 
         result["disks"].append(disk_info)
@@ -118,10 +118,10 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要Parse为字典
+        # English comment for this block.
         vm_result_json = get_vm_disk_backing_file(vm)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
