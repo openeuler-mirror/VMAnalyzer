@@ -52,7 +52,7 @@ def get_vm_crash_status(vm_name: str) -> str:
         "error": ""
     }
 
-    # 1. 检查Libvirt状态
+    # English comment for this block.
     state_cmd = ["virsh", "domstate", vm_name]
     state_result = execute_cmd(state_cmd)
     if state_result["code"] != 0:
@@ -63,15 +63,15 @@ def get_vm_crash_status(vm_name: str) -> str:
         result["crashed"] = True
         result["crash_reason"] = "Operation message"
 
-    # 2. 检查QEMU日志（/var/log/libvirt/qemu/<vm-name>.log）
+    # English comment for this block.
     log_path = f"/var/log/libvirt/qemu/{vm_name}.log"
     if os.path.exists(log_path):
         try:
-            # 读取最后100行日志
+            # English comment for this block.
             with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
-                lines = f.readlines()[-100:]  # 取最后100行
+                lines = f.readlines()[-100:]  # English comment for this block.
 
-            # 匹配crashed关键字
+            # English comment for this block.
             crash_patterns = [
                 r"kernel panic",
                 r"qemu: fatal error",
@@ -86,16 +86,16 @@ def get_vm_crash_status(vm_name: str) -> str:
                     crash_lines.append(line.strip())
                     result["crashed"] = True
 
-            # 提取crashed日志片段
+            # English comment for this block.
             if crash_lines:
-                result["crash_log_snippet"] = "\n".join(crash_lines[-10:])  # 最后10行crashed日志
+                result["crash_log_snippet"] = "\n".join(crash_lines[-10:])  # English comment for this block.
                 if not result["crash_reason"]:
                     result["crash_reason"] = "Operation message"
 
         except Exception as e:
             result["error"] = f"读取日志失败: {str(e)}"
 
-    # 3. 检查虚机进程是否异常
+    # English comment for this block.
     ps_cmd = ["ps", "-ef"]
     ps_result = execute_cmd(ps_cmd)
     if ps_result["code"] != 0:
@@ -105,7 +105,7 @@ def get_vm_crash_status(vm_name: str) -> str:
 
     qemu_pattern = re.compile(rf"guest={vm_name}.*\s", re.I)
     if not any(qemu_pattern.search(line) for line in ps_result["stdout"].split("\n")):
-        # 无QEMU进程但状态非关机
+        # English comment for this block.
         if result["crashed"] is False and state_result["stdout"].lower() != "shut off":
             result["crashed"] = True
             result["crash_reason"] = "Operation message"
@@ -123,10 +123,10 @@ if __name__ == "__main__":
 
     results = []
     for vm in vms:
-        # 调用已有的获取XML函数，它返回JSON字符串，我们需要Parse为字典
+        # English comment for this block.
         vm_result_json = get_vm_crash_status(vm)
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
