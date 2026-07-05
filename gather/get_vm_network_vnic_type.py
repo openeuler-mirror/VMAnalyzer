@@ -46,7 +46,7 @@ def get_vm_nic_list(vm_name: str) -> list:
     if cmd_result["code"] != 0:
         return nics, f"执行virsh domiflist失败: {cmd_result['stderr']}"
 
-    # Parsedomiflist输出（跳过表头）
+    # English comment for this block.
     lines = cmd_result["stdout"].split("\n")[2:]
     for line in lines:
         line = line.strip()
@@ -71,13 +71,13 @@ def get_vm_network_vnic_type(vm_name: str) -> str:
         "error": ""
     }
 
-    # 获取网卡列表
+    # English comment for this block.
     nics = get_vm_nic_list(vm_name)
     if not nics:
         result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 整理网卡信息
+    # English comment for this block.
     for nic in nics:
         nic_info = {
             "nic_name": nic["interface"],
@@ -112,6 +112,6 @@ if __name__ == "__main__":
             }
         results.append(vm_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
 
