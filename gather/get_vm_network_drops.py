@@ -47,7 +47,7 @@ def get_vm_network_drops(vm_name: str) -> Dict[str, Any]:
     }
     
     try:
-        # 获取接口统计信息
+        # English comment for this block.
         cmd_result = execute_cmd(["virsh", "domifstat", vm_name])
         if cmd_result["code"] != 0:
             result["error"] = cmd_result["stderr"]
@@ -64,7 +64,7 @@ def get_vm_network_drops(vm_name: str) -> Dict[str, Any]:
                 if iface_name not in iface_stats:
                     iface_stats[iface_name] = {}
                 
-                # 关注丢弃和Error相关的指标
+                # English comment for this block.
                 if "drop" in metric.lower() or "err" in metric.lower():
                     iface_stats[iface_name][metric] = value
         
