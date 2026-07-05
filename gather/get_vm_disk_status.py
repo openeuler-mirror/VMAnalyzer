@@ -46,7 +46,7 @@ class VMCollector:
         """Documentation for this component."""
         try:
             LOG_INFO(f"Executing command：{cmd}")
-            # 启用 shell=True Parse复杂命令，避免 split() 破坏 JSON 结构
+            # English comment for this block.
             result = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -54,7 +54,7 @@ class VMCollector:
                 shell=True,
                 universal_newlines=True,
                 check=True,
-                timeout=30  # 超时保护，避免命令卡死
+                timeout=30  # English comment for this block.
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:
@@ -70,7 +70,7 @@ class VMCollector:
 
     def get_vm_state(self, vm_name: str) -> str:
         """Documentation for this component."""
-        # 改动4：用shlex.quote转义VM名称，避免命令注入
+        # English comment for this block.
         escaped_vm_name = shlex.quote(vm_name)
         cmd = f"virsh domstate {escaped_vm_name}"
         output = self.run_virsh_cmd(cmd)
@@ -94,7 +94,7 @@ class VMCollector:
 
         escaped_vm_name = shlex.quote(vm_name)
         escaped_json = shlex.quote(json_param)
-        # 外层用单引号包裹 JSON 参数，避免 shell 转义冲突
+        # English comment for this block.
         cmd = f"virsh qemu-agent-command {escaped_vm_name} {escaped_json}"
         output = self.run_virsh_cmd(cmd)
         
@@ -136,7 +136,7 @@ class VMCollector:
             return
         
         self.all_vms_data["vm_count"] = len(vm_names)
-        # 统计running的VM数量
+        # English comment for this block.
         running_vms = [name for name in vm_names]
         self.all_vms_data["running_vm_count"] = len(running_vms)
         
