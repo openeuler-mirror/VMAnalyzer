@@ -40,7 +40,7 @@ class VMVcpuSchedInfoCollector:
             "vms": {},
         }
 
-    # 工具方法
+    # English comment for this block.
 
     def _run_virsh(self, args: List[str]) -> Optional[str]:
         cmd = ["virsh"] + args
@@ -53,7 +53,7 @@ class VMVcpuSchedInfoCollector:
             LOG_ERROR("Operation message", " ".join(args), e)
         return None
 
-# 采集逻辑
+# English comment for this block.
 
     def get_all_vm_names(self) -> List[str]:
         output = self._run_virsh(["list", "--all", "--name"])
