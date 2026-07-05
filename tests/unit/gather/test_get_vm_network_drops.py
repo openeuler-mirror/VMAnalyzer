@@ -25,7 +25,7 @@ class TestGetVMNetworkDrops(unittest.TestCase):
     # =========================
     @patch("gather.get_vm_network_drops.subprocess.run")
     def test_execute_cmd_success(self, mock_run):
-        """测试 execute_cmd 成功执行"""
+        """Documentation for this component."""
         mock_proc = MagicMock()
         mock_proc.returncode = 0
         mock_proc.stdout = "ok\n"
@@ -38,29 +38,29 @@ class TestGetVMNetworkDrops(unittest.TestCase):
 
     @patch("gather.get_vm_network_drops.subprocess.run")
     def test_execute_cmd_timeout(self, mock_run):
-        """测试 execute_cmd 超时"""
+        """Documentation for this component."""
         mock_run.side_effect = subprocess.TimeoutExpired(
             cmd=["ls"],
             timeout=30
         )
         result = get_vm_network_drops.execute_cmd(["ls"])
         self.assertEqual(result["code"], -1)
-        self.assertIn("命令执行超时", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     @patch("gather.get_vm_network_drops.subprocess.run")
     def test_execute_cmd_exception(self, mock_run):
-        """测试 execute_cmd 异常"""
+        """Documentation for this component."""
         mock_run.side_effect = Exception("run error")
         result = get_vm_network_drops.execute_cmd(["ls"])
         self.assertEqual(result["code"], -1)
-        self.assertIn("命令执行异常", result["stderr"])
+        self.assertIn("Operation message", result["stderr"])
 
     # =========================
     # get_vm_list
     # =========================
     @patch("gather.get_vm_network_drops.execute_cmd")
     def test_get_vm_list_success(self, mock_exec):
-        """测试获取虚机列表成功"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 0,
             "stdout": "vm1\nvm2\n",
@@ -71,7 +71,7 @@ class TestGetVMNetworkDrops(unittest.TestCase):
 
     @patch("gather.get_vm_network_drops.execute_cmd")
     def test_get_vm_list_failed(self, mock_exec):
-        """测试获取虚机列表失败"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 1,
             "stdout": "",
@@ -85,7 +85,7 @@ class TestGetVMNetworkDrops(unittest.TestCase):
     # =========================
     @patch("gather.get_vm_network_drops.execute_cmd")
     def test_get_vm_network_drops_success(self, mock_exec):
-        """测试正常解析网络丢包和错误统计"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 0,
             "stdout": (
@@ -111,7 +111,7 @@ class TestGetVMNetworkDrops(unittest.TestCase):
 
     @patch("gather.get_vm_network_drops.execute_cmd")
     def test_get_vm_network_drops_command_failed(self, mock_exec):
-        """测试 domifstat 执行失败"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 1,
             "stdout": "",
@@ -125,7 +125,7 @@ class TestGetVMNetworkDrops(unittest.TestCase):
 
     @patch("gather.get_vm_network_drops.execute_cmd")
     def test_get_vm_network_drops_no_drop_metrics(self, mock_exec):
-        """测试没有 drop/err 指标"""
+        """Documentation for this component."""
         mock_exec.return_value = {
             "code": 0,
             "stdout": (
@@ -141,7 +141,7 @@ class TestGetVMNetworkDrops(unittest.TestCase):
 
     @patch("gather.get_vm_network_drops.execute_cmd")
     def test_get_vm_network_drops_exception(self, mock_exec):
-        """测试异常处理"""
+        """Documentation for this component."""
         mock_exec.side_effect = Exception("unexpected error")
         result = get_vm_network_drops.get_vm_network_drops("vm1")
         self.assertIn("error", result)
@@ -153,7 +153,7 @@ class TestGetVMNetworkDrops(unittest.TestCase):
     @patch("gather.get_vm_network_drops.get_vm_list")
     @patch("builtins.print")
     def test_main(self, mock_print, mock_vm_list, mock_get_stats):
-        """测试 main 函数"""
+        """Documentation for this component."""
         mock_vm_list.return_value = ["vm1"]
         mock_get_stats.return_value = {
             "vm_name": "vm1",
