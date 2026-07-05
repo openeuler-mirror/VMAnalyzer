@@ -46,7 +46,7 @@ def get_vm_disk_list(vm_name: str) -> list:
     if cmd_result["code"] != 0:
         return disks,f"执行virsh domblklist失败: {cmd_result['stderr']}"
 
-    # Parsedomblklist输出（跳过表头）
+    # English comment for this block.
     lines = cmd_result["stdout"].split("\n")[2:]
     for line in lines:
         line = line.strip()
@@ -70,13 +70,13 @@ def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
         "error": ""
     }
 
-    # 1. 获取disk列表
+    # English comment for this block.
     disks = get_vm_disk_list(vm_name)
     if not disks:
         result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 2. 遍历disk获取大小
+    # English comment for this block.
     for disk in disks:
         disk_info = {
             "dev": disk["target"],
@@ -86,7 +86,7 @@ def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
             "usage_rate": 0.0
         }
 
-        # qemu-img info获取大小
+        # English comment for this block.
         if disk["source"] and os.path.exists(disk["source"]):
             img_cmd = ["qemu-img", "info", "--output", "json", disk["source"]]
             img_result = execute_cmd(img_cmd)
@@ -97,7 +97,7 @@ def get_vm_disk_actual_size(vm_name: str) -> Dict[str, Any]:
                     img_json = json.loads(img_result["stdout"])
                     disk_info["actual_size"] = img_json.get("actual-size", 0)
                     disk_info["virtual_size"] = img_json.get("virtual-size", 0)
-                    # 计算使用率
+                    # English comment for this block.
                     if disk_info["virtual_size"] > 0:
                         disk_info["usage_rate"] = round(disk_info["actual_size"] / disk_info["virtual_size"], 4)
                 except json.JSONDecodeError as e:
@@ -122,5 +122,5 @@ if __name__ == "__main__":
         vm_result = get_vm_disk_actual_size(vm)
         results.append(vm_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
