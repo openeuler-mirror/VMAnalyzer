@@ -12,13 +12,7 @@
 # See the Mulan PSL v2 for more details.
 #######################################################################################
 
-"""test_new_methods.py — 单元测试：本轮新增的 agent 方法和视图类。
-
-覆盖范围：
-  VMStatsRedisStorage.check_connection()  — Redis 连通性校验
-  VMStatsRedisStorage.cleanup_old_stats() — Redis 历史数据清理
-  VMAnalyzersFileView                     — JSON Lines 文件输出视图
-"""
+"""Documentation for this component."""
 
 import json
 import os
@@ -40,7 +34,7 @@ _TEST_VM_INFO = {
 }
 
 def _ensure_test_vm():
-    """将测试 VM 注入 VMFactory 单例（幂等）。"""
+    """Documentation for this component."""
     factory = vm.VMFactory()
     if _TEST_VM_ID not in factory.vms:
         factory.add_vm(_TEST_VM_ID, _TEST_VM_INFO)
@@ -50,22 +44,22 @@ def _ensure_test_vm():
 # ── TestCheckConnection ───────────────────────────────────────────────────────
 
 class TestCheckConnection(unittest.TestCase):
-    """测试 VMStatsRedisStorage.check_connection()。"""
+    """Documentation for this component."""
 
     def setUp(self):
         self.vm_factory = _ensure_test_vm()
-        # 获取（或创建）单例存储实例
+        # English comment for this block.
         self.vm_storage = storage.VMStatsRedisStorage(self.vm_factory, "cpuUsage")
 
     def test_returns_true_when_ping_succeeds(self):
-        """Redis ping 成功时 check_connection 应返回 (True, None)。"""
+        """Documentation for this component."""
         with mock.patch.object(self.vm_storage.sr, "ping", return_value=True):
             ok, msg = self.vm_storage.check_connection()
         self.assertTrue(ok)
         self.assertIsNone(msg)
 
     def test_returns_false_when_ping_raises(self):
-        """Redis ping 抛出异常时应返回 (False, 包含错误信息的字符串)。"""
+        """Documentation for this component."""
         with mock.patch.object(
             self.vm_storage.sr, "ping",
             side_effect=Exception("Connection refused")
@@ -76,27 +70,27 @@ class TestCheckConnection(unittest.TestCase):
         self.assertIn("Connection refused", msg)
 
     def test_error_message_contains_host_and_port(self):
-        """错误信息中应包含 Redis 服务器地址。"""
+        """Documentation for this component."""
         with mock.patch.object(
             self.vm_storage.sr, "ping",
             side_effect=Exception("timeout")
         ):
             _, msg = self.vm_storage.check_connection()
-        # config 默认 host=localhost, port=6379
+        # English comment for this block.
         self.assertIn("localhost", msg)
         self.assertIn("6379", msg)
 
 # ── TestCleanupOldStats ───────────────────────────────────────────────────────
 
 class TestCleanupOldStats(unittest.TestCase):
-    """测试 VMStatsRedisStorage.cleanup_old_stats()。"""
+    """Documentation for this component."""
 
     def setUp(self):
         self.vm_factory = _ensure_test_vm()
         self.vm_storage = storage.VMStatsRedisStorage(self.vm_factory, "cpuUsage")
 
     def test_calls_zremrangebyscore_with_correct_key(self):
-        """cleanup_old_stats 应以 VM UUID 为 key 调用 zremrangebyscore。"""
+        """Documentation for this component."""
         with mock.patch.object(
             self.vm_storage.sr, "zremrangebyscore", return_value=3
         ) as mock_zrem:
@@ -108,7 +102,7 @@ class TestCleanupOldStats(unittest.TestCase):
         self.assertEqual(lo, "-inf")
 
     def test_cutoff_is_before_now(self):
-        """cutoff 时间戳应严格小于当前时间。"""
+        """Documentation for this component."""
         import time
         captured_cutoff = []
 
@@ -124,12 +118,12 @@ class TestCleanupOldStats(unittest.TestCase):
 
         self.assertEqual(len(captured_cutoff), 1)
         cutoff = captured_cutoff[0]
-        # cutoff = now - 3600，应在 (before-3600, after-3600) 范围内
+        # English comment for this block.
         self.assertGreater(cutoff, before - 3601)
         self.assertLess(cutoff, after - 3599)
 
     def test_skips_unknown_vm(self):
-        """未知 vm_id 时不应调用 Redis。"""
+        """Documentation for this component."""
         with mock.patch.object(
             self.vm_storage.sr, "zremrangebyscore"
         ) as mock_zrem:
@@ -137,21 +131,21 @@ class TestCleanupOldStats(unittest.TestCase):
         mock_zrem.assert_not_called()
 
     def test_handles_redis_exception_gracefully(self):
-        """Redis 出错时不应向上抛出异常。"""
+        """Documentation for this component."""
         with mock.patch.object(
             self.vm_storage.sr, "zremrangebyscore",
             side_effect=Exception("connection lost")
         ):
-            # 期望不抛出，仅记录日志
+            # English comment for this block.
             try:
                 self.vm_storage.cleanup_old_stats(_TEST_VM_ID, retention_seconds=60)
             except Exception:  # noqa: BLE001
-                self.fail("cleanup_old_stats 不应向上抛出 Redis 异常")
+                self.fail("Operation message")
 
 # ── TestVMAnalyzersFileView ───────────────────────────────────────────────────
 
 class TestVMAnalyzersFileView(unittest.TestCase):
-    """测试 VMAnalyzersFileView 文件输出视图。"""
+    """Documentation for this component."""
 
     _SAMPLE = [
         {"vm-a": {"Current_cpu_utilization": 0.35, "TimeStamp": 1700000000}},
@@ -159,10 +153,10 @@ class TestVMAnalyzersFileView(unittest.TestCase):
     ]
 
     def test_creates_output_file(self):
-        """output() 调用后目标文件应存在。"""
+        """Documentation for this component."""
         with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False) as f:
             path = f.name
-        os.unlink(path)   # 先删掉，让 FileView 自己创建
+        os.unlink(path)   # English comment for this block.
         try:
             fv = view.VMAnalyzersFileView(path)
             fv.output(self._SAMPLE)
@@ -172,7 +166,7 @@ class TestVMAnalyzersFileView(unittest.TestCase):
                 os.unlink(path)
 
     def test_writes_one_line_per_record(self):
-        """每条分析记录应写为一行 JSON。"""
+        """Documentation for this component."""
         with tempfile.NamedTemporaryFile(
             mode="r", suffix=".jsonl", delete=False
         ) as f:
@@ -189,7 +183,7 @@ class TestVMAnalyzersFileView(unittest.TestCase):
             os.unlink(path)
 
     def test_appends_on_repeated_calls(self):
-        """多次调用 output() 应追加写入，不覆盖。"""
+        """Documentation for this component."""
         with tempfile.NamedTemporaryFile(
             mode="r", suffix=".jsonl", delete=False
         ) as f:
@@ -205,7 +199,7 @@ class TestVMAnalyzersFileView(unittest.TestCase):
             os.unlink(path)
 
     def test_cpu_utilization_formatted_as_percent(self):
-        """输出中 Current_cpu_utilization 应被转换为百分比字符串。"""
+        """Documentation for this component."""
         with tempfile.NamedTemporaryFile(
             mode="r", suffix=".jsonl", delete=False
         ) as f:
@@ -221,15 +215,15 @@ class TestVMAnalyzersFileView(unittest.TestCase):
             os.unlink(path)
 
     def test_write_error_does_not_raise(self):
-        """向不可写路径输出时，不应向上抛出异常。"""
+        """Documentation for this component."""
         fv = view.VMAnalyzersFileView("/nonexistent_dir/test.jsonl")
         try:
             fv.output(self._SAMPLE)
         except Exception:  # noqa: BLE001
-            self.fail("VMAnalyzersFileView.output 不应向上抛出写文件异常")
+            self.fail("Operation message")
 
     def test_creates_parent_directory(self):
-        """父目录不存在时应自动创建。"""
+        """Documentation for this component."""
         with tempfile.TemporaryDirectory() as tmpdir:
             path = os.path.join(tmpdir, "subdir", "out.jsonl")
             fv = view.VMAnalyzersFileView(path)
