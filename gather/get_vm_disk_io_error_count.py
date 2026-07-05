@@ -38,7 +38,7 @@ def get_vm_disk_list(vm_name: str) -> list:
     if cmd_result["code"] != 0:
         return disks
 
-    # Parsedomblklist输出（跳过表头）
+    # English comment for this block.
     lines = cmd_result["stdout"].split("\n")[2:]
     for line in lines:
         line = line.strip()
@@ -70,13 +70,13 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
         "error": ""
     }
 
-    # 1. 获取disk列表
+    # English comment for this block.
     disks = get_vm_disk_list(vm_name)
     if not disks:
         result["error"] = "Operation message"
         return json.dumps(result, ensure_ascii=False, indent=2)
 
-    # 2. 遍历disk获取Error数
+    # English comment for this block.
     for disk in disks:
         dev = disk["target"]
         if not dev:
@@ -90,11 +90,11 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
             "blk_error": ""
         }
 
-        # 执行virsh domblkerror
+        # English comment for this block.
         blk_cmd = ["virsh", "domblkerror", vm_name, dev]
         blk_result = execute_cmd(blk_cmd)
         if blk_result["code"] == 0:
-            # Parse输出
+            # English comment for this block.
             for line in blk_result["stdout"].split("\n"):
                 line = line.strip()
                 if "Read errors:" in line:
@@ -113,7 +113,7 @@ def get_vm_disk_io_error_count(vm_name: str) -> str:
                     except (IndexError, ValueError):
                         error_info["flush_errors"] = 0
         else:
-            # 修复点3：记录domblkerrorCommand failed的原因
+            # English comment for this block.
             error_info["blk_error"] = f"domblkerrorCommand failed: {blk_result['stderr']}"
 
         result["disks"].append(error_info)
@@ -136,6 +136,6 @@ if __name__ == "__main__":
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
 
-    # 输出所有虚机的结果（JSON数组）
+    # English comment for this block.
     print(json.dumps(results, ensure_ascii=False, indent=2))
 
