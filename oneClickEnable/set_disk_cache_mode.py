@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+import shlex
 """Configure disk cache mode for VM performance."""
 import subprocess as sp, json, xml.etree.ElementTree as ET, sys, time as t
 CACHE_MODES=["none","writethrough","writeback","directsync","unsafe"]
@@ -11,7 +12,7 @@ def main():
         result["error"]="Usage: set_disk_cache_mode.py <vm_name> [cache_mode]"
         result["modes"]=CACHE_MODES
         print(json.dumps(result,indent=2)); return 1
-    xml=sp.run(f"virsh dumpxml {vm}",shell=True,capture_output=True,text=True).stdout
+    xml=sp.run(f"virsh dumpxml {shlex.quote(str(vm))}",shell=True,capture_output=True,text=True).stdout
     disks=[]
     try:
         root=ET.fromstring(xml)
