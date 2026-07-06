@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+import shlex
 """Verify VM backup integrity."""
 import subprocess as sp, os, hashlib, logging
 LOG=logging.getLogger(__name__)
@@ -21,5 +22,5 @@ class BackupVerifier:
 
     @staticmethod
     def verify_snapshot(vm_name,snap_name):
-        info=sp.run(f"virsh snapshot-info {vm_name} {snap_name} 2>&1",shell=True,capture_output=True,text=True).stdout
+        info=sp.run(f"virsh snapshot-info {shlex.quote(str(vm_name))} {shlex.quote(str(snap_name))} 2>&1",shell=True,capture_output=True,text=True).stdout
         return {"exists":"not found" not in info.lower(),"vm":vm_name,"snapshot":snap_name}
