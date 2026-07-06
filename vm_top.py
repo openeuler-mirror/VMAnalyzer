@@ -6,11 +6,10 @@ Real-time VM monitoring top mode
 import time
 import json
 import redis
-import os
 
 def clear_screen():
     """Clear terminal screen"""
-    os.system('clear' if os.name == 'posix' else 'cls')
+    print("\033[2J\033[H", end="")
 
 def vm_top():
     """Display real-time VM metrics in top-like format"""
