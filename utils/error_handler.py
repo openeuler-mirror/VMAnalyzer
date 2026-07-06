@@ -33,5 +33,5 @@ def report_error(error_type, error_message, context=None):
     
     try:
         requests.post(ERROR_REPORTING_ENDPOINT, json=payload, timeout=2)
-    except Exception:
+    except requests.RequestException:
         pass  # Silent failure for error reporting
