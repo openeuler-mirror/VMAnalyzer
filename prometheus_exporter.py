@@ -18,7 +18,7 @@ class MetricsHandler(BaseHTTPRequestHandler):
             
             try:
                 keys = r.keys("vm:*")
-            except Exception:
+            except redis.exceptions.RedisError:
                 keys = []
             for key in keys:
                 data = json.loads(r.get(key))
