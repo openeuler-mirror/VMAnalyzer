@@ -5,6 +5,7 @@ Simple REST API for VM metrics query
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import redis
+import time
 import urllib.parse
 
 API_PORT = 8080
@@ -43,7 +44,7 @@ class APIHandler(BaseHTTPRequestHandler):
         
         try:
             self.wfile.write(json.dumps(response, indent=2).encode())
-        except Exception:
+        except (BrokenPipeError, ConnectionResetError):
             pass
 
 def main():
@@ -56,5 +57,4 @@ def main():
     server.serve_forever()
 
 if __name__ == "__main__":
-    import time
     main()
