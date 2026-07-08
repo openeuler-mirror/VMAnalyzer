@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+import shlex
 """Check VM configurations against security policies."""
 import subprocess as sp, json, logging
 LOG=logging.getLogger(__name__)
@@ -15,7 +16,7 @@ class SecurityPolicyCheck:
 
     @staticmethod
     def check_vm(vm_name):
-        xml=sp.run(f"virsh dumpxml {vm_name}",shell=True,capture_output=True,text=True).stdout
+        xml=sp.run(f"virsh dumpxml {shlex.quote(str(vm_name))}",shell=True,capture_output=True,text=True).stdout
         results={}
         results["default_network"]="default" not in xml
         results["no_clear_text_console"]="listen=0.0.0.0" not in xml
