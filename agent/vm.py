@@ -61,7 +61,7 @@ class VMFactory:
             if self.__vc is not None:
                 try:
                     self.__vc.close()
-                except Exception:
+                except libvirt.libvirtError:
                     pass
             try:
                 self.__vc = libvirt.openReadOnly(self.__uri)
