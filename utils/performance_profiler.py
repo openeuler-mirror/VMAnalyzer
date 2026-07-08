@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+import shlex
 """Profile VM performance characteristics."""
 import subprocess as sp, json, time, statistics, logging
 LOG=logging.getLogger(__name__)
@@ -13,10 +14,10 @@ class PerformanceProfiler:
         profile={"vm":vm_name,"duration":duration_s,"samples":[]}
         for _ in range(samples):
             start=time.time()
-            cpu=sp.run(f"virsh domstats {vm_name} --cpu-total 2>/dev/null|grep cpu.time",shell=True,capture_output=True,text=True).stdout.strip()
-            mem=sp.run(f"virsh dommemstat {vm_name} 2>/dev/null",shell=True,capture_output=True,text=True).stdout.strip()
+            cpu=sp.run(f"virsh domstats {shlex.quote(str(vm_name))} --cpu-total 2>/dev/null|grep cpu.time",shell=True,capture_output=True,text=True).stdout.strip()
+            mem=sp.run(f"virsh dommemstat {shlex.quote(str(vm_name))} 2>/dev/null",shell=True,capture_output=True,text=True).stdout.strip()
             time.sleep(duration_s/samples)
-            cpu2=sp.run(f"virsh domstats {vm_name} --cpu-total 2>/dev/null|grep cpu.time",shell=True,capture_output=True,text=True).stdout.strip()
+            cpu2=sp.run(f"virsh domstats {shlex.quote(str(vm_name))} --cpu-total 2>/dev/null|grep cpu.time",shell=True,capture_output=True,text=True).stdout.strip()
             profile["samples"].append({"cpu_start":cpu,"cpu_end":cpu2,"memory":mem})
         self.results[vm_name]=profile
         return profile
