@@ -14,6 +14,7 @@
 import logging
 import time
 from utils import config
+from agent.analyze import print_alerts
 
 
 class VMAnalyzersReporter():
@@ -46,13 +47,16 @@ class VMAnalyzersReporter():
         for vm_id in list(vm_factory.vms.keys()):
             vm_stats = self.__stats_storage.get_stats_info(vm_id,
                                                           start_time, end_time)
-            vm_analyzers = self.__stats_analyzer.analyze_stats(vm_id, vm_stats)
+            vm_analyzers, alerts = self.__stats_analyzer.analyze_stats(vm_id, vm_stats)
             if vm_analyzers is None:
                 logging.debug('analyze_stats returned None for vm_id=%%s, skipping output', vm_id)
                 continue
             if not vm_analyzers:
                 continue
             self.__analyzers_viewer.output(vm_analyzers)
+
+            if alerts:
+                print_alerts(alerts)
 
             # Remove Redis entries older than the configured retention window
             retention = config.REDIS_RETENTION_SECONDS

@@ -54,7 +54,7 @@ class VMStatsAnalyze(unittest.TestCase):
         vm_factory = vm.VMFactory()
         vm_analyze = analyze.VMStatsAnalyze(vm_factory, 'cpuUsage')
         vm_name = self.base_stats['name']
-        vm_analyzers = vm_analyze.analyze_stats(self.test_id, self.stats_list)
+        vm_analyzers, alerts = vm_analyze.analyze_stats(self.test_id, self.stats_list)
         
         # Verify that the calculated CPU utilization matches the expected value
         for analyzers_info in vm_analyzers:
@@ -71,6 +71,10 @@ class VMStatsAnalyze(unittest.TestCase):
             self.cpu_util,
             places=5
         )
+
+        # With cpu_util=0.2 (20%), no alerts should be triggered (default threshold is 90%)
+        self.assertIsInstance(alerts, list)
+        self.assertEqual(len(alerts), 0)
 
 
 if __name__ == "__main__":
