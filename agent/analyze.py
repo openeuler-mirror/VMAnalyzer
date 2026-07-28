@@ -240,7 +240,7 @@ class VMStatsAnalyze(object):
                                 'metric': f'disk_write_rate_{dev}',
                                 'value': rates['write_bytes_rate'],
                                 'threshold': disk_write_threshold,
-                                'timestamp': vm_stats_info[-1]['timestamp']
+                                'timestamp': vm_stats_info[i+1]['timestamp']
                             }
                             alerts.append(alert)
                             logging.warning(
