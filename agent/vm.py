@@ -67,7 +67,7 @@ class VMFactory:
             except libvirt.libvirtError as e:
                 logging.error("Failed to open libvirt connection to %s: %s",
                               self.__uri, e.get_error_message())
-            raise
+                raise
         return self.__vc
 
     def getVM(self, vmID):

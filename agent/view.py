@@ -64,11 +64,11 @@ class VMAnalyzersView(object):
 class VMAnalyzersConsoleView(VMAnalyzersView):
     def output(self, vmAnalyzersInfo):
         for analyzers_info in vmAnalyzersInfo:
-        if analyzers_info:
-            try:
-                print(json.dumps(convert_to_percent(analyzers_info)))
-            except Exception:
-                logging.exception("Failed to output analyzers info: %s")
+            if analyzers_info:
+                try:
+                    print(json.dumps(convert_to_percent(analyzers_info)))
+                except Exception:
+                    logging.exception("Failed to output analyzers info: %s")
 
         # Print table header
         print("{:<20} {:<15} {:<10}".format("VM Name", "CPU Util", "Trend"))
