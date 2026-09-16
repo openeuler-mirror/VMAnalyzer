@@ -209,13 +209,13 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
             'timestamp': int(time.time())
         }
         
-        context.xpathFreeContext()
-        doc.freeDoc()
-        LOG_INFO(f"{vm_name} - XML 资源已释放")
-    
     except libvirt.libvirtError as e:
         LOG_ERROR(f"{vm_name} - 处理虚拟机失败：{str(e)}")
     finally:
+        context.xpathFreeContext()
+        doc.freeDoc()
+        LOG_INFO(f"{vm_name} - XML 资源已释放")
+
         if dom:
             dom = None
     
