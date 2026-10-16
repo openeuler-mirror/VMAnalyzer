@@ -1,71 +1,51 @@
-﻿#!/usr/bin/env python3
-"""Circuit breaker pattern for fault tolerance."""
-from typing import Callable, Any, Optional
-from enum import Enum
-import time
+"""Circuit breaker protecting the agent from a failing dependency.
 
-class CircuitState(Enum):
-    CLOSED = "closed"
-    OPEN = "open"
-    HALF_OPEN = "half_open"
+Repeated failures open the breaker so the agent fails fast instead of queueing
+timed out calls, and a probe request closes it again once the dependency
+recovers.
+"""
+from dataclasses import dataclass
+import logging
 
+LOG = logging.getLogger(__name__)
+
+STATE_CLOSED = 'closed'
+STATE_OPEN = 'open'
+STATE_HALF_OPEN = 'half_open'
+
+
+@dataclass
 class CircuitBreaker:
-    def __init__(self, failure_threshold: int = 5, recovery_timeout: float = 60.0,
-                 success_threshold: int = 3):
-        self._failure_threshold = failure_threshold
-        self._recovery_timeout = recovery_timeout
-        self._success_threshold = success_threshold
-        self._state = CircuitState.CLOSED
-        self._failures = 0
-        self._successes = 0
-        self._last_failure_time: Optional[float] = None
+    """Failure counting breaker with an open and half open state machine."""
 
-    @property
-    def state(self) -> CircuitState:
-        if self._state == CircuitState.OPEN:
-            if self._last_failure_time and \
-               time.time() - self._last_failure_time >= self._recovery_timeout:
-                self._state = CircuitState.HALF_OPEN
-                self._successes = 0
-        return self._state
+    failure_limit: int = 5
+    recover_after: float = 30.0
+    failures: int = 0
+    state: str = STATE_CLOSED
+    opened_at: float = 0.0
 
-    def call(self, func: Callable, *args, **kwargs) -> Any:
-        if self.state == CircuitState.OPEN:
-            raise RuntimeError("Circuit breaker is OPEN")
-        try:
-            result = func(*args, **kwargs)
-            self._on_success()
-            return result
-        except Exception as e:
-            self._on_failure()
-            raise
+    def record_failure(self, now):
+        """Record a failure and open the breaker once the limit is reached."""
+        self.failures += 1
+        if self.failures >= self.failure_limit:
+            self.state = STATE_OPEN
+            self.opened_at = now
+            LOG.warning('circuit opened after %d failures', self.failures)
 
-    def _on_success(self) -> None:
-        if self._state == CircuitState.HALF_OPEN:
-            self._successes += 1
-            if self._successes >= self._success_threshold:
-                self._state = CircuitState.CLOSED
-                self._failures = 0
-        else:
-            self._failures = 0
+    def record_success(self):
+        """Reset the failure counter and close the breaker."""
+        self.failures = 0
+        self.state = STATE_CLOSED
 
-    def _on_failure(self) -> None:
-        self._failures += 1
-        self._last_failure_time = time.time()
-        if self._state == CircuitState.HALF_OPEN:
-            self._state = CircuitState.OPEN
-        elif self._failures >= self._failure_threshold:
-            self._state = CircuitState.OPEN
 
-    def reset(self) -> None:
-        self._state = CircuitState.CLOSED
-        self._failures = 0
-        self._successes = 0
-        self._last_failure_time = None
+def allows_request(breaker, now):
+    """Return whether a request may proceed under the current breaker state."""
+    if breaker.state == STATE_CLOSED:
+        return True
+    if breaker.state == STATE_OPEN and now - breaker.opened_at >= breaker.recover_after:
+        breaker.state = STATE_HALF_OPEN
+        return True
+    return breaker.state == STATE_HALF_OPEN
 
-    def stats(self) -> dict:
-        return {
-            "state": self.state.value,
-            "failures": self._failures,
-            "successes": self._successes,
-        }
+
+__all__ = ['CircuitBreaker', 'allows_request', 'STATE_CLOSED', 'STATE_OPEN', 'STATE_HALF_OPEN']
