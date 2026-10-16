@@ -33,7 +33,6 @@ class VMAnalyzer:
                 "is_system_volume": volume_name in ["System Reserved", "C:\\"]
             }
             parsed_fs_list.append(parsed_fs)
-        print(parsed_fs_list)
         return parsed_fs_list
 
     def get_single_vm_info(self, vm_name: str, conn: libvirt.virConnect) -> Dict:
