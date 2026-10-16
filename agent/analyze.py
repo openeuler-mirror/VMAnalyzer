@@ -34,14 +34,15 @@ class VMStatsAnalyze(object):
         label = self.__label
 
         if vm_id not in vm_factory.vms:
-            return []
+            return [], []
         vm_info = vm_factory.get_vm(vm_id)
         if len(vm_stats_info) < 2:
             logging.warning('There are too less stats of VM: %s',
                             vm_info['name'])
-            return []
+            return [], []
 
         analyzers_list = []
+        alerts = []
         logging.debug('Length of VM stats: %d', len(vm_stats_info))
 
         if label == 'cpuUsage':
@@ -96,6 +97,15 @@ class VMStatsAnalyze(object):
 
                 threshold = config.ALERT_THRESHOLDS.get('cpu_usage', 90.0)
                 if cpu_utils[-1] > threshold:
+                    alert = {
+                        'level': 'critical',
+                        'vm_name': vm_info['name'],
+                        'metric': 'cpu_usage',
+                        'value': round(cpu_utils[-1], 2),
+                        'threshold': threshold,
+                        'timestamp': vm_stats_info[-1]['timestamp']
+                    }
+                    alerts.append(alert)
                     logging.warning(
                         'ALERT: VM %s CPU usage %.2f%% exceeds threshold %.2f%%',
                         vm_info['name'], cpu_utils[-1], threshold)
@@ -136,6 +146,15 @@ class VMStatsAnalyze(object):
 
                 threshold = config.ALERT_THRESHOLDS.get('memory_usage', 85.0)
                 if mem_utils[-1] > threshold:
+                    alert = {
+                        'level': 'critical',
+                        'vm_name': vm_info['name'],
+                        'metric': 'memory_usage',
+                        'value': round(mem_utils[-1], 2),
+                        'threshold': threshold,
+                        'timestamp': vm_stats_info[-1]['timestamp']
+                    }
+                    alerts.append(alert)
                     logging.warning(
                         'ALERT: VM %s memory usage %.2f%% exceeds threshold %.2f%%',
                         vm_info['name'], mem_utils[-1], threshold)
@@ -215,6 +234,15 @@ class VMStatsAnalyze(object):
                 if disk_write_threshold > 0:
                     for dev, rates in io_rate.items():
                         if rates['write_bytes_rate'] > disk_write_threshold:
+                            alert = {
+                                'level': 'warning',
+                                'vm_name': vm_info['name'],
+                                'metric': f'disk_write_rate_{dev}',
+                                'value': rates['write_bytes_rate'],
+                                'threshold': disk_write_threshold,
+                                'timestamp': vm_stats_info[i+1]['timestamp']
+                            }
+                            alerts.append(alert)
                             logging.warning(
                                 'ALERT: VM %s disk %s write rate %.2f B/s '
                                 'exceeds threshold %.2f B/s',
@@ -272,7 +300,7 @@ class VMStatsAnalyze(object):
         else:
             logging.error('wrong label: %s', label)
 
-        return analyzers_list
+        return analyzers_list, alerts
 
 
 def print_alerts(alerts):
