@@ -173,7 +173,7 @@ def parse_args():
 def main():
     args = parse_args()
     LOG_INFO("===== Starting VM data collection =====")
-    collector = VMCollector(output_dir=args.output_dir, cmd_timeout=args.timeou)
+    collector = VMCollector(output_dir=args.output_dir, cmd_timeout=args.timeout)
     collector.collect_all_vms()
     collector.save_data()
     LOG_INFO("===== Data collection and saving completed =====")
