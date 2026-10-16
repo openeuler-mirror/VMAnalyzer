@@ -68,7 +68,7 @@ class VMStatsAnalyze(object):
                 'TimeStamp': vmStatsInfo[i + 1]['timestamp'],
                 'name': vm_info['name']
             }
-                        trend = "stable"
+            trend = "stable"
             if len(analyzers_list) > 0:
                 prev_util = analyzers_list[-1].get('cpu_util', cpu_util)
                 if cpu_util > prev_util * 1.1:
