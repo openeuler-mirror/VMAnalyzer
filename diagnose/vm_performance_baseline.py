@@ -2,14 +2,15 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Compare current VM performance against baselines."""
 import subprocess as sp, json, time as t, statistics
+import shlex
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     for vm in sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split():
         # Sample CPU usage multiple times
         cpu_samples=[]
         for _ in range(3):
-            s=sp.run(f"virsh domstats {vm} --cpu-total 2>/dev/null",shell=True,capture_output=True,text=True).stdout
-            for ln in s.split("\\n"):
+            s=sp.run(f"virsh domstats {shlex.quote(str(vm))} --cpu-total 2>/dev/null",shell=True,capture_output=True,text=True).stdout
+            for ln in s.split("\n"):
                 if "cpu.time" in ln:
                     try: cpu_samples.append(int(ln.split("=")[-1])/1e6)
                     except: pass
