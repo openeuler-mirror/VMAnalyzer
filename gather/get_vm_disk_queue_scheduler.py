@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Check disk I/O scheduler."""
 import json, glob, time as t
+import shlex
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"devices":{}}
 for dev in glob.glob("/sys/block/*/queue/scheduler"):
     try:
