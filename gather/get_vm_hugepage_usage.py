@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Monitor hugepage usage per VM."""
 import subprocess as sp, json, os, time as t
+import shlex
 def collect():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     for vm in (sp.run("virsh list --name 2>/dev/null|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split()):
