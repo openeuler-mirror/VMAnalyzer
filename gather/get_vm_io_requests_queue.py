@@ -2,16 +2,17 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Monitor block device IO queue."""
 import subprocess as sp, json, time as t
+import shlex
 SP=lambda c:sp.run(c,shell=True,capture_output=True,text=True,timeout=30).stdout.strip()
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 for vm in (SP("virsh list --name|grep -v ^$|grep -v ^-$").split()):
     q={}
-    for ln in SP(f"virsh domblklist {vm} --details").split("\\n")[2:]:
+    for ln in SP(f"virsh domblklist {shlex.quote(str(vm))} --details").split("\n")[2:]:
         p=ln.split()
         if len(p)>=3:
-            bs=SP(f"virsh domblkstat {vm} {p[1]}")
+            bs=SP(f"virsh domblkstat {shlex.quote(str(vm))} {p[1]}")
             s={}
-            for l in bs.split("\\n"):
+            for l in bs.split("\n"):
                 kv=l.split()
                 if len(kv)>=2:
                     try:s[kv[0]]=int(kv[1])
