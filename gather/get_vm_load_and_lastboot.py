@@ -8,6 +8,7 @@ import argparse
 import os
 from datetime import datetime
 from typing import Dict, List, Optional
+import shlex
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ class VMSysMonitor:
         return output.split() if output else []
 
     def get_boot_time(self, vm: str) -> str:
-        cmd = f"virsh qemu-agent-command {vm} '{{\"execute\":\"guest-get-lastboot-time\"}}'"
+        cmd = f"virsh qemu-agent-command {shlex.quote(str(vm))} '{{\"execute\":\"guest-get-lastboot-time\"}}'"
         res = self._run_cmd(cmd)
         if not res:
             return "collection failed"
@@ -49,7 +50,7 @@ class VMSysMonitor:
             return "parse failed"
 
     def get_load_avg(self, vm: str) -> Dict:
-        cmd = f"virsh qemu-agent-command {vm} '{{\"execute\":\"guest-get-load-average\"}}'"
+        cmd = f"virsh qemu-agent-command {shlex.quote(str(vm))} '{{\"execute\":\"guest-get-load-average\"}}'"
         res = self._run_cmd(cmd)
         load = {"1min": "N/A", "5min": "N/A", "15min": "N/A", "note": "Operation message"}
         if res:
@@ -61,7 +62,7 @@ class VMSysMonitor:
                     "15min": d.get("load15-average", "N/A").strip(),
                     "note": "collection succeeded"
                 }
-            except:
+            except (ValueError, TypeError, KeyError):
                 load["note"] = "parse failed"
         return load
 
@@ -70,7 +71,7 @@ class VMSysMonitor:
         vms = self.get_running_vms()
         self.data["vm_count"] = len(vms)
         for vm in vms:
-            logger.info(f"Collecting {vm}...")
+            logger.info(f"Collecting {shlex.quote(str(vm))}...")
             self.data["vms"][vm] = {
                 "boot_time": self.get_boot_time(vm),
                 "load_avg": self.get_load_avg(vm),
