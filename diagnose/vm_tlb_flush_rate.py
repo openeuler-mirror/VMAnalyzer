@@ -2,9 +2,10 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Monitor TLB flush statistics for performance analysis."""
 import subprocess as sp, json, time as t
+import shlex
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"tlb":{}}
-    for ln in sp.run("cat /proc/vmstat 2>/dev/null",shell=True,capture_output=True,text=True).stdout.split("\\n"):
+    for ln in sp.run("cat /proc/vmstat 2>/dev/null",shell=True,capture_output=True,text=True).stdout.split("\n"):
         if "tlb" in ln.lower() or "nr_tlb" in ln:
             p=ln.split()
             if len(p)>=2:
