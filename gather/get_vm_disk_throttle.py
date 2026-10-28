@@ -2,9 +2,10 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Check disk I/O throttling configuration."""
 import subprocess as sp, json, xml.etree.ElementTree as ET, time as t
+import shlex
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 for vm in (sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split()):
-    xml=sp.run(f"virsh dumpxml {vm}",shell=True,capture_output=True,text=True,timeout=30).stdout
+    xml=sp.run(f"virsh dumpxml {shlex.quote(str(vm))}",shell=True,capture_output=True,text=True,timeout=30).stdout
     disks={}
     try:
         root=ET.fromstring(xml)
