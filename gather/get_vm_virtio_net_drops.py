@@ -7,11 +7,11 @@ SP=lambda c:sp.run(c,shell=True,capture_output=True,text=True,timeout=30).stdout
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 for vm in (SP("virsh list --name|grep -v ^$|grep -v ^-$").split()):
     ifs={}
-    for ln in SP(f"virsh domiflist {shlex.quote(str(vm))}").split("\\n")[2:]:
+    for ln in SP(f"virsh domiflist {shlex.quote(str(vm))}").split("\n")[2:]:
         p=ln.split()
         if p and p[0]!="-":
             s={}
-            for l in SP(f"virsh domifstat {shlex.quote(str(vm))} {p[0]}").split("\\n"):
+            for l in SP(f"virsh domifstat {shlex.quote(str(vm))} {p[0]}").split("\n"):
                 kv=l.split()
                 if len(kv)>=2:
                     try:s[kv[0]]=int(kv[1])
