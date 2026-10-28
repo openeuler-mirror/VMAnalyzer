@@ -2,10 +2,11 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Monitor IRQ affinity."""
 import subprocess as sp, json, os, time as t
+import shlex
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"irqs":{}}
 for vm in (sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split()):
     irqs={}
-    for ln in sp.run("cat /proc/interrupts",shell=True,capture_output=True,text=True).stdout.split("\\n"):
+    for ln in sp.run("cat /proc/interrupts",shell=True,capture_output=True,text=True).stdout.split("\n"):
         if any(k in ln for k in ["vhost","virtio",vm[:8]]):
             p=ln.split(); irq=p[0].rstrip(":")
             aff="N/A"
