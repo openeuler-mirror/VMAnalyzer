@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Collect get vm basic info information."""
+
 
 import subprocess
 import json
 import logging
 import time
 from typing import Dict, List, Optional
+import shlex
 
 logging.basicConfig(
     level=logging.INFO,
