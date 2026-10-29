@@ -4,6 +4,7 @@ import json
 import subprocess
 from lxml import etree
 from typing import Optional, Dict, Any
+import shlex
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -108,7 +109,7 @@ if __name__ == "__main__":
                 "vm_name": vm,
                 "success": False,
                 "xml": "",
-                "error": f"处理VM {vm} 时发生未预期异常: {str(e)}"
+                "error": f"处理VM {shlex.quote(str(vm))} 时发生未预期异常: {str(e)}"
             })
 
     # English comment for this block.
