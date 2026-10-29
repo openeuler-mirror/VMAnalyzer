@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Detect CPU topology changes."""
-import subprocess as sp, json, os, shlex, time as t
+import subprocess as sp
+import json
+import os
+import shlex
+import time as t
 SF="/tmp/vm_topo_state.json"
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 prev={}
