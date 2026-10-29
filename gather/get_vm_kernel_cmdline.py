@@ -4,6 +4,7 @@
 
 import json
 import time as t
+import shlex
 
 INTERESTING = (
     "iommu",
