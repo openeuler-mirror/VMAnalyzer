@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
+"""Collect get host info information."""
+
 
 import subprocess
 import json
 import logging
 import time
 from xml.etree import ElementTree as ET
+import shlex
 
 logging.basicConfig(
     level=logging.INFO,
