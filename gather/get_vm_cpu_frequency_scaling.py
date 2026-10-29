@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Monitor CPU frequency scaling."""
-import json, os, glob, time as t
+import json
+import os
+import glob
+import time as t
+import shlex
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"cpus":{}}
 for cd in glob.glob("/sys/devices/system/cpu/cpu[0-9]*/cpufreq"):
     cpu=cd.split("/cpu")[1].split("/")[0]; info={}
