@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Collect memory balloon driver statistics."""
-import subprocess as sp, json, time as t
+import subprocess as sp
+import json
+import time as t
 import shlex
 SP=lambda c:sp.run(c,shell=True,capture_output=True,text=True,timeout=30).stdout.strip()
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
