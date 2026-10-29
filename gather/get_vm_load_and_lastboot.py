@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
+"""Collect get vm load and lastboot information."""
+
 import subprocess
 import json
 import logging
