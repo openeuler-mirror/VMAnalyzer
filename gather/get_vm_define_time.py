@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 import subprocess
 from typing import Dict, Any
+import shlex
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
