@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Collect Kernel Same-page Merging statistics."""
-import json, os, time as t
+import json
+import os
+import time as t
 import shlex
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"ksm":{}}
 ks="/sys/kernel/mm/ksm"
