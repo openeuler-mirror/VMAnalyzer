@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Collect get vm mem top app information."""
+
 
 import subprocess
 import json
@@ -9,6 +11,7 @@ import argparse
 import os
 from datetime import datetime
 from typing import Dict, List, Optional
+import shlex
 
 logging.basicConfig(
     level=logging.INFO,
