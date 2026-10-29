@@ -6,6 +6,7 @@ import json
 import os
 import platform
 import time as t
+import shlex
 
 
 def _read(path):
