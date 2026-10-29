@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Collect get vm migrate data information."""
+
 
 import subprocess
 import json
 import logging
 import time
 import re
+import shlex
 
 try:
     from typing import Dict, List, Optional
