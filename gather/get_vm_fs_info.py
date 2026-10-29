@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Collect get vm fs info information."""
+
 
 import libvirt
 import json
@@ -7,6 +9,7 @@ import logging
 import sys
 import time
 from typing import List, Dict
+import shlex
 
 logging.basicConfig(
     level=logging.INFO,
