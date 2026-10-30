@@ -6,6 +6,7 @@ logic and drifting apart.
 """
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
