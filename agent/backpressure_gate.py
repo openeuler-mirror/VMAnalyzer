@@ -7,6 +7,7 @@ before the backend becomes unrecoverable.
 
 import logging
 import time
+import shlex
 
 LOG = logging.getLogger(__name__)
 
