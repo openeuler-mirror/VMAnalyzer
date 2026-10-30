@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Check VM clock source configuration."""
-import subprocess as sp, json, shlex, time as t
+import subprocess as sp
+import json
+import shlex
+import time as t
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     host_cs=sp.run("cat /sys/devices/system/clocksource/clocksource0/current_clocksource 2>/dev/null",shell=True,capture_output=True,text=True).stdout.strip()
