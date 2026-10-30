@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import sys
+import shlex
 
 LOG = logging.getLogger(__name__)
 def _collect() -> Dict[str, Any]:
