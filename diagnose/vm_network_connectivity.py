@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Test VM network connectivity."""
-import subprocess as sp, json, time as t
+import subprocess as sp
+import json
+import time as t
+import shlex
 TARGETS=["8.8.8.8","1.1.1.1"]
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
