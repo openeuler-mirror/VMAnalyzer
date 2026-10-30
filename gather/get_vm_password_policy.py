@@ -4,6 +4,7 @@
 
 import json
 import time as t
+import shlex
 
 KEYS = (
     "PASS_MAX_DAYS",
