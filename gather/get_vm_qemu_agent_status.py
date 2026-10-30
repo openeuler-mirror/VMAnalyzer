@@ -6,6 +6,7 @@ import subprocess
 from lxml import etree
 import logging
 from typing import Dict, Any
+import shlex
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
