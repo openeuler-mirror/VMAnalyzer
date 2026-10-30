@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Validate VM XML configurations."""
-import subprocess as sp, json, shlex, time as t
+import subprocess as sp
+import json
+import shlex
+import time as t
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     listing=sp.run("virsh list --all --name|grep -v ^$",shell=True,capture_output=True,text=True,timeout=30)
