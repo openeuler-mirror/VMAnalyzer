@@ -6,6 +6,7 @@ import json
 import re
 import subprocess as sp
 import time as t
+import shlex
 
 CACHE = re.compile(r"cache='?([a-z]+)'?")
 UNSAFE = ("unsafe", "writeback")
