@@ -2,6 +2,7 @@
 # _*_coding: utf-8 _*_
 """Documentation for this component."""
 import json
+import shlex
 def main():
     print(json.dumps({"feature": "VM thread count collector", "status": "ok"}, ensure_ascii=False))
 if __name__ == "__main__":
