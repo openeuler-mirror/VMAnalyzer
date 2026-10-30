@@ -7,6 +7,7 @@ sample once the capacity is reached.
 
 import logging
 from collections import deque
+import shlex
 
 LOG = logging.getLogger(__name__)
 
