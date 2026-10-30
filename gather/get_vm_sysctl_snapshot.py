@@ -4,6 +4,7 @@
 
 import json
 import time as t
+import shlex
 
 KEYS = (
     "kernel.numa_balancing",
