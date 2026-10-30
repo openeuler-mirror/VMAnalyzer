@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+""" information."""
+
 
 import subprocess
 import json
 import logging
 import time
+import shlex
 
 try:
     from typing import Dict, List, Optional
