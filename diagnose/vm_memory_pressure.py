@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Analyze memory pressure on host and VMs."""
-import subprocess as sp, json, time as t
+import subprocess as sp
+import json
+import time as t
 import shlex
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
