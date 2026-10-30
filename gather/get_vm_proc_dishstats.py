@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+""" information."""
+
 
 import libvirt
 import libvirt_qemu
@@ -7,6 +9,7 @@ import json
 import logging
 import os
 from datetime import datetime
+import shlex
 
 logging.basicConfig(
     level=logging.INFO,
