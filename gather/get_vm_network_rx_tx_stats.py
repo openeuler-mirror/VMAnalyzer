@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import subprocess
-import json
-from lxml import etree
-from typing import Dict, Any
-import os
-import re
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -30,6 +24,14 @@ def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     except Exception as e:
         result["stderr"] = f"Command raised an exception: {str(e)}"
     return result
+
+import subprocess
+import json
+from lxml import etree
+from typing import Dict, Any
+import os
+import re
+import shlex
 
 """Documentation for this component."""
 def get_vm_nic_list(vm_name: str) -> list:
