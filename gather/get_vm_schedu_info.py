@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+""" information."""
+
 import libvirt
 import json
+import shlex
 
 def main():
     vm_data_list = []
