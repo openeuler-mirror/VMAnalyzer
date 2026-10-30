@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import subprocess
-import json
-import sys
-from typing import Optional, Dict, Any
-import re
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     result = {
@@ -35,6 +30,13 @@ def get_vm_list() -> list:
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
+
+import subprocess
+import json
+import sys
+from typing import Optional, Dict, Any
+import re
+import shlex
 
 """Documentation for this component."""
 def get_vm_snapshot_info(vm_name: str) -> str:
