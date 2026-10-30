@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import subprocess
-import json
-from lxml import etree
-from typing import Dict, Any
-import os
-import re
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -37,6 +31,14 @@ def get_vm_list() -> list:
     if cmd_result["code"] != 0:
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
+
+import subprocess
+import json
+from lxml import etree
+from typing import Dict, Any
+import os
+import re
+import shlex
 
 """Documentation for this component."""
 def get_vm_nic_list(vm_name: str) -> list:
