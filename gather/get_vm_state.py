@@ -6,6 +6,7 @@ import subprocess
 import sys
 from lxml import etree
 from typing import Optional, Dict, Any
+import shlex
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -89,7 +90,7 @@ if __name__ == "__main__":
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
         if not vm_result["success"] or vm_result["error"]:
-            print(f"Warning：虚机[{vm}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
+            print(f"Warning：虚机[{shlex.quote(str(vm))}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
 
     # Output results for all virtual machines as JSON.
     print(json.dumps(results, ensure_ascii=False, indent=2))
