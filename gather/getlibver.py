@@ -1,4 +1,6 @@
 #!/usr/bin/python
+""" information."""
+
 #
 # Get disk serial info from a domain
 #
@@ -6,6 +8,7 @@
 import libvirt
 import sys
 from lxml import etree
+import shlex
 
 
 SERVER_NAME = "qemu+ssh://root@192.168.203.132/system"
@@ -26,7 +29,7 @@ def closeConnection(conn):
   try:
     print('----------Disconnect from QEMU/KVM--------------')
     conn.close()
-  except:
+  except (ValueError, TypeError, KeyError):
     print('Failed to close connection')
     sys.exit(1)
 
