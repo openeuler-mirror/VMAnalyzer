@@ -2,6 +2,7 @@
 import asyncio
 import logging
 from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Tuple
+import shlex
 
 LOG = logging.getLogger(__name__)
 async def publish(*args: Any, **kwargs: Any) -> Any:
