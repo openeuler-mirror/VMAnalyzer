@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Compare current VM performance against baselines."""
-import subprocess as sp, json, time as t, statistics
+import subprocess as sp
+import json
+import time as t
+import statistics
 import shlex
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
