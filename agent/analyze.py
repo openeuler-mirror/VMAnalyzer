@@ -13,6 +13,7 @@
 # See the Mulan PSL v2 for more details.
 import logging
 from utils import config
+import shlex
 
 class VMStatsAnalyze(object):
     """
