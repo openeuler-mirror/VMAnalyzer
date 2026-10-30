@@ -4,6 +4,7 @@
 
 import json
 import time as t
+import shlex
 
 MIN_ENTROPY_BITS = 128
 
