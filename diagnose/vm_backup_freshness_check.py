@@ -6,6 +6,7 @@ import glob
 import json
 import os
 import time as t
+import shlex
 
 BACKUP_DIR = "/var/lib/libvirt/backups"
 PATTERNS = ("*.qcow2", "*.img", "*.tar.gz", "*.xml")
