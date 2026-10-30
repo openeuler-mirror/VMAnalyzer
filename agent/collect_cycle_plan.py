@@ -3,6 +3,7 @@
 """Build a weighted collection plan across VMs."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
