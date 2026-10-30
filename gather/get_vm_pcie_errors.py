@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Monitor PCIe AER errors."""
-import json, glob, time as t
+import json
+import glob
+import time as t
 import shlex
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"devices":{}}
 for dev in glob.glob("/sys/bus/pci/devices/*/aer_dev_correctable"):
