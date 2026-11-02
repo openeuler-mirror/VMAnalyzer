@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Persist agent state across restarts."""
-import json, os, time, logging, threading
+import json
+import os
+import time
+import logging
+import threading
+import shlex
 LOG=logging.getLogger(__name__)
 
 class SessionPersistence:
