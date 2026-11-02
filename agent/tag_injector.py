@@ -6,6 +6,7 @@ downstream record self-describing.
 """
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
