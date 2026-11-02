@@ -3,6 +3,7 @@
 """Merge late-arriving samples into an already emitted window."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 AGGREGATES = ("max", "min", "sum")
