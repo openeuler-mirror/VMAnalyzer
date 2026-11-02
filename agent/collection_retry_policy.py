@@ -6,6 +6,7 @@ retry behaviour consistent across probes.
 """
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
