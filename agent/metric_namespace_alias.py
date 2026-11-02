@@ -3,6 +3,7 @@
 """Resolve legacy metric names to their canonical namespace."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
