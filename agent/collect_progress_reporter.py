@@ -3,6 +3,7 @@
 """Report collection progress without flooding the log."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
