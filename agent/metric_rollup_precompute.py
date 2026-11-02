@@ -3,6 +3,7 @@
 """Precompute coarse rollups from fine-grained metric series."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
