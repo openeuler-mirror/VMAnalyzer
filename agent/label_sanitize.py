@@ -7,6 +7,7 @@ stable while remaining readable.
 
 import logging
 import re
+import shlex
 
 LOG = logging.getLogger(__name__)
 
