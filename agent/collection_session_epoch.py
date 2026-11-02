@@ -5,6 +5,7 @@
 import logging
 import os
 import time
+import shlex
 
 LOG = logging.getLogger(__name__)
 
