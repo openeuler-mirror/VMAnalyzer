@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Exponential backoff retry for transient failures."""
-import time, random, logging
+import time
+import random
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 def exp_backoff_retry(max_retries=5,base_delay=0.5,max_delay=30):
