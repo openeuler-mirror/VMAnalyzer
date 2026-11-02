@@ -6,6 +6,7 @@ means kilobytes and another means kibibytes.
 """
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
