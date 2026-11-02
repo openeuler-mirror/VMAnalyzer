@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Whitelist/blacklist for VM metric collection."""
-import json, os, re, logging
+import json
+import os
+import re
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class CollectionFilter:
