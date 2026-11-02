@@ -3,6 +3,7 @@
 """Adaptive sampling rate driven by recent collection latency."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
