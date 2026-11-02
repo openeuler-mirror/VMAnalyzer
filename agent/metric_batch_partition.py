@@ -3,6 +3,7 @@
 """Split metric batches so each request stays under a payload limit."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
