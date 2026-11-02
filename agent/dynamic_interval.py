@@ -5,7 +5,9 @@ try:
     import psutil
 except ImportError:
     psutil = None
-import time, logging
+import time
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class DynamicIntervalAdjuster:
