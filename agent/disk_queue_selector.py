@@ -6,6 +6,7 @@ that every disk is eventually sampled.
 """
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
