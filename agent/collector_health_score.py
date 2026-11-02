@@ -3,6 +3,7 @@
 """Blend success rate and latency into a single collector health score."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
