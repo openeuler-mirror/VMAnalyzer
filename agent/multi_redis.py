@@ -3,6 +3,7 @@
 """Support for multiple Redis instances."""
 import redis
 import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class MultiRedisStorage:
