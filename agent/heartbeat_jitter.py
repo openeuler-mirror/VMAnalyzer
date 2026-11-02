@@ -7,6 +7,7 @@ keeping each host's cadence stable.
 
 import hashlib
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
