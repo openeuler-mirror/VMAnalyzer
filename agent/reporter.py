@@ -15,6 +15,7 @@ import logging
 import time
 from utils import config
 from agent.analyze import print_alerts
+import shlex
 
 
 class VMAnalyzersReporter():
