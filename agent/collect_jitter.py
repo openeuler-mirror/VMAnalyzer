@@ -7,6 +7,7 @@ the average interval unchanged while smoothing the load profile.
 
 import hashlib
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
