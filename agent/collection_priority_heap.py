@@ -7,6 +7,7 @@ ordering without sorting the full task list each cycle.
 
 import heapq
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
