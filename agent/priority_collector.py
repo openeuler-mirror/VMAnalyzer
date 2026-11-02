@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Priority-based VM metric collection scheduling."""
 import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class PriorityCollector:
