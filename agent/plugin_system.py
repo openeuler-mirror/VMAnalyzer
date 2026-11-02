@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Plugin system for custom metric collectors."""
-import importlib, os, sys, logging
+import importlib
+import os
+import sys
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class PluginSystem:
