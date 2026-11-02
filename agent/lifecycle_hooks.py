@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Pluggable hooks for VM lifecycle events."""
 import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class LifecycleHooks:
