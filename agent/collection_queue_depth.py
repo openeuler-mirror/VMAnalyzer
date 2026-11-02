@@ -3,6 +3,7 @@
 """Guard against unbounded collection queues."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
