@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+
 import shlex
+
 """Export VM metrics in Prometheus format."""
-import subprocess as sp, logging
+import subprocess as sp
+import logging
 LOG=logging.getLogger(__name__)
 
 class PrometheusExporter:
@@ -23,7 +26,7 @@ class PrometheusExporter:
         self.metrics=[]
         for vm in sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True).stdout.strip().split():
             ms=sp.run("virsh dommemstat %s" % shlex.quote(str(vm)),shell=True,capture_output=True,text=True).stdout.strip()
-            for ln in ms.split("\\n"):
+            for ln in ms.split("\n"):
                 if "=" in ln:
                     k,v=ln.split("=",1)
                     try: self.add_gauge("vm_memory_%s" % k,int(v),{"vm":vm})
