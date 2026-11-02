@@ -3,6 +3,7 @@
 """Decide retention for metric series by age and resolution."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
