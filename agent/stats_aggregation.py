@@ -2,7 +2,9 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Aggregate VM statistics over time windows."""
 import time
-import logging, statistics
+import logging
+import statistics
+import shlex
 LOG=logging.getLogger(__name__)
 
 class StatsAggregator:
