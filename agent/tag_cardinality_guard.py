@@ -3,6 +3,7 @@
 """Cap label cardinality so exported metrics stay scrape-friendly."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
