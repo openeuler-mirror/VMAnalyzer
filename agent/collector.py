@@ -19,6 +19,7 @@ import libvirt_qemu
 import libxml2
 import os
 import base64
+import shlex
 
 logger = logging.getLogger(__name__)
 
