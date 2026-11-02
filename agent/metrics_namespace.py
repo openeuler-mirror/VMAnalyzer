@@ -7,6 +7,7 @@ layout without repeating string formatting at every call site.
 
 import logging
 import re
+import shlex
 
 LOG = logging.getLogger(__name__)
 
