@@ -4,6 +4,7 @@
 
 import heapq
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
