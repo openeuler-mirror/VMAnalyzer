@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Custom collection profiles with different metric sets."""
-import json, os, logging
+import json
+import os
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 PROFILES = {
