@@ -19,6 +19,7 @@ import abc
 import six
 from . import vm
 from utils import constants as const
+import shlex
 
 run = True
 
