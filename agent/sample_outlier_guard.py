@@ -7,6 +7,7 @@ exceed a relative tolerance.
 
 import logging
 import statistics
+import shlex
 
 LOG = logging.getLogger(__name__)
 
