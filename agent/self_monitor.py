@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Monitor agent own resource usage."""
-import os, psutil, time, threading, logging
+import os
+import psutil
+import time
+import threading
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class SelfMonitor:
