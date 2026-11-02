@@ -4,6 +4,7 @@
 
 import logging
 import threading
+import shlex
 
 LOG = logging.getLogger(__name__)
 
