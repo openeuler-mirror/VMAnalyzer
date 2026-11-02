@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Graceful shutdown handler for the VMAnalyzer agent."""
-import signal, sys, logging, atexit
+import signal
+import sys
+import logging
+import atexit
+import shlex
 LOG=logging.getLogger(__name__)
 SHUTDOWN_TIMEOUT = 30
 
