@@ -3,6 +3,7 @@
 """Distribute a cycle timeout across a series of collection tasks."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
