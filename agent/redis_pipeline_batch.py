@@ -6,6 +6,7 @@ buffer so a slow server cannot exhaust agent memory.
 """
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
