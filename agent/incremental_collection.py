@@ -3,6 +3,7 @@
 """Collect only changed metrics since last collection."""
 import time
 import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class IncrementalCollector:
