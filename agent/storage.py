@@ -19,6 +19,7 @@ import json
 from utils import config
 from utils import wrapper
 import time
+import shlex
 
 @six.add_metaclass(abc.ABCMeta)
 class VMStatsStorage(object):
