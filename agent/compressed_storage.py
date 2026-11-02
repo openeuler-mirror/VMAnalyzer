@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Compress Redis data to save memory."""
-import zlib, json, pickle, logging
+import zlib
+import json
+import pickle
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class CompressedStorage:
