@@ -3,6 +3,7 @@
 """Classify collection failures so retries can be targeted."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
