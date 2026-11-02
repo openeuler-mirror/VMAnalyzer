@@ -8,6 +8,7 @@ so dashboards do not flicker between sampled and unsampled points.
 
 import logging
 import zlib
+import shlex
 
 LOG = logging.getLogger(__name__)
 SCALE = 1000
