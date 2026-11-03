@@ -17,6 +17,7 @@ import json
 import copy
 import logging
 import os
+import shlex
 
 
 def convert_to_percent(utilization):
