@@ -5,6 +5,7 @@ single canonical table with a reverse index keeps every report comparable.
 """
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
