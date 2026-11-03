@@ -9,6 +9,7 @@
 import json
 import logging
 import os
+import shlex
 
 LOG = logging.getLogger(__name__)
 MODE_PATH = "/sys/kernel/mm/transparent_hugepage/enabled"
