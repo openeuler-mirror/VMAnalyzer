@@ -10,6 +10,7 @@ import json
 import logging
 import subprocess
 import sys
+import shlex
 
 LOG = logging.getLogger(__name__)
 HEADROOM = 0.2
