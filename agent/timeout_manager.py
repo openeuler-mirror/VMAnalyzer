@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Centralized timeout configuration for collections."""
-import signal, logging
+import signal
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 
 class TimeoutManager:
