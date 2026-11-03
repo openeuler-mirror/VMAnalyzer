@@ -3,6 +3,7 @@
 """Balance VM collection work across groups."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
