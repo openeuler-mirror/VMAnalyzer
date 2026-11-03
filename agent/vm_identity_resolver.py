@@ -3,6 +3,7 @@
 """Resolve VM identifiers across name, UUID and id forms."""
 
 import logging
+import shlex
 
 LOG = logging.getLogger(__name__)
 
