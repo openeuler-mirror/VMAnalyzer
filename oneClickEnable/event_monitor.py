@@ -11,6 +11,8 @@
 # EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details._
+"""Helper providing common virtual-machine maintenance actions."""
+
 import os
 import sys
 import time
@@ -18,6 +20,7 @@ import subprocess
 import logging
 import signal
 import atexit
+import shlex
 
 LOG_FILE = "/var/log/virsh_events.log"
 RAW_LOG_FILE = "/var/log/virsh_events_raw.log"
