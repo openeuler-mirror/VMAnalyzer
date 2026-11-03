@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Enable hugepages for VM performance."""
-import subprocess as sp, json, os, sys, time as t
+import subprocess as sp
+import json
+import os
+import sys
+import time as t
+import shlex
 def main():
     size=sys.argv[1] if len(sys.argv)>1 else "2048"
     count=sys.argv[2] if len(sys.argv)>2 else "1024"
