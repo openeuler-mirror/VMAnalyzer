@@ -8,6 +8,7 @@ gathered per cycle, so a short cache keeps snapshots consistent.
 
 import logging
 import time
+import shlex
 
 LOG = logging.getLogger(__name__)
 
