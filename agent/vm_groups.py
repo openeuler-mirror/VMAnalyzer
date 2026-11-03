@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """VM grouping and tagging for organized monitoring."""
-import json, os, logging
+import json
+import os
+import logging
+import shlex
 LOG=logging.getLogger(__name__)
 GROUPS_FILE="/var/lib/vmanalyzer/vm_groups.json"
 
