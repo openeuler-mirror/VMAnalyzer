@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Enable and configure Kernel Same-page Merging (KSM)."""
-import subprocess as sp, json, os, sys, time as t
+import subprocess as sp
+import json
+import os
+import sys
+import time as t
+import shlex
 def main():
     result={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"actions":[]}
     ks="/sys/kernel/mm/ksm"
