@@ -12,6 +12,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import shlex
 
 LOG = logging.getLogger(__name__)
 DEVICE = "<watchdog model='i6300esb' action='reset'/>\n"
