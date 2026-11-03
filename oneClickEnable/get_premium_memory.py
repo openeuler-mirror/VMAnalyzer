@@ -1,9 +1,12 @@
 # coding: utf-8
+"""Helper providing common virtual-machine maintenance actions."""
+
 import libvirt
 import libvirt_qemu
 import json
 import time
 import logging
+import shlex
 
 logging.basicConfig(
     level=logging.INFO,
