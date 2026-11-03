@@ -11,6 +11,7 @@ import logging
 import re
 import subprocess
 import sys
+import shlex
 
 LOG = logging.getLogger(__name__)
 MTU = re.compile(r"mtu (\d+)")
