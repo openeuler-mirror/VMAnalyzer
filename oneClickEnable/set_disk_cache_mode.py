@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+
 import shlex
+
 """Configure disk cache mode for VM performance."""
-import subprocess as sp, json, xml.etree.ElementTree as ET, sys, time as t
+import subprocess as sp
+import json
+import xml.etree.ElementTree as ET
+import sys
+import time as t
 CACHE_MODES=["none","writethrough","writeback","directsync","unsafe"]
 def main():
     vm=sys.argv[1] if len(sys.argv)>1 else None
