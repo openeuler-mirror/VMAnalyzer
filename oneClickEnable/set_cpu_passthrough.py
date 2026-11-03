@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+
 import shlex
+
 """Configure CPU model passthrough for VMs."""
-import subprocess as sp, json, sys, xml.etree.ElementTree as ET, time as t
+import subprocess as sp
+import json
+import sys
+import xml.etree.ElementTree as ET
+import time as t
 def main():
     vm=sys.argv[1] if len(sys.argv)>1 else None
     if not vm:
