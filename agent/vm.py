@@ -14,6 +14,7 @@
 import logging
 import libvirt
 from utils import wrapper
+import shlex
 
 
 class VM:
