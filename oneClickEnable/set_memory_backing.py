@@ -11,6 +11,7 @@ import logging
 import os
 import subprocess
 import tempfile
+import shlex
 
 LOG = logging.getLogger(__name__)
 BACKING = "<memoryBacking>\n  <hugepages/>\n  <locked/>\n</memoryBacking>\n"
