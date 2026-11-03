@@ -7,6 +7,7 @@ import logging
 import os
 import subprocess
 import sys
+import shlex
 
 LOG = logging.getLogger(__name__)
 
