@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+
 import shlex
+
 """Auto-tune VM memory settings for optimal performance."""
-import subprocess as sp, json, time as t, sys
+import subprocess as sp
+import json
+import time as t
+import sys
 def main():
     vm=sys.argv[1] if len(sys.argv)>1 else None
     if not vm:
         print(json.dumps({"error":"Usage: auto_tune_memory.py <vm_name>"})); return 1
     ms=sp.run(f"virsh dommemstat {shlex.quote(str(vm))}",shell=True,capture_output=True,text=True).stdout
     rss=0; avail=0
-    for ln in ms.split("\\n"):
+    for ln in ms.split("\n"):
         if "rss" in ln.lower():
             try: rss=int(ln.split("=")[-1].strip())
             except: pass
