@@ -11,6 +11,7 @@ import logging
 import re
 import subprocess
 import sys
+import shlex
 
 LOG = logging.getLogger(__name__)
 RX = re.compile(r"rx_queue_size='(\d+)'")
