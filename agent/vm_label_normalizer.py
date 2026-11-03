@@ -4,6 +4,7 @@
 
 import logging
 import re
+import shlex
 
 LOG = logging.getLogger(__name__)
 INVALID = re.compile(r"[^a-z0-9_.-]+")
