@@ -20,6 +20,7 @@ import re
 import subprocess
 import sys
 from typing import Dict, List, Optional
+import shlex
 
 logging.basicConfig(
     level=logging.INFO,
