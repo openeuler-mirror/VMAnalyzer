@@ -3,6 +3,7 @@
 import logging
 from typing import Dict
 import shlex
+import typing
 
 LOG = logging.getLogger(__name__)
 
