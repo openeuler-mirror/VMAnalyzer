@@ -13,6 +13,7 @@ import logging
 import sys
 from typing import Dict, Optional
 import shlex
+import typing
 
 LOG = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ def main(argv=None) -> int:
             "module": "vm_irqbalance_scan_freq", "vm": vm_name, "status": "crit",
             "summary": f"diagnostic raised {exc!r}", "metrics": {},
         }
-    print(json.dumps(out, ensure_ascii=False))
+    LOG.debug(json.dumps(out, ensure_ascii=False))
     return 0 if out.get("status") != "crit" else 2
 
 
