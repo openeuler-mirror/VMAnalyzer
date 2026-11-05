@@ -6,6 +6,8 @@ import json
 import socket
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 WARN_MS = 200.0
 PROBE_HOST = "localhost"
@@ -55,7 +57,7 @@ def diagnose():
         "findings": findings,
         "status": "warning" if findings else "ok",
     }
-    print(json.dumps(report, indent=2))
+    LOG.debug(json.dumps(report, indent=2))
     return report
 
 
