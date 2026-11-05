@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 INTERESTING = (
     "iommu",
@@ -39,4 +41,4 @@ report = {
     "parameters": parameters,
     "virtualisation_flags": matched,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
