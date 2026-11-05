@@ -14,6 +14,7 @@
 import logging
 from utils import config
 import shlex
+LOG = logging.getLogger(__name__)
 
 class VMStatsAnalyze(object):
     """
@@ -309,8 +310,8 @@ def print_alerts(alerts):
     if not alerts:
         return
     
-    print("Operation message")
-    print("=" * 60)
+    LOG.debug("Operation message")
+    LOG.debug("=" * 60)
     for alert in alerts:
         level = "🔴 Critical" if alert["level"] == "critical" else "🟡 Warning"
-        print(f"{level}: {alert['vm_name']} - {alert['metric']}: {alert['value']}% (threshold: {alert['threshold']}%)")
+        LOG.debug(f"{level}: {alert['vm_name']} - {alert['metric']}: {alert['value']}% (threshold: {alert['threshold']}%)")
