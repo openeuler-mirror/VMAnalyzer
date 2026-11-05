@@ -7,6 +7,8 @@ import re
 import subprocess as sp
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 DROP = re.compile(r"^\s*(\d+)\s+\d+\s+DROP", re.MULTILINE)
 NUMBER = re.compile(r"^\s*\[(\d+):(\d+)\]", re.MULTILINE)
@@ -57,7 +59,7 @@ def diagnose():
         "findings": findings,
         "status": "warning" if findings else "ok",
     }
-    print(json.dumps(report, indent=2))
+    LOG.debug(json.dumps(report, indent=2))
     return report
 
 
