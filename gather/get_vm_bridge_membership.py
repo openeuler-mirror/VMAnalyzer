@@ -7,6 +7,8 @@ import json
 import os
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read(path):
@@ -34,4 +36,4 @@ report = {
     "bridge_count": len(bridges),
     "bridges": bridges,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
