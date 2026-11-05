@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     for vm in sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split():
@@ -15,5 +17,5 @@ def diagnose():
         cached=sp.run("virsh domblklist %s --details|grep -c none" % vm,shell=True,capture_output=True,text=True).stdout.strip()
         if cached and cached!="0": issues.append("disk_cache_none")
         d["vms"][vm]={"migratable":len(issues)==0,"issues":issues,"vcpus":sp.run("virsh vcpucount %s --active" % vm,shell=True,capture_output=True,text=True).stdout.strip()}
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
