@@ -1,4 +1,5 @@
 """service_registry: async service registry."""
+from __future__ import annotations
 import asyncio
 import logging
 from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Tuple
