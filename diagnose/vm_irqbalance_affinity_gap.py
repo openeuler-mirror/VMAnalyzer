@@ -8,6 +8,7 @@ This script probes irqbalance affinity_gap state and emits a single JSON documen
 stdout suitable for ingestion by the VMAnalyzer pipeline.
 """
 
+from __future__ import annotations
 import json
 import logging
 import sys
