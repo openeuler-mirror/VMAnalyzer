@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read(path):
@@ -35,4 +37,4 @@ report = {
     if sharing + unshared
     else 0.0,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
