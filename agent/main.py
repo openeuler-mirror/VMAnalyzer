@@ -26,26 +26,27 @@ from agent import view
 from agent import analyze
 from agent import reporter
 from utils import timer
+LOG = logging.getLogger(__name__)
 
 __version__ = "0.1.0"
 debug = False
 
 
 def usage():
-    print(("usage: " + os.path.basename(sys.argv[0]) + " [-hdmnbilvpq] [-o FILE] [-l LEVEL] [uri]"))
-    print("   uri will default to qemu:///system")
-    print("   --help, -h   Print this help message")
-    print("   --debug, -d  Print debug output")
-    print("   --interval=SECS, -i  Configure statistics collection interval")
-    print("   --timeout=SECS, -t  Quit after SECS seconds running")
-    print("   --memoryUsage, -m  Print detected memory usage")
-    print("   --networkTraffic, -n  Print Interface Stats")
-    print("   --blkio, -b Print Block I/O Tune")
-    print("   --log_vm, -l Print vm status log")
-    print("   --vcpus_info, -v  Print per-vCPU state and affinity")
-    print("   --processInfo, -p  Print top-5 CPU/memory consuming processes")
-    print("   --output=FILE, -o  Write analysis results to FILE (JSON Lines)")
-    print("   --log-level=LEVEL, -q  Set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    LOG.debug(("usage: " + os.path.basename(sys.argv[0]) + " [-hdmnbilvpq] [-o FILE] [-l LEVEL] [uri]"))
+    LOG.debug("   uri will default to qemu:///system")
+    LOG.debug("   --help, -h   Print this help message")
+    LOG.debug("   --debug, -d  Print debug output")
+    LOG.debug("   --interval=SECS, -i  Configure statistics collection interval")
+    LOG.debug("   --timeout=SECS, -t  Quit after SECS seconds running")
+    LOG.debug("   --memoryUsage, -m  Print detected memory usage")
+    LOG.debug("   --networkTraffic, -n  Print Interface Stats")
+    LOG.debug("   --blkio, -b Print Block I/O Tune")
+    LOG.debug("   --log_vm, -l Print vm status log")
+    LOG.debug("   --vcpus_info, -v  Print per-vCPU state and affinity")
+    LOG.debug("   --processInfo, -p  Print top-5 CPU/memory consuming processes")
+    LOG.debug("   --output=FILE, -o  Write analysis results to FILE (JSON Lines)")
+    LOG.debug("   --log-level=LEVEL, -q  Set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
 
 def main():
     try:
@@ -58,7 +59,7 @@ def main():
                                     "version"])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print(str(err))  # will print something like "option -a not recognized"
+        LOG.debug(str(err))  # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
     timeout = None
@@ -70,7 +71,7 @@ def main():
             usage()
             sys.exit()
         if o in ("-V", "--version"):
-            print(f"vm-analyzer-agent {__version__}")
+            LOG.debug(f"vm-analyzer-agent {__version__}")
             sys.exit()
         if o in ("-d", "--debug"):
             global debug
@@ -98,7 +99,7 @@ def main():
             if isinstance(numeric, int):
                 logging.basicConfig(level=numeric)
             else:
-                print(f"Invalid log level: {a}")
+                LOG.debug(f"Invalid log level: {a}")
                 sys.exit(2)
 
     if len(args) >= 1:
@@ -140,7 +141,7 @@ def main():
     vm_storage = storage.VMStatsRedisStorage(vm_factory, label)
     ok, err_msg = vm_storage.check_connection()
     if not ok:
-        print('ERROR: ' + err_msg, file=sys.stderr)
+        LOG.debug('ERROR: ' + err_msg, file=sys.stderr)
         sys.exit(1)
     vm_collector = collector.VMStatsCollector(vm_factory, vm_storage, label)
     collector_timer = timer.RepeatedTimer(interval, vm_collector.record_stats)
