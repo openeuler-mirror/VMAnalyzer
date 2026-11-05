@@ -6,6 +6,8 @@ import os
 import glob
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"cpus":{}}
 for cd in glob.glob("/sys/devices/system/cpu/cpu[0-9]*/cpufreq"):
     cpu=cd.split("/cpu")[1].split("/")[0]; info={}
@@ -14,4 +16,4 @@ for cd in glob.glob("/sys/devices/system/cpu/cpu[0-9]*/cpufreq"):
             with open(os.path.join(cd,f)) as fh: info[f]=fh.read().strip()
         except: info[f]=None
     d["cpus"][cpu]=info
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
