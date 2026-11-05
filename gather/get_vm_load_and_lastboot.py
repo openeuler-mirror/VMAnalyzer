@@ -2,6 +2,7 @@
 # coding: utf-8
 """Collect get vm load and lastboot information."""
 
+from __future__ import annotations
 import subprocess
 import json
 import logging
