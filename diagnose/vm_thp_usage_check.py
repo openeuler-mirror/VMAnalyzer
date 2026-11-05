@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 LOW_COVERAGE = 0.10
 
@@ -48,7 +50,7 @@ def diagnose():
         "findings": findings,
         "status": "warning" if findings else "ok",
     }
-    print(json.dumps(report, indent=2))
+    LOG.debug(json.dumps(report, indent=2))
     return report
 
 
