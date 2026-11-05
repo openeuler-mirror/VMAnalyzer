@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"pools":{}}
     pools=sp.run("virsh pool-list --all 2>/dev/null",shell=True,capture_output=True,text=True).stdout
@@ -18,5 +20,5 @@ def diagnose():
                 if ":" in l:
                     k,v=l.split(":",1); pi[k.strip()]=v.strip()
             d["pools"][name]={"state":state,"info":pi,"healthy":state.lower()=="running" or state.lower()=="active"}
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
