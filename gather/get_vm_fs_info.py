@@ -10,6 +10,7 @@ import sys
 import time
 from typing import List, Dict
 import shlex
+LOG = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -124,8 +125,8 @@ class VMAnalyzer:
 
 def main():
     if len(sys.argv) != 1:
-        print("Usage: python3 vm_fs_info_all.py")
-        print("Operation message")
+        LOG.debug("Usage: python3 vm_fs_info_all.py")
+        LOG.debug("Operation message")
         sys.exit(1)
 
     analyzer = VMAnalyzer()
@@ -135,9 +136,9 @@ def main():
         LOG_INFO(f"\n===== 所有VM信息检测完成，共处理 {len(all_vms_info)} virtual machines =====")
         filename = analyzer.save_to_json(all_vms_info)
         
-        print("Operation message")
+        LOG.debug("Operation message")
         for vm_uuid, info in all_vms_info.items():
-            print(f"VM：{info['name']}（{info['status']}）- 分区数：{len(info['fs_info'])}")
+            LOG.debug(f"VM：{info['name']}（{info['status']}）- 分区数：{len(info['fs_info'])}")
     else:
         LOG_ERROR("Operation message")
         sys.exit(1)
