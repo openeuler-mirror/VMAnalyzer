@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 BUCKETS = (1, 5, 10, 20, 50, 100, 500)
 WARN_AWAIT_MS = 20.0
@@ -71,7 +73,7 @@ def diagnose():
         "findings": findings,
         "status": "warning" if findings else "ok",
     }
-    print(json.dumps(report, indent=2))
+    LOG.debug(json.dumps(report, indent=2))
     return report
 
 
