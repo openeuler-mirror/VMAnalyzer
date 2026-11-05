@@ -62,6 +62,7 @@ from typing import Dict, Any
 import re
 import logging
 import shlex
+LOG = logging.getLogger(__name__)
 
 """Documentation for this component."""
 def get_vm_disk_io_error_count(vm_name: str) -> str:
@@ -129,7 +130,7 @@ if __name__ == "__main__":
 
     vms = get_vm_list()
     if not vms:
-        print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
+        LOG.debug(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
         sys.exit(1)
 
     results = []
@@ -139,5 +140,5 @@ if __name__ == "__main__":
         results.append(vm_result)
 
     # English comment for this block.
-    print(json.dumps(results, ensure_ascii=False, indent=2))
+    LOG.debug(json.dumps(results, ensure_ascii=False, indent=2))
 
