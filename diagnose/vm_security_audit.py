@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     for vm in sp.run("virsh list --all --name|grep -v ^$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split():
@@ -15,5 +17,5 @@ def diagnose():
         if "<seclabel" not in xml: findings.append("no_seclabel")
         if "container_allow" in xml: findings.append("loose_cgroup")
         d["vms"][vm]={"findings":findings,"risk_count":len(findings),"secure":len(findings)==0}
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
