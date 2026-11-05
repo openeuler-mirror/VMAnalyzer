@@ -9,6 +9,7 @@ import argparse
 import time
 from typing import Dict, Optional
 import shlex
+LOG = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -122,7 +123,7 @@ def main():
         LOG_ERROR("Operation message")
         return
 
-    print(json.dumps(info, indent=2, ensure_ascii=False))
+    LOG.debug(json.dumps(info, indent=2, ensure_ascii=False))
 
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
