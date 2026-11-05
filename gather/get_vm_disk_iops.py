@@ -5,6 +5,8 @@ import subprocess
 import json
 from typing import Dict, Any
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -80,7 +82,7 @@ def main():
         vm_stats = get_vm_disk_iops(vm_name)
         results.append(vm_stats)
     
-    print(json.dumps(results, ensure_ascii=False, indent=2))
+    LOG.debug(json.dumps(results, ensure_ascii=False, indent=2))
 
 if __name__ == "__main__":
     main()
