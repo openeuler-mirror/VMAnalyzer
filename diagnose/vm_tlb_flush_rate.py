@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"tlb":{}}
     for ln in sp.run("cat /proc/vmstat 2>/dev/null",shell=True,capture_output=True,text=True).stdout.split("\n"):
@@ -14,5 +16,5 @@ def diagnose():
                 try: d["tlb"][p[0]]=int(p[1])
                 except: d["tlb"][p[0]]=p[1]
     d["tlb"]["total_flushes"]=sum(v for k,v in d["tlb"].items() if isinstance(v,int) and "flush" in k.lower())
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
