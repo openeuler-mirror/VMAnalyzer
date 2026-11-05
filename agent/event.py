@@ -20,6 +20,7 @@ import six
 from . import vm
 from utils import constants as const
 import shlex
+LOG = logging.getLogger(__name__)
 
 run = True
 
@@ -93,4 +94,4 @@ def handle_vm_lifecycle_event(event_type, vm_name):
     }
     
     if event_type in event_messages:
-        print(f"[事件告警] {event_messages[event_type]}")
+        LOG.debug(f"[事件告警] {event_messages[event_type]}")
