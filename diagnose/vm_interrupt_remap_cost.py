@@ -8,6 +8,7 @@ This script probes interrupt remap_cost state and emits a single JSON document o
 stdout suitable for ingestion by the VMAnalyzer pipeline.
 """
 
+from __future__ import annotations
 import json
 import logging
 import sys
