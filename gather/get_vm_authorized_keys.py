@@ -7,6 +7,8 @@ import json
 import os
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _keys(path):
@@ -36,4 +38,4 @@ report = {
     "key_count": sum(item["count"] for item in accounts.values()),
     "accounts": accounts,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
