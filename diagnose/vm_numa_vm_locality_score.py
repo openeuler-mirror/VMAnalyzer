@@ -8,6 +8,7 @@ This script probes numa vm_locality_score state and emits a single JSON document
 stdout suitable for ingestion by the VMAnalyzer pipeline.
 """
 
+from __future__ import annotations
 import json
 import logging
 import sys
