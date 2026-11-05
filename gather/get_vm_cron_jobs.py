@@ -7,6 +7,8 @@ import json
 import os
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _jobs(path):
@@ -39,4 +41,4 @@ report = {
     "sources": sources,
     "user_crontabs": user_tabs,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
