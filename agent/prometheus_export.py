@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 
+"""Agent module for prometheus export."""
+
 import shlex
 
 """Export VM metrics in Prometheus format."""
