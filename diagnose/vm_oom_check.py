@@ -22,6 +22,7 @@ import subprocess
 import time
 from typing import Dict, List, Optional
 import shlex
+LOG = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -197,4 +198,4 @@ if __name__ == "__main__":
     threshold = float(sys.argv[1]) if len(sys.argv) > 1 else OOM_RISK_THRESHOLD
     checker = VMOomChecker(threshold=threshold)
     data = checker.check_all_vms()
-    print(json.dumps(data, indent=2, ensure_ascii=False))
+    LOG.debug(json.dumps(data, indent=2, ensure_ascii=False))
