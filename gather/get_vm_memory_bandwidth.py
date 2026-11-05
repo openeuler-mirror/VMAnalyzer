@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 WINDOW = 2.0
 
@@ -34,4 +36,4 @@ report = {
     "write_kb_per_second": round(pages_out / WINDOW, 2),
     "total_mb_per_second": round((pages_in + pages_out) / WINDOW / 1024.0, 3),
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
