@@ -6,6 +6,8 @@ import json
 import os
 import shlex
 import time as t
+import logging
+LOG = logging.getLogger(__name__)
 SF="/tmp/vm_topo_state.json"
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 prev={}
@@ -24,4 +26,4 @@ for vm in [ln.strip() for ln in listing.stdout.split("\n") if ln.strip()]:
     else:
         d["vms"][vm]={"stable":True}
 with open(SF,"w") as f: json.dump(cur,f)
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
