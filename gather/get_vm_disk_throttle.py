@@ -6,6 +6,8 @@ import json
 import xml.etree.ElementTree as ET
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 for vm in (sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split()):
     xml=sp.run(f"virsh dumpxml {shlex.quote(str(vm))}",shell=True,capture_output=True,text=True,timeout=30).stdout
@@ -18,4 +20,4 @@ for vm in (sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_
             disks[dev]={c.tag:c.text for c in iotune} if iotune is not None else {"throttled":False}
     except: pass
     d["vms"][vm]=disks
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
