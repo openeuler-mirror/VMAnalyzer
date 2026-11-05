@@ -6,6 +6,8 @@ import json
 import subprocess as sp
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _listeners():
@@ -38,4 +40,4 @@ report = {
     "public_count": sum(1 for item in listeners if not item["local"]),
     "listeners": listeners,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
