@@ -6,6 +6,8 @@ import glob
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _lines(path):
@@ -37,4 +39,4 @@ report = {
     "source_count": len(sources),
     "sources": sources,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
