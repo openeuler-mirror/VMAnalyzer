@@ -6,6 +6,8 @@ import json
 import time as t
 import statistics
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     for vm in sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split():
@@ -19,5 +21,5 @@ def diagnose():
                     except: pass
             t.sleep(1)
         d["vms"][vm]={"cpu_samples":len(cpu_samples),"cpu_mean_ms":round(statistics.mean(cpu_samples),2) if cpu_samples else 0}
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
