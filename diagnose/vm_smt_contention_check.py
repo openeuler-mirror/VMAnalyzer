@@ -6,6 +6,8 @@ import glob
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read(path):
@@ -46,7 +48,7 @@ def diagnose():
         "findings": [],
         "status": "ok",
     }
-    print(json.dumps(report, indent=2))
+    LOG.debug(json.dumps(report, indent=2))
     return report
 
 
