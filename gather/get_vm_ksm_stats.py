@@ -5,6 +5,8 @@ import json
 import os
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"ksm":{}}
 ks="/sys/kernel/mm/ksm"
 for f in ["run","pages_shared","pages_sharing","pages_unshared","full_scans"]:
@@ -14,4 +16,4 @@ for f in ["run","pages_shared","pages_sharing","pages_unshared","full_scans"]:
 d["ksm"]["active"]=d["ksm"].get("run",0)>0
 if d["ksm"].get("pages_sharing") and d["ksm"].get("pages_shared"):
     d["ksm"]["saved_bytes"]=(d["ksm"]["pages_sharing"]-d["ksm"]["pages_shared"])*4096
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
