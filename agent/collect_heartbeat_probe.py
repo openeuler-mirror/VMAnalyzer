@@ -1,5 +1,6 @@
 """Agent helper: Handle one specialised aspect of telemetry collection inside the agent pipeline."""
 
+from __future__ import annotations
 import logging
 from typing import Dict
 import shlex
