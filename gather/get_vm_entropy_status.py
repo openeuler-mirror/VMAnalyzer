@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read_int(path, default=0):
@@ -29,4 +31,4 @@ report = {
         "/proc/sys/kernel/random/urandom_min_reseed_secs"
     ),
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
