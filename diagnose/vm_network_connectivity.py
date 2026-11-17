@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 TARGETS=["8.8.8.8","1.1.1.1"]
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
@@ -15,5 +17,5 @@ def diagnose():
             r=sp.run("virsh qemu-agent-command %s %s 2>/dev/null" % (vm, qga),shell=True,capture_output=True,text=True).stdout
             results[target]=r[:60] if r else "N/A"
         d["vms"][vm]=results
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
