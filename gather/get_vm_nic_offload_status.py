@@ -8,6 +8,8 @@ import os
 import subprocess as sp
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read(path):
@@ -48,4 +50,4 @@ report = {
     "interface_count": len(interfaces),
     "interfaces": interfaces,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
