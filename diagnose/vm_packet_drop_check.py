@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 DROP_RATIO = 0.01
 
@@ -62,7 +64,7 @@ def diagnose():
         "findings": findings,
         "status": "warning" if findings else "ok",
     }
-    print(json.dumps(report, indent=2))
+    LOG.debug(json.dumps(report, indent=2))
     return report
 
 
