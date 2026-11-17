@@ -3,7 +3,9 @@
 """Documentation for this component."""
 import json
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def main():
-    print(json.dumps({"feature": "VM context switches collector", "status": "ok"}, ensure_ascii=False))
+    LOG.debug(json.dumps({"feature": "VM context switches collector", "status": "ok"}, ensure_ascii=False))
 if __name__ == "__main__":
     main()
