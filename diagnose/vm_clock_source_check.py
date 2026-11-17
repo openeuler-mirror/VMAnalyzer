@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import shlex
 import time as t
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     host_cs=sp.run("cat /sys/devices/system/clocksource/clocksource0/current_clocksource 2>/dev/null",shell=True,capture_output=True,text=True).stdout.strip()
@@ -25,5 +27,5 @@ def diagnose():
         if "hpet" in xml.lower(): clock_info["hpet_present"]=True
         if "pit" in xml.lower(): clock_info["pit_present"]=True
         d["vms"][vm]=clock_info
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
