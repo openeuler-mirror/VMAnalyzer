@@ -6,6 +6,8 @@ import json
 import base64
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 SP=lambda c:sp.run(c,shell=True,capture_output=True,text=True,timeout=30).stdout.strip()
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 for vm in (SP("virsh list --name|grep -v ^$|grep -v ^-$").split()):
@@ -21,4 +23,4 @@ for vm in (SP("virsh list --name|grep -v ^$|grep -v ^-$").split()):
                     if len(p)>=9 and p[8].isdigit(): st=int(p[8])
         except: pass
     d["vms"][vm]={"steal_jiffies":st}
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
