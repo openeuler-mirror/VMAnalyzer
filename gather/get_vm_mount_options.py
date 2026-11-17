@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 SKIP = ("/proc", "/sys", "/dev", "/run", "/snap")
 
@@ -39,4 +41,4 @@ report = {
     "without_noatime": [item["mountpoint"] for item in mounts if not item["noatime"]],
     "mounts": mounts,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
