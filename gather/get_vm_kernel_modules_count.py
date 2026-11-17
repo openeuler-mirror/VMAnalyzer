@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _modules():
@@ -39,4 +41,4 @@ report = {
     "total_size": sum(item["size"] for item in modules),
     "top_modules": modules[:10],
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
