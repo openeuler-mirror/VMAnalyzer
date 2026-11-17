@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import shlex
 import time as t
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     listing=sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30)
@@ -23,5 +25,5 @@ def diagnose():
         for cpu in info.get("shared_cpus",[]):
             host_vcpus.setdefault(cpu,[]).append(vm)
     d["_contention"]={"shared_cpus":{k:v for k,v in host_vcpus.items() if len(v)>1}}
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
