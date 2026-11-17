@@ -1,5 +1,6 @@
 """Agent helper: Aggregate and normalise metrics before they leave the agent."""
 
+from __future__ import annotations
 import logging
 from typing import Dict
 import shlex
