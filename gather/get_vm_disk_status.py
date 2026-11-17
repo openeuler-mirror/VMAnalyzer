@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""Gather module for get vm disk status."""
+
 import subprocess
 import json
 import logging
