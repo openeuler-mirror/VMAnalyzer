@@ -6,6 +6,8 @@ from datetime import datetime
 import subprocess
 from typing import Dict, Any
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -72,7 +74,7 @@ if __name__ == "__main__":
 
     vms = get_vm_list()
     if not vms:
-         print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
+         LOG.debug(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
          sys.exit(1)
 
     results = []
@@ -81,4 +83,4 @@ if __name__ == "__main__":
         results.append(vm_result)
 
     # Output results for all virtual machines as JSON.
-    print(json.dumps(results, ensure_ascii=False, indent=2))
+    LOG.debug(json.dumps(results, ensure_ascii=False, indent=2))
