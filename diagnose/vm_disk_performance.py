@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import shlex
 import time as t
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     listing=sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30)
@@ -25,5 +27,5 @@ def diagnose():
             errors=s.get("errs",0)
             devs[dev]={"errors":errors,"read_bytes":s.get("rd_bytes",0),"write_bytes":s.get("wr_bytes",0)}
         d["vms"][vm]=devs
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
