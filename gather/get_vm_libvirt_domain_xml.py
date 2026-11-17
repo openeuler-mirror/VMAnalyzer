@@ -5,6 +5,8 @@ import subprocess
 from lxml import etree
 from typing import Optional, Dict, Any
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -36,7 +38,7 @@ def parse_xml(xml_str: str) -> Optional[etree._Element]:
     try:
         return etree.fromstring(xml_str.encode("utf-8"))
     except Exception as e:
-        print(f"XMLParse失败: {e}")
+        LOG.debug(f"XMLParse失败: {e}")
         return None
 
 
@@ -93,7 +95,7 @@ if __name__ == "__main__":
     import sys
     vms = get_vm_list()
     if not vms:
-         print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
+         LOG.debug(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
          sys.exit(1)
 
     full = sys.argv[1].lower() == "true" if len(sys.argv) >= 2 else True
@@ -113,4 +115,4 @@ if __name__ == "__main__":
             })
 
     # English comment for this block.
-    print(json.dumps(results, ensure_ascii=False, indent=2))
+    LOG.debug(json.dumps(results, ensure_ascii=False, indent=2))
