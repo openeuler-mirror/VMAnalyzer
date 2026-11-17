@@ -7,6 +7,8 @@ import os
 import platform
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read(path):
@@ -31,4 +33,4 @@ report = {
     "boot_id": _read("/proc/sys/kernel/random/boot_id"),
     "cpu_count": os.cpu_count() or 0,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
