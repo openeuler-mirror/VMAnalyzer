@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"migrations":{}}
 for vm in (sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split()):
     ji=sp.run(f"virsh domjobinfo {shlex.quote(str(vm))} 2>&1",shell=True,capture_output=True,text=True).stdout
@@ -16,4 +18,4 @@ for vm in (sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_
                 try: info[k.strip()]=int(v.strip())
                 except: info[k.strip()]=v.strip()
         d["migrations"][vm]=info
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
