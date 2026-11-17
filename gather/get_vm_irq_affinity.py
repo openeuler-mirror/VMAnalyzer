@@ -6,6 +6,8 @@ import json
 import os
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"irqs":{}}
 for vm in (sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_output=True,text=True,timeout=30).stdout.strip().split()):
     irqs={}
@@ -18,4 +20,4 @@ for vm in (sp.run("virsh list --name|grep -v ^$|grep -v ^-$",shell=True,capture_
             except: pass
             irqs[irq]={"affinity":aff}
     d["irqs"][vm]=irqs
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
