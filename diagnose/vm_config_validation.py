@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import shlex
 import time as t
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     listing=sp.run("virsh list --all --name|grep -v ^$",shell=True,capture_output=True,text=True,timeout=30)
@@ -20,5 +22,5 @@ def diagnose():
         # Check emulator path
         em=sp.run(f"virsh dominfo {shlex.quote(vm)}|grep Emulator",shell=True,capture_output=True,text=True).stdout.strip()
         d["vms"][vm]={"issues":issues,"valid":len(issues)==0,"emulator":em.split(":")[-1].strip() if em else "N/A"}
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
