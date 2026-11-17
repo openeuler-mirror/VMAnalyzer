@@ -18,6 +18,7 @@ import copy
 import logging
 import os
 import shlex
+LOG = logging.getLogger(__name__)
 
 
 def convert_to_percent(utilization):
@@ -42,7 +43,7 @@ class VMAnalyzersConsoleView(VMAnalyzersView):
     """Documentation for this component."""
     def output(self, vm_analyzers_info):
         for analyzers_info in vm_analyzers_info:
-            print(json.dumps(convert_to_percent(analyzers_info)))
+            LOG.debug(json.dumps(convert_to_percent(analyzers_info)))
 
 
 class VMAnalyzersDWView(VMAnalyzersView):
