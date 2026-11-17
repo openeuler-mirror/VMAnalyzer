@@ -5,6 +5,7 @@ Injecting host, agent and collection identifiers at one place keeps every
 downstream record self-describing.
 """
 
+from __future__ import annotations
 import logging
 import shlex
 
