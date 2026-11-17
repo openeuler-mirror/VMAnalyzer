@@ -5,6 +5,8 @@ import subprocess as sp
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def diagnose():
     d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
     # Host meminfo
@@ -26,5 +28,5 @@ def diagnose():
                 try: mem[k.strip()]=int(v.strip())
                 except: pass
         d["vms"][vm]=mem
-    print(json.dumps(d,indent=2))
+    LOG.debug(json.dumps(d,indent=2))
 if __name__=="__main__": diagnose()
