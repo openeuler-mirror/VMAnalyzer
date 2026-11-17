@@ -3,6 +3,7 @@
 """Collect get vm migrate data information."""
 
 
+from __future__ import annotations
 import subprocess
 import json
 import logging
