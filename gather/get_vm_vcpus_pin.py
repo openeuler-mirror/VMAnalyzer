@@ -9,6 +9,7 @@ import logging
 import sys
 import time
 import shlex
+LOG = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -259,8 +260,8 @@ def get_all_vms_vcpupin() -> dict:
 
 def main():
     if len(sys.argv) != 1:
-        print("Usage: python3 vcpupin_check_all.py")
-        print("Operation message")
+        LOG.debug("Usage: python3 vcpupin_check_all.py")
+        LOG.debug("Operation message")
         sys.exit(1)
     
     LOG_INFO("Operation message")
@@ -273,9 +274,9 @@ def main():
             json.dump(all_stats, f, indent=2, ensure_ascii=False)
         LOG_INFO(f"结果已保存到文件：{filename}")
         
-        print("Operation message")
+        LOG.debug("Operation message")
         for vm_uuid, vm_info in all_stats.items():
-            print(f"VM：{vm_info['name']}（{vm_info['status']}）- vCPU总数：{vm_info['vcpu_total']}")
+            LOG.debug(f"VM：{vm_info['name']}（{vm_info['status']}）- vCPU总数：{vm_info['vcpu_total']}")
     else:
         LOG_ERROR("Operation message")
         sys.exit(1)
