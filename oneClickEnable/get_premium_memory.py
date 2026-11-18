@@ -7,6 +7,7 @@ import json
 import time
 import logging
 import shlex
+LOG = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -116,16 +117,16 @@ if __name__ == "__main__":
     try:
         vm_name = "test-bclinux7.6-qga"
         single_result = qga_memory.execute_qga_memory_cmd(vm_name)
-        print("\n" + "="*80)
-        print(f"VM {vm_name} memory状态查询结果")
-        print("="*80)
-        print(f"查询时间：{single_result['collect_time']}")
+        LOG.debug("\n" + "="*80)
+        LOG.debug(f"VM {vm_name} memory状态查询结果")
+        LOG.debug("="*80)
+        LOG.debug(f"查询时间：{single_result['collect_time']}")
         mem = single_result["memory_info"]
-        print(f"总memory：{mem['total_mb']} MB")
-        print(f"已用memory：{mem['used_mb']} MB")
-        print(f"空闲memory：{mem['free_mb']} MB")
-        print(f"可用memory：{mem['available_mb']} MB")
-        print(f"memory使用率：{mem['usage_rate']} %")
+        LOG.debug(f"总memory：{mem['total_mb']} MB")
+        LOG.debug(f"已用memory：{mem['used_mb']} MB")
+        LOG.debug(f"空闲memory：{mem['free_mb']} MB")
+        LOG.debug(f"可用memory：{mem['available_mb']} MB")
+        LOG.debug(f"memory使用率：{mem['usage_rate']} %")
 
     finally:
         qga_memory.close()
