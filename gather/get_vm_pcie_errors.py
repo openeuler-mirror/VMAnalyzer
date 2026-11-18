@@ -5,6 +5,8 @@ import json
 import glob
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"devices":{}}
 for dev in glob.glob("/sys/bus/pci/devices/*/aer_dev_correctable"):
     try:
@@ -16,4 +18,4 @@ for dev in glob.glob("/sys/bus/pci/devices/*/aer_dev_fatal"):
         addr=dev.split("/")[5]
         with open(dev) as f: d["devices"].setdefault(addr,{})["fatal"]=int(f.read().strip())
     except: pass
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
