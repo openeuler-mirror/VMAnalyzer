@@ -6,6 +6,7 @@
 
 """Switch transparent huge pages to a latency friendly mode."""
 
+from __future__ import annotations
 import json
 import logging
 import os
