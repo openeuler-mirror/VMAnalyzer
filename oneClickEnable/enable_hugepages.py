@@ -7,6 +7,8 @@ import os
 import sys
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def main():
     size=sys.argv[1] if len(sys.argv)>1 else "2048"
     count=sys.argv[2] if len(sys.argv)>2 else "1024"
@@ -29,5 +31,5 @@ def main():
     except FileNotFoundError:
         result["actions"].append("hugepage_size_unavailable")
         result["success"]=False
-    print(json.dumps(result,indent=2))
+    LOG.debug(json.dumps(result,indent=2))
 if __name__=="__main__": main()
