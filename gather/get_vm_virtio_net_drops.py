@@ -7,6 +7,8 @@ import shlex
 import subprocess as sp
 import json
 import time as t
+import logging
+LOG = logging.getLogger(__name__)
 SP=lambda c:sp.run(c,shell=True,capture_output=True,text=True,timeout=30).stdout.strip()
 d={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"vms":{}}
 for vm in (SP("virsh list --name|grep -v ^$|grep -v ^-$").split()):
@@ -22,4 +24,4 @@ for vm in (SP("virsh list --name|grep -v ^$|grep -v ^-$").split()):
                     except: pass
             ifs[p[0]]=s
     d["vms"][vm]=ifs
-print(json.dumps(d,indent=2))
+LOG.debug(json.dumps(d,indent=2))
