@@ -6,6 +6,7 @@
 
 """Enable automatic NUMA balancing for better memory locality."""
 
+from __future__ import annotations
 import json
 import logging
 import shlex
