@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Report per-interface packet drops from /proc/net/dev."""
 
+from __future__ import annotations
 import json
 import time as t
 import shlex
