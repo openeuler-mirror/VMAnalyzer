@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Summarise interface MTUs to catch mismatched paths for guests."""
 
+from __future__ import annotations
 import glob
 import json
 import os
