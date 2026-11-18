@@ -7,6 +7,8 @@ import sys
 from lxml import etree
 from typing import Optional, Dict, Any
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -81,7 +83,7 @@ def get_vm_state(vm_name: str) -> str:
 if __name__ == "__main__":
     vms = get_vm_list()
     if not vms:
-         print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
+         LOG.debug(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
          sys.exit(1)
 
     results = []
@@ -90,7 +92,7 @@ if __name__ == "__main__":
         vm_result = json.loads(vm_result_json)
         results.append(vm_result)
         if not vm_result["success"] or vm_result["error"]:
-            print(f"Warning：虚机[{shlex.quote(str(vm))}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
+            LOG.debug(f"Warning：虚机[{shlex.quote(str(vm))}]状态查询异常 - {vm_result['error']}", file=sys.stderr)
 
     # Output results for all virtual machines as JSON.
-    print(json.dumps(results, ensure_ascii=False, indent=2))
+    LOG.debug(json.dumps(results, ensure_ascii=False, indent=2))
