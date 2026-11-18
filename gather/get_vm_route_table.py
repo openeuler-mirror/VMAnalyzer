@@ -6,6 +6,8 @@ import json
 import subprocess as sp
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _routes():
@@ -39,4 +41,4 @@ report = {
     "defaults": defaults,
     "routes": routes,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
