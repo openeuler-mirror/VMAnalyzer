@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """List configured huge page sizes with total and free counts."""
 
+from __future__ import annotations
 import glob
 import json
 import os
