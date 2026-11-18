@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Read block queue depth limits that cap in-flight IO per device."""
 
+from __future__ import annotations
 import glob
 import json
 import os
