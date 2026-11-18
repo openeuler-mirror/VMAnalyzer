@@ -6,6 +6,8 @@ import json
 import os
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read(path):
@@ -36,4 +38,4 @@ report = {
     "policy_version": _read("/sys/fs/selinux/policyvers"),
     "deny_unknown": _read("/sys/fs/selinux/checkreqprot"),
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
