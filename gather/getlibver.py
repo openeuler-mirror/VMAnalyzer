@@ -9,38 +9,40 @@ import libvirt
 import sys
 from lxml import etree
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 SERVER_NAME = "qemu+ssh://root@192.168.203.132/system"
 LOCAL_NAME = "qemu:///system"
 def createConnection(serverName):
   if not libvirt:
-    print('python-libvirt module is missing')
+    LOG.debug('python-libvirt module is missing')
     sys.exit(1)
 #  conn = libvirt.openReadOnly("qemu+ssh://root@192.168.203.132/system")
   conn = libvirt.openReadOnly(serverName)
   if conn == None:
-    print('Failed to connect to QEMU/KVM')
+    LOG.debug('Failed to connect to QEMU/KVM')
   else:
-    print('------------Connected to QEMU/KVM---------------')
+    LOG.debug('------------Connected to QEMU/KVM---------------')
     return conn
   
 def closeConnection(conn):
   try:
-    print('----------Disconnect from QEMU/KVM--------------')
+    LOG.debug('----------Disconnect from QEMU/KVM--------------')
     conn.close()
   except (ValueError, TypeError, KeyError):
-    print('Failed to close connection')
+    LOG.debug('Failed to close connection')
     sys.exit(1)
 
 def getESSDSerial(domain, conn):
   if domain == None:
-    print('Domain Name Is Empty')
+    LOG.debug('Domain Name Is Empty')
     sys.exit(1)
   try:
       dom = conn.lookupByName(domain)
   except libvirt.libvirtError as e:
-    print(f'Failed to lookup domain {domain}: {e}')
+    LOG.debug(f'Failed to lookup domain {domain}: {e}')
     sys.exit(1)
 
   tree = etree.fromstring(dom.XMLDesc(0))
@@ -49,11 +51,11 @@ def getESSDSerial(domain, conn):
     if device and (device.startswith('sd') or device.startswith('vd')):
       serial = disk_info.find('serial')
       volume_uuid = serial.text if serial is not None else None
-      print('disk: %s / serial : %s ' % (device, volume_uuid))
+      LOG.debug('disk: %s / serial : %s ' % (device, volume_uuid))
 
 if __name__ == '__main__':
   argc = len(sys.argv) - 1
-  print(argc)
+  LOG.debug(argc)
   if argc == 0:
       libvirtServer = "qemu:///system"
   else:
@@ -62,7 +64,7 @@ if __name__ == '__main__':
   #getESSDSerial(domainName, conn)
   pack = conn.getLibPackage()
   ver = conn.getLibVersion()
-  print("libvirt version : {}\nlibvert package info : {}".format(ver, pack))
+  LOG.debug("libvirt version : {}\nlibvert package info : {}".format(ver, pack))
 
   closeConnection(conn)
   
