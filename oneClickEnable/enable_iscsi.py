@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2026 VMAnalyzer Authors. All rights reserved.
 """enable iSCSI initiator"""
+from __future__ import annotations
 import json
 import logging
 import os
