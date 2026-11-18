@@ -6,6 +6,7 @@
 
 """Recommend virtio multiqueue settings from the active vCPU count."""
 
+from __future__ import annotations
 import json
 import logging
 import re
