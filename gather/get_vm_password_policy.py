@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 KEYS = (
     "PASS_MAX_DAYS",
@@ -38,4 +40,4 @@ report = {
     "login_defs": policy,
     "missing": [key for key in KEYS if key not in policy],
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
