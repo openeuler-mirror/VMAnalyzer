@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Diagnose TCP retransmission ratio from /proc/net/snmp."""
 
+from __future__ import annotations
 import json
 import time as t
 import shlex
