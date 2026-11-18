@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read(path):
@@ -42,4 +44,4 @@ report = {
     "used_kb": sum(item["used_kb"] for item in devices),
     "devices": devices,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
