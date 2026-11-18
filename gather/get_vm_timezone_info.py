@@ -7,6 +7,8 @@ import os
 import subprocess as sp
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 
 def _read(path):
@@ -38,4 +40,4 @@ report = {
     "timedatectl_timezone": _timedatectl(),
     "utc": _read("/etc/adjtime").splitlines()[2:3],
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
