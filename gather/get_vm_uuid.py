@@ -8,6 +8,8 @@ import os
 import re
 import sys
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -42,7 +44,7 @@ def get_vm_list() -> list:
     """Documentation for this component."""
     cmd_result = execute_cmd(["virsh", "list", "--all", "--name"])
     if cmd_result["code"] != 0:
-        print(f"Failed to get VM list: {cmd_result['stderr']}", file=sys.stderr)
+        LOG.debug(f"Failed to get VM list: {cmd_result['stderr']}", file=sys.stderr)
         return []
     return [vm for vm in cmd_result["stdout"].split("\n") if vm.strip()]
 
@@ -114,7 +116,7 @@ if __name__ == "__main__":
 
     vms = get_vm_list()
     if not vms:
-        print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
+        LOG.debug(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
         sys.exit(1)
 
     results = []
@@ -136,4 +138,4 @@ if __name__ == "__main__":
             results.append(error_result)
 
     # English comment for this block.
-    print(json.dumps(results, ensure_ascii=False, indent=2))
+    LOG.debug(json.dumps(results, ensure_ascii=False, indent=2))
