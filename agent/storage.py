@@ -13,6 +13,7 @@
 # See the Mulan PSL v2 for more details.
 """Agent module for storage."""
 
+from __future__ import annotations
 import logging
 import six
 import abc
