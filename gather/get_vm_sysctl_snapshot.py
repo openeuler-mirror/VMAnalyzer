@@ -5,6 +5,8 @@
 import json
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 
 KEYS = (
     "kernel.numa_balancing",
@@ -35,4 +37,4 @@ report = {
     "available": sum(1 for value in values.values() if value is not None),
     "values": values,
 }
-print(json.dumps(report, indent=2))
+LOG.debug(json.dumps(report, indent=2))
