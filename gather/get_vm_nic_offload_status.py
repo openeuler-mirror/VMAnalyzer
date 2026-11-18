@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Collect hardware offload feature flags for host network devices."""
 
+from __future__ import annotations
 import glob
 import json
 import os
