@@ -7,6 +7,8 @@ import os
 import sys
 import time as t
 import shlex
+import logging
+LOG = logging.getLogger(__name__)
 def main():
     result={"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime()),"actions":[]}
     ks="/sys/kernel/mm/ksm"
@@ -29,5 +31,5 @@ def main():
     except Exception as e:
         result["actions"].append(f"error:{e}")
         result["success"]=False
-    print(json.dumps(result,indent=2))
+    LOG.debug(json.dumps(result,indent=2))
 if __name__=="__main__": main()
