@@ -7,6 +7,7 @@ from lxml import etree
 import logging
 from typing import Dict, Any
 import shlex
+LOG = logging.getLogger(__name__)
 
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
@@ -69,7 +70,7 @@ if __name__ == "__main__":
     import sys
     vms = get_vm_list()
     if not vms:
-         print(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
+         LOG.debug(json.dumps({"error": "No virtual machines found or virsh command failed"}, ensure_ascii=False, indent=2))
          sys.exit(1)
 
     results = []
@@ -80,4 +81,4 @@ if __name__ == "__main__":
         results.append(vm_result)
 
     # English comment for this block.
-    print(json.dumps(results, ensure_ascii=False, indent=2))
+    LOG.debug(json.dumps(results, ensure_ascii=False, indent=2))
