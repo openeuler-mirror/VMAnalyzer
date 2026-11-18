@@ -21,6 +21,7 @@ import subprocess
 import time
 from typing import Dict, List, Optional
 import shlex
+LOG = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -103,5 +104,5 @@ class VMVcpuSchedInfoCollector:
 if __name__ == "__main__":
     collector = VMVcpuSchedInfoCollector()
     data = collector.collect_all_vms()
-    print(json.dumps(data, indent=2, ensure_ascii=False))
+    LOG.debug(json.dumps(data, indent=2, ensure_ascii=False))
 
