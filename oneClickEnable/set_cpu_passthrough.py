@@ -9,10 +9,12 @@ import json
 import sys
 import xml.etree.ElementTree as ET
 import time as t
+import logging
+LOG = logging.getLogger(__name__)
 def main():
     vm=sys.argv[1] if len(sys.argv)>1 else None
     if not vm:
-        print(json.dumps({"error":"Usage: set_cpu_passthrough.py <vm_name>"})); return 1
+        LOG.debug(json.dumps({"error":"Usage: set_cpu_passthrough.py <vm_name>"})); return 1
     result={"vm":vm,"time":t.strftime("%Y-%m-%dT%H:%M:%SZ",t.gmtime())}
     xml=sp.run("virsh dumpxml %s" % shlex.quote(str(vm)),shell=True,capture_output=True,text=True).stdout
     try:
@@ -24,5 +26,5 @@ def main():
             result["hint"]="virsh edit <vm> and set <cpu mode=\"host-passthrough\" check=\"none\"/>"
     except Exception as e:
         result["error"]=str(e)
-    print(json.dumps(result,indent=2))
+    LOG.debug(json.dumps(result,indent=2))
 if __name__=="__main__": main()
