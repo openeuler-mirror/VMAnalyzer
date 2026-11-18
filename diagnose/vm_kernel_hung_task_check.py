@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Look for hung task warnings in the kernel ring buffer."""
 
+from __future__ import annotations
 import json
 import re
 import subprocess as sp
