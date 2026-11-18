@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
+"""Gather module for get vm define time."""
+
 import json
 import os
 from datetime import datetime
