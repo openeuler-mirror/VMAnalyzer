@@ -9,6 +9,8 @@ import json
 import xml.etree.ElementTree as ET
 import sys
 import time as t
+import logging
+LOG = logging.getLogger(__name__)
 CACHE_MODES=["none","writethrough","writeback","directsync","unsafe"]
 def main():
     vm=sys.argv[1] if len(sys.argv)>1 else None
@@ -17,7 +19,7 @@ def main():
     if not vm:
         result["error"]="Usage: set_disk_cache_mode.py <vm_name> [cache_mode]"
         result["modes"]=CACHE_MODES
-        print(json.dumps(result,indent=2)); return 1
+        LOG.debug(json.dumps(result,indent=2)); return 1
     xml=sp.run(f"virsh dumpxml {shlex.quote(str(vm))}",shell=True,capture_output=True,text=True).stdout
     disks=[]
     try:
@@ -29,5 +31,5 @@ def main():
     except: pass
     result["disks"]=disks
     result["recommended"]="Use none or writeback for performance; none for data safety"
-    print(json.dumps(result,indent=2))
+    LOG.debug(json.dumps(result,indent=2))
 if __name__=="__main__": main()
