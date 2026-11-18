@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Gather module for get vm disk actual size."""
+
 import subprocess
 import json
 from lxml import etree
