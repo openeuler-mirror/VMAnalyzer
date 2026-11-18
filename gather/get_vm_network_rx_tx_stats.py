@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""Gather module for get vm network rx tx stats."""
+
 def execute_cmd(cmd: list, timeout: int = 30) -> Dict[str, Any]:
     """Documentation for this component."""
     result = {
