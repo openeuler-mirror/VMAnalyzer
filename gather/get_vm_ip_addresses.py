@@ -2,6 +2,7 @@
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 """Collect IPv4 and IPv6 addresses with their interface and scope."""
 
+from __future__ import annotations
 import json
 import subprocess as sp
 import time as t
