@@ -21,6 +21,7 @@ import logging
 import signal
 import atexit
 import shlex
+LOG = logging.getLogger(__name__)
 
 LOG_FILE = "/var/log/virsh_events.log"
 RAW_LOG_FILE = "/var/log/virsh_events_raw.log"
@@ -61,7 +62,7 @@ def check_running():
         try:
             os.kill(int(pid), 0)
             logger.error(f"脚本已在运行，PID: {pid}")
-            print(f"脚本已在运行，PID: {pid}")
+            LOG.debug(f"脚本已在运行，PID: {pid}")
             sys.exit(1)
         except OSError:
             logger.warning("Operation message")
@@ -119,7 +120,7 @@ def main():
     while True:
         if virsh_process.poll() is not None:
             logger.error("Operation message")
-            print("Operation message")
+            LOG.debug("Operation message")
             virsh_process = subprocess.Popen(
                 virsh_cmd,
                 stdout=open(RAW_LOG_FILE, "a"),
