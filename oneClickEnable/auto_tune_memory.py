@@ -8,10 +8,12 @@ import subprocess as sp
 import json
 import time as t
 import sys
+import logging
+LOG = logging.getLogger(__name__)
 def main():
     vm=sys.argv[1] if len(sys.argv)>1 else None
     if not vm:
-        print(json.dumps({"error":"Usage: auto_tune_memory.py <vm_name>"})); return 1
+        LOG.debug(json.dumps({"error":"Usage: auto_tune_memory.py <vm_name>"})); return 1
     ms=sp.run(f"virsh dommemstat {shlex.quote(str(vm))}",shell=True,capture_output=True,text=True).stdout
     rss=0; avail=0
     for ln in ms.split("\n"):
@@ -27,5 +29,5 @@ def main():
         sp.run(f"virsh setmaxmem {shlex.quote(str(vm))} {shlex.quote(str(target))}K --config 2>/dev/null",shell=True)
         sp.run(f"virsh setmem {shlex.quote(str(vm))} {shlex.quote(str(target))}K --config 2>/dev/null",shell=True)
         result["action"]=f"set_memory_to_{target//1024}MB"
-    print(json.dumps(result,indent=2))
+    LOG.debug(json.dumps(result,indent=2))
 if __name__=="__main__": main()
