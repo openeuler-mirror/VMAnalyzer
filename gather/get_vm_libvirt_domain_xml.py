@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Gather module for get vm libvirt domain xml."""
+
 import json
 import subprocess
 from lxml import etree
