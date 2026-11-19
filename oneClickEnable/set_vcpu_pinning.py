@@ -21,6 +21,7 @@ import subprocess
 import sys
 from typing import Dict, List, Optional
 import shlex
+LOG = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -212,5 +213,5 @@ if __name__ == "__main__":
         data = optimizer.pin_vm(vm_name)
     else:
         data = optimizer.pin_all_running_vms()
-    print(json.dumps(data, indent=2, ensure_ascii=False))
+    LOG.debug(json.dumps(data, indent=2, ensure_ascii=False))
 
