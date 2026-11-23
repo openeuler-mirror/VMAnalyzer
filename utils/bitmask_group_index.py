@@ -5,6 +5,7 @@ bitmask test is much cheaper than a set lookup inside hot collection loops.
 The helpers keep the conversion logic in one tested place.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict, Iterable, List
 
