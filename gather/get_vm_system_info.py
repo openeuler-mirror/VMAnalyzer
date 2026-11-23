@@ -3,6 +3,7 @@
 
 """Gather module for get vm system info."""
 
+from __future__ import annotations
 import subprocess
 import json
 import logging
