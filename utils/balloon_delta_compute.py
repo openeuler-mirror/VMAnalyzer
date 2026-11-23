@@ -5,6 +5,7 @@ inflation per cycle and avoids deflating below the guest's requested floor,
 which keeps memory reclaim gradual.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict
 
