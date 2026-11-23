@@ -5,6 +5,7 @@ Recording only transitions (not every poll) keeps the event log small while
 remaining sufficient to reconstruct durations.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict, Iterable, List, Tuple
 
