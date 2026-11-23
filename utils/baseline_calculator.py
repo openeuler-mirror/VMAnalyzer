@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Calculate metric baselines for comparison."""
+from __future__ import annotations
 from typing import Dict, List, Optional
 
 class BaselineCalculator:
