@@ -1,4 +1,5 @@
 """batcher_time: time-based batcher."""
+from __future__ import annotations
 import logging
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
