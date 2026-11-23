@@ -5,6 +5,7 @@ at the positions of its endpoints.  Undirected edges are mirrored so the
 matrix stays symmetric, which suits small dense graphs and algebra routines.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict, Iterable, List, Sequence, Tuple
 
