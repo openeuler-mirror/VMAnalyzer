@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
+"""Utility module backup verifier."""
+
 import shlex
 """Verify VM backup integrity."""
 import subprocess as sp, os, hashlib, logging
