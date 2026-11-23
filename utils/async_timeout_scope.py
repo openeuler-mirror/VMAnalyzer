@@ -5,6 +5,7 @@ Tracking the deadline once per round avoids re-deriving remaining time in
 every nested call.
 """
 
+from __future__ import annotations
 import logging
 import time
 from typing import Optional
