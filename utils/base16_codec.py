@@ -5,6 +5,7 @@ strings.  Accepting separators, prefixes and mixed case when decoding
 removes a common source of manual copy errors.
 """
 
+from __future__ import annotations
 import logging
 import re
 from typing import Iterable
