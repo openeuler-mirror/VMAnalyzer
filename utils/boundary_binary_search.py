@@ -5,6 +5,7 @@ between False and True regions.  They are the building blocks for
 "first index that satisfies" style queries used across scheduling code.
 """
 
+from __future__ import annotations
 import logging
 from typing import Callable, List, Optional, Sequence
 
