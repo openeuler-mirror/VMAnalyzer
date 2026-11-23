@@ -5,6 +5,7 @@ concept.  A single mapping avoids brittle comparisons and keeps routing
 rules readable.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict, Iterable, Optional
 
