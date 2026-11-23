@@ -5,6 +5,7 @@ superseded by a cheaper push are discarded lazily on pop, so callers can push
 freely without maintaining an explicit decrease-key operation.
 """
 
+from __future__ import annotations
 import heapq
 import logging
 from typing import Dict, List, Optional, Tuple
