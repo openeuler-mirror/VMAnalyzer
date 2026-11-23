@@ -5,6 +5,7 @@ simple rule table suppresses the derived alerts while the root alert is
 active, reducing noise without losing the root cause.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict, Iterable, List, Set
 
