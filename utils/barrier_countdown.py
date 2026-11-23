@@ -5,6 +5,7 @@ Using a countdown barrier keeps the coordinator free of polling loops and
 makes partial rounds observable.
 """
 
+from __future__ import annotations
 import logging
 import threading
 from typing import Optional
