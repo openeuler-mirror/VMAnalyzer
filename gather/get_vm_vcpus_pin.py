@@ -130,7 +130,7 @@ def get_single_vm_vcpupin(vm_name: str, conn: libvirt.virConnect) -> dict:
                 output = result.stdout.strip()
                 affinity_str = extract_affinity_from_output(output, vcpu_id)
                 if not affinity_str:
-                    raise Exception(f"未从输出中找到亲和性信息")
+                    raise RuntimeError(f"未从输出中找到亲和性信息")
                 
                 allowed_physical_cpus = parse_affinity_string(affinity_str)
                 pin_info['vcpu_id'] = vcpu_id
