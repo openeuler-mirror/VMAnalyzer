@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Gather module for get vm libvirt domain xml."""
 
+from __future__ import annotations
 import json
 import subprocess
 from lxml import etree
