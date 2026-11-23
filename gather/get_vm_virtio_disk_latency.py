@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 
+"""Gather module for get vm virtio disk latency."""
+
 import shlex
 
 """Monitor block device latency."""
