@@ -29,7 +29,7 @@ class QgaMemoryStatus:
             if conn:
                 LOG_INFO("Operation message")
                 return conn
-            raise Exception("Operation message")
+            raise RuntimeError("Operation message")
         except libvirt.libvirtError as e:
             LOG_ERROR(f"libvirt 连接异常：{str(e)}")
             raise
@@ -61,7 +61,7 @@ class QgaMemoryStatus:
 
             vm_state = dom.state()[0]
             if vm_state != libvirt.VIR_DOMAIN_RUNNING:
-                raise Exception(f"VM非运行状态（状态码：{vm_state}），QGA 命令无法执行")
+                raise RuntimeError(f"VM非运行状态（状态码：{vm_state}），QGA 命令无法执行")
 
             LOG_INFO(f"执行 QGA 命令：{self.QGA_MEMORY_CMD}")
             start_time = time.time()
@@ -72,7 +72,7 @@ class QgaMemoryStatus:
             LOG_INFO(f"QGA 原始返回：{json.dumps(output_json, indent=2)}")
 
             if "return" not in output_json:
-                raise Exception("Operation message")
+                raise RuntimeError("Operation message")
 
             memory_raw = output_json["return"]           
             total = memory_raw.get("total", 0)
