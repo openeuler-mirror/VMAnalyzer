@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Route alerts to appropriate notification channels."""
+from __future__ import annotations
 from typing import Callable, Dict, List
 
 class AlertRouter:
