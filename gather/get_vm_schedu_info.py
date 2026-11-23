@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ information."""
 
+from __future__ import annotations
 import libvirt
 import json
 import shlex
