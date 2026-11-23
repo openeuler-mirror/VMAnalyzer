@@ -5,6 +5,7 @@ logs.  Base36 uses digits plus lowercase letters, avoiding the ambiguous
 symbols that base62 introduces while keeping identifiers compact.
 """
 
+from __future__ import annotations
 import logging
 from typing import Optional
 
