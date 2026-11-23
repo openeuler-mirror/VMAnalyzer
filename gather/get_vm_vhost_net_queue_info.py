@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 
+"""Gather module for get vm vhost net queue info."""
+
 import shlex
 
 """Collect vhost-net queue info."""
