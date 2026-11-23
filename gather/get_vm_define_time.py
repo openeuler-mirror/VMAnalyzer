@@ -2,6 +2,7 @@
 # _*_coding: utf-8 _*_
 """Gather module for get vm define time."""
 
+from __future__ import annotations
 import json
 import os
 from datetime import datetime
