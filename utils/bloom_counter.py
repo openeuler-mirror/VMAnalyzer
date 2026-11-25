@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Counting bloom filter for frequency estimation."""
+from __future__ import annotations
 import hashlib
 from typing import List
 
