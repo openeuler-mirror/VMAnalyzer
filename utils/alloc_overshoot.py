@@ -1,5 +1,6 @@
 """Provide measure memory allocation patterns over time for the VM analyzer toolkit."""
 
+from __future__ import annotations
 import logging
 from typing import Dict, List
 
