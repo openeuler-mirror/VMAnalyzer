@@ -5,6 +5,7 @@ connected components.  The recursive DFS records discovery times and low
 values; the root qualifies only with more than one DFS child.
 """
 
+from __future__ import annotations
 import logging
 from collections import defaultdict
 from typing import Dict, Iterable, List, Set, Tuple
