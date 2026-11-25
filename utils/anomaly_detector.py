@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Statistical anomaly detection using Z-score and IQR methods for VM metrics."""
+from __future__ import annotations
 import math
 from typing import Dict, List, Optional, Tuple
 
