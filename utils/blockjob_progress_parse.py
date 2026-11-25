@@ -5,6 +5,7 @@ text.  Extracting only the numbers makes it possible to track long running
 mirrors without parsing the human message.
 """
 
+from __future__ import annotations
 import logging
 import re
 from typing import Dict, List, Optional
