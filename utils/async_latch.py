@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Countdown latch for thread synchronization."""
+from __future__ import annotations
 import threading
 
 class AsyncLatch:
