@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # _*_coding: utf-8 _*_
 """Documentation for this component."""
+from __future__ import annotations
 import json
 import subprocess
 import sys
