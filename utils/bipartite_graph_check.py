@@ -5,6 +5,7 @@ no edge joins equal colours.  A breadth-first sweep assigning the opposite
 colour to each neighbour detects the first conflicting edge, if any.
 """
 
+from __future__ import annotations
 import logging
 from collections import defaultdict, deque
 from typing import Dict, Iterable, List, Optional, Tuple
