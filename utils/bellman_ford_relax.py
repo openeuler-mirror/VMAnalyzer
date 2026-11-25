@@ -5,6 +5,7 @@ propagates after k rounds.  A further successful relaxation after V-1 rounds
 proves the reachable part of the graph contains a negative cycle.
 """
 
+from __future__ import annotations
 import logging
 import math
 from typing import List, Optional, Sequence, Tuple
