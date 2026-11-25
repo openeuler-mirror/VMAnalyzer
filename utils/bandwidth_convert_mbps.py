@@ -5,6 +5,7 @@ second.  Converting consistently avoids an eightfold error in capacity
 calculations.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict
 
