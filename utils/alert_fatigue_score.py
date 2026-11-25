@@ -5,6 +5,7 @@ Combining volume, duplicate ratio and short-lived alerts into one score
 makes the problem measurable and trackable over time.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict, Iterable, Tuple
 
