@@ -61,7 +61,7 @@ class VMStatsAnalyze(object):
             last_cpu_util = cpu_util
 
             logging.debug('VM %s: vcpu count: %d, cpu utilization: %.2f%%',
-                          vm_info['name'], vcpu_count, cpu_util * 100)
+                          vm_info['name'], vcpu_count, cpu_util)
 
             analyzers_info = {
                 'Current_cpu_utilization': round(cpu_util, 4),
@@ -70,7 +70,11 @@ class VMStatsAnalyze(object):
             }
             trend = "stable"
             if len(analyzers_list) > 0:
-                prev_util = analyzers_list[-1].get('cpu_util', cpu_util)
+                # analyzers_list 的元素是 {uuid: analyzers_info}，上一次利用率
+                # 必须按 uuid 取出来，之前直接 .get('cpu_util') 永远取不到，
+                # 退化成本次值自比，trend 恒为 stable。
+                prev_info = analyzers_list[-1].get(vm_info['uuid'], {})
+                prev_util = prev_info.get('Current_cpu_utilization', cpu_util)
                 if cpu_util > prev_util * 1.1:
                     trend = "rising"
                 elif cpu_util < prev_util * 0.9:

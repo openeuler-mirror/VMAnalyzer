@@ -34,13 +34,20 @@ def _colorize_util(util):
     """Return colored CPU utilization string based on threshold.
 
     Thresholds: >80% red, >50% yellow, <=50% green.
+    List/caller data may hand over non-numeric values (None, "N/A", "12.5%"),
+    those are reported as N/A instead of raising TypeError on comparison.
     """
-    if util > 80:
-        return f"\033[91m{util:.1f}%\033[0m"   # Red
-    elif util > 50:
-        return f"\033[93m{util:.1f}%\033[0m"   # Yellow
+    try:
+        value = float(util)
+    except (TypeError, ValueError):
+        return "N/A"
+
+    if value > 80:
+        return f"\033[91m{value:.1f}%\033[0m"   # Red
+    elif value > 50:
+        return f"\033[93m{value:.1f}%\033[0m"   # Yellow
     else:
-        return f"\033[92m{util:.1f}%\033[0m"   # Green
+        return f"\033[92m{value:.1f}%\033[0m"   # Green
 
 def convert_to_percent(utilization):
     new_util = copy.deepcopy(utilization)
@@ -50,7 +57,9 @@ def convert_to_percent(utilization):
             continue
         if 'Current_cpu_utilization' in v:
             if isinstance(v['Current_cpu_utilization'], float):
-                v['Current_cpu_utilization'] = '{:.2f%}'.format(v['Current_cpu_utilization'])
+                # cpu_util 在 analyze.analyzeStats 里已经是百分数（0-100），
+                # 只需保留两位小数并补上 % 后缀。
+                v['Current_cpu_utilization'] = '{:.2f}%'.format(v['Current_cpu_utilization'])
     return new_util
 
 
@@ -75,17 +84,18 @@ class VMAnalyzersConsoleView(VMAnalyzersView):
         print("-" * 50)
 
         for analyzers_info in vmAnalyzersInfo:          # analyzers_info = {uuid: info}
-            info = next(iter(analyzers_info.values()))
-            name = info.get('name', 'Unknown')
-            cpu_util_raw = info.get('Current_cpu_utilization')
-            if cpu_util_raw is None:
-                color_str = "N/A"
-            else:
-                color_str = _colorize_util(cpu_util_raw )
-            trend = info.get('trend', 'stable')
+            if not analyzers_info:
+                continue
+            for info in analyzers_info.values():
+                if not isinstance(info, dict):
+                    continue
+                name = info.get('name', 'Unknown')
+                cpu_util_raw = info.get('Current_cpu_utilization')
+                color_str = _colorize_util(cpu_util_raw)
+                trend = info.get('trend', 'stable')
 
-            name_padded = name.ljust(20)
-            color_padded = pad_ansi_string(color_str, 15) if color_str != "N/A" else color_str.ljust(15)
-            trend_padded = trend.ljust(10)
-            print(name_padded + color_padded + trend_padded)
+                name_padded = name.ljust(20)
+                color_padded = pad_ansi_string(color_str, 15) if color_str != "N/A" else color_str.ljust(15)
+                trend_padded = trend.ljust(10)
+                print(name_padded + color_padded + trend_padded)
 
