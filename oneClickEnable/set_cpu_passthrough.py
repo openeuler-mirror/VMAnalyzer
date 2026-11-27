@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 China Mobile (SuZhou). VMAnalyzer Mulan PSL v2.
 
+"""One-click enable module for set cpu passthrough."""
+
 import shlex
 
 """Configure CPU model passthrough for VMs."""
