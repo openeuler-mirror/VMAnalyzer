@@ -82,15 +82,37 @@ class VMStatsAnalyze(unittest.TestCase):
 
         analyzer = analyze.VMStatsAnalyze(vm_factory)
 
+        # 两个采样区间：20% → 25%，第二个区间相对第一个上升 >10%
         stats = [
             {'uuid': vm_uuid, 'timestamp': 1000, 'cputime': 0, 'vcpus': 1},
             {'uuid': vm_uuid, 'timestamp': 1001, 'cputime': int(0.2 * 1e9), 'vcpus': 1},
-            {'uuid': vm_uuid, 'timestamp': 1002, 'cputime': int(0.35 * 1e9), 'vcpus': 1}
+            {'uuid': vm_uuid, 'timestamp': 1002, 'cputime': int(0.45 * 1e9), 'vcpus': 1}
         ]
         result = analyzer.analyzeStats(test_id, stats)
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0][vm_uuid]['trend'], 'rising')
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0][vm_uuid]['trend'], 'stable')
+        self.assertEqual(result[1][vm_uuid]['trend'], 'rising')
+
+    def test_trend_falling(self):
+        #Test that CPU utilization trend is marked as 'falling' when it drops > 10%.
+        vm_factory = vm.VMFactory()
+        vm_uuid = 'trend-falling-uuid'
+        vm_info = {'uuid': vm_uuid, 'name': 'trend-vm2', 'cpu_util': 0.0, 'vcpu_count': 1}
+        test_id = 1000
+        vm_factory.addVM(test_id, vm_info)
+
+        analyzer = analyze.VMStatsAnalyze(vm_factory)
+        # 两个采样区间：40% → 20%
+        stats = [
+            {'uuid': vm_uuid, 'timestamp': 1000, 'cputime': 0, 'vcpus': 1},
+            {'uuid': vm_uuid, 'timestamp': 1001, 'cputime': int(0.4 * 1e9), 'vcpus': 1},
+            {'uuid': vm_uuid, 'timestamp': 1002, 'cputime': int(0.6 * 1e9), 'vcpus': 1}
+        ]
+        result = analyzer.analyzeStats(test_id, stats)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[1][vm_uuid]['trend'], 'falling')
 
 if __name__ == "__main__":
         unittest.main()
