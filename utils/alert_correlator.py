@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Correlate related alert signals to reduce false positives."""
+from __future__ import annotations
 import time
 from typing import Dict, List, Optional
 
