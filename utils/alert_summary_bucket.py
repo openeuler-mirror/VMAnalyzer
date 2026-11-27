@@ -5,6 +5,7 @@ list.  Aggregating early reduces payload size and keeps rendering time
 constant regardless of alert volume.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict, Iterable, List
 
