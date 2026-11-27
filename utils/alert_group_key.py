@@ -5,6 +5,7 @@ losing the reason.  Missing labels are represented explicitly so keys stay
 unambiguous instead of silently merging unrelated groups.
 """
 
+from __future__ import annotations
 import logging
 from typing import Dict, List, Sequence
 
